@@ -130,7 +130,7 @@ const isLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname)
              || /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(location.hostname);
 const DATA_BASE  = isLocal
   ? 'data'
-  : 'https://cdn.jsdelivr.net/gh/asklabls/paniniyam-data@main';
+  : 'https://cdn.jsdelivr.net/gh/asklabls/paniniyam-data@master';
 const FORMS_BASE = isLocal
   ? 'forms'
   : 'https://cdn.jsdelivr.net/gh/asklabls/paniniyam@main/forms';
