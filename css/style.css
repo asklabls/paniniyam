@@ -652,6 +652,30 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .about-card a:hover { text-decoration: underline; }
 .about-email { font-weight: 600; }
 
+/* Guru cards */
+.about-guru-name {
+  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-size: 1.1em; font-weight: 700;
+  color: var(--text); margin-bottom: 3px;
+}
+.about-guru-tradition {
+  font-size: .78em; color: var(--muted);
+  letter-spacing: .03em; margin-bottom: 10px;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+.about-guru-links { margin-top: 10px; }
+.about-guru-links a { font-size: .88em; color: var(--accent); text-decoration: none; }
+.about-guru-links a:hover { text-decoration: underline; }
+
+/* Resource list */
+.about-resource-list {
+  list-style: none; padding: 0; margin: 4px 0 0;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.about-resource-list li { font-size: .92em; line-height: 1.6; color: var(--text); }
+.about-resource-list a { color: var(--accent); text-decoration: none; }
+.about-resource-list a:hover { text-decoration: underline; }
+
 /* ── Feedback form ────────────────────────────────────────────── */
 .feedback-form { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .fb-input {

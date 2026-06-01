@@ -33,15 +33,17 @@ const BOOKS = [
   { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
   { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree', icon: 'प्र०',
     pages: [
-      { id: 'adanta',   devName: 'अदन्त',  engName: 'Adanta'  },
-      { id: 'anadanta', devName: 'अनदन्त', engName: 'Anadanta' },
+      { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta'  },
+      { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta' },
     ]
   },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
-      { id: 'credits', engName: 'Credits'    },
-      { id: 'contact', engName: 'Contact Us' },
-      { id: 'support', engName: 'Support Us' },
+      { id: 'gurus',     engName: 'Gurus'      },
+      { id: 'resources', engName: 'Resources'  },
+      { id: 'credits',   engName: 'Credits'    },
+      { id: 'contact',   engName: 'Contact Us' },
+      { id: 'support',   engName: 'Support Us' },
     ]
   },
 ];
@@ -1417,8 +1419,8 @@ function gotoDhatu(baseindex) {
 //             uttama-ek,   uttama-dvi,   uttama-bahu
 function parsePratyayaTxt(text) {
   const META = {
-    adanta:   { devLabel: 'अदन्त',  ganas: 'भ्वादि · दिवादि · तुदादि · चुरादि' },
-    anadanta: { devLabel: 'अनदन्त', ganas: 'अदादि · जुहोत्यादि · स्वादि · रुधादि · तनादि · क्र्यादि' },
+    adanta:   { devLabel: 'अदन्त-धातु',  ganas: 'भ्वादि · दिवादि · तुदादि · चुरादि' },
+    anadanta: { devLabel: 'अनदन्त-धातु', ganas: 'अदादि · जुहोत्यादि · स्वादि · रुधादि · तनादि · क्र्यादि' },
   };
   const LAKARA_DEV = {
     lat: 'लट्', lot: 'लोट्', lang: 'लङ्', vidhiling: 'विधिलिङ्',
@@ -1888,6 +1890,68 @@ function showAbout() {
 
 function renderAboutSection(id) {
   const CONTENT = {
+    gurus: {
+      html: `
+        <div class="about-section">
+          <h2 class="about-title">Our Gurus</h2>
+          <p class="about-intro">This work stands on the shoulders of teachers who have dedicated their lives to preserving and transmitting the Pāṇinian tradition.</p>
+          <div class="about-card about-guru-card">
+            <div class="about-guru-name">Ācārya Chandradatta Sharma</div>
+            <div class="about-guru-tradition">[ tradition / lineage — to be filled ]</div>
+            <p>[ A few sentences about Ācārya Chandradatta Sharma, your connection to him, and what his teaching has meant to your study of the Ashtadhyayi. ]</p>
+          </div>
+          <div class="about-card about-guru-card">
+            <div class="about-guru-name">Ācārya Vedshrami</div>
+            <div class="about-guru-tradition">[ tradition / lineage — to be filled ]</div>
+            <p>[ A few sentences about Ācārya Vedshrami and his contribution to your understanding of Pāṇinian grammar. ]</p>
+          </div>
+          <div class="about-card about-guru-card">
+            <div class="about-guru-name">Dr. Pushpa Dixit</div>
+            <div class="about-guru-tradition">Online teaching — Samskrita resources</div>
+            <p>[ A few sentences about Dr. Pushpa Dixit's online resources and how they have supported your study. Links below. ]</p>
+            <div class="about-guru-links">
+              <a href="#" target="_blank">[ Link to her lectures / channel ]</a>
+            </div>
+          </div>
+        </div>`,
+    },
+    resources: {
+      html: `
+        <div class="about-section">
+          <h2 class="about-title">Further Reading</h2>
+          <p class="about-intro">A curated list of texts and online resources for serious students of Pāṇinian grammar.</p>
+
+          <div class="about-card">
+            <div class="about-card-title">Primary Texts — Archive.org</div>
+            <ul class="about-resource-list">
+              <li><a href="https://archive.org/search?query=kashika+vritti" target="_blank">Kāśikā Vṛtti</a> — Jayāditya &amp; Vāmana's commentary on the Ashtadhyayi</li>
+              <li><a href="https://archive.org/search?query=siddhanta+kaumudi" target="_blank">Siddhānta Kaumudī</a> — Bhaṭṭoji Dīkṣita's reorganisation by topic</li>
+              <li><a href="https://archive.org/search?query=laghu+kaumudi+sanskrit" target="_blank">Laghu Kaumudī</a> — Varadarāja's concise introduction</li>
+              <li><a href="https://archive.org/search?query=mahabhashya+patanjali" target="_blank">Mahābhāṣya</a> — Patañjali's debates on the Ashtadhyayi</li>
+              <li><a href="https://archive.org/search?query=paribhashendusekhara" target="_blank">Paribhāṣenduśekhara</a> — Nāgeśabhaṭṭa's meta-rules explained</li>
+              <li>[ Add more as you discover them ]</li>
+            </ul>
+          </div>
+
+          <div class="about-card">
+            <div class="about-card-title">Online Resources</div>
+            <ul class="about-resource-list">
+              <li><a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a> — comprehensive sutra browser with commentaries</li>
+              <li><a href="https://www.sanskritfromhome.org" target="_blank">sanskritfromhome.org</a> — structured Sanskrit courses including sūtrapāṭha</li>
+              <li>[ Dr. Pushpa Dixit — add link ]</li>
+              <li>[ Add more as you discover them ]</li>
+            </ul>
+          </div>
+
+          <div class="about-card">
+            <div class="about-card-title">For Beginners</div>
+            <ul class="about-resource-list">
+              <li>[ Book or resource you recommend for someone starting out ]</li>
+              <li>[ Another beginner resource ]</li>
+            </ul>
+          </div>
+        </div>`,
+    },
     credits: {
       html: `
         <div class="about-section">
