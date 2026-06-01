@@ -31,6 +31,12 @@ const BOOKS = [
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
   { id: 'shiksha',         devName: 'शिक्षा',         engName: 'Śikṣā',          type: 'leaf', dataPath: 'shiksha/data.txt',             icon: 'शिक्षा'  },
   { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
+  { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree', icon: 'प्र०',
+    pages: [
+      { id: 'adanta',   devName: 'अदन्त',  engName: 'Adanta'  },
+      { id: 'anadanta', devName: 'अनदन्त', engName: 'Anadanta' },
+    ]
+  },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
       { id: 'credits', engName: 'Credits'    },
@@ -189,6 +195,7 @@ const $drawerBackdrop    = document.getElementById('drawer-backdrop');
 const $panelAbout        = document.getElementById('panel-about');
 const $aboutPanelNav     = document.getElementById('about-panel-nav');
 const $aboutPanelContent = document.getElementById('about-panel-content');
+const $panelPratyaya     = document.getElementById('panel-pratyaya');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -330,10 +337,11 @@ document.getElementById('btn-pin-nav').addEventListener('click', () => {
 // ── Panel switcher ────────────────────────────────────────────────────────────
 function showPanel(name) {
   currentPanel = name;
-  $panelWelcome.style.display = name === 'welcome' ? '' : 'none';
-  $panelList.style.display    = name === 'list'    ? '' : 'none';
-  $panelReader.style.display  = name === 'reader'  ? '' : 'none';
-  $panelAbout.style.display   = name === 'about'   ? '' : 'none';
+  $panelWelcome.style.display  = name === 'welcome'  ? '' : 'none';
+  $panelList.style.display     = name === 'list'     ? '' : 'none';
+  $panelReader.style.display   = name === 'reader'   ? '' : 'none';
+  $panelAbout.style.display    = name === 'about'    ? '' : 'none';
+  $panelPratyaya.style.display = name === 'pratyaya' ? '' : 'none';
   $app.scrollTop = 0;
 }
 
@@ -781,7 +789,7 @@ async function loadData(key, path) {
     const raw = await fetchJSON(path);
     let d = raw.data || raw;
     // vartika.txt is an array of {sutra:"1.1.9", vartika:"..."} — normalize to dict keyed by sutra.i
-    if (Array.isArray(d) && d.length && d[0].sutra && d[0].vartika !== undefined) {
+    if (key === 'vartika' && Array.isArray(d) && d.length && d[0].sutra) {
       const dict = {};
       for (const entry of d) {
         const [a, p, n] = entry.sutra.split('.');
@@ -1032,6 +1040,20 @@ function buildBookEntry(book) {
       btn.classList.toggle('open', open);
       btn.setAttribute('aria-expanded', open);
       if (open) { collapseAllBooks(container); if (!built) { built = true; await buildGanaSections(book, container); } }
+    });
+  } else if (book.type === 'sub-tree') {
+    for (const page of (book.pages || [])) {
+      const pb = document.createElement('button');
+      pb.className = 'nav-pada-btn';
+      pb.appendChild(makeNavLabel(page.devName));
+      pb.addEventListener('click', () => { closeDrawer(); showPratyayaPage(page.id); });
+      container.appendChild(pb);
+    }
+    btn.addEventListener('click', () => {
+      const open = container.classList.toggle('open');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      if (open) collapseAllBooks(container);
     });
   }
 
@@ -1380,6 +1402,220 @@ function gotoDhatu(baseindex) {
   if (idx < 0) return;
   closeDrawer();
   showDhatuReader(dhatuReaderList[idx], idx);
+}
+
+// ── Pratyaya reference pages ──────────────────────────────────────────────────
+// File format (pratyaya.txt):
+//   # comment
+//   stemtype|category|lakara|pada=f1;f2;f3;f4;f5;f6;f7;f8;f9
+//   stemtype: adanta | anadanta
+//   category: sarva | ardha
+//   lakara:   lat | lot | lang | vidhiling | lit | lut | lrut | ashirling | lung | lrung
+//   pada:     p (parasmaipada) | a (atmanepada)
+//   9 forms:  prathama-ek, prathama-dvi, prathama-bahu,
+//             madhyama-ek, madhyama-dvi, madhyama-bahu,
+//             uttama-ek,   uttama-dvi,   uttama-bahu
+function parsePratyayaTxt(text) {
+  const META = {
+    adanta:   { devLabel: 'अदन्त',  ganas: 'भ्वादि · दिवादि · तुदादि · चुरादि' },
+    anadanta: { devLabel: 'अनदन्त', ganas: 'अदादि · जुहोत्यादि · स्वादि · रुधादि · तनादि · क्र्यादि' },
+  };
+  const LAKARA_DEV = {
+    lat: 'लट्', lot: 'लोट्', lang: 'लङ्', vidhiling: 'विधिलिङ्',
+    lit: 'लिट्', lut: 'लुट्', lrut: 'लृट्', ashirling: 'आशीर्लिङ्',
+    lung: 'लुङ्', lrung: 'लृङ्',
+  };
+
+  // Build output skeleton
+  const out = {};
+  for (const [stem, meta] of Object.entries(META)) {
+    out[stem] = { devLabel: meta.devLabel, ganas: meta.ganas, sarva: [], ardha: [] };
+  }
+  // Track lakara objects by key so we can add para/atma to the same object
+  const lakMap = {}; // "adanta|sarva|lat" → { dev, para, atma }
+
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq < 0) continue;
+    const key   = trimmed.slice(0, eq).trim();
+    const value = trimmed.slice(eq + 1).trim();
+
+    const parts = key.split('|');
+    if (parts.length !== 4) continue;
+    const [stem, cat, lakara, pada] = parts;
+    if (!out[stem] || !out[stem][cat]) continue;
+
+    const mapKey = `${stem}|${cat}|${lakara}`;
+    if (!lakMap[mapKey]) {
+      const entry = { dev: LAKARA_DEV[lakara] || lakara, para: null, atma: null };
+      lakMap[mapKey] = entry;
+      out[stem][cat].push(entry);
+    }
+
+    // Parse 9 semicolon-separated cells into 3×3
+    const cells = value.split(';').map(s => s.trim());
+    while (cells.length < 9) cells.push('—');
+    const rows = [cells.slice(0, 3), cells.slice(3, 6), cells.slice(6, 9)];
+
+    if (pada === 'p') lakMap[mapKey].para = rows;
+    else if (pada === 'a') lakMap[mapKey].atma = rows;
+  }
+  return out;
+}
+
+async function showPratyayaPage(pageId) {
+  showPanel('pratyaya');
+  const panel = $panelPratyaya;
+  panel.innerHTML = '<div class="pratyaya-loading">…</div>';
+
+  let allData;
+  try {
+    if (!bookData['pratyaya']) {
+      const res = await fetch(`${FORMS_BASE}/pratyaya.txt`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      bookData['pratyaya'] = parsePratyayaTxt(await res.text());
+    }
+    allData = bookData['pratyaya'];
+  } catch (_) {
+    panel.innerHTML = '<div class="pratyaya-empty">Could not load pratyaya data.</div>';
+    return;
+  }
+
+  const data = allData[pageId];
+  if (!data) { panel.innerHTML = '<div class="pratyaya-empty">—</div>'; return; }
+
+  panel.innerHTML = '';
+
+  // Page title
+  const titleEl = document.createElement('div');
+  titleEl.className = 'pratyaya-page-title dev-text';
+  titleEl._devText = data.devLabel;
+  titleEl.textContent = translit(data.devLabel);
+  panel.appendChild(titleEl);
+
+  // Gana subtitle
+  const ganaEl = document.createElement('div');
+  ganaEl.className = 'pratyaya-ganas dev-text';
+  ganaEl._devText = data.ganas;
+  ganaEl.textContent = translit(data.ganas);
+  panel.appendChild(ganaEl);
+
+  // Tab bar: सार्वधातुकम् / आर्धधातुकम्
+  const tabBar = document.createElement('div');
+  tabBar.className = 'detail-tabs pratyaya-tab-bar';
+
+  const tabContent = document.createElement('div');
+  tabContent.className = 'detail-tab-panels';
+
+  const tabs = [
+    { id: 'sarva', dev: 'सार्वधातुकम्', rows: data.sarva },
+    { id: 'ardha', dev: 'आर्धधातुकम्',  rows: data.ardha },
+  ];
+
+  tabs.forEach((t, i) => {
+    const tabBtn = document.createElement('button');
+    tabBtn.className = 'detail-tab dev-text' + (i === 0 ? ' active' : '');
+    tabBtn._devText = t.dev;
+    tabBtn.textContent = translit(t.dev);
+
+    const tabPanel = document.createElement('div');
+    tabPanel.className = 'detail-tab-panel pratyaya-tab-panel' + (i === 0 ? ' active' : '');
+
+    renderPratyayaSections(t.rows, tabPanel);
+
+    tabBtn.addEventListener('click', () => {
+      tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+      tabContent.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+      tabBtn.classList.add('active');
+      tabPanel.classList.add('active');
+    });
+
+    tabBar.appendChild(tabBtn);
+    tabContent.appendChild(tabPanel);
+  });
+
+  panel.appendChild(tabBar);
+  panel.appendChild(tabContent);
+}
+
+function renderPratyayaSections(lakaras, container) {
+  if (!lakaras || !lakaras.length) {
+    const empty = document.createElement('div');
+    empty.className = 'pratyaya-empty';
+    empty.textContent = '—';
+    container.appendChild(empty);
+    return;
+  }
+  for (const lak of lakaras) {
+    const sec = document.createElement('div');
+    sec.className = 'dhatu-lakara-section';
+    sec.appendChild(devEl('div', 'dhatu-lakara-label dev-text', lak.dev));
+
+    const split = document.createElement('div');
+    split.className = 'forms-split';
+    split.appendChild(renderPratyayaTable(lak.para, 'परस्मैपद'));
+    const divider = document.createElement('div');
+    divider.className = 'forms-divider';
+    split.appendChild(divider);
+    split.appendChild(renderPratyayaTable(lak.atma, 'आत्मनेपद'));
+    sec.appendChild(split);
+    container.appendChild(sec);
+  }
+}
+
+function renderPratyayaTable(rows, padaLabel) {
+  const wrap = document.createElement('div');
+  wrap.className = 'forms-table-wrap';
+
+  const table = document.createElement('table');
+  table.className = 'forms-table';
+
+  const thead = document.createElement('thead');
+  if (padaLabel) {
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.colSpan = 4;
+    th.className = 'forms-pada-header dev-text';
+    th._devText = padaLabel;
+    th.textContent = translit(padaLabel);
+    tr.appendChild(th);
+    thead.appendChild(tr);
+  }
+  const hrow = document.createElement('tr');
+  hrow.appendChild(document.createElement('th'));
+  VACANA_FORMS_DEV.forEach(v => {
+    const th = document.createElement('th');
+    th.className = 'forms-vacana-hdr dev-text';
+    th._devText = v;
+    th.textContent = translit(v);
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  PURUSH_FORMS_DEV.forEach((purush, ri) => {
+    const tr = document.createElement('tr');
+    const labelTd = document.createElement('td');
+    labelTd.className = 'forms-row-label dev-text';
+    labelTd._devText = purush;
+    labelTd.textContent = translit(purush);
+    tr.appendChild(labelTd);
+    const rowData = rows ? rows[ri] : [];
+    (rowData || []).forEach(cell => {
+      const td = document.createElement('td');
+      td.className = 'forms-cell dev-text';
+      td._devText = cell;
+      td.textContent = translit(cell);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  return wrap;
 }
 
 // ── bar-ref click: toggle between reader and list view ────────────────────────

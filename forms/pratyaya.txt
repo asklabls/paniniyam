@@ -1,0 +1,78 @@
+# Pratyaya reference table — verb endings (tiṅ-pratyayas)
+# Format: stemtype|category|lakara|pada=f1;f2;f3;f4;f5;f6;f7;f8;f9
+# stemtype: adanta (a-ending stems: bhvādi, divādi, tudādi, curādi)
+#           anadanta (non-a stems: adādi, juhotyādi, svādi, rudhādi, tanādi, kryādi)
+# category: sarva (sārvadhatuka), ardha (ārdhadhātuka)
+# lakara:   lat lot lang vidhiling   lit lut lrut ashirling lung lrung
+# pada:     p (parasmaipada)   a (ātmanepada)
+# 9 forms (;-separated): prathama-ek; prathama-dvi; prathama-bahu;
+#                        madhyama-ek; madhyama-dvi; madhyama-bahu;
+#                        uttama-ek;   uttama-dvi;   uttama-bahu
+
+# ── अदन्त · सार्वधातुकम् ──────────────────────────────────────────────────────
+
+adanta|sarva|lat|p=ति;त:;अन्ति;सि;थ:;थ;मि;व:;म:
+adanta|sarva|lat|a=ते;इते;अन्ते;से;इथे;ध्वे;ए;वहे;महे
+
+adanta|sarva|lot|p=तु, तात्;ताम्;अन्तु;o, तात्;तम्;त;आनि;आव;आम
+adanta|sarva|lot|a=ताम्;इताम्;अन्ताम्;स्व;इथाम्;ध्वम्;ऐ;आवहै;आमहै
+
+adanta|sarva|lang|p=त्;ताम्;अन्;स्, (:);तम्;त;अम्;व;म
+adanta|sarva|lang|a=त;इताम्;अन्त;था:;इथाम्;ध्वम्;इ;वहि;महि
+
+adanta|sarva|vidhiling|p=इत्;इताम्;इयु:;इ:;इतम्;इत;इयम्;इव;इम
+adanta|sarva|vidhiling|a=ईत;ईयाताम्;ईरन्;ईथा:;ईयाथाम्;ईध्वम्;ईय;ईवहि;ईमहि
+
+# ── अदन्त · आर्धधातुकम् ──────────────────────────────────────────────────────
+
+adanta|ardha|lit|p=अ, ए;अतुस्;उस्;थ, इथ;अथुस्;अ;अ;व;म
+adanta|ardha|lit|a=ए;आते;इरे;से;आथे;ध्वे;ए;वहे;महे
+
+adanta|ardha|lut|p=ता;तारौ;तारः;तासि;तास्थः;तास्थ;तास्मि;तास्वः;तास्मः
+adanta|ardha|lut|a=ता;तारौ;तारः;तासे;तासाथे;ताध्वे;ताहे;तास्वहे;तास्महे
+
+adanta|ardha|lrut|p=ष्यति;ष्यतः;ष्यन्ति;ष्यसि;ष्यथः;ष्यथ;ष्यामि;ष्यावः;ष्यामः
+adanta|ardha|lrut|a=ष्यते;ष्येते;ष्यन्ते;ष्यसे;ष्येथे;ष्यध्वे;ष्ये;ष्यावहे;ष्यामहे
+
+adanta|ardha|ashirling|p=यात्;याताम्;युस्;याः;यातम्;यात;याम्;याव;याम
+adanta|ardha|ashirling|a=सीष्ट;सीयास्ताम्;सीरन्;सीष्ठाः;सीयास्थाम्;सीध्वम्;सीय;सीवहि;सीमहि
+
+adanta|ardha|lung|p=त्;ताम्;अन्;स्;तम्;त;अम्;व;म
+adanta|ardha|lung|a=त;आताम्;अन्त;थाः;आथाम्;ध्वम्;इ;वहि;महि
+
+adanta|ardha|lrung|p=ष्यत्;ष्यताम्;ष्यन्;ष्यः;ष्यतम्;ष्यत;ष्यम्;ष्याव;ष्याम
+adanta|ardha|lrung|a=ष्यत;ष्येताम्;ष्यन्त;ष्यथाः;ष्येथाम्;ष्यध्वम्;ष्ये;ष्यावहि;ष्यामहि
+
+# ── अनदन्त · सार्वधातुकम् ────────────────────────────────────────────────────
+
+anadanta|sarva|lat|p=ति;त:;अन्ति;सि;थ:;थ;मि;व:;म:
+anadanta|sarva|lat|a=ते;आते;अते;से;आथे;ध्वे;ए;वहे;महे
+
+anadanta|sarva|lot|p=तु, तात्;ताम्;अन्तु;o, तात्;तम्;त;आनि;आव;आम
+anadanta|sarva|lot|a=ताम्;इताम्;अन्ताम्;स्व;इथाम्;ध्वम्;ऐ;आवहै;आमहै
+
+anadanta|sarva|lang|p=त्;ताम्;अन्;स्, (:);तम्;त;अम्;व;म्
+anadanta|sarva|lang|a=त;इताम्;अन्त;था:;इथाम्;ध्वम्;इ;वहि;महि
+
+anadanta|sarva|vidhiling|p=यात्;याताम्;युस्;या:;यातम्;यात;याम्;याव;याम
+anadanta|sarva|vidhiling|a=ईत;ईयाताम्;ईरन्;ईथा:;ईयाथाम्;ईध्वम्;ईय;ईवहि;ईमहि
+
+# ── अनदन्त · आर्धधातुकम् ────────────────────────────────────────────────────
+
+anadanta|ardha|lit|p=अ, ए;अतुस्;उस्;थ, इथ;अथुस्;अ;अ;व;म
+anadanta|ardha|lit|a=ए;आते;इरे;से;आथे;ध्वे;ए;वहे;महे
+
+anadanta|ardha|lut|p=ता;तारौ;तारः;तासि;तास्थः;तास्थ;तास्मि;तास्वः;तास्मः
+anadanta|ardha|lut|a=ता;तारौ;तारः;तासे;तासाथे;ताध्वे;ताहे;तास्वहे;तास्महे
+
+anadanta|ardha|lrut|p=ष्यति;ष्यतः;ष्यन्ति;ष्यसि;ष्यथः;ष्यथ;ष्यामि;ष्यावः;ष्यामः
+anadanta|ardha|lrut|a=ष्यते;ष्येते;ष्यन्ते;ष्यसे;ष्येथे;ष्यध्वे;ष्ये;ष्यावहे;ष्यामहे
+
+anadanta|ardha|ashirling|p=यात्;याताम्;युस्;याः;यातम्;यात;याम्;याव;याम
+anadanta|ardha|ashirling|a=सीष्ट;सीयास्ताम्;सीरन्;सीष्ठाः;सीयास्थाम्;सीध्वम्;सीय;सीवहि;सीमहि
+
+anadanta|ardha|lung|p=त्;ताम्;अन्;स्;तम्;त;अम्;व;म
+anadanta|ardha|lung|a=त;आताम्;अन्त;थाः;आथाम्;ध्वम्;इ;वहि;महि
+
+anadanta|ardha|lrung|p=ष्यत्;ष्यताम्;ष्यन्;ष्यः;ष्यतम्;ष्यत;ष्यम्;ष्याव;ष्याम
+anadanta|ardha|lrung|a=ष्यत;ष्येताम्;ष्यन्त;ष्यथाः;ष्येथाम्;ष्यध्वम्;ष्ये;ष्यावहि;ष्यामहि

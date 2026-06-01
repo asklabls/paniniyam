@@ -780,6 +780,39 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .forms-table tbody tr:last-child .forms-row-label { border-bottom: none; }
 .forms-table tbody tr:hover .forms-cell { background: #fdf0dc; }
 
+/* ── Pratyaya reference panel ─────────────────────────────────── */
+.panel-pratyaya {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 0 32px;
+}
+.pratyaya-page-title {
+  font-family: var(--font-dev);
+  font-size: 1.6em;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: .25em;
+}
+.pratyaya-ganas {
+  font-family: var(--font-dev);
+  font-size: .85em;
+  color: var(--muted);
+  margin-bottom: 1.25em;
+  letter-spacing: .01em;
+}
+.pratyaya-tab-bar {
+  margin-bottom: 0;
+}
+.pratyaya-tab-panel {
+  padding-top: 8px;
+}
+.pratyaya-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 1.2em;
+}
+
 /* ── Scrollbar ────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
