@@ -128,9 +128,12 @@ const VACANA_FORMS_DEV = ['एकवचन', 'द्विवचन', 'बहु
 // ── Data source ───────────────────────────────────────────────────────────────
 const isLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname)
              || /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(location.hostname);
-const DATA_BASE = isLocal
+const DATA_BASE  = isLocal
   ? 'data'
   : 'https://cdn.jsdelivr.net/gh/ashtadhyayi-com/data@main';
+const FORMS_BASE = isLocal
+  ? 'forms'
+  : 'https://cdn.jsdelivr.net/gh/asklabls/paniniyam@main/forms';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentScript = localStorage.getItem(SETTINGS_KEY) || SCRIPT_DEFAULT;
@@ -531,7 +534,9 @@ function renderReaderDhatu(d) {
 async function loadDhatuForms(baseindex) {
   const key = `dforms:${baseindex}`;
   if (!bookData[key]) {
-    bookData[key] = await fetchJSON(`dhatu/forms/${baseindex}.json`);
+    const res = await fetch(`${FORMS_BASE}/dhatu/${baseindex}.json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    bookData[key] = await res.json();
   }
   return bookData[key];
 }
@@ -542,7 +547,8 @@ function prefetchDhatuForms(list, idx) {
   for (const i of range) {
     const key = `dforms:${list[i].baseindex}`;
     if (!bookData[key]) {
-      fetchJSON(`dhatu/forms/${list[i].baseindex}.json`)
+      fetch(`${FORMS_BASE}/dhatu/${list[i].baseindex}.json`)
+        .then(r => r.json())
         .then(d => { bookData[key] = d; })
         .catch(() => {});
     }
@@ -594,20 +600,29 @@ function renderFormsTable(formsStr, padaLabel) {
   const wrap = document.createElement('div');
   wrap.className = 'forms-table-wrap';
 
-  if (padaLabel) {
-    wrap.appendChild(devEl('div', 'forms-pada-label dev-text', padaLabel));
-  }
-
   const table = document.createElement('table');
   table.className = 'forms-table';
 
-  // Header row
   const thead = document.createElement('thead');
-  const hrow  = document.createElement('tr');
+
+  // Pada label row (परस्मैपद / आत्मनेपद) spanning all columns
+  if (padaLabel) {
+    const titleRow = document.createElement('tr');
+    const titleTh  = document.createElement('th');
+    titleTh.colSpan = 4;
+    titleTh.className = 'forms-pada-header dev-text';
+    titleTh._devText = padaLabel;
+    titleTh.textContent = translit(padaLabel);
+    titleRow.appendChild(titleTh);
+    thead.appendChild(titleRow);
+  }
+
+  // Vacana header row
+  const hrow = document.createElement('tr');
   hrow.appendChild(document.createElement('th')); // empty corner
   VACANA_FORMS_DEV.forEach(v => {
     const th = document.createElement('th');
-    th.className = 'dev-text';
+    th.className = 'forms-vacana-hdr dev-text';
     th._devText = v;
     th.textContent = translit(v);
     hrow.appendChild(th);

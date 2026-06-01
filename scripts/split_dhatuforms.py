@@ -19,7 +19,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR     = PROJECT_ROOT / 'data'
 SRC_FILE     = DATA_DIR / 'dhatu' / 'dhatuforms_vidyut_shuddha_kartari.txt'
-OUT_DIR      = DATA_DIR / 'dhatu' / 'forms'
+OUT_DIR      = PROJECT_ROOT / 'forms' / 'dhatu'
 FORCE        = '--force' in sys.argv
 
 
