@@ -1047,6 +1047,10 @@ function buildAshtadhyayiSections(container) {
     const k = `${s.a}_${s.p}`;
     counts[k] = (counts[k] || 0) + 1;
   }
+
+  // Keep direct references for accordion collapse
+  const adhyayaItems = [];
+
   for (let a = 1; a <= 8; a++) {
     const adDiv = document.createElement('div');
     adDiv.className = 'nav-adhyaya';
@@ -1077,11 +1081,22 @@ function buildAshtadhyayiSections(container) {
       padasDiv.appendChild(pb);
     }
 
+    adhyayaItems.push({ btn: adBtn, padas: padasDiv });
+
     adBtn.addEventListener('click', () => {
       const open = padasDiv.classList.toggle('open');
       adBtn.classList.toggle('open', open);
       adBtn.setAttribute('aria-expanded', open);
-      if (open) collapseAllAdhyayas(container, padasDiv);
+      if (open) {
+        // Collapse all other adhyayas
+        adhyayaItems.forEach(item => {
+          if (item.padas !== padasDiv) {
+            item.padas.classList.remove('open');
+            item.btn.classList.remove('open');
+            item.btn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
     });
 
     adDiv.appendChild(adBtn);
