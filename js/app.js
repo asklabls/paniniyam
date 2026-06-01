@@ -179,6 +179,7 @@ const $searchDrawerBody  = document.getElementById('search-drawer-body');
 const $listTitle         = document.getElementById('list-title');
 const $listCount         = document.getElementById('list-count');
 const $welcomeTitle      = document.getElementById('welcome-title');
+$welcomeTitle._devText   = $welcomeTitle.textContent.trim();
 const $welcomeStats      = document.getElementById('welcome-stats');
 const $scriptPills       = document.getElementById('script-pills');
 const $barRef            = document.getElementById('bar-ref');
@@ -730,7 +731,7 @@ function setScript(schemeId) {
 
 // ── Re-render everything in the chosen script ─────────────────────────────────
 function retranslit() {
-  $welcomeTitle.textContent = translit('पाणिनीय अष्टाध्यायी');
+  if ($welcomeTitle._devText) $welcomeTitle.textContent = translit($welcomeTitle._devText);
 
   document.querySelectorAll('.nav-label').forEach(el => {
     if (el._devText) el.textContent = translit(el._devText);
