@@ -964,6 +964,28 @@ function buildNavTree() {
   for (const book of BOOKS) $navTree.appendChild(buildBookEntry(book));
 }
 
+function collapseNavItem(btn, container) {
+  container.classList.remove('open');
+  btn.classList.remove('open');
+  btn.setAttribute('aria-expanded', 'false');
+}
+
+function collapseAllBooks(exceptContainer) {
+  $navTree.querySelectorAll('.nav-sections.open').forEach(c => {
+    if (c === exceptContainer) return;
+    const btn = c.previousElementSibling;
+    if (btn) collapseNavItem(btn, c);
+  });
+}
+
+function collapseAllAdhyayas(container, exceptPadas) {
+  container.querySelectorAll('.nav-padas.open').forEach(p => {
+    if (p === exceptPadas) return;
+    const btn = p.previousElementSibling;
+    if (btn) collapseNavItem(btn, p);
+  });
+}
+
 function buildBookEntry(book) {
   const wrap = document.createElement('div');
   wrap.className = 'nav-book';
@@ -1001,6 +1023,7 @@ function buildBookEntry(book) {
       const open = container.classList.toggle('open');
       btn.classList.toggle('open', open);
       btn.setAttribute('aria-expanded', open);
+      if (open) collapseAllBooks(container);
     });
   } else if (book.type === 'lazy-gana-tree') {
     let built = false;
@@ -1008,7 +1031,7 @@ function buildBookEntry(book) {
       const open = container.classList.toggle('open');
       btn.classList.toggle('open', open);
       btn.setAttribute('aria-expanded', open);
-      if (open && !built) { built = true; await buildGanaSections(book, container); }
+      if (open) { collapseAllBooks(container); if (!built) { built = true; await buildGanaSections(book, container); } }
     });
   }
 
@@ -1058,6 +1081,7 @@ function buildAshtadhyayiSections(container) {
       const open = padasDiv.classList.toggle('open');
       adBtn.classList.toggle('open', open);
       adBtn.setAttribute('aria-expanded', open);
+      if (open) collapseAllAdhyayas(container, padasDiv);
     });
 
     adDiv.appendChild(adBtn);
