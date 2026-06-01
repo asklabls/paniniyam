@@ -1,0 +1,5 @@
+# Local data symlink — production uses CDN
+data/
+
+# macOS
+.DS_Store

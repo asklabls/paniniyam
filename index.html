@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="sa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paniniyam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans:wght@400;600;700&family=Vesper+Libre:wght@400;700&display=swap">
+  <link rel="stylesheet" href="css/style.css?v=20">
+  <script src="js/sanscript.js"></script>
+</head>
+<body>
+
+  <!-- ── App area (scrollable content) ─────────────────────────── -->
+  <div id="app">
+
+    <!-- Welcome / landing -->
+    <div id="panel-welcome" class="panel panel-welcome">
+      <div class="welcome-logo">Paniniyam</div>
+      <div class="welcome-title" id="welcome-title">पाणिनीय अष्टाध्यायी</div>
+      <p class="welcome-sub">Panini's eight-chapter grammar in every Indic script.<br>
+        Tap <strong>☰</strong> to browse, <strong>🔍</strong> to search.</p>
+      <div class="welcome-stats" id="welcome-stats"></div>
+      <div class="welcome-scripts">
+        <span class="ws-label">Available scripts →</span>
+        <span id="script-pills"></span>
+      </div>
+    </div>
+
+    <!-- Sutra list (secondary / leaf-book view) -->
+    <div id="panel-list" class="panel" style="display:none">
+      <div class="list-header">
+        <span id="list-title" class="list-title"></span>
+        <span id="list-count" class="list-count"></span>
+      </div>
+      <div id="sutra-list"></div>
+    </div>
+
+    <!-- Reader panel (primary for Ashtadhyayi) -->
+    <div id="panel-reader" class="panel panel-reader" style="display:none">
+      <div id="reader-content" class="reader-content"></div>
+    </div>
+
+    <!-- About panel (full-width reading view) -->
+    <div id="panel-about" class="panel panel-about" style="display:none">
+      <div id="about-panel-nav" class="about-panel-tabs"></div>
+      <div id="about-panel-content" class="about-panel-content"></div>
+    </div>
+
+  </div><!-- #app -->
+
+  <!-- ── Top navigation bar ─────────────────────────────────── -->
+  <nav id="bottom-bar">
+    <div class="bar-group bar-left">
+      <button class="bar-btn" id="btn-nav"    data-drawer="nav"    title="Browse contents">⫶☰</button>
+      <button class="bar-btn" id="btn-search" data-drawer="search" title="Search">🔍</button>
+    </div>
+    <div class="bar-group bar-center">
+      <button class="bar-btn bar-nav-btn" id="btn-prev" title="Previous sutra" disabled>◀</button>
+      <span id="bar-ref" class="bar-ref empty" title="Toggle list view">—</span>
+      <button class="bar-btn bar-nav-btn" id="btn-next" title="Next sutra" disabled>▶</button>
+    </div>
+    <div class="bar-group bar-right">
+      <div id="script-dropdown" class="script-dropdown">
+        <button class="bar-btn script-dropdown-btn" id="btn-script" title="Choose script"></button>
+        <div class="script-dropdown-menu" id="script-menu"></div>
+      </div>
+      <button class="bar-btn" id="btn-about" title="About">ℹ️</button>
+    </div>
+  </nav>
+
+  <!-- ── Icon bar (always-visible collapsed nav strip) ────────────── -->
+  <div id="icon-bar"></div>
+
+  <!-- ── Backdrop (closes active drawer on click) ───────────────── -->
+  <div id="drawer-backdrop" class="drawer-backdrop"></div>
+
+  <!-- ── Nav drawer (left) ─────────────────────────────────────── -->
+  <div id="drawer-nav" class="drawer drawer-left">
+    <div class="drawer-header">
+      <span class="drawer-title">Welcome</span>
+      <div class="drawer-header-actions">
+        <button class="drawer-pin" id="btn-pin-nav" title="Pin navigation open">⊕</button>
+        <button class="drawer-close" data-drawer="nav">✕</button>
+      </div>
+    </div>
+    <div class="drawer-body" id="nav-tree"></div>
+  </div>
+
+  <!-- ── Search drawer (right) ─────────────────────────────────── -->
+  <div id="drawer-search" class="drawer drawer-right">
+    <div class="drawer-header drawer-search-header">
+      <div class="drawer-search-wrap">
+        <input type="text" id="search-input"
+               placeholder="1.1.1  or  వృద్ధి  or  vrddhi"
+               autocomplete="off" spellcheck="false">
+        <button id="search-clear" class="search-clear" title="Clear">✕</button>
+      </div>
+      <button class="drawer-close" data-drawer="search">✕</button>
+    </div>
+    <div class="search-scope-row" id="search-scope-row"></div>
+    <div class="drawer-body" id="search-drawer-body"></div>
+  </div>
+
+  <!-- ── Loading overlay ───────────────────────────────────────── -->
+  <div id="loading" class="loading-overlay">
+    <div class="loading-box">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading Ashtadhyayi data…</div>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=20"></script>
+</body>
+</html>
