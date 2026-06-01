@@ -788,6 +788,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 600px) {
+  #icon-bar { display: none; }
   #app { padding: 14px 5% 24px; }
   .reader-sutra-text { font-size: 1.65em; }
   .bar-btn { min-width: 32px; padding: 0 4px; font-size: .95em; }
