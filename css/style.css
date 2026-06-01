@@ -693,6 +693,86 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { color: var(--muted); font-size: .9em; }
 
+/* ── Dhatu forms tables ───────────────────────────────────────── */
+.dhatu-lakara-section {
+  margin-bottom: 20px;
+}
+.dhatu-lakara-label {
+  font-family: var(--font-dev);
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.forms-pada-label {
+  font-family: var(--font-dev);
+  font-size: .78em;
+  color: var(--muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.forms-split {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+}
+.forms-split .forms-table-wrap {
+  flex: 1;
+  min-width: 0;
+}
+.forms-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+  margin: 0 10px;
+  flex-shrink: 0;
+}
+.forms-table-wrap {
+  margin-bottom: 10px;
+}
+.forms-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-dev);
+  font-size: .88em;
+}
+.forms-table th {
+  font-size: .72em;
+  font-family: var(--font-ui);
+  color: var(--muted);
+  text-align: center;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.forms-table th.dev-text {
+  font-family: var(--font-dev);
+  font-size: .75em;
+}
+.forms-row-label {
+  font-size: .75em;
+  color: var(--muted);
+  padding: 5px 8px 5px 0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.forms-cell {
+  padding: 5px 6px;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.4;
+}
+.forms-table tbody tr:last-child .forms-cell,
+.forms-table tbody tr:last-child .forms-row-label {
+  border-bottom: none;
+}
+.forms-table tbody tr:hover .forms-cell { background: var(--hover); }
+
 /* ── Scrollbar ────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
