@@ -1384,10 +1384,10 @@ function showPada(a, p, btnEl) {
   for (const s of filtered) $sutraList.appendChild(createSutraCard(s));
 
   // Set reader list and enter reader mode
-  readerList = filtered;
+  readerList = sutraList;
   if (filtered.length) {
     closeDrawer();
-    showReader(filtered[0], 0);
+    showReader(filtered[0], sutraList.indexOf(filtered[0]));
   } else {
     closeDrawer();
     showPanel('list');
@@ -1407,7 +1407,7 @@ function gotoSutra(idStr) {
   closeDrawer();
 
   const pada = sutraList.filter(s => +s.a === +sutra.a && +s.p === +sutra.p);
-  const idx  = pada.findIndex(s => s.i === idStr);
+  const idx  = sutraList.findIndex(s => s.i === idStr);
 
   // Rebuild list view for this pada
   currentPada = { a: +sutra.a, p: +sutra.p };
@@ -1415,7 +1415,7 @@ function gotoSutra(idStr) {
   $sutraList.innerHTML = '';
   for (const s of pada) $sutraList.appendChild(createSutraCard(s));
 
-  readerList = pada;
+  readerList = sutraList;
   showReader(sutra, idx >= 0 ? idx : 0);
 }
 
@@ -1746,10 +1746,19 @@ function makeDhatuResultItem(d, q) {
 
 // Filter Ashtadhyayi sutras
 function searchSutras(q) {
+  // Dotted reference: 1.1.1
   const idMatch = /^(\d)\.(\d)\.(\d+)$/.exec(q);
   if (idMatch) {
     const id = String((+idMatch[1]) * 10000 + (+idMatch[2]) * 1000 + (+idMatch[3])).padStart(5, '0');
     return sutraList.filter(s => s.i === id);
+  }
+  // Digit-only reference: 111 = 1.1.1, 1145 = 1.1.45, 84116 = 8.4.116
+  // First digit = adhyaya (1–8), second = pada (1–4), rest = sutra number
+  const digitRef = /^([1-8])([1-4])(\d{1,3})$/.exec(q);
+  if (digitRef) {
+    const id = String((+digitRef[1]) * 10000 + (+digitRef[2]) * 1000 + (+digitRef[3])).padStart(5, '0');
+    const match = sutraList.filter(s => s.i === id);
+    if (match.length) return match;
   }
   const lower = q.toLowerCase();
   return sutraList.filter(s =>
