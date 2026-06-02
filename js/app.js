@@ -1715,7 +1715,18 @@ const SEARCH_SCOPES = [
 ];
 const SEARCH_CAP = 20;   // max results per book/group
 
-let $copyMdBtn = null;   // persistent Copy MD button in row 2
+let $copyMdBtn   = null;   // persistent Copy MD button in row 2
+let $typeFilter  = null;   // sutra type dropdown (ashtadhyayi only)
+let sutraTypeFilter = 'all';
+
+const SUTRA_TYPES = [
+  { code: 'all', label: 'सर्वे' },
+  { code: 'S',   label: 'संज्ञा'    },
+  { code: 'P',   label: 'परिभाषा'   },
+  { code: 'V',   label: 'विधि'      },
+  { code: 'AD',  label: 'अधिकार'    },
+  { code: 'AT',  label: 'अतिदेश'    },
+];
 
 function buildSearchScopes() {
   const container = document.getElementById('search-scope-row');
@@ -1725,12 +1736,30 @@ function buildSearchScopes() {
   const row1 = document.createElement('div');
   row1.className = 'scope-row scope-pills';
 
-  // Row 2: सर्वम् + Copy MD
+  // Row 2: सर्वम् + type filter + Copy MD
   const row2 = document.createElement('div');
   row2.className = 'scope-row scope-row-2';
-  const row2pills = document.createElement('div');
-  row2pills.className = 'scope-pills';
-  row2.appendChild(row2pills);
+  const row2left = document.createElement('div');
+  row2left.className = 'scope-pills';
+  row2.appendChild(row2left);
+
+  // Type filter dropdown — only visible for ashtadhyayi scope
+  $typeFilter = document.createElement('select');
+  $typeFilter.className = 'scope-type-filter';
+  $typeFilter.style.display = 'none';
+  for (const t of SUTRA_TYPES) {
+    const opt = document.createElement('option');
+    opt.value = t.code;
+    opt.textContent = translit(t.label);
+    opt._devLabel = t.label;
+    $typeFilter.appendChild(opt);
+  }
+  $typeFilter.value = sutraTypeFilter;
+  $typeFilter.addEventListener('change', () => {
+    sutraTypeFilter = $typeFilter.value;
+    runSearch($searchInput.value);
+  });
+  row2.appendChild($typeFilter);
 
   // Persistent Copy MD button
   $copyMdBtn = document.createElement('button');
@@ -1743,7 +1772,7 @@ function buildSearchScopes() {
   container.appendChild(row2);
 
   const allPills = [];
-  SEARCH_SCOPES.forEach((sc, idx) => {
+  SEARCH_SCOPES.forEach((sc) => {
     const btn = document.createElement('button');
     btn.className = 'scope-pill dev-text' + (sc.id === searchScope ? ' active' : '');
     btn.dataset.scope = sc.id;
@@ -1752,12 +1781,38 @@ function buildSearchScopes() {
     btn.addEventListener('click', () => {
       searchScope = sc.id;
       allPills.forEach(p => p.classList.toggle('active', p.dataset.scope === sc.id));
+      // Show/hide type filter and Copy MD for ashtadhyayi only
+      if ($typeFilter) $typeFilter.style.display = sc.id === 'ashtadhyayi' ? '' : 'none';
+      if ($copyMdBtn) { $copyMdBtn.style.display = sc.id === 'ashtadhyayi' ? '' : 'none'; $copyMdBtn.disabled = true; }
       runSearch($searchInput.value);
     });
     allPills.push(btn);
-    if (sc.id === 'sarva') row2pills.appendChild(btn);
+    if (sc.id === 'sarva') row2left.appendChild(btn);
     else row1.appendChild(btn);
   });
+
+  // Show type filter if starting on ashtadhyayi
+  if ($typeFilter) $typeFilter.style.display = searchScope === 'ashtadhyayi' ? '' : 'none';
+}
+
+// Convert any script input to Devanagari for search comparison
+function normalizeToDevanagari(q) {
+  if (!q || /^\d+$/.test(q)) return q;
+  // Already Devanagari
+  if (/[\u0900-\u097F]/.test(q)) return q;
+  // Try current script → Devanagari (covers Telugu, Tamil, IAST, ITRANS etc.)
+  try {
+    const r = Sanscript.t(q, currentScript, 'devanagari');
+    if (r && r !== q) return r;
+  } catch(e) {}
+  // Fallback: try IAST (for Roman input when not in IAST mode)
+  if (/[a-zA-Z]/.test(q) && currentScript !== 'iast') {
+    try {
+      const r = Sanscript.t(q, 'iast', 'devanagari');
+      if (r && r !== q) return r;
+    } catch(e) {}
+  }
+  return q;
 }
 
 // Highlight matching substring (returns a <span> with a <mark> inside)
@@ -1766,16 +1821,23 @@ function highlightMatch(devText, q) {
   const span = document.createElement('span');
   span.className = 'sri-text';
   span._devText = devText;   // for retransliteration
-  // Try to find match in transliterated text
-  const idx = displayed.indexOf(q);
-  if (idx >= 0) {
+
+  // Convert query to current display script for highlight position matching
+  const devQ = normalizeToDevanagari(q);
+  const displayQ = (devQ !== q) ? translit(devQ) : q;
+
+  const tryHighlight = (needle) => {
+    const idx = displayed.indexOf(needle);
+    if (idx < 0) return false;
     span.appendChild(document.createTextNode(displayed.slice(0, idx)));
     const mark = document.createElement('mark');
-    mark.textContent = displayed.slice(idx, idx + q.length);
+    mark.textContent = displayed.slice(idx, idx + needle.length);
     span.appendChild(mark);
-    span.appendChild(document.createTextNode(displayed.slice(idx + q.length)));
-  } else {
-    // Fallback: show without highlight (match may be in Devanagari while q is Latin)
+    span.appendChild(document.createTextNode(displayed.slice(idx + needle.length)));
+    return true;
+  };
+
+  if (!tryHighlight(displayQ) && !tryHighlight(q)) {
     span.textContent = displayed;
   }
   return span;
@@ -1845,30 +1907,34 @@ function searchSutras(q) {
     }
     return [];
   }
+  const dq    = normalizeToDevanagari(q);
   const lower = q.toLowerCase();
   return sutraList.filter(s =>
-    s.s.includes(q) || (s.ss && s.ss.includes(q)) || (s.e && s.e.toLowerCase().includes(lower)) ||
-    (s.ad && s.ad.includes(q)) || (s.an && s.an.includes(q)));
+    s.s.includes(dq) || (s.ss && s.ss.includes(dq)) || (s.e && s.e.toLowerCase().includes(lower)) ||
+    (s.ad && s.ad.includes(dq)) || (s.an && s.an.includes(dq)));
 }
 
 // Filter Dhatupatha entries
 function searchDhatus(data, q) {
+  const dq    = normalizeToDevanagari(q);
   const lower = q.toLowerCase();
   return data.filter(d =>
-    (d.dhatu && d.dhatu.includes(q)) ||
-    (d.aupadeshik && d.aupadeshik.includes(q)) ||
-    (d.artha && d.artha.includes(q)) ||
+    (d.dhatu && d.dhatu.includes(dq)) ||
+    (d.aupadeshik && d.aupadeshik.includes(dq)) ||
+    (d.artha && d.artha.includes(dq)) ||
     (d.meaning_en && d.meaning_en.toLowerCase().includes(lower)));
 }
 
 function searchGana(data, q) {
+  const dq = normalizeToDevanagari(q);
   return data.filter(g =>
-    (g.name && g.name.includes(q)) || (g.words && g.words.includes(q)));
+    (g.name && g.name.includes(dq)) || (g.words && g.words.includes(dq)));
 }
 
 function searchUnaadi(data, q) {
+  const dq = normalizeToDevanagari(q);
   return data.filter(u =>
-    (u.sutra && u.sutra.includes(q)) || (u.pratyay && u.pratyay.includes(q)));
+    (u.sutra && u.sutra.includes(dq)) || (u.pratyay && u.pratyay.includes(dq)));
 }
 
 function makeGanaResultItem(g, q) {
@@ -1930,25 +1996,28 @@ function sutraResultsToMarkdown(results, query) {
 async function runSearch(raw) {
   const q = raw.trim();
   $searchDrawerBody.innerHTML = '';
-  if (!q) { $searchClear.style.display = 'none'; return; }
-  $searchClear.style.display = 'block';
-
-  // Reset Copy MD button
-  if ($copyMdBtn) { $copyMdBtn.style.display = 'none'; $copyMdBtn.onclick = null; }
+  // Allow empty query through if a type filter is active (show all sutras of that type)
+  const typeActive = searchScope === 'ashtadhyayi' && sutraTypeFilter !== 'all';
+  if (!q && !typeActive) { $searchClear.style.display = 'none'; return; }
+  if (q) $searchClear.style.display = 'block';
 
   if (searchScope === 'ashtadhyayi') {
-    const results = searchSutras(q);
+    let results = searchSutras(q);
+    if (sutraTypeFilter !== 'all')
+      results = results.filter(s => s.type && s.type.startsWith(sutraTypeFilter + '$'));
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
     countEl.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
-    if (results.length > 0 && $copyMdBtn) {
+    // Copy MD: always visible in ashtadhyayi scope, disabled when no results
+    if ($copyMdBtn) {
       $copyMdBtn.style.display = '';
-      $copyMdBtn.textContent = 'copy .md';
-      $copyMdBtn.onclick = () => {
+      $copyMdBtn.disabled = results.length === 0;
+      $copyMdBtn.textContent = 'Copy MD';
+      $copyMdBtn.onclick = results.length ? () => {
         navigator.clipboard.writeText(sutraResultsToMarkdown(results, q));
         $copyMdBtn.textContent = 'Copied!';
         setTimeout(() => { $copyMdBtn.textContent = 'Copy MD'; }, 1500);
-      };
+      } : null;
     }
     $searchDrawerBody.appendChild(countEl);
     const shown = results.slice(0, SEARCH_CAP);
