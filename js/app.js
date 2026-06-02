@@ -1653,20 +1653,97 @@ $barRef.addEventListener('click', () => {
   }
 });
 
+// ── Theme picker ──────────────────────────────────────────────────────────────
+const THEMES = [
+  { id: 'sandstone', label: 'Sandstone', bg: '#fdf8f0', accent: '#62b2ba', bar: '#1e2d3d' },
+  { id: 'slate',     label: 'Slate',     bg: '#f7f8fc', accent: '#3b82f6', bar: '#1e3a5f' },
+  { id: 'forest',    label: 'Forest',    bg: '#f2f8f0', accent: '#2d9c58', bar: '#1a3d2a' },
+  { id: 'saffron',   label: 'Saffron',   bg: '#fffbf0', accent: '#d97706', bar: '#7c2d12' },
+  { id: 'night',     label: 'Night',     bg: '#1e1e2e', accent: '#89b4fa', bar: '#11111b' },
+];
+const THEME_KEY = 'paniniyam-theme';
+let currentTheme = localStorage.getItem(THEME_KEY) || 'sandstone';
+
+function applyTheme(id) {
+  currentTheme = id;
+  document.documentElement.dataset.theme = id === 'sandstone' ? '' : id;
+  localStorage.setItem(THEME_KEY, id);
+  // Update swatch active state
+  document.querySelectorAll('.theme-swatch').forEach(s =>
+    s.classList.toggle('active', s.dataset.themeId === id));
+}
+
+const $themePicker = document.getElementById('theme-picker');
+const $themeMenu   = document.getElementById('theme-menu');
+
+function buildThemePicker() {
+  $themeMenu.innerHTML = '';
+  for (const t of THEMES) {
+    const sw = document.createElement('button');
+    sw.className = 'theme-swatch' + (t.id === currentTheme ? ' active' : '');
+    sw.dataset.themeId = t.id;
+    sw.title = t.label;
+    // Split circle: left half = bg, right half = accent
+    sw.style.background =
+      `linear-gradient(to right, ${t.bg} 50%, ${t.accent} 50%)`;
+    sw.style.outline = `3px solid ${t.bar}`;
+    sw.style.outlineOffset = '-3px';
+    sw.addEventListener('click', () => { applyTheme(t.id); });
+    $themeMenu.appendChild(sw);
+  }
+}
+
+$themePicker.addEventListener('mouseenter', () => $themePicker.classList.add('open'));
+$themePicker.addEventListener('mouseleave', () => $themePicker.classList.remove('open'));
+document.getElementById('btn-theme').addEventListener('click', e => {
+  e.stopPropagation();
+  $themePicker.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (!$themePicker.contains(e.target)) $themePicker.classList.remove('open');
+});
+
 // ── Search ────────────────────────────────────────────────────────────────────
 let searchScope = 'ashtadhyayi';
 
 const SEARCH_SCOPES = [
   { id: 'ashtadhyayi', devLabel: 'अष्टाध्यायी' },
   { id: 'dhatupatha',  devLabel: 'धातुपाठः'     },
+  { id: 'ganapath',    devLabel: 'गणपाठः'       },
+  { id: 'unaadi',      devLabel: 'उणादिः'        },
   { id: 'sarva',       devLabel: 'सर्वम्'        },
 ];
 const SEARCH_CAP = 20;   // max results per book/group
 
+let $copyMdBtn = null;   // persistent Copy MD button in row 2
+
 function buildSearchScopes() {
-  const row = document.getElementById('search-scope-row');
-  row.innerHTML = '';
-  for (const sc of SEARCH_SCOPES) {
+  const container = document.getElementById('search-scope-row');
+  container.innerHTML = '';
+
+  // Row 1: first 4 scopes
+  const row1 = document.createElement('div');
+  row1.className = 'scope-row scope-pills';
+
+  // Row 2: सर्वम् + Copy MD
+  const row2 = document.createElement('div');
+  row2.className = 'scope-row scope-row-2';
+  const row2pills = document.createElement('div');
+  row2pills.className = 'scope-pills';
+  row2.appendChild(row2pills);
+
+  // Persistent Copy MD button
+  $copyMdBtn = document.createElement('button');
+  $copyMdBtn.className = 'search-copy-md';
+  $copyMdBtn.textContent = 'Copy MD';
+  $copyMdBtn.style.display = 'none';
+  row2.appendChild($copyMdBtn);
+
+  container.appendChild(row1);
+  container.appendChild(row2);
+
+  const allPills = [];
+  SEARCH_SCOPES.forEach((sc, idx) => {
     const btn = document.createElement('button');
     btn.className = 'scope-pill dev-text' + (sc.id === searchScope ? ' active' : '');
     btn.dataset.scope = sc.id;
@@ -1674,12 +1751,13 @@ function buildSearchScopes() {
     btn.textContent = translit(sc.devLabel);
     btn.addEventListener('click', () => {
       searchScope = sc.id;
-      row.querySelectorAll('.scope-pill').forEach(p =>
-        p.classList.toggle('active', p.dataset.scope === sc.id));
+      allPills.forEach(p => p.classList.toggle('active', p.dataset.scope === sc.id));
       runSearch($searchInput.value);
     });
-    row.appendChild(btn);
-  }
+    allPills.push(btn);
+    if (sc.id === 'sarva') row2pills.appendChild(btn);
+    else row1.appendChild(btn);
+  });
 }
 
 // Highlight matching substring (returns a <span> with a <mark> inside)
@@ -1783,6 +1861,46 @@ function searchDhatus(data, q) {
     (d.meaning_en && d.meaning_en.toLowerCase().includes(lower)));
 }
 
+function searchGana(data, q) {
+  return data.filter(g =>
+    (g.name && g.name.includes(q)) || (g.words && g.words.includes(q)));
+}
+
+function searchUnaadi(data, q) {
+  return data.filter(u =>
+    (u.sutra && u.sutra.includes(q)) || (u.pratyay && u.pratyay.includes(q)));
+}
+
+function makeGanaResultItem(g, q) {
+  const item = document.createElement('div');
+  item.className = 'search-result-item';
+  const ref = document.createElement('span');
+  ref.className = 'sri-ref';
+  ref.textContent = g.sutra || '';
+  item.appendChild(ref);
+  item.appendChild(highlightMatch(g.name || '', q));
+  item.addEventListener('click', () => {
+    handleLeafClick(BOOKS.find(b => b.id === 'ganapatha'),
+      document.querySelector('[data-book-id="ganapatha"]'));
+  });
+  return item;
+}
+
+function makeUnaadiResultItem(u, q) {
+  const item = document.createElement('div');
+  item.className = 'search-result-item';
+  const ref = document.createElement('span');
+  ref.className = 'sri-ref';
+  ref.textContent = u.pratyay || u.i || '';
+  item.appendChild(ref);
+  item.appendChild(highlightMatch(u.sutra || '', q));
+  item.addEventListener('click', () => {
+    handleLeafClick(BOOKS.find(b => b.id === 'unaadi'),
+      document.querySelector('[data-book-id="unaadi"]'));
+  });
+  return item;
+}
+
 function renderGroup(container, devTitle, items, makeItemFn, q, total) {
   const header = document.createElement('div');
   header.className = 'search-group-header';
@@ -1815,23 +1933,22 @@ async function runSearch(raw) {
   if (!q) { $searchClear.style.display = 'none'; return; }
   $searchClear.style.display = 'block';
 
+  // Reset Copy MD button
+  if ($copyMdBtn) { $copyMdBtn.style.display = 'none'; $copyMdBtn.onclick = null; }
+
   if (searchScope === 'ashtadhyayi') {
     const results = searchSutras(q);
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
-    const countText = document.createElement('span');
-    countText.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
-    countEl.appendChild(countText);
-    if (results.length > 0) {
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'search-copy-md';
-      copyBtn.textContent = 'Copy MD';
-      copyBtn.addEventListener('click', () => {
+    countEl.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
+    if (results.length > 0 && $copyMdBtn) {
+      $copyMdBtn.style.display = '';
+      $copyMdBtn.textContent = 'copy .md';
+      $copyMdBtn.onclick = () => {
         navigator.clipboard.writeText(sutraResultsToMarkdown(results, q));
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => { copyBtn.textContent = 'Copy MD'; }, 1500);
-      });
-      countEl.appendChild(copyBtn);
+        $copyMdBtn.textContent = 'Copied!';
+        setTimeout(() => { $copyMdBtn.textContent = 'Copy MD'; }, 1500);
+      };
     }
     $searchDrawerBody.appendChild(countEl);
     const shown = results.slice(0, SEARCH_CAP);
@@ -1864,20 +1981,65 @@ async function runSearch(raw) {
       $searchDrawerBody.appendChild(more);
     }
 
+  } else if (searchScope === 'ganapath') {
+    const loadEl = document.createElement('div');
+    loadEl.className = 'search-loading';
+    loadEl.textContent = 'Loading…';
+    $searchDrawerBody.appendChild(loadEl);
+    const data = await loadData('ganapatha', 'ganapath/data.txt');
+    $searchDrawerBody.innerHTML = '';
+    const results = searchGana(data, q);
+    const countEl = document.createElement('div');
+    countEl.className = 'search-drawer-count';
+    countEl.textContent = `${results.length} gana${results.length !== 1 ? 's' : ''}`;
+    $searchDrawerBody.appendChild(countEl);
+    for (const g of results.slice(0, SEARCH_CAP))
+      $searchDrawerBody.appendChild(makeGanaResultItem(g, q));
+    if (results.length > SEARCH_CAP) {
+      const more = document.createElement('div');
+      more.className = 'search-drawer-count';
+      more.textContent = `… and ${results.length - SEARCH_CAP} more`;
+      $searchDrawerBody.appendChild(more);
+    }
+
+  } else if (searchScope === 'unaadi') {
+    const loadEl = document.createElement('div');
+    loadEl.className = 'search-loading';
+    loadEl.textContent = 'Loading…';
+    $searchDrawerBody.appendChild(loadEl);
+    const data = await loadData('unaadi', 'unaadi/data.txt');
+    $searchDrawerBody.innerHTML = '';
+    const results = searchUnaadi(data, q);
+    const countEl = document.createElement('div');
+    countEl.className = 'search-drawer-count';
+    countEl.textContent = `${results.length} sutra${results.length !== 1 ? 's' : ''}`;
+    $searchDrawerBody.appendChild(countEl);
+    for (const u of results.slice(0, SEARCH_CAP))
+      $searchDrawerBody.appendChild(makeUnaadiResultItem(u, q));
+    if (results.length > SEARCH_CAP) {
+      const more = document.createElement('div');
+      more.className = 'search-drawer-count';
+      more.textContent = `… and ${results.length - SEARCH_CAP} more`;
+      $searchDrawerBody.appendChild(more);
+    }
+
   } else if (searchScope === 'sarva') {
-    // Load small books in parallel, show groups
-    const [dhatu, shiva] = await Promise.all([
+    // Load all books in parallel
+    const [dhatu, gana, unaadi, shiva] = await Promise.all([
       loadData('dhatupatha', 'dhatu/data.txt').catch(() => null),
-      loadData('shivasutra',  'shivasutra/data.txt').catch(() => null),
+      loadData('ganapatha',  'ganapath/data.txt').catch(() => null),
+      loadData('unaadi',     'unaadi/data.txt').catch(() => null),
+      loadData('shivasutra', 'shivasutra/data.txt').catch(() => null),
     ]);
 
     const sutraResults = searchSutras(q);
-    const dhatuResults = dhatu ? searchDhatus(dhatu, q) : [];
-    const shivaResults = shiva
-      ? shiva.filter(s => s.sutra && s.sutra.includes(q))
-      : [];
+    const dhatuResults = dhatu  ? searchDhatus(dhatu, q) : [];
+    const ganaResults  = gana   ? searchGana(gana, q)    : [];
+    const unaadiResults= unaadi ? searchUnaadi(unaadi, q): [];
+    const shivaResults = shiva  ? shiva.filter(s => s.sutra && s.sutra.includes(q)) : [];
 
-    const total = sutraResults.length + dhatuResults.length + shivaResults.length;
+    const total = sutraResults.length + dhatuResults.length + ganaResults.length +
+                  unaadiResults.length + shivaResults.length;
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
     countEl.textContent = total
@@ -1891,6 +2053,12 @@ async function runSearch(raw) {
     if (dhatuResults.length)
       renderGroup($searchDrawerBody, 'धातुपाठः', dhatuResults.slice(0, SEARCH_CAP),
         makeDhatuResultItem, q, dhatuResults.length);
+    if (ganaResults.length)
+      renderGroup($searchDrawerBody, 'गणपाठः', ganaResults.slice(0, SEARCH_CAP),
+        makeGanaResultItem, q, ganaResults.length);
+    if (unaadiResults.length)
+      renderGroup($searchDrawerBody, 'उणादिः', unaadiResults.slice(0, SEARCH_CAP),
+        makeUnaadiResultItem, q, unaadiResults.length);
     if (shivaResults.length) {
       const makeShiva = (s, q) => {
         const item = document.createElement('div');
@@ -2545,6 +2713,8 @@ function setupHoverZones() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   buildScriptDropdown();
+  buildThemePicker();
+  applyTheme(currentTheme);
   buildIconBar();
   buildSearchScopes();
   applyPinState();
