@@ -876,11 +876,17 @@ function buildSutraMeta(sutra) {
     meta.appendChild(row);
   }
 
+  function addEmpty(val) {
+    const dash = document.createElement('span');
+    dash.className = 'meta-empty';
+    dash.textContent = '—';
+    val.appendChild(dash);
+  }
+
   // पदच्छेदः
-  if (sutra.pc) {
-    const parts = sutra.pc.split('##').filter(Boolean);
-    addRow('पदच्छेदः', val => {
-      parts.forEach((part, idx) => {
+  addRow('पदच्छेदः', val => {
+    if (sutra.pc) {
+      sutra.pc.split('##').filter(Boolean).forEach((part, idx) => {
         const bits = part.split('$');
         const word = bits[0];
         const vib  = parseInt(bits[2]) || 0;
@@ -893,13 +899,21 @@ function buildSutraMeta(sutra) {
           val.appendChild(devEl('span', 'pc-gram', `( ${gram} )`));
         }
       });
-    });
-  }
+    } else { addEmpty(val); }
+  });
 
-  // अनुवृत्तिः (synchronous — data already in sutra object)
-  if (sutra.an) {
-    addRow('अनुवृत्तिः', val => {
-      sutra.an.split('##').filter(Boolean).forEach((part, idx) => {
+  // समासः — from pravachanam.json when available
+  addRow('समासः', val => {
+    const s = bookData['pravachanam']?.[sutra.i]?.samasa;
+    if (s) val.appendChild(devEl('span', '', s));
+    else addEmpty(val);
+  });
+
+  // अनुवृत्तिः
+  addRow('अनुवृत्तिः', val => {
+    const parts = sutra.an ? sutra.an.split('##').filter(Boolean) : [];
+    if (parts.length) {
+      parts.forEach((part, idx) => {
         if (idx > 0) val.appendChild(document.createTextNode(' · '));
         const [word, id2] = part.split('$');
         if (!word) return;
@@ -916,10 +930,10 @@ function buildSutraMeta(sutra) {
           val.appendChild(wordSpan);
         }
       });
-    });
-  }
+    } else { addEmpty(val); }
+  });
 
-  // अधिकारः
+  // अधिकारः (conditional — only meaningful when present)
   if (sutra.ad) {
     const [adText, a, p, n] = sutra.ad.split('$');
     const sid = a && p && n ? `${a}${p}${String(+n).padStart(3, '0')}` : null;
@@ -938,12 +952,18 @@ function buildSutraMeta(sutra) {
     });
   }
 
-  // अनुवृत्तिसहितं सूत्रम्
-  if (sutra.ss) {
-    addRow('अनुवृत्तिसहितं सूत्रम्', val => {
-      val.appendChild(devEl('span', '', sutra.ss));
-    });
-  }
+  // अन्वयः — same as अनुवृत्तिसहितं सूत्रम् (ss field)
+  addRow('अन्वयः', val => {
+    if (sutra.ss) val.appendChild(devEl('span', '', sutra.ss));
+    else addEmpty(val);
+  });
+
+  // उदाहरणम् — from pravachanam.json when available
+  addRow('उदाहरणम्', val => {
+    const u = bookData['pravachanam']?.[sutra.i]?.udaharana;
+    if (u) val.appendChild(devEl('span', '', u));
+    else addEmpty(val);
+  });
 
   return meta;
 }
@@ -2492,7 +2512,13 @@ async function init() {
   applyPinState();
   setupHoverZones();
   try {
-    const raw = await fetchJSON('sutraani/data.txt');
+    const [raw] = await Promise.all([
+      fetchJSON('sutraani/data.txt'),
+      fetch(`${FORMS_BASE}/pravachanam.json`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) bookData['pravachanam'] = d; })
+        .catch(() => null),
+    ]);
     sutraList = raw.data || [];
     for (const s of sutraList) sutraIndex[s.i] = s;
     buildNavTree();

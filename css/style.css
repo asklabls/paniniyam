@@ -8,7 +8,7 @@
   --bg-card:    #ffffff;
   --bar-bg:     #1e2d3d;
   --bar-fg:     #e8dcc8;
-  --accent:     #8b4513;
+  --accent:     #62b2ba;
   --accent2:    #c0762a;
   --border:     #ddd3c0;
   --text:       #2c1d0e;
@@ -443,6 +443,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .meta-value { color: var(--text); line-height: 1.6; }
 .pc-word { color: var(--accent); font-weight: 600; }
 .pc-gram { color: var(--muted); font-size: .88em; }
+.meta-empty { color: var(--muted); opacity: .4; }
 .detail-anuvritta { font-size: .88em; }
 .detail-anuvritta a { color: var(--accent); text-decoration: none; }
 .detail-anuvritta a:hover { text-decoration: underline; }
