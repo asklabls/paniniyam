@@ -934,21 +934,25 @@ function buildSutraMeta(sutra) {
   });
 
   // अधिकारः (conditional — only meaningful when present)
+  // ad field may contain multiple adhikaras: "text$a$p$n##text$a$p$n"
   if (sutra.ad) {
-    const [adText, a, p, n] = sutra.ad.split('$');
-    const sid = a && p && n ? `${a}${p}${String(+n).padStart(3, '0')}` : null;
     addRow('अधिकारः', val => {
-      val.appendChild(devEl('span', '', adText));
-      if (sid) {
-        val.appendChild(document.createTextNode(' '));
-        const link = document.createElement('a');
-        link.className = 'sutra-link';
-        link.href = '#';
-        link.dataset.id = sid;
-        link.textContent = `${a}.${p}.${n}`;
-        link.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
-        val.appendChild(link);
-      }
+      sutra.ad.split('##').forEach((chunk, idx) => {
+        const [adText, a, p, n] = chunk.split('$');
+        const sid = a && p && n ? `${a}${p}${String(+n).padStart(3, '0')}` : null;
+        if (idx > 0) val.appendChild(document.createTextNode(' · '));
+        val.appendChild(devEl('span', '', adText));
+        if (sid) {
+          val.appendChild(document.createTextNode(' '));
+          const link = document.createElement('a');
+          link.className = 'sutra-link';
+          link.href = '#';
+          link.dataset.id = sid;
+          link.textContent = `${a}.${p}.${n}`;
+          link.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
+          val.appendChild(link);
+        }
+      });
     });
   }
 
@@ -1765,7 +1769,8 @@ function searchSutras(q) {
   }
   const lower = q.toLowerCase();
   return sutraList.filter(s =>
-    s.s.includes(q) || (s.ss && s.ss.includes(q)) || (s.e && s.e.toLowerCase().includes(lower)));
+    s.s.includes(q) || (s.ss && s.ss.includes(q)) || (s.e && s.e.toLowerCase().includes(lower)) ||
+    (s.ad && s.ad.includes(q)) || (s.an && s.an.includes(q)));
 }
 
 // Filter Dhatupatha entries
@@ -1796,6 +1801,14 @@ function renderGroup(container, devTitle, items, makeItemFn, q, total) {
   for (const item of items) container.appendChild(makeItemFn(item, q));
 }
 
+function sutraResultsToMarkdown(results, query) {
+  const heading = `## ${query} — ${results.length} sutra${results.length !== 1 ? 's' : ''}`;
+  const header  = '| Ref | Sutra |';
+  const divider = '|-----|-------|';
+  const rows = results.map(s => `| [[${s.a}.${s.p}.${s.n}]] | ${s.s} |`);
+  return [heading, '', header, divider, ...rows].join('\n');
+}
+
 async function runSearch(raw) {
   const q = raw.trim();
   $searchDrawerBody.innerHTML = '';
@@ -1806,7 +1819,20 @@ async function runSearch(raw) {
     const results = searchSutras(q);
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
-    countEl.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
+    const countText = document.createElement('span');
+    countText.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
+    countEl.appendChild(countText);
+    if (results.length > 0) {
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'search-copy-md';
+      copyBtn.textContent = 'Copy MD';
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(sutraResultsToMarkdown(results, q));
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy MD'; }, 1500);
+      });
+      countEl.appendChild(copyBtn);
+    }
     $searchDrawerBody.appendChild(countEl);
     const shown = results.slice(0, SEARCH_CAP);
     for (const s of shown) $searchDrawerBody.appendChild(makeSutraResultItem(s, q));
