@@ -1754,11 +1754,14 @@ function searchSutras(q) {
   }
   // Digit-only reference: 111 = 1.1.1, 1145 = 1.1.45, 84116 = 8.4.116
   // First digit = adhyaya (1–8), second = pada (1–4), rest = sutra number
-  const digitRef = /^([1-8])([1-4])(\d{1,3})$/.exec(q);
-  if (digitRef) {
-    const id = String((+digitRef[1]) * 10000 + (+digitRef[2]) * 1000 + (+digitRef[3])).padStart(5, '0');
-    const match = sutraList.filter(s => s.i === id);
-    if (match.length) return match;
+  // If query is all digits, only try reference matching — never fall through to text search
+  if (/^\d+$/.test(q)) {
+    const digitRef = /^([1-8])([1-4])(\d{1,3})$/.exec(q);
+    if (digitRef) {
+      const id = String((+digitRef[1]) * 10000 + (+digitRef[2]) * 1000 + (+digitRef[3])).padStart(5, '0');
+      return sutraList.filter(s => s.i === id);
+    }
+    return [];
   }
   const lower = q.toLowerCase();
   return sutraList.filter(s =>
