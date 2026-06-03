@@ -87,6 +87,10 @@ const TAB_GROUPS = [
       { id: 'praudha',  devLabel: 'प्रौढमनोरमा',      dataPath: 'sutraani/praudhamanorama.txt'  },
     ],
   },
+  {
+    id: 'siddhi',
+    type: 'siddhi-panel',   // derivation examples from vault siddhi notes
+  },
 ];
 
 // ── Dhatupatha gana labels ─────────────────────────────────────────────────────
@@ -142,6 +146,12 @@ const DATA_BASE  = isLocal
 const FORMS_BASE = isLocal
   ? 'forms'
   : 'https://cdn.jsdelivr.net/gh/asklabls/paniniyam@main/forms';
+// Private data (owner-authored / copyrighted content) — never committed to public repo.
+// Set PRIVATE_BASE to a private CDN URL (R2, Cloudflare Worker, etc.) when deploying.
+// All private features fall back silently when null.
+const PRIVATE_BASE = isLocal ? 'forms' : null;
+// TODO: replace null with e.g. 'https://private.yourdomain.com'
+const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentScript = localStorage.getItem(SETTINGS_KEY) || SCRIPT_DEFAULT;
@@ -1279,6 +1289,273 @@ async function loadTabData(tabDef, panel, sutra) {
   }
 }
 
+// ── Siddhi (derivation) panel ─────────────────────────────────────────────────
+async function buildSiddhiPanel(sutraId, wrap, inCard) {
+  // Lazy fetch {SIDDHI_BASE}/{sutraId}.json
+  // SIDDHI_BASE is null in production until a private CDN is configured.
+  if (!SIDDHI_BASE) return;
+  let entries;
+  try {
+    if (!bookData['siddhi_' + sutraId]) {
+      const res = await fetch(`${SIDDHI_BASE}/${sutraId}.json`);
+      if (!res.ok) return;   // No siddhi data for this sutra — hide silently
+      bookData['siddhi_' + sutraId] = await res.json();
+    }
+    entries = bookData['siddhi_' + sutraId];
+  } catch (_) { return; }
+
+  if (!entries || !entries.length) return;
+
+  // Header bar
+  const header = document.createElement('div');
+  header.className = inCard ? 'detail-tabs detail-tabs-card siddhi-header' : 'detail-tabs siddhi-header';
+  const headerLabel = document.createElement('span');
+  headerLabel.className = 'siddhi-header-label dev-text';
+  headerLabel.textContent = translit('सिद्धिः');
+  headerLabel._devText = 'सिद्धिः';
+  header.appendChild(headerLabel);
+  wrap.appendChild(header);
+
+  const body = document.createElement('div');
+  body.className = 'siddhi-body';
+  wrap.appendChild(body);
+
+  if (entries.length === 1) {
+    body.appendChild(renderSiddhiEntry(entries[0]));
+    return;
+  }
+
+  // Multiple examples — tab pills
+  const tabBar = document.createElement('div');
+  tabBar.className = 'siddhi-tabs';
+  const contentArea = document.createElement('div');
+  contentArea.className = 'siddhi-content';
+  body.appendChild(tabBar);
+  body.appendChild(contentArea);
+
+  entries.forEach((entry, i) => {
+    const pill = document.createElement('button');
+    pill.className = 'siddhi-pill dev-text' + (i === 0 ? ' active' : '');
+    pill.textContent = translit(entry.word || `${i + 1}`);
+    pill._devText = entry.word || `${i + 1}`;
+    pill.addEventListener('click', () => {
+      tabBar.querySelectorAll('.siddhi-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      contentArea.innerHTML = '';
+      contentArea.appendChild(renderSiddhiEntry(entry));
+    });
+    tabBar.appendChild(pill);
+  });
+  contentArea.appendChild(renderSiddhiEntry(entries[0]));
+}
+
+// ── Siddhi tooltip (shared, appended to body once) ───────────────────────────
+// ── Sutra artha popup ─────────────────────────────────────────────────────────
+// Lazy-loads forms/pravachanam.json once, then shows a card popup on hover.
+
+let $arthaPopup = null;
+let arthaHideTimer = null;
+
+function getArthaPopup() {
+  if (!$arthaPopup) {
+    $arthaPopup = document.createElement('div');
+    $arthaPopup.className = 'artha-popup';
+    $arthaPopup.addEventListener('mouseenter', () => {
+      clearTimeout(arthaHideTimer);
+    });
+    $arthaPopup.addEventListener('mouseleave', hideSiddhiTip);
+    document.body.appendChild($arthaPopup);
+  }
+  return $arthaPopup;
+}
+
+async function loadArthaData() {
+  if (bookData['pravachanam']) return bookData['pravachanam'];
+  if (!PRIVATE_BASE) return null;
+  try {
+    const res = await fetch(`${PRIVATE_BASE}/pravachanam.json`);
+    if (!res.ok) return null;
+    bookData['pravachanam'] = await res.json();
+    return bookData['pravachanam'];
+  } catch (_) { return null; }
+}
+
+async function showSiddhiTip(el, sutraId) {
+  clearTimeout(arthaHideTimer);
+  const sutra = sutraIndex[sutraId];
+  if (!sutra) return;
+
+  const popup = getArthaPopup();
+  popup.innerHTML = '';
+
+  // Header: ref + sutra text
+  const head = document.createElement('div');
+  head.className = 'artha-popup-head';
+  const refSpan = document.createElement('span');
+  refSpan.className = 'artha-popup-ref';
+  refSpan.textContent = idToRef(sutraId);
+  const sutText = document.createElement('span');
+  sutText.className = 'artha-popup-sutra dev-text';
+  sutText._devText = sutra.s;
+  sutText.textContent = translit(sutra.s);
+  head.appendChild(refSpan);
+  head.appendChild(sutText);
+  popup.appendChild(head);
+
+  // Body: artha rows (may load async)
+  const body = document.createElement('div');
+  body.className = 'artha-popup-body';
+  popup.appendChild(body);
+
+  // Position immediately so popup appears without delay
+  positionArthaPopup(el);
+  popup.classList.add('visible');
+
+  // Fill content (may be instant from cache or async)
+  const arthaData = await loadArthaData();
+  const entry = arthaData?.[sutraId];
+
+  if (entry?.a) {
+    const row = document.createElement('div');
+    row.className = 'artha-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'artha-lbl dev-text';
+    lbl.textContent = translit('अर्थः');
+    lbl._devText = 'अर्थः';
+    const val = document.createElement('span');
+    val.className = 'artha-val dev-text';
+    val._devText = entry.a;
+    val.textContent = translit(entry.a);
+    row.appendChild(lbl);
+    row.appendChild(val);
+    body.appendChild(row);
+  }
+  if (entry?.h) {
+    const row = document.createElement('div');
+    row.className = 'artha-row artha-hindi';
+    const val = document.createElement('span');
+    // Hindi prose — stays Devanagari
+    val.textContent = entry.h;
+    row.appendChild(val);
+    body.appendChild(row);
+  }
+  if (!entry?.a && !entry?.h) {
+    body.textContent = '—';
+  }
+}
+
+function positionArthaPopup(el) {
+  const popup = getArthaPopup();
+  const r = el.getBoundingClientRect();
+  const popW = 380;
+  const margin = 8;
+  let left = r.left;
+  if (left + popW > window.innerWidth - margin) left = window.innerWidth - popW - margin;
+  if (left < margin) left = margin;
+  // Show below; if not enough room show above
+  const spaceBelow = window.innerHeight - r.bottom;
+  if (spaceBelow < 180 && r.top > 180) {
+    popup.style.top = '';
+    popup.style.bottom = (window.innerHeight - r.top + 4) + 'px';
+  } else {
+    popup.style.bottom = '';
+    popup.style.top = (r.bottom + 4) + 'px';
+  }
+  popup.style.left = left + 'px';
+}
+
+function hideSiddhiTip() {
+  arthaHideTimer = setTimeout(() => {
+    if ($arthaPopup) $arthaPopup.classList.remove('visible');
+  }, 120);
+}
+
+// Render an array of segments [{t,v,id,...}] as inline DOM nodes into container.
+// 'sl' segments become clickable sutra links with hover tooltip.
+// 'tx' segments are Hindi prose — kept in Devanagari regardless of script.
+function renderSiddhiSegs(segs, container) {
+  segs.forEach(seg => {
+    if (seg.t === 'sl') {
+      const a = document.createElement('a');
+      a.className = 'siddhi-sutra-link dev-text';
+      a.href = '#';
+      a._devText = seg.v;
+      a.textContent = translit(seg.v);
+      a.addEventListener('click',      e => { e.preventDefault(); gotoSutra(seg.id); });
+      a.addEventListener('mouseenter', () => showSiddhiTip(a, seg.id));
+      a.addEventListener('mouseleave', hideSiddhiTip);
+      a.addEventListener('touchstart', () => showSiddhiTip(a, seg.id), { passive: true });
+      container.appendChild(a);
+    } else if (seg.t === 'dl') {
+      // Dhatu link — show as styled text (no navigation for now)
+      const span = document.createElement('span');
+      span.className = 'siddhi-dhatu-ref dev-text';
+      span._devText = seg.v;
+      span.textContent = translit(seg.v);
+      container.appendChild(span);
+    } else {
+      // Plain text — Hindi prose, stays Devanagari
+      container.appendChild(document.createTextNode(seg.v + ' '));
+    }
+  });
+}
+
+function renderSiddhiEntry(entry) {
+  const wrap = document.createElement('div');
+  wrap.className = 'siddhi-entry';
+
+  if (entry.intro) {
+    const intro = document.createElement('div');
+    // Intro is Hindi prose — keep in Devanagari regardless of script choice
+    intro.className = 'siddhi-intro';
+    intro.textContent = entry.intro;
+    wrap.appendChild(intro);
+  }
+
+  const table = document.createElement('table');
+  table.className = 'siddhi-table';
+
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  ['#', 'प्रक्रिया', 'सूत्र प्रयोग'].forEach(h => {
+    const th = document.createElement('th');
+    th.className = 'dev-text';
+    th._devText = h;
+    th.textContent = h === '#' ? '#' : translit(h);
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  (entry.steps || []).forEach(step => {
+    const tr = document.createElement('tr');
+
+    // Step number
+    const tdNum = document.createElement('td');
+    tdNum.className = 'siddhi-num';
+    tdNum.textContent = step.num || '';
+    tr.appendChild(tdNum);
+
+    // Form (prakriya)
+    const tdForm = document.createElement('td');
+    tdForm.className = 'siddhi-form dev-text';
+    tdForm._devText = step.form || '';
+    tdForm.textContent = translit(step.form || '');
+    tr.appendChild(tdForm);
+
+    // Note — rendered as inline segments: sutra links + Hindi prose interleaved
+    const tdNote = document.createElement('td');
+    tdNote.className = 'siddhi-note';
+    renderSiddhiSegs(step.segs || [], tdNote);
+    tr.appendChild(tdNote);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  return wrap;
+}
+
 // Build stacked commentary tab groups into a container element.
 // Used by both renderReaderSutra() and createSutraCard().
 // inCard = true applies card-edge bleed margins to tab bars.
@@ -1286,6 +1563,16 @@ function buildTabGroups(sutra, container, inCard) {
   let firstGroupRendered = false;
 
   for (const group of TAB_GROUPS) {
+
+    // ── Siddhi panel ──
+    if (group.type === 'siddhi-panel') {
+      const wrap = document.createElement('div');
+      wrap.className = 'tab-group siddhi-group';
+      container.appendChild(wrap);
+      // Async: load data and render (do not block card build)
+      buildSiddhiPanel(sutra.i, wrap, inCard);
+      continue;
+    }
 
     // ── Notes placeholder (Phase 4) ──
     if (group.type === 'notes-placeholder') {
@@ -1688,13 +1975,11 @@ function buildThemePicker() {
       `linear-gradient(to right, ${t.bg} 50%, ${t.accent} 50%)`;
     sw.style.outline = `3px solid ${t.bar}`;
     sw.style.outlineOffset = '-3px';
-    sw.addEventListener('click', () => { applyTheme(t.id); });
+    sw.addEventListener('click', () => { applyTheme(t.id); $themePicker.classList.remove('open'); });
     $themeMenu.appendChild(sw);
   }
 }
 
-$themePicker.addEventListener('mouseenter', () => $themePicker.classList.add('open'));
-$themePicker.addEventListener('mouseleave', () => $themePicker.classList.remove('open'));
 document.getElementById('btn-theme').addEventListener('click', e => {
   e.stopPropagation();
   $themePicker.classList.toggle('open');
