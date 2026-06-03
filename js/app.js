@@ -39,12 +39,12 @@ const BOOKS = [
   },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
-      { id: 'themes',    engName: 'Themes'     },
       { id: 'gurus',     engName: 'Gurus'      },
       { id: 'resources', engName: 'Resources'  },
       { id: 'credits',   engName: 'Credits'    },
       { id: 'contact',   engName: 'Contact Us' },
       { id: 'support',   engName: 'Support Us' },
+      { id: 'themes',    engName: 'Themes'     },
     ]
   },
 ];
