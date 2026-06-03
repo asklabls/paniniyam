@@ -383,6 +383,14 @@ function updateURL(sutra) {
   history.replaceState({ sutra: sutra.i }, '', `?sutra=${ref}`);
 }
 
+function updateDhatuURL(dhatu) {
+  history.replaceState({ dhatu: dhatu.baseindex }, '', `?dhatu=${dhatu.baseindex}`);
+}
+
+function updateBookURL(bookId) {
+  history.replaceState({ book: bookId }, '', `?book=${bookId}`);
+}
+
 function clearURL() {
   history.replaceState({}, '', location.pathname);
 }
@@ -405,6 +413,7 @@ function showDhatuReader(dhatu, idx) {
   updateReaderNav();
   showPanel('reader');
   prefetchDhatuForms(dhatuReaderList, idx);
+  updateDhatuURL(dhatu);
 }
 
 function renderReaderSutra(sutra) {
@@ -1221,6 +1230,7 @@ async function handleLeafClick(book, btn) {
   readerSutra = null;
   updateReaderNav();
   activeCard  = null;
+  updateBookURL(book.id);
 
   try {
     const data = await loadData(book.id, book.dataPath);
@@ -3275,14 +3285,39 @@ async function init() {
     $welcomeStats.textContent = `${sutraList.length} sūtras · 8 adhyāyas · 32 pādas`;
     $loading.classList.add('hidden');
 
-    // Deep link — open sutra from URL param if present
-    const urlSutra = new URLSearchParams(location.search).get('sutra');
-    const linkedId = urlSutra ? sutraRefToId(urlSutra) : null;
-    const linkedSutra = linkedId ? sutraIndex[linkedId] : null;
-    if (linkedSutra) {
-      const idx = sutraList.findIndex(s => s.i === linkedId);
-      readerList = sutraList;
-      showReader(linkedSutra, idx);
+    // Deep link — open sutra/dhatu/book from URL param if present
+    const params    = new URLSearchParams(location.search);
+    const urlSutra  = params.get('sutra');
+    const urlDhatu  = params.get('dhatu');
+    const urlBook   = params.get('book');
+
+    if (urlSutra) {
+      const linkedId    = sutraRefToId(urlSutra);
+      const linkedSutra = linkedId ? sutraIndex[linkedId] : null;
+      if (linkedSutra) {
+        const idx = sutraList.findIndex(s => s.i === linkedId);
+        readerList = sutraList;
+        showReader(linkedSutra, idx);
+      } else {
+        showPanel('welcome');
+      }
+    } else if (urlDhatu) {
+      const dhatuData = await loadData('dhatupatha', 'dhatu/data.txt');
+      const list = dhatuData?.data || [];
+      const idx  = list.findIndex(d => d.baseindex === urlDhatu);
+      if (idx >= 0) {
+        dhatuReaderList = list;
+        showDhatuReader(list[idx], idx);
+      } else {
+        showPanel('welcome');
+      }
+    } else if (urlBook) {
+      const book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
+      if (book) {
+        await handleLeafClick(book, null);
+      } else {
+        showPanel('welcome');
+      }
     } else {
       showPanel('welcome');
     }
