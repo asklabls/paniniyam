@@ -3129,10 +3129,12 @@ async function init() {
   try {
     const [raw] = await Promise.all([
       fetchJSON('sutraani/data.txt'),
-      fetch(`${FORMS_BASE}/pravachanam.json`)
-        .then(r => r.ok ? r.json() : null)
-        .then(d => { if (d) bookData['pravachanam'] = d; })
-        .catch(() => null),
+      PRIVATE_BASE
+        ? fetch(`${PRIVATE_BASE}/pravachanam.json`)
+            .then(r => r.ok ? r.json() : null)
+            .then(d => { if (d) bookData['pravachanam'] = d; })
+            .catch(() => null)
+        : Promise.resolve(null),
     ]);
     sutraList = raw.data || [];
     for (const s of sutraList) sutraIndex[s.i] = s;
