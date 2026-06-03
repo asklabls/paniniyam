@@ -39,6 +39,7 @@ const BOOKS = [
   },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
+      { id: 'themes',    engName: 'Themes'     },
       { id: 'gurus',     engName: 'Gurus'      },
       { id: 'resources', engName: 'Resources'  },
       { id: 'credits',   engName: 'Credits'    },
@@ -2515,7 +2516,125 @@ function showAbout() {
   closeDrawer();
 }
 
+function buildThemePreviewSection(section) {
+  // Title + intro
+  const h2 = document.createElement('h2');
+  h2.className = 'about-title';
+  h2.textContent = 'Themes & Scripts';
+  section.appendChild(h2);
+  const intro = document.createElement('p');
+  intro.className = 'about-intro';
+  intro.textContent = 'Choose a colour theme and script below — the preview updates live.';
+  section.appendChild(intro);
+
+  // Controls card
+  const ctrl = document.createElement('div');
+  ctrl.className = 'about-card theme-preview-controls';
+
+  // Theme swatches row
+  const themeRow = document.createElement('div');
+  themeRow.className = 'tp-row';
+  const themeLbl = document.createElement('span');
+  themeLbl.className = 'tp-lbl';
+  themeLbl.textContent = 'Theme';
+  themeRow.appendChild(themeLbl);
+  const swatches = document.createElement('div');
+  swatches.className = 'tp-swatches';
+  for (const t of THEMES) {
+    const btn = document.createElement('button');
+    btn.className = 'tp-swatch' + (t.id === currentTheme ? ' active' : '');
+    btn.title = t.label;
+    btn.dataset.tid = t.id;
+    btn.style.background = t.bg;
+    btn.style.border = `3px solid ${t.bar}`;
+    const dot = document.createElement('span');
+    dot.className = 'tp-swatch-dot';
+    dot.style.background = t.accent;
+    btn.appendChild(dot);
+    const lbl = document.createElement('span');
+    lbl.className = 'tp-swatch-lbl';
+    lbl.textContent = t.label;
+    btn.appendChild(lbl);
+    btn.addEventListener('click', () => {
+      applyTheme(t.id);
+      swatches.querySelectorAll('.tp-swatch').forEach(s => s.classList.toggle('active', s.dataset.tid === t.id));
+      document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.themeId === t.id));
+    });
+    swatches.appendChild(btn);
+  }
+  themeRow.appendChild(swatches);
+  ctrl.appendChild(themeRow);
+
+  // Script selector row
+  const scriptRow = document.createElement('div');
+  scriptRow.className = 'tp-row';
+  const scriptLbl = document.createElement('span');
+  scriptLbl.className = 'tp-lbl';
+  scriptLbl.textContent = 'Script';
+  scriptRow.appendChild(scriptLbl);
+  const scriptPills = document.createElement('div');
+  scriptPills.className = 'tp-script-pills';
+  for (const sc of SCRIPTS) {
+    const btn = document.createElement('button');
+    btn.className = 'tp-script-pill' + (sc.id === currentScript ? ' active' : '');
+    btn.dataset.sid = sc.id;
+    btn.textContent = sc.label;
+    btn.title = sc.name;
+    btn.addEventListener('click', () => {
+      setScript(sc.id);
+      scriptPills.querySelectorAll('.tp-script-pill').forEach(b => b.classList.toggle('active', b.dataset.sid === sc.id));
+      document.querySelectorAll('.script-menu-item').forEach(b => b.classList.toggle('active', b.dataset.scriptId === sc.id));
+    });
+    scriptPills.appendChild(btn);
+  }
+  scriptRow.appendChild(scriptPills);
+  ctrl.appendChild(scriptRow);
+
+  section.appendChild(ctrl);
+
+  // Live preview card
+  const sutra = sutraIndex['11001'];
+  if (!sutra) return;
+
+  const previewLabel = document.createElement('div');
+  previewLabel.className = 'tp-preview-label';
+  previewLabel.textContent = 'Live preview — 1.1.1 वृद्धिरादैच्';
+  section.appendChild(previewLabel);
+
+  const previewCard = document.createElement('div');
+  previewCard.className = 'sutra-card open tp-preview-card';
+
+  const row = document.createElement('div');
+  row.className = 'sutra-row';
+  row.innerHTML = `<span class="sutra-id">1.1.1</span>`;
+  const tSpan = document.createElement('span');
+  tSpan.className = 'sutra-text dev-text';
+  tSpan._devText = sutra.s;
+  tSpan.textContent = translit(sutra.s);
+  row.appendChild(tSpan);
+  const t = (sutra.type || '').split('$')[0];
+  row.appendChild(devEl('span', `sutra-badge badge-${t}`, TYPE_BADGE_DEV[t] || t || '?'));
+  previewCard.appendChild(row);
+
+  const detail = document.createElement('div');
+  detail.className = 'sutra-detail';
+  const fullEl = devEl('div', 'detail-sutra-full', sutra.s);
+  detail.appendChild(fullEl);
+  detail.appendChild(buildSutraMeta(sutra));
+  buildTabGroups(sutra, detail, true);
+  previewCard.appendChild(detail);
+  section.appendChild(previewCard);
+}
+
 function renderAboutSection(id) {
+  if (id === 'themes') {
+    $aboutPanelContent.innerHTML = '<div class="about-section" id="tp-section"></div>';
+    buildThemePreviewSection(document.getElementById('tp-section'));
+    $aboutPanelNav.querySelectorAll('.about-panel-tab').forEach(b =>
+      b.classList.toggle('active', b.dataset.section === id));
+    return;
+  }
+
   const CONTENT = {
     gurus: {
       html: `
