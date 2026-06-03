@@ -31,6 +31,7 @@ const BOOKS = [
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
   { id: 'shiksha',         devName: 'शिक्षा',         engName: 'Śikṣā',          type: 'leaf', dataPath: 'shiksha/data.txt',             icon: 'शिक्षा'  },
   { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
+  { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
   { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree', icon: 'प्र०',
     pages: [
       { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta'  },
@@ -209,6 +210,7 @@ const $panelAbout        = document.getElementById('panel-about');
 const $aboutPanelNav     = document.getElementById('about-panel-nav');
 const $aboutPanelContent = document.getElementById('about-panel-content');
 const $panelPratyaya     = document.getElementById('panel-pratyaya');
+const $panelShabda       = document.getElementById('panel-shabda');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -355,6 +357,7 @@ function showPanel(name) {
   $panelReader.style.display   = name === 'reader'   ? '' : 'none';
   $panelAbout.style.display    = name === 'about'    ? '' : 'none';
   $panelPratyaya.style.display = name === 'pratyaya' ? '' : 'none';
+  $panelShabda.style.display   = name === 'shabda'   ? '' : 'none';
   $app.scrollTop = 0;
 }
 
@@ -1068,6 +1071,13 @@ function buildBookEntry(book) {
   if (book.type === 'about-menu') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showAbout(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'shabda-browser') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showShabdaBrowser(); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -2059,6 +2069,211 @@ document.getElementById('btn-theme').addEventListener('click', e => {
 document.addEventListener('click', e => {
   if (!$themePicker.contains(e.target)) $themePicker.classList.remove('open');
 });
+
+// ── Shabda browser ────────────────────────────────────────────────────────────
+
+const VIBHAKTI_NAMES = ['प्रथमा','द्वितीया','तृतीया','चतुर्थी','पञ्चमी','षष्ठी','सप्तमी','सम्बोधन'];
+const VACANA_NAMES   = ['एकवचन','द्विवचन','बहुवचन'];
+
+async function loadShabdaData() {
+  if (bookData['shabda']) return bookData['shabda'];
+  const res = await fetch(`${FORMS_BASE}/shabda_sample.json`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  bookData['shabda'] = await res.json();
+  return bookData['shabda'];
+}
+
+function generateShabdaForms(stem, paradigm) {
+  if (paradigm.type === 'generated') {
+    let base = stem;
+    if (paradigm.pre === 'strip_hal') base = stem.replace(/्$/, '');
+    else if (paradigm.pre === 'strip_aa') base = stem.replace(/ा$/, '');
+    return paradigm.endings.split(';').map(e => base + e);
+  }
+  return paradigm.forms.split(';');
+}
+
+async function showShabdaBrowser(paradigmId, searchWord) {
+  showPanel('shabda');
+  const panel = $panelShabda;
+  panel.innerHTML = '<div class="shabda-loading">…</div>';
+
+  let data;
+  try { data = await loadShabdaData(); }
+  catch (_) { panel.innerHTML = '<div class="shabda-empty">Could not load data.</div>'; return; }
+
+  panel.innerHTML = '';
+  const paradigms = data.paradigms;
+  const wordIndex = data.index;
+
+  let activeId   = paradigmId || paradigms[0].id;
+  let activeStem = searchWord || null;
+
+  // ── Search bar ──────────────────────────────────────────────────────────────
+  const searchWrap = document.createElement('div');
+  searchWrap.className = 'shabda-search-wrap';
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.className = 'shabda-search';
+  searchInput.placeholder = 'Search: देव, लता, नदी…';
+  searchInput.autocomplete = 'off';
+  searchInput.spellcheck = false;
+  if (searchWord) searchInput.value = searchWord;
+  const searchClear = document.createElement('button');
+  searchClear.className = 'shabda-search-clear';
+  searchClear.textContent = '✕';
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    activeStem = null;
+    renderTable(activeId, null);
+    searchInput.focus();
+  });
+  searchWrap.appendChild(searchInput);
+  searchWrap.appendChild(searchClear);
+  panel.appendChild(searchWrap);
+
+  // ── Paradigm pills ──────────────────────────────────────────────────────────
+  const pillsWrap = document.createElement('div');
+  pillsWrap.className = 'shabda-pills';
+  panel.appendChild(pillsWrap);
+
+  // ── Table area ──────────────────────────────────────────────────────────────
+  const tableArea = document.createElement('div');
+  tableArea.className = 'shabda-table-area';
+  panel.appendChild(tableArea);
+
+  // ── Render table ─────────────────────────────────────────────────────────────
+  function renderTable(pid, wordStem) {
+    activeId   = pid;
+    activeStem = wordStem || null;
+    const p = paradigms.find(x => x.id === pid);
+    if (!p) return;
+
+    const displayStem = wordStem || p.example;
+    const forms = generateShabdaForms(displayStem, p);
+
+    tableArea.innerHTML = '';
+
+    // Word + label header
+    const header = document.createElement('div');
+    header.className = 'shabda-header';
+
+    const stemEl = document.createElement('span');
+    stemEl.className = 'shabda-stem dev-text';
+    stemEl._devText = displayStem;
+    stemEl.textContent = translit(displayStem);
+    header.appendChild(stemEl);
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'shabda-label dev-text';
+    labelEl._devText = p.label;
+    labelEl.textContent = translit(p.label);
+    header.appendChild(labelEl);
+
+    tableArea.appendChild(header);
+
+    // Stored paradigm + non-example word → show pattern note
+    if (p.type === 'stored' && wordStem && wordStem !== p.example) {
+      const note = document.createElement('div');
+      note.className = 'shabda-pattern-note';
+      const noteText = document.createElement('span');
+      noteText.className = 'dev-text';
+      noteText._devText = `${wordStem} follows ${p.example} pattern`;
+      noteText.textContent = translit(`${wordStem} follows ${p.example} pattern`);
+      note.appendChild(noteText);
+      tableArea.appendChild(note);
+    }
+
+    // Declension table
+    const table = document.createElement('table');
+    table.className = 'shabda-table';
+
+    const thead = document.createElement('thead');
+    const hrow = document.createElement('tr');
+    hrow.appendChild(document.createElement('th'));
+    VACANA_NAMES.forEach(v => {
+      const th = document.createElement('th');
+      th.className = 'dev-text';
+      th._devText = v;
+      th.textContent = translit(v);
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (let i = 0; i < 8; i++) {
+      const row = document.createElement('tr');
+      const vib = document.createElement('td');
+      vib.className = 'shabda-vib dev-text';
+      vib._devText = VIBHAKTI_NAMES[i];
+      vib.textContent = translit(VIBHAKTI_NAMES[i]);
+      row.appendChild(vib);
+      for (let j = 0; j < 3; j++) {
+        const td = document.createElement('td');
+        td.className = 'shabda-form dev-text';
+        const form = forms[i * 3 + j];
+        td._devText = form;
+        td.textContent = translit(form || '—');
+        row.appendChild(td);
+      }
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    tableArea.appendChild(table);
+
+    // Similar words
+    if (p.similar && p.similar.length) {
+      const simWrap = document.createElement('div');
+      simWrap.className = 'shabda-similar';
+      const simLabel = document.createElement('span');
+      simLabel.className = 'shabda-similar-label dev-text';
+      simLabel._devText = 'समान शब्द';
+      simLabel.textContent = translit('समान शब्द') + ' →';
+      simWrap.appendChild(simLabel);
+      p.similar.forEach(w => {
+        const pill = document.createElement('button');
+        pill.className = 'shabda-sim-pill dev-text';
+        pill._devText = w;
+        pill.textContent = translit(w);
+        pill.addEventListener('click', () => {
+          searchInput.value = w;
+          renderTable(pid, w);
+        });
+        simWrap.appendChild(pill);
+      });
+      tableArea.appendChild(simWrap);
+    }
+
+    // Update pill active state
+    pillsWrap.querySelectorAll('.shabda-pill').forEach(b =>
+      b.classList.toggle('active', b.dataset.id === pid));
+  }
+
+  // ── Build paradigm pills ────────────────────────────────────────────────────
+  paradigms.forEach(p => {
+    const pill = document.createElement('button');
+    pill.className = 'shabda-pill dev-text' + (p.id === activeId ? ' active' : '');
+    pill.dataset.id = p.id;
+    pill._devText = p.pill;
+    pill.textContent = translit(p.pill);
+    pill.addEventListener('click', () => {
+      searchInput.value = '';
+      renderTable(p.id, null);
+    });
+    pillsWrap.appendChild(pill);
+  });
+
+  // ── Search ──────────────────────────────────────────────────────────────────
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    if (!q) { renderTable(activeId, null); return; }
+    const pid = wordIndex[q];
+    if (pid) { renderTable(pid, q); }
+  });
+
+  renderTable(activeId, activeStem);
+}
 
 // ── Search ────────────────────────────────────────────────────────────────────
 let searchScope = 'ashtadhyayi';

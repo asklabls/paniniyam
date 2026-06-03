@@ -1183,6 +1183,104 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: #555;
 }
 
+/* ── Shabda browser ───────────────────────────────────────────── */
+.panel-shabda { padding: 0 0 80px; }
+
+.shabda-search-wrap {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+  padding: 12px 16px 8px;
+  display: flex; gap: 6px; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.shabda-search {
+  flex: 1; padding: 7px 10px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card-bg); color: var(--fg);
+  font-family: var(--font-dev); font-size: .95rem;
+}
+.shabda-search:focus { outline: none; border-color: var(--accent); }
+.shabda-search-clear {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: .9rem; padding: 4px 6px;
+}
+.shabda-pills {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.shabda-pill {
+  padding: 4px 11px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--card-bg);
+  color: var(--fg); font-family: var(--font-dev); font-size: .82rem;
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.shabda-pill:hover { border-color: var(--accent); color: var(--accent); }
+.shabda-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.shabda-table-area { padding: 14px 16px 0; }
+.shabda-header {
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;
+}
+.shabda-stem {
+  font-family: var(--font-dev); font-size: 1.8rem;
+  font-weight: 700; color: var(--fg);
+}
+.shabda-label {
+  font-family: var(--font-dev); font-size: .85rem; color: var(--muted);
+}
+.shabda-pattern-note {
+  font-family: var(--font-dev); font-size: .8rem; color: var(--muted);
+  margin-bottom: 8px; padding: 5px 8px;
+  background: var(--card-bg); border-radius: 4px;
+  border-left: 3px solid var(--accent);
+}
+.shabda-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font-dev); font-size: .9rem; margin-bottom: 14px;
+}
+.shabda-table thead th {
+  padding: 6px 10px; text-align: center;
+  font-weight: 600; color: var(--muted);
+  border-bottom: 2px solid var(--border); font-size: .78rem;
+}
+.shabda-table thead th:first-child { text-align: left; }
+.shabda-vib {
+  padding: 7px 10px 7px 0; font-size: .78rem;
+  color: var(--muted); font-weight: 600;
+  white-space: nowrap; border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.shabda-form {
+  padding: 7px 10px; text-align: center;
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  color: var(--fg); cursor: default;
+  transition: background .12s;
+}
+.shabda-form:hover { background: var(--card-bg); }
+.shabda-table tbody tr:last-child .shabda-vib,
+.shabda-table tbody tr:last-child .shabda-form { border-bottom: none; }
+.shabda-similar {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  align-items: center; padding: 6px 0 16px;
+}
+.shabda-similar-label {
+  font-family: var(--font-dev); font-size: .78rem;
+  color: var(--muted); white-space: nowrap;
+}
+.shabda-sim-pill {
+  padding: 3px 10px; border-radius: 14px;
+  border: 1px solid var(--border); background: none;
+  color: var(--accent); font-family: var(--font-dev); font-size: .82rem;
+  cursor: pointer; transition: background .12s;
+}
+.shabda-sim-pill:hover { background: var(--card-bg); }
+.shabda-loading, .shabda-empty {
+  padding: 32px 16px; color: var(--muted);
+  text-align: center; font-family: var(--font-dev);
+}
+
 /* ── Scrollbar ────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
