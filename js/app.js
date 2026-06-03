@@ -1778,7 +1778,11 @@ function gotoSutra(idStr) {
   showReader(sutra, idx >= 0 ? idx : 0);
 }
 
-function gotoDhatu(baseindex) {
+async function gotoDhatu(baseindex) {
+  if (!dhatuReaderList.length) {
+    const data = await loadData('dhatupatha', 'dhatu/data.txt');
+    dhatuReaderList = data?.data || [];
+  }
   const idx = dhatuReaderList.findIndex(d => d.baseindex === baseindex);
   if (idx < 0) return;
   closeDrawer();
