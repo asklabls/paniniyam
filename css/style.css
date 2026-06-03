@@ -1055,7 +1055,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   vertical-align: top;
   border-bottom: 1px solid var(--border);
   line-height: 1.55;
-  color: var(--muted);
+  color: var(--fg);
 }
 /* Inline sutra links within siddhi notes */
 .siddhi-sutra-link {
