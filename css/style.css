@@ -368,7 +368,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .theme-picker { position: relative; }
 .theme-picker-btn { font-size: 1.2em !important; min-width: 38px !important; }
 .theme-picker-menu {
-  position: absolute; top: calc(100% + 4px); right: 0;
+  position: absolute; top: 100%; right: 0;
   background: var(--bg-sidebar);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -923,6 +923,233 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   text-align: center;
   color: var(--muted);
   font-size: 1.2em;
+}
+
+/* ── Siddhi derivation panel ──────────────────────────────────── */
+.siddhi-group {
+  margin-top: 12px;
+}
+.siddhi-header {
+  background: var(--bar);
+  color: #fff;
+  padding: 0 12px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px 6px 0 0;
+  margin-bottom: 0;
+}
+.siddhi-header-label {
+  font-family: var(--font-dev);
+  font-size: .82em;
+  font-weight: 600;
+  letter-spacing: .04em;
+  opacity: .9;
+}
+.siddhi-body {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+.siddhi-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px 8px;
+  background: var(--hover-bg);
+  border-bottom: 1px solid var(--border);
+}
+.siddhi-pill {
+  font-family: var(--font-dev);
+  font-size: .82em;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.siddhi-pill:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.siddhi-pill.active { background: var(--bar); color: #fff; border-color: var(--bar); }
+.siddhi-entry {
+  padding: 10px 12px 14px;
+}
+.siddhi-intro {
+  font-size: .88em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.siddhi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85em;
+}
+.siddhi-table thead th {
+  font-family: var(--font-dev);
+  font-size: .78em;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--hover-bg);
+}
+.siddhi-table { table-layout: fixed; }
+.siddhi-table thead th:first-child  { width: 10%; text-align: center; }
+.siddhi-table thead th:nth-child(2) { width: 30%; }
+.siddhi-table thead th:nth-child(3) { width: 60%; }
+.siddhi-num {
+  text-align: center;
+  color: var(--muted);
+  font-size: .8em;
+  padding: 5px 4px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+.siddhi-form {
+  font-family: var(--font-dev);
+  padding: 5px 8px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+.siddhi-note {
+  padding: 5px 8px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.55;
+  color: var(--muted);
+}
+/* Inline sutra links within siddhi notes */
+.siddhi-sutra-link {
+  font-family: var(--font-dev);
+  font-size: .88em;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent);
+  white-space: nowrap;
+}
+.siddhi-sutra-link:hover { color: var(--bar); border-bottom-style: solid; }
+.siddhi-dhatu-ref {
+  font-family: var(--font-dev);
+  font-size: .88em;
+  color: var(--muted);
+  font-style: italic;
+}
+/* Hover tooltip showing the 1-line sutra text */
+/* Artha popup card — appears on hover over siddhi sutra links */
+.artha-popup {
+  position: fixed;
+  z-index: 9999;
+  width: 380px;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.38);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+  font-size: .88em;
+  line-height: 1.5;
+  overflow: hidden;          /* clips children to border-radius */
+  background: #fff;          /* solid — no bleed-through from page */
+}
+.artha-popup.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.artha-popup-head {
+  background: #1e2235;       /* dark, theme-independent */
+  color: #fff;
+  padding: 7px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.artha-popup-ref {
+  font-size: .78em;
+  opacity: .75;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.artha-popup-sutra {
+  font-family: var(--font-dev);
+  font-weight: 700;
+  font-size: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artha-popup-body {
+  background: #fff;
+  padding: 8px 12px 10px;
+  overflow-y: auto;
+  max-height: 300px;   /* scrolls only if both artha lines are very long */
+}
+.artha-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.artha-row:last-child { margin-bottom: 0; }
+.artha-lbl {
+  font-family: var(--font-dev);
+  font-size: .82em;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+.artha-val {
+  font-family: var(--font-dev);
+  color: #1a1a2e;
+  font-size: .93em;
+}
+.artha-hindi {
+  border-top: 1px solid #eee;
+  padding-top: 5px;
+  margin-top: 2px;
+  color: #444;
+  font-size: .87em;
+}
+.siddhi-table tbody tr:last-child td { border-bottom: none; }
+.siddhi-table tbody tr:hover td { background: var(--hover-bg); }
+
+/* ── Pravachanam tab (आ० सुदर्शनदेव) ──────────────────────────────────────── */
+.pravachanam-panel {
+  padding: 10px 14px;
+}
+.prav-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.prav-row:last-child { margin-bottom: 0; }
+.prav-lbl {
+  font-family: var(--font-dev);
+  font-size: .78em;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 2px;
+  min-width: 52px;
+}
+.prav-val {
+  font-family: var(--font-dev);
+  font-size: .92em;
+  color: var(--fg);
+}
+.prav-hindi .prav-lbl,
+.prav-hindi .prav-val {
+  font-family: var(--font-dev);
+  font-size: .88em;
+  color: #555;
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────── */

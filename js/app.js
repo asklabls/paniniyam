@@ -1551,8 +1551,11 @@ function renderSiddhiEntry(entry) {
   if (entry.intro) {
     const intro = document.createElement('div');
     intro.className = 'siddhi-intro dev-text';
-    intro._devText = entry.intro;
-    intro.textContent = translit(entry.intro);
+    // Strip any residual [[wiki-links]] — keep display text after \| or whole content
+    const cleanIntro = entry.intro.replace(/\[\[(?:[^\]|\\]*)(?:[\\|]+([^\]]+))?\]\]/g,
+      (_, disp) => disp ? disp.trim() : '');
+    intro._devText = cleanIntro;
+    intro.textContent = translit(cleanIntro);
     wrap.appendChild(intro);
   }
 
