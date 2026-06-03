@@ -378,6 +378,15 @@ function updateReaderNav() {
   }
 }
 
+function updateURL(sutra) {
+  const ref = `${sutra.a}.${sutra.p}.${sutra.n}`;
+  history.replaceState({ sutra: sutra.i }, '', `?sutra=${ref}`);
+}
+
+function clearURL() {
+  history.replaceState({}, '', location.pathname);
+}
+
 function showReader(sutra, idx) {
   readerType  = 'sutra';
   readerIdx   = idx;
@@ -385,6 +394,7 @@ function showReader(sutra, idx) {
   renderReaderSutra(sutra);
   updateReaderNav();
   showPanel('reader');
+  updateURL(sutra);
 }
 
 function showDhatuReader(dhatu, idx) {
@@ -3264,7 +3274,18 @@ async function init() {
     retranslit();
     $welcomeStats.textContent = `${sutraList.length} sūtras · 8 adhyāyas · 32 pādas`;
     $loading.classList.add('hidden');
-    showPanel('welcome');
+
+    // Deep link — open sutra from URL param if present
+    const urlSutra = new URLSearchParams(location.search).get('sutra');
+    const linkedId = urlSutra ? sutraRefToId(urlSutra) : null;
+    const linkedSutra = linkedId ? sutraIndex[linkedId] : null;
+    if (linkedSutra) {
+      const idx = sutraList.findIndex(s => s.i === linkedId);
+      readerList = sutraList;
+      showReader(linkedSutra, idx);
+    } else {
+      showPanel('welcome');
+    }
   } catch (err) {
     document.querySelector('.loading-text').textContent = `Error: ${err.message}`;
   }
