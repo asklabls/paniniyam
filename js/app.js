@@ -60,6 +60,7 @@ const TAB_GROUPS = [
   {
     id: 'primary',
     tabs: [
+      { id: 'sudarshandev', devLabel: 'आ० सुदर्शनदेव', type: 'pravachanam' },
       { id: 'kashika',  devLabel: 'काशिका',       dataPath: 'sutraani/kashika.txt'         },
       { id: 'vartika',  devLabel: 'वार्तिकम्',     dataPath: 'sutraani/vartika.txt'         },
       { id: 'bhashya',  devLabel: 'महाभाष्यम्',    dataPath: 'sutraani/bhashya.txt'         },
@@ -149,8 +150,7 @@ const FORMS_BASE = isLocal
 // Private data (owner-authored / copyrighted content) — never committed to public repo.
 // Set PRIVATE_BASE to a private CDN URL (R2, Cloudflare Worker, etc.) when deploying.
 // All private features fall back silently when null.
-const PRIVATE_BASE = isLocal ? 'forms' : null;
-// TODO: replace null with e.g. 'https://private.yourdomain.com'
+const PRIVATE_BASE = isLocal ? 'forms' : 'https://pub-19119053fd624d308a49f9189fffb000.r2.dev';
 const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -914,8 +914,8 @@ function buildSutraMeta(sutra) {
 
   // समासः — from pravachanam.json when available
   addRow('समासः', val => {
-    const s = bookData['pravachanam']?.[sutra.i]?.samasa;
-    if (s) val.appendChild(devEl('span', '', s));
+    const s = bookData['pravachanam']?.[sutra.i]?.sm;
+    if (s) val.appendChild(devEl('span', 'dev-text', s));
     else addEmpty(val);
   });
 
@@ -974,8 +974,8 @@ function buildSutraMeta(sutra) {
 
   // उदाहरणम् — from pravachanam.json when available
   addRow('उदाहरणम्', val => {
-    const u = bookData['pravachanam']?.[sutra.i]?.udaharana;
-    if (u) val.appendChild(devEl('span', '', u));
+    const u = bookData['pravachanam']?.[sutra.i]?.ua;
+    if (u) val.appendChild(devEl('span', 'dev-text', u));
     else addEmpty(val);
   });
 
@@ -1276,6 +1276,10 @@ function createSutraCard(sutra) {
 
 async function loadTabData(tabDef, panel, sutra) {
   panel._loaded = true;
+  if (tabDef.type === 'pravachanam') {
+    await renderPravachanamTab(panel, sutra.i);
+    return;
+  }
   panel.textContent = '…';
   try {
     const data = await loadData(tabDef.id, tabDef.dataPath);
@@ -1286,6 +1290,44 @@ async function loadTabData(tabDef, panel, sutra) {
   } catch (_) {
     panel._loaded = false;
     panel.textContent = 'Could not load.';
+  }
+}
+
+async function renderPravachanamTab(panel, sutraId) {
+  panel.classList.add('pravachanam-panel');
+  if (!PRIVATE_BASE) { panel.textContent = '—'; return; }
+  const data = await loadArthaData();
+  const entry = data?.[sutraId];
+  if (!entry?.a && !entry?.h) { panel.textContent = '—'; return; }
+  if (entry.a) {
+    const row = document.createElement('div');
+    row.className = 'prav-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'prav-lbl dev-text';
+    lbl._devText = 'अर्थः';
+    lbl.textContent = translit('अर्थः');
+    const val = document.createElement('span');
+    val.className = 'prav-val dev-text';
+    val._devText = entry.a;
+    val.textContent = translit(entry.a);
+    row.appendChild(lbl);
+    row.appendChild(val);
+    panel.appendChild(row);
+  }
+  if (entry.h) {
+    const row = document.createElement('div');
+    row.className = 'prav-row prav-hindi';
+    const lbl = document.createElement('span');
+    lbl.className = 'prav-lbl dev-text';
+    lbl._devText = 'हिन्दी';
+    lbl.textContent = translit('हिन्दी');
+    const val = document.createElement('span');
+    val.className = 'prav-val dev-text';
+    val._devText = entry.h;
+    val.textContent = translit(entry.h);
+    row.appendChild(lbl);
+    row.appendChild(val);
+    panel.appendChild(row);
   }
 }
 
@@ -1434,8 +1476,9 @@ async function showSiddhiTip(el, sutraId) {
     const row = document.createElement('div');
     row.className = 'artha-row artha-hindi';
     const val = document.createElement('span');
-    // Hindi prose — stays Devanagari
-    val.textContent = entry.h;
+    val.className = 'dev-text';
+    val._devText = entry.h;
+    val.textContent = translit(entry.h);
     row.appendChild(val);
     body.appendChild(row);
   }
@@ -1472,7 +1515,6 @@ function hideSiddhiTip() {
 
 // Render an array of segments [{t,v,id,...}] as inline DOM nodes into container.
 // 'sl' segments become clickable sutra links with hover tooltip.
-// 'tx' segments are Hindi prose — kept in Devanagari regardless of script.
 function renderSiddhiSegs(segs, container) {
   segs.forEach(seg => {
     if (seg.t === 'sl') {
@@ -1487,15 +1529,17 @@ function renderSiddhiSegs(segs, container) {
       a.addEventListener('touchstart', () => showSiddhiTip(a, seg.id), { passive: true });
       container.appendChild(a);
     } else if (seg.t === 'dl') {
-      // Dhatu link — show as styled text (no navigation for now)
       const span = document.createElement('span');
       span.className = 'siddhi-dhatu-ref dev-text';
       span._devText = seg.v;
       span.textContent = translit(seg.v);
       container.appendChild(span);
     } else {
-      // Plain text — Hindi prose, stays Devanagari
-      container.appendChild(document.createTextNode(seg.v + ' '));
+      const span = document.createElement('span');
+      span.className = 'dev-text';
+      span._devText = seg.v;
+      span.textContent = translit(seg.v) + ' ';
+      container.appendChild(span);
     }
   });
 }
@@ -1506,9 +1550,9 @@ function renderSiddhiEntry(entry) {
 
   if (entry.intro) {
     const intro = document.createElement('div');
-    // Intro is Hindi prose — keep in Devanagari regardless of script choice
-    intro.className = 'siddhi-intro';
-    intro.textContent = entry.intro;
+    intro.className = 'siddhi-intro dev-text';
+    intro._devText = entry.intro;
+    intro.textContent = translit(entry.intro);
     wrap.appendChild(intro);
   }
 
@@ -2536,21 +2580,30 @@ function renderAboutSection(id) {
       html: `
         <div class="about-section">
           <h2 class="about-title">Credits</h2>
-          <p class="about-intro">This site is built on the shoulders of several outstanding open resources.</p>
+          <p class="about-intro">This site stands on the work of a great ācārya and several outstanding open resources.</p>
+
           <div class="about-card">
-            <div class="about-card-title">Data — ashtadhyayi.com</div>
-            <p>All sutra data, Kashika Vritti, Laghu Kaumudi, Dhatupatha, Ganapatha, Unaadi Kosha, and audio recordings are sourced from the open data repository maintained by <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>.</p>
+            <div class="about-card-title">Primary Content — Ācārya Sudarśanadeva's Ashtadhyayi Pravachanam</div>
+            <p>The sutra-level content on this site — word analysis (padavibhāga), anuvṛtti, anvaya, Sanskrit artha, Hindi artha, and udāharaṇas for all ~4000 sūtras — is drawn from <em>Ashtadhyayi Pravachanam</em> by <strong>Ācārya Sudarśanadeva</strong>, digitized by the author of this site. This commentary, delivered in the Ārya Samāj tradition, is one of the most systematic and accessible modern expositions of Pāṇini's grammar.</p>
           </div>
+
+          <div class="about-card">
+            <div class="about-card-title">Classical Commentaries — ashtadhyayi.com</div>
+            <p>The classical commentaries displayed on this site — Kāśikā Vṛtti, Vārtikam, Laghu Kaumudī — along with Dhatupatha, Ganapatha, Uṇādi Kośa, and audio recordings, are sourced from the open data repository maintained by <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>. We are grateful for their contribution to the Sanskrit community.</p>
+          </div>
+
           <div class="about-card">
             <div class="about-card-title">Transliteration — Sanscript.js</div>
-            <p>Multi-script transliteration across 10+ Indic scripts is powered by <a href="https://github.com/sanskrit-coders/sanscript.js" target="_blank">Sanscript.js</a>, an open-source library by the Sanskrit Coders community.</p>
+            <p>Multi-script transliteration across 11 Indic scripts is powered by <a href="https://github.com/sanskrit-coders/sanscript.js" target="_blank">Sanscript.js</a>, an open-source library by the Sanskrit Coders community.</p>
           </div>
+
           <div class="about-card">
             <div class="about-card-title">Typography</div>
             <p><strong>Vesper Libre</strong> — a serif typeface designed for Sanskrit.<br>
             <strong>Noto Sans Devanagari</strong> — Google's universal Indic script font.<br>
             Both served via Google Fonts.</p>
           </div>
+
           <div class="about-card">
             <div class="about-card-title">Built with</div>
             <p>Vanilla HTML, CSS, and JavaScript — no frameworks, no build step. Fully static, runs anywhere.</p>
@@ -2564,7 +2617,7 @@ function renderAboutSection(id) {
           <p class="about-intro">Have a question, found an error, or want to contribute?</p>
           <div class="about-card">
             <div class="about-card-title">Data corrections</div>
-            <p>For errors in sutra text or commentary, use the edit facility at <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a> — corrections flow into this site automatically.</p>
+            <p>For errors in padavibhāga, artha, or Hindi content, use the feedback form below — this content is maintained by us. For errors in classical commentaries (Kāśikā, Laghu Kaumudī, etc.), please report at <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>.</p>
           </div>
           <div class="about-card">
             <div class="about-card-title">Send feedback</div>
@@ -3092,6 +3145,16 @@ async function init() {
     document.querySelector('.loading-text').textContent = `Error: ${err.message}`;
   }
 }
+
+// ── Global sutra-link hover (works in commentary, meta, everywhere) ───────────
+document.addEventListener('mouseover', e => {
+  const link = e.target.closest('.sutra-link');
+  if (link && link.dataset.id) showSiddhiTip(link, link.dataset.id);
+});
+document.addEventListener('mouseout', e => {
+  const link = e.target.closest('.sutra-link');
+  if (link) hideSiddhiTip();
+});
 
 window.gotoSutra = gotoSutra;
 init();
