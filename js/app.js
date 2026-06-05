@@ -152,7 +152,7 @@ const FORMS_BASE = isLocal
 // Private data (owner-authored / copyrighted content) — never committed to public repo.
 // Set PRIVATE_BASE to a private CDN URL (R2, Cloudflare Worker, etc.) when deploying.
 // All private features fall back silently when null.
-const PRIVATE_BASE = isLocal ? 'forms' : 'https://pub-19119053fd624d308a49f9189fffb000.r2.dev';
+const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f9189fffb000.r2.dev';
 const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -806,6 +806,11 @@ function retranslit() {
     });
   }
 
+  // Leaf books (Unaadi, Linganushasanam, etc.) — commentary panels outside sutra cards
+  document.querySelectorAll('.commentary-panel').forEach(p => {
+    if (p._rawCommentary !== undefined) setCommentaryHTML(p, p._rawCommentary);
+  });
+
   // Search results in drawer
   $searchDrawerBody.querySelectorAll('.sri-text').forEach(el => {
     if (el._devText !== undefined) el.textContent = translit(el._devText);
@@ -1077,7 +1082,7 @@ function buildBookEntry(book) {
 
   if (book.type === 'shabda-browser') {
     btn.classList.add('nav-book-leaf');
-    btn.addEventListener('click', () => { closeDrawer(); showShabdaBrowser(); });
+    btn.addEventListener('click', () => { closeDrawer(); showShabdaEngine(); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -1424,7 +1429,7 @@ async function buildSiddhiPanel(sutraId, wrap, inCard) {
 
 // ── Siddhi tooltip (shared, appended to body once) ───────────────────────────
 // ── Sutra artha popup ─────────────────────────────────────────────────────────
-// Lazy-loads forms/pravachanam.json once, then shows a card popup on hover.
+// Lazy-loads private/pravachanam.json once, then shows a card popup on hover.
 
 let $arthaPopup = null;
 let arthaHideTimer = null;
@@ -2070,10 +2075,177 @@ document.addEventListener('click', e => {
   if (!$themePicker.contains(e.target)) $themePicker.classList.remove('open');
 });
 
+// ── Shabda engine (fires shabda.js) ──────────────────────────────────────────
+// showShabdaEngine() is wired to the शब्दरूपावली nav click.
+// shabda.js is loaded separately — this function calls Shabda.* APIs only.
+// showShabdaBrowser() below is the old paradigm-based browser, kept intact.
+
+function showShabdaEngine() {
+  showPanel('shabda');
+  const panel = $panelShabda;
+  panel.innerHTML = '';
+
+  // ── Pratipada input ──────────────────────────────────────────────────────
+  const wrap = document.createElement('div');
+  wrap.className = 'shabda-search-wrap';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'shabda-search';
+  input.placeholder = 'प्रातिपदिकम्… सुगण्, देव, लता';
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  wrap.appendChild(input);
+  panel.appendChild(wrap);
+
+  // ── Linga selector ───────────────────────────────────────────────────────
+  const lingas = [
+    { id: 'pum',   dev: 'पुंलिङ्ग'      },
+    { id: 'napum', dev: 'नपुंसकलिङ्ग'   },
+    { id: 'stri',  dev: 'स्त्रीलिङ्ग'   },
+  ];
+  let activeLinga = 'pum';
+
+  const lingaRow = document.createElement('div');
+  lingaRow.className = 'shabda-pills';
+  lingas.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'shabda-pill dev-text' + (l.id === activeLinga ? ' active' : '');
+    btn._devText = l.dev;
+    btn.textContent = translit(l.dev);
+    btn.addEventListener('click', () => {
+      activeLinga = l.id;
+      lingaRow.querySelectorAll('.shabda-pill')
+        .forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+    lingaRow.appendChild(btn);
+  });
+  panel.appendChild(lingaRow);
+
+  // ── Result area ──────────────────────────────────────────────────────────
+  const result = document.createElement('div');
+  result.className = 'shabda-table-area';
+  panel.appendChild(result);
+
+  function render() {
+    const stem = input.value.trim();
+    result.innerHTML = '';
+    if (!stem) return;
+
+    // ── Validity check (works for both halant and vowel endings) ────────
+    const ending = Shabda.stemEnding(stem);
+    const valid  = Shabda.endingValid(stem, activeLinga);
+    const lingaDev = lingas.find(l => l.id === activeLinga).dev;
+
+    if (valid === 0) {
+      const msg = document.createElement('div');
+      msg.className = 'shabda-pattern-note';
+      msg.textContent = '"' + ending + '" + ' + lingaDev + ' — संस्कृत में यह संयोग नहीं होता।';
+      result.appendChild(msg);
+      return;
+    }
+    if (valid === null) {
+      const msg = document.createElement('div');
+      msg.className = 'shabda-pattern-note';
+      msg.textContent = '"' + ending + '" के लिए नियम अभी परिभाषित नहीं।';
+      result.appendChild(msg);
+      return;
+    }
+
+    // ── Find matching class ──────────────────────────────────────────────
+    // Look for a registered class that matches the stem + activeLinga.
+    // Convention: class ids end in '-pum', '-napum', '-stri'.
+    const stemEnd = Shabda.stemEnding(stem);
+    const matchId = Object.keys(Shabda.CLASSES).find(id => {
+      const cls = Shabda.CLASSES[id];
+      if (cls.linga !== activeLinga) return false;
+      if (!cls.matchEnding) return true;          // no restriction → fallback
+      return cls.matchEnding === stemEnd;
+    });
+
+    if (!matchId) {
+      const msg = document.createElement('div');
+      msg.className = 'shabda-pattern-note';
+      msg.textContent = 'इस वर्ग के नियम अभी shabda.js में नहीं जोड़े गए।';
+      result.appendChild(msg);
+      return;
+    }
+
+    // ── Derive and show table ────────────────────────────────────────────
+    const forms = Shabda.derive(stem, matchId);
+
+    const header = document.createElement('div');
+    header.className = 'shabda-header';
+    const stemEl = document.createElement('span');
+    stemEl.className = 'shabda-stem dev-text';
+    stemEl._devText = stem;
+    stemEl.textContent = translit(stem);
+    header.appendChild(stemEl);
+    const clsLabel = document.createElement('span');
+    clsLabel.className = 'shabda-label';
+    clsLabel.textContent = Shabda.CLASSES[matchId].label || matchId;
+    header.appendChild(clsLabel);
+    result.appendChild(header);
+
+    const table = document.createElement('table');
+    table.className = 'shabda-table';
+    const thead = document.createElement('thead');
+    const hrow = document.createElement('tr');
+    hrow.appendChild(document.createElement('th'));
+    VACANA_NAMES.forEach(v => {
+      const th = document.createElement('th');
+      th.className = 'dev-text'; th._devText = v; th.textContent = translit(v);
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (let vib = 1; vib <= 8; vib++) {
+      const row = document.createElement('tr');
+      const label = document.createElement('td');
+      label.className = 'shabda-vib dev-text';
+      const ldev = Shabda.VIB_LABEL[vib];
+      label._devText = ldev; label.textContent = translit(ldev);
+      row.appendChild(label);
+      [1, 2, 3].forEach(vac => {
+        const pos = vib * 10 + vac;
+        const f   = forms.find(r => r.pos === pos);
+        const td  = document.createElement('td');
+        td.className = 'shabda-form dev-text' + (f && f.stub ? ' muted' : '');
+        const fdev = f ? f.form : '—';
+        td._devText = fdev; td.textContent = translit(fdev);
+        if (f && !f.stub) td.title = f.sandhi + (f.ref ? '  (' + f.ref + ')' : '');
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    result.appendChild(table);
+  }
+
+  input.addEventListener('input', render);
+}
+
 // ── Shabda browser ────────────────────────────────────────────────────────────
 
 const VIBHAKTI_NAMES = ['प्रथमा','द्वितीया','तृतीया','चतुर्थी','पञ्चमी','षष्ठी','सप्तमी','सम्बोधन'];
 const VACANA_NAMES   = ['एकवचन','द्विवचन','बहुवचन'];
+
+// Auto-detect paradigm(s) from pratipada ending.
+// Returns array of paradigm IDs ordered by likelihood.
+function detectParadigm(word) {
+  if (!word) return [];
+  if (word.endsWith('ा'))  return ['aa-fem'];
+  if (word.endsWith('ी'))  return ['ii-fem'];
+  if (word.endsWith('न्')) return ['an-masc'];
+  if (word.endsWith('ण्')) return ['hal-N-masc'];
+  if (word.endsWith('्'))  return ['hal-N-masc'];   // other halant
+  if (word.endsWith('ि'))  return ['i-masc'];
+  if (word.endsWith('ु'))  return ['u-masc'];
+  // no virama, no vowel sign → ends in inherent-a
+  return ['a-masc', 'a-neut'];
+}
 
 async function loadShabdaData() {
   if (bookData['shabda']) return bookData['shabda'];
@@ -2106,16 +2278,17 @@ async function showShabdaBrowser(paradigmId, searchWord) {
   const paradigms = data.paradigms;
   const wordIndex = data.index;
 
-  let activeId   = paradigmId || paradigms[0].id;
-  let activeStem = searchWord || null;
+  let activeId    = paradigmId || paradigms[0].id;
+  let activeStem  = searchWord || null;
+  let suggestedIds = [];   // paradigm IDs highlighted by auto-detection
 
-  // ── Search bar ──────────────────────────────────────────────────────────────
+  // ── Pratipada input ─────────────────────────────────────────────────────────
   const searchWrap = document.createElement('div');
   searchWrap.className = 'shabda-search-wrap';
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.className = 'shabda-search';
-  searchInput.placeholder = 'Search: देव, लता, नदी…';
+  searchInput.placeholder = 'प्रातिपदिकम्… देव, लता, नदी, हरि';
   searchInput.autocomplete = 'off';
   searchInput.spellcheck = false;
   if (searchWord) searchInput.value = searchWord;
@@ -2124,8 +2297,9 @@ async function showShabdaBrowser(paradigmId, searchWord) {
   searchClear.textContent = '✕';
   searchClear.addEventListener('click', () => {
     searchInput.value = '';
-    activeStem = null;
-    renderTable(activeId, null);
+    suggestedIds = [];
+    updatePillHints();
+    renderTable(paradigms[0].id, null);
     searchInput.focus();
   });
   searchWrap.appendChild(searchInput);
@@ -2141,6 +2315,15 @@ async function showShabdaBrowser(paradigmId, searchWord) {
   const tableArea = document.createElement('div');
   tableArea.className = 'shabda-table-area';
   panel.appendChild(tableArea);
+
+  // ── Update pill active + suggested classes ──────────────────────────────────
+  function updatePillHints() {
+    pillsWrap.querySelectorAll('.shabda-pill').forEach(b => {
+      b.classList.toggle('active',    b.dataset.id === activeId);
+      b.classList.toggle('suggested', !b.classList.contains('active') &&
+                                       suggestedIds.includes(b.dataset.id));
+    });
+  }
 
   // ── Render table ─────────────────────────────────────────────────────────────
   function renderTable(pid, wordStem) {
@@ -2238,6 +2421,8 @@ async function showShabdaBrowser(paradigmId, searchWord) {
         pill.textContent = translit(w);
         pill.addEventListener('click', () => {
           searchInput.value = w;
+          suggestedIds = [pid];
+          updatePillHints();
           renderTable(pid, w);
         });
         simWrap.appendChild(pill);
@@ -2245,9 +2430,7 @@ async function showShabdaBrowser(paradigmId, searchWord) {
       tableArea.appendChild(simWrap);
     }
 
-    // Update pill active state
-    pillsWrap.querySelectorAll('.shabda-pill').forEach(b =>
-      b.classList.toggle('active', b.dataset.id === pid));
+    updatePillHints();
   }
 
   // ── Build paradigm pills ────────────────────────────────────────────────────
@@ -2257,19 +2440,34 @@ async function showShabdaBrowser(paradigmId, searchWord) {
     pill.dataset.id = p.id;
     pill._devText = p.pill;
     pill.textContent = translit(p.pill);
+    // Override: use current input as stem for the chosen paradigm
     pill.addEventListener('click', () => {
-      searchInput.value = '';
-      renderTable(p.id, null);
+      const q = searchInput.value.trim();
+      suggestedIds = q ? detectParadigm(q) : [];
+      renderTable(p.id, q || null);
     });
     pillsWrap.appendChild(pill);
   });
 
-  // ── Search ──────────────────────────────────────────────────────────────────
+  // ── Pratipada input handler ─────────────────────────────────────────────────
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.trim();
-    if (!q) { renderTable(activeId, null); return; }
-    const pid = wordIndex[q];
-    if (pid) { renderTable(pid, q); }
+    if (!q) {
+      suggestedIds = [];
+      updatePillHints();
+      renderTable(paradigms[0].id, null);
+      return;
+    }
+    // Exact match in index → use that paradigm
+    const indexedPid = wordIndex[q];
+    if (indexedPid) {
+      suggestedIds = [indexedPid];
+      renderTable(indexedPid, q);
+      return;
+    }
+    // Auto-detect from word ending
+    suggestedIds = detectParadigm(q);
+    renderTable(suggestedIds[0] || activeId, q);
   });
 
   renderTable(activeId, activeStem);
@@ -3226,7 +3424,11 @@ function renderUnaadiAll(data) {
       lbl.className = 'detail-label';
       lbl.textContent = 'Commentary';
       sec.appendChild(lbl);
-      sec.appendChild(devEl('div', 'detail-sanskrit', u.sk.replace(/<[^>]*>/g, '')));
+      const skDiv = document.createElement('div');
+      skDiv.className = 'detail-sanskrit commentary-panel';
+      skDiv._rawCommentary = u.sk.replace(/<[^>]*>/g, '');
+      setCommentaryHTML(skDiv, skDiv._rawCommentary);
+      sec.appendChild(skDiv);
       detail.appendChild(sec);
     }
     card.appendChild(row);
@@ -3502,6 +3704,19 @@ async function init() {
     buildNavTree();
     retranslit();
     $welcomeStats.textContent = `${sutraList.length} sūtras · 8 adhyāyas · 32 pādas`;
+
+    // ── Welcome hero image + YouTube link (served from R2) ──────────────────
+    const $hero = document.getElementById('welcome-hero');
+    if ($hero && PRIVATE_BASE) {
+      $hero.innerHTML = `
+        <a class="welcome-yt-link" href="https://www.youtube.com/watch?v=l7mQFT5zrdo&list=PLsfkVTlrxnqKVdZRZgq1pFSuuQm-w8fB3"
+           target="_blank" rel="noopener" title="Watch on YouTube">
+          <img class="welcome-hero-img" src="${PRIVATE_BASE}/img/upadesh.png"
+               alt="Paniniyam — a girl lovingly hugging a stack of grammar books">
+          <div class="welcome-yt-badge">▶ Watch on YouTube</div>
+        </a>`;
+    }
+
     $loading.classList.add('hidden');
 
     // Deep link — open sutra/dhatu/book from URL param if present

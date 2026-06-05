@@ -433,6 +433,34 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .script-pill:hover { background: #ecdfc8; border-color: var(--accent); }
 
+/* ── Welcome hero (image + YouTube link) ─────────────────────── */
+.welcome-hero {
+  margin-top: 28px;
+}
+.welcome-yt-link {
+  display: inline-block; position: relative;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,.13);
+  transition: transform .2s, box-shadow .2s;
+  text-decoration: none;
+}
+.welcome-yt-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.2);
+}
+.welcome-hero-img {
+  display: block; width: 100%; max-width: 340px;
+  border-radius: 16px;
+}
+.welcome-yt-badge {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,0,0,.88); color: #fff;
+  font-size: .78em; font-weight: 700; letter-spacing: .04em;
+  padding: 5px 14px; border-radius: 20px;
+  white-space: nowrap;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+
 /* ── Sutra list (list panel) ──────────────────────────────────── */
 .list-header {
   display: flex; align-items: baseline; gap: 10px;
@@ -1003,7 +1031,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   transition: background .15s, color .15s;
 }
 .siddhi-pill:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-.siddhi-pill.active { background: var(--bar); color: #fff; border-color: var(--bar); }
+.siddhi-pill.active { background: var(--bar-bg); color: var(--bar-fg); border-color: var(--bar-bg); }
 .siddhi-entry {
   padding: 10px 12px 14px;
 }
@@ -1217,6 +1245,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .shabda-pill:hover { border-color: var(--accent); color: var(--accent); }
 .shabda-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.shabda-pill.suggested { border-color: var(--accent); color: var(--accent); }
 
 .shabda-table-area { padding: 14px 16px 0; }
 .shabda-header {
