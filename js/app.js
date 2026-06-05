@@ -1263,7 +1263,17 @@ async function handleLeafClick(book, btn) {
       case 'shivasutra':      renderShivaSutra(data);    break;
       case 'ganapatha':       renderGanaList(data);      break;
       case 'unaadi':          renderUnaadiAll(data);     break;
-      case 'linganushasanam': renderLingaAll(data);      break;
+      case 'linganushasanam': {
+        let lingaPrivate = null;
+        if (PRIVATE_BASE) {
+          try {
+            const r = await fetch(`${PRIVATE_BASE}/linganushasana.json`);
+            if (r.ok) { const j = await r.json(); lingaPrivate = j.sutras || null; }
+          } catch (_) {}
+        }
+        renderLingaAll(data, lingaPrivate);
+        break;
+      }
       case 'shiksha':         renderShikshaAll(data);    break;
       case 'fit':             renderFitAll(data);        break;
     }
@@ -2098,6 +2108,7 @@ let avyayaState = { section: 'अच्', letter: 'अ' };
 
 async function showAvyayaPanel() {
   showPanel('avyaya');
+  updateBookURL('avyaya');
   const panel = $panelAvyaya;
 
   // Load data once
@@ -3610,42 +3621,97 @@ function renderUnaadiAll(data) {
 }
 
 // ── Linganushasanam ───────────────────────────────────────────────────────────
-function renderLingaAll(data) {
-  setListHeader('लिङ्गानुशासनम्', `${data.length} sūtras`);
+function renderLingaAll(acData, privateEntries) {
   $sutraList.innerHTML = '';
-  let lastSection = null;
-  for (const l of data) {
-    const section = l.adhikaar || '';
-    if (section && section !== lastSection) {
-      $sutraList.appendChild(devEl('div', 'section-header', section));
-      lastSection = section;
+
+  if (privateEntries && privateEntries.length) {
+    setListHeader('लिङ्गानुशासनम्', `${privateEntries.length} sūtras`);
+    for (const e of privateEntries) {
+      const card = document.createElement('div');
+      card.className = 'sutra-card';
+
+      const row = document.createElement('div');
+      row.className = 'sutra-row';
+      const idEl = document.createElement('span');
+      idEl.className = 'sutra-id';
+      idEl.textContent = e.chapter_id !== null ? `${e.id}/${e.chapter_id}` : `${e.id}`;
+      row.appendChild(idEl);
+      row.appendChild(devEl('span', 'sutra-text', e.sutra));
+
+      const detail = document.createElement('div');
+      detail.className = 'sutra-detail';
+      detail.appendChild(devEl('div', 'detail-sutra-full', e.sutra));
+
+      if (e.artha) {
+        const sec = document.createElement('div');
+        sec.className = 'detail-section';
+        sec.appendChild(devEl('div', 'detail-label', 'अर्थः'));
+        sec.appendChild(devEl('div', 'detail-sanskrit', e.artha));
+        detail.appendChild(sec);
+      }
+      if (e.vyakhya) {
+        const sec = document.createElement('div');
+        sec.className = 'detail-section';
+        sec.appendChild(devEl('div', 'detail-label', 'व्याख्या'));
+        sec.appendChild(devEl('div', 'detail-sanskrit', e.vyakhya));
+        detail.appendChild(sec);
+      }
+      if (e.hindi) {
+        const sec = document.createElement('div');
+        sec.className = 'detail-section';
+        const lbl = document.createElement('div');
+        lbl.className = 'detail-label';
+        lbl.textContent = 'हिन्दी';
+        sec.appendChild(lbl);
+        const hindiEl = document.createElement('div');
+        hindiEl.className = 'detail-english';
+        hindiEl.textContent = e.hindi;
+        sec.appendChild(hindiEl);
+        detail.appendChild(sec);
+      }
+
+      card.appendChild(row);
+      card.appendChild(detail);
+      card.addEventListener('click', () => toggleSimpleCard(card));
+      $sutraList.appendChild(card);
     }
-    const card = document.createElement('div');
-    card.className = 'sutra-card';
-    const row = document.createElement('div');
-    row.className = 'sutra-row';
-    const idEl = document.createElement('span');
-    idEl.className = 'sutra-id';
-    idEl.textContent = l.id;
-    row.appendChild(idEl);
-    row.appendChild(devEl('span', 'sutra-text', l.sutra));
-    const detail = document.createElement('div');
-    detail.className = 'sutra-detail';
-    detail.appendChild(devEl('div', 'detail-sutra-full', l.sutra));
-    if (l.sk) {
-      const sec = document.createElement('div');
-      sec.className = 'detail-section';
-      const lbl = document.createElement('div');
-      lbl.className = 'detail-label';
-      lbl.textContent = 'Commentary';
-      sec.appendChild(lbl);
-      sec.appendChild(devEl('div', 'detail-sanskrit', l.sk));
-      detail.appendChild(sec);
+  } else {
+    // Fallback: plain AC data
+    setListHeader('लिङ्गानुशासनम्', `${acData.length} sūtras`);
+    let lastSection = null;
+    for (const l of acData) {
+      const section = l.adhikaar || '';
+      if (section && section !== lastSection) {
+        $sutraList.appendChild(devEl('div', 'section-header', section));
+        lastSection = section;
+      }
+      const card = document.createElement('div');
+      card.className = 'sutra-card';
+      const row = document.createElement('div');
+      row.className = 'sutra-row';
+      const idEl = document.createElement('span');
+      idEl.className = 'sutra-id';
+      idEl.textContent = l.id;
+      row.appendChild(idEl);
+      row.appendChild(devEl('span', 'sutra-text', l.sutra));
+      const detail = document.createElement('div');
+      detail.className = 'sutra-detail';
+      detail.appendChild(devEl('div', 'detail-sutra-full', l.sutra));
+      if (l.sk) {
+        const sec = document.createElement('div');
+        sec.className = 'detail-section';
+        const lbl = document.createElement('div');
+        lbl.className = 'detail-label';
+        lbl.textContent = 'Commentary';
+        sec.appendChild(lbl);
+        sec.appendChild(devEl('div', 'detail-sanskrit', l.sk));
+        detail.appendChild(sec);
+      }
+      card.appendChild(row);
+      card.appendChild(detail);
+      card.addEventListener('click', () => toggleSimpleCard(card));
+      $sutraList.appendChild(card);
     }
-    card.appendChild(row);
-    card.appendChild(detail);
-    card.addEventListener('click', () => toggleSimpleCard(card));
-    $sutraList.appendChild(card);
   }
   showPanel('list');
 }
@@ -3916,11 +3982,17 @@ async function init() {
         showPanel('welcome');
       }
     } else if (urlBook) {
-      const book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
-      if (book) {
-        await handleLeafClick(book, null);
+      if (urlBook === 'avyaya') {
+        await showAvyayaPanel();
+      } else if (urlBook === 'shabda') {
+        showShabdaEngine();
       } else {
-        showPanel('welcome');
+        const book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
+        if (book) {
+          await handleLeafClick(book, null);
+        } else {
+          showPanel('welcome');
+        }
       }
     } else {
       showPanel('welcome');
