@@ -32,6 +32,7 @@ const BOOKS = [
   { id: 'shiksha',         devName: 'शिक्षा',         engName: 'Śikṣā',          type: 'leaf', dataPath: 'shiksha/data.txt',             icon: 'शिक्षा'  },
   { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
   { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
+  { id: 'avyaya', devName: 'अव्ययार्थाः', engName: 'Avyayas', type: 'avyaya-panel', icon: 'अव्य०' },
   { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree', icon: 'प्र०',
     pages: [
       { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta'  },
@@ -211,6 +212,7 @@ const $aboutPanelNav     = document.getElementById('about-panel-nav');
 const $aboutPanelContent = document.getElementById('about-panel-content');
 const $panelPratyaya     = document.getElementById('panel-pratyaya');
 const $panelShabda       = document.getElementById('panel-shabda');
+const $panelAvyaya       = document.getElementById('panel-avyaya');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -358,6 +360,7 @@ function showPanel(name) {
   $panelAbout.style.display    = name === 'about'    ? '' : 'none';
   $panelPratyaya.style.display = name === 'pratyaya' ? '' : 'none';
   $panelShabda.style.display   = name === 'shabda'   ? '' : 'none';
+  $panelAvyaya.style.display   = name === 'avyaya'   ? '' : 'none';
   $app.scrollTop = 0;
 }
 
@@ -1083,6 +1086,13 @@ function buildBookEntry(book) {
   if (book.type === 'shabda-browser') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showShabdaEngine(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'avyaya-panel') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showAvyayaPanel(); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -2074,6 +2084,166 @@ document.getElementById('btn-theme').addEventListener('click', e => {
 document.addEventListener('click', e => {
   if (!$themePicker.contains(e.target)) $themePicker.classList.remove('open');
 });
+
+// ── Avyaya panel ─────────────────────────────────────────────────────────────
+
+// Section order and their display labels
+const AVYAYA_SECTIONS = [
+  { key: 'अच्', dev: 'अच्' },
+  { key: 'हल्', dev: 'हल्' },
+  { key: 'कृत्', dev: 'कृत्' },
+];
+
+let avyayaState = { section: 'अच्', letter: 'अ' };
+
+async function showAvyayaPanel() {
+  showPanel('avyaya');
+  const panel = $panelAvyaya;
+
+  // Load data once
+  if (!bookData['avyaya']) {
+    panel.innerHTML = '<div class="avyaya-loading">…</div>';
+    try {
+      if (!PRIVATE_BASE) throw new Error('no private base');
+      const res = await fetch(`${PRIVATE_BASE}/avyaya_samhita.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      bookData['avyaya'] = await res.json();
+    } catch (_) {
+      panel.innerHTML = '<div class="avyaya-empty">अव्ययार्थ-डेटा उपलब्ध नहीं।</div>';
+      return;
+    }
+  }
+
+  renderAvyayaPanel(panel, bookData['avyaya']);
+}
+
+function renderAvyayaPanel(panel, data) {
+  panel.innerHTML = '';
+
+  // Pre-compute unique letters per section (preserve document order)
+  const lettersBySection = {};
+  for (const row of data) {
+    if (!lettersBySection[row.s]) lettersBySection[row.s] = [];
+    if (row.l && !lettersBySection[row.s].includes(row.l))
+      lettersBySection[row.s].push(row.l);
+  }
+
+  // ── Section pills ──
+  const secRow = document.createElement('div');
+  secRow.className = 'avyaya-section-pills';
+
+  // ── Letter pills ──
+  const letRow = document.createElement('div');
+  letRow.className = 'avyaya-letter-pills';
+
+  // ── Table area ──
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'avyaya-table-wrap';
+
+  function buildLetterPills(section) {
+    letRow.innerHTML = '';
+    const letters = lettersBySection[section] || [];
+    if (!letters.length) return;
+    for (const l of letters) {
+      const btn = document.createElement('button');
+      btn.className = 'avyaya-pill dev-text' + (l === avyayaState.letter ? ' active' : '');
+      btn._devText = l;
+      btn.textContent = translit(l);
+      btn.addEventListener('click', () => {
+        avyayaState.letter = l;
+        letRow.querySelectorAll('.avyaya-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderAvyayaTable(tableWrap, data, avyayaState.section, avyayaState.letter);
+      });
+      letRow.appendChild(btn);
+    }
+  }
+
+  function selectSection(section) {
+    avyayaState.section = section;
+    // reset letter to first available
+    const letters = lettersBySection[section] || [];
+    avyayaState.letter = letters[0] || '';
+    buildLetterPills(section);
+    secRow.querySelectorAll('.avyaya-sec-pill').forEach(b =>
+      b.classList.toggle('active', b.dataset.key === section));
+    renderAvyayaTable(tableWrap, data, section, avyayaState.letter);
+  }
+
+  for (const sec of AVYAYA_SECTIONS) {
+    const btn = document.createElement('button');
+    btn.className = 'avyaya-sec-pill dev-text' + (sec.key === avyayaState.section ? ' active' : '');
+    btn._devText = sec.dev;
+    btn.textContent = translit(sec.dev);
+    btn.dataset.key = sec.key;
+    btn.addEventListener('click', () => selectSection(sec.key));
+    secRow.appendChild(btn);
+  }
+
+  panel.appendChild(secRow);
+  panel.appendChild(letRow);
+  panel.appendChild(tableWrap);
+
+  // Initial render
+  buildLetterPills(avyayaState.section);
+  renderAvyayaTable(tableWrap, data, avyayaState.section, avyayaState.letter);
+}
+
+function renderAvyayaTable(wrap, data, section, letter) {
+  wrap.innerHTML = '';
+
+  const rows = data.filter(r => r.s === section && (section === 'कृत्' || r.l === letter));
+  if (!rows.length) {
+    const empty = document.createElement('div');
+    empty.className = 'avyaya-empty';
+    empty.textContent = '—';
+    wrap.appendChild(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'avyaya-table';
+
+  // Header
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  for (const [dev, cls] of [['अव्ययम्', 'avyaya-th-a'], ['अर्थः', 'avyaya-th-m'], ['उदाहरणानि', 'avyaya-th-u']]) {
+    const th = document.createElement('th');
+    th.className = cls + ' dev-text';
+    th._devText = dev;
+    th.textContent = translit(dev);
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  for (const row of rows) {
+    const tr = document.createElement('tr');
+
+    const tdA = document.createElement('td');
+    tdA.className = 'avyaya-cell-a dev-text';
+    tdA._devText = row.a;
+    tdA.textContent = translit(row.a);
+
+    const tdM = document.createElement('td');
+    tdM.className = 'avyaya-cell-m dev-text';
+    tdM._devText = row.m;
+    tdM.textContent = translit(row.m);
+
+    const tdU = document.createElement('td');
+    tdU.className = 'avyaya-cell-u dev-text';
+    tdU._devText = row.u;
+    tdU.textContent = translit(row.u);
+
+    tr.appendChild(tdA);
+    tr.appendChild(tdM);
+    tr.appendChild(tdU);
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+}
 
 // ── Shabda engine (fires shabda.js) ──────────────────────────────────────────
 // showShabdaEngine() is wired to the शब्दरूपावली nav click.

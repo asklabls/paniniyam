@@ -1310,6 +1310,105 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   text-align: center; font-family: var(--font-dev);
 }
 
+/* ── Avyaya panel ─────────────────────────────────────────────── */
+.panel-avyaya {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+}
+.avyaya-section-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 0 10px;
+}
+.avyaya-letter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0 16px;
+  min-height: 38px;
+}
+.avyaya-sec-pill,
+.avyaya-pill {
+  font-family: var(--font-dev);
+  font-size: .92em;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.avyaya-sec-pill {
+  font-size: 1em;
+  font-weight: 700;
+  padding: 6px 18px;
+}
+.avyaya-sec-pill:hover,
+.avyaya-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.avyaya-sec-pill.active,
+.avyaya-pill.active {
+  background: var(--bar-bg, var(--bar));
+  color: var(--bar-fg, #fff);
+  border-color: var(--bar-bg, var(--bar));
+}
+.avyaya-table-wrap {
+  overflow-x: auto;
+}
+.avyaya-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-dev);
+  font-size: .9em;
+}
+.avyaya-table thead th {
+  font-weight: 700;
+  background: var(--bar);
+  color: #fff;
+  padding: 8px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+.avyaya-th-a { width: 18%; }
+.avyaya-th-m { width: 25%; }
+.avyaya-th-u { width: 57%; }
+.avyaya-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+.avyaya-table tbody tr:hover {
+  background: var(--card-bg);
+}
+.avyaya-cell-a {
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--text);
+  vertical-align: top;
+}
+.avyaya-cell-m {
+  padding: 8px 12px;
+  color: var(--accent);
+  vertical-align: top;
+}
+.avyaya-cell-u {
+  padding: 8px 12px;
+  color: var(--muted);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.avyaya-loading,
+.avyaya-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--font-dev);
+  font-size: 1.1em;
+}
+
 /* ── Scrollbar ────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
