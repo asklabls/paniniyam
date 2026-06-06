@@ -2163,8 +2163,6 @@ function buildPadaMatrix() {
     wrap.appendChild(row);
   }
 
-  // Close on outside click
-  wrap.addEventListener('click', e => { if (e.target === wrap) closePadaMatrix(); });
   return wrap;
 }
 
@@ -2202,6 +2200,14 @@ $btnPadaGrid.addEventListener('click', () => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closePadaMatrix();
+});
+
+document.addEventListener('click', e => {
+  if ($padaMatrix?.classList.contains('open') &&
+      !$padaMatrix.contains(e.target) &&
+      e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
+    closePadaMatrix();
+  }
 });
 
 // ── Theme picker ──────────────────────────────────────────────────────────────
