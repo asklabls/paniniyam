@@ -441,6 +441,12 @@ function renderReaderSutra(sutra) {
   refEl.textContent = `${sutra.a}.${sutra.p}.${sutra.n}`;
   topRow.appendChild(refEl);
 
+  const topRight = document.createElement('div');
+  topRight.className = 'reader-top-right';
+
+  const t = (sutra.type || '').split('$')[0];
+  topRight.appendChild(devEl('span', `sutra-badge badge-${t}`, TYPE_BADGE_DEV[t] || t || ''));
+
   const copyBtn = document.createElement('button');
   copyBtn.className = 'copy-link-btn';
   copyBtn.title = 'Copy link';
@@ -452,13 +458,7 @@ function renderReaderSutra(sutra) {
       setTimeout(() => { copyBtn.textContent = '🔗'; }, 1500);
     });
   });
-  topRow.appendChild(copyBtn);
-
-  const topRight = document.createElement('div');
-  topRight.className = 'reader-top-right';
-
-  const t = (sutra.type || '').split('$')[0];
-  topRight.appendChild(devEl('span', `sutra-badge badge-${t}`, TYPE_BADGE_DEV[t] || t || ''));
+  topRight.appendChild(copyBtn);
 
   const audioBtn = document.createElement('button');
   audioBtn.className = 'audio-btn';
