@@ -331,7 +331,7 @@ function applyPinState() {
   if (btn) {
     btn.classList.toggle('pinned', pinnedNav);
     btn.title = pinnedNav ? 'Unpin navigation' : 'Pin navigation open';
-    btn.textContent = pinnedNav ? '⊗' : '⊕';
+    btn.textContent = pinnedNav ? '📌' : '📌';
   }
   const drawerNav = document.getElementById('drawer-nav');
   if (pinnedNav) {
