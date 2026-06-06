@@ -441,6 +441,19 @@ function renderReaderSutra(sutra) {
   refEl.textContent = `${sutra.a}.${sutra.p}.${sutra.n}`;
   topRow.appendChild(refEl);
 
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'copy-link-btn';
+  copyBtn.title = 'Copy link';
+  copyBtn.textContent = '🔗';
+  copyBtn.addEventListener('click', () => {
+    const url = `${location.origin}${location.pathname}?sutra=${sutra.a}.${sutra.p}.${sutra.n}`;
+    navigator.clipboard.writeText(url).then(() => {
+      copyBtn.textContent = '✓';
+      setTimeout(() => { copyBtn.textContent = '🔗'; }, 1500);
+    });
+  });
+  topRow.appendChild(copyBtn);
+
   const topRight = document.createElement('div');
   topRight.className = 'reader-top-right';
 

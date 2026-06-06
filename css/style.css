@@ -609,6 +609,13 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-family: 'Noto Sans', monospace;
 }
 .reader-top-right { display: flex; align-items: center; gap: 8px; }
+.copy-link-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: .85em; padding: 2px 4px; color: var(--muted);
+  opacity: .55; transition: opacity .15s;
+  line-height: 1;
+}
+.copy-link-btn:hover { opacity: 1; }
 .reader-sutra-text {
   font-size: 2.1em; font-weight: 700; color: var(--accent);
   line-height: 1.4; letter-spacing: .02em;
