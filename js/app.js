@@ -826,6 +826,12 @@ function retranslit() {
   if (vnsWrap && vnsWrap._vnsMarkdown !== undefined) {
     vnsWrap.innerHTML = '';
     vnsWrap.appendChild(renderVnsContent(vnsWrap._vnsMarkdown));
+    if (vnsWrap._vnsImage) {
+      const img = document.createElement('img');
+      img.src = vnsWrap._vnsImage;
+      img.className = 'vns-section-img';
+      vnsWrap.appendChild(img);
+    }
   }
 
   // Search results in drawer
@@ -2368,7 +2374,16 @@ function renderVnsPanel(panel, data) {
     contentWrap.innerHTML = '';
     if (sec) {
       contentWrap._vnsMarkdown = sec.content;
+      const imgUrl = sec.image ? `${PRIVATE_BASE || FORMS_BASE}/${sec.image}` : null;
+      contentWrap._vnsImage = imgUrl;
       contentWrap.appendChild(renderVnsContent(sec.content));
+      if (imgUrl) {
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        img.className = 'vns-section-img';
+        img.alt = sec.title || '';
+        contentWrap.appendChild(img);
+      }
     }
     $panelVarnochchaaran.scrollTop = 0;
   }

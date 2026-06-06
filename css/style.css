@@ -1518,3 +1518,9 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: var(--accent);
   font-weight: 600;
 }
+.vns-section-img {
+  display: block;
+  max-width: 100%;
+  margin: 28px auto 12px;
+  border-radius: var(--radius);
+}
