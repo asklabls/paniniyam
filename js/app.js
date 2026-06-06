@@ -3107,11 +3107,19 @@ function searchSutras(q) {
     }
     return [];
   }
-  const dq    = normalizeToDevanagari(q);
-  const lower = q.toLowerCase();
-  return sutraList.filter(s =>
-    s.s.includes(dq) || (s.ss && s.ss.includes(dq)) || (s.e && s.e.toLowerCase().includes(lower)) ||
-    (s.ad && s.ad.includes(dq)) || (s.an && s.an.includes(dq)));
+  const dq       = normalizeToDevanagari(q);
+  const lower    = q.toLowerCase();
+  const pravaData = bookData['pravachanam'];
+  return sutraList.filter(s => {
+    if (s.s.includes(dq) || (s.ss && s.ss.includes(dq)) ||
+        (s.e && s.e.toLowerCase().includes(lower)) ||
+        (s.ad && s.ad.includes(dq)) || (s.an && s.an.includes(dq))) return true;
+    if (pravaData) {
+      const p = pravaData[s.i];
+      if (p && ((p.a && p.a.includes(dq)) || (p.h && p.h.includes(dq)))) return true;
+    }
+    return false;
+  });
 }
 
 // Filter Dhatupatha entries
