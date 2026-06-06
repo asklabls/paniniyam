@@ -1416,7 +1416,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 /* ── Responsive ───────────────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   #icon-bar { display: none; }
   #app { padding: 14px 5% 24px; }
   .reader-sutra-text { font-size: 1.65em; }
