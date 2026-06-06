@@ -2106,10 +2106,25 @@ function buildPadaMatrix() {
   const devaDigit = n => '०१२३४५६७८९'[n];
   const padaLabel = p => ['', 'I', 'II', 'III', 'IV'][p];
 
-  // Header row: pada columns
+  // Caption row: adhyaya label + पादः spanning columns
+  const captionRow = document.createElement('div');
+  captionRow.className = 'pm-row pm-caption-row';
+  const adhLabel = document.createElement('div');
+  adhLabel.className = 'pm-corner pm-adhyaya-cap dev-text';
+  adhLabel._devText = 'अध्या.';
+  adhLabel.textContent = translit('अध्या.');
+  captionRow.appendChild(adhLabel);
+  const padaLabel2 = document.createElement('div');
+  padaLabel2.className = 'pm-pada-cap dev-text';
+  padaLabel2._devText = 'पादः';
+  padaLabel2.textContent = translit('पादः');
+  captionRow.appendChild(padaLabel2);
+  wrap.appendChild(captionRow);
+
+  // Header row: I II III IV
   const headerRow = document.createElement('div');
   headerRow.className = 'pm-row pm-header';
-  headerRow.appendChild(Object.assign(document.createElement('div'), { className: 'pm-corner', textContent: '' }));
+  headerRow.appendChild(Object.assign(document.createElement('div'), { className: 'pm-corner' }));
   for (let p = 1; p <= 4; p++) {
     const h = document.createElement('div');
     h.className = 'pm-head';
