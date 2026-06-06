@@ -2165,10 +2165,22 @@ function closePadaMatrix() {
   $padaMatrix?.classList.remove('open');
 }
 
+// ── bar-ref click: toggle between reader and list view ────────────────────────
 $barRef.addEventListener('click', () => {
+  closePadaMatrix();
+  if (currentPanel === 'reader') {
+    showPanel('list');
+  } else if (currentPanel === 'list' && (readerType === 'dhatu' ? dhatuReaderList.length : readerList.length)) {
+    showPanel('reader');
+  }
+});
+
+// ── pada-grid button ──────────────────────────────────────────────────────────
+const $btnPadaGrid = document.getElementById('btn-pada-grid');
+$btnPadaGrid.addEventListener('click', () => {
   if ($padaMatrix?.classList.contains('open')) {
     closePadaMatrix();
-  } else if (readerType === 'sutra') {
+  } else {
     openPadaMatrix();
   }
 });
