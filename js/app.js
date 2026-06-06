@@ -2436,7 +2436,16 @@ function renderVnsContent(markdown) {
   while (i < lines.length) {
     const line = lines[i];
 
-    if (line.startsWith('## ')) {
+    if (/^\!\[.+\]$/.test(line.trim())) {
+      // Inline image marker: ![filename]
+      const src = line.trim().slice(2, -1);
+      const img = document.createElement('img');
+      img.src = `${PRIVATE_BASE || FORMS_BASE}/${src}`;
+      img.className = 'vns-section-img';
+      wrap.appendChild(img);
+      i++;
+
+    } else if (line.startsWith('## ')) {
       // Sutra heading — pure Sanskrit
       const h = document.createElement('div');
       h.className = 'vns-sutra dev-text';
@@ -2447,7 +2456,7 @@ function renderVnsContent(markdown) {
 
       // Collect commentary lines until next sutra or blank line
       const commentLines = [];
-      while (i < lines.length && !lines[i].startsWith('## ') && lines[i].trim() !== '') {
+      while (i < lines.length && !lines[i].startsWith('## ') && lines[i].trim() !== '' && !/^\!\[.+\]$/.test(lines[i].trim())) {
         commentLines.push(lines[i]);
         i++;
       }
@@ -2457,10 +2466,10 @@ function renderVnsContent(markdown) {
       i++; // skip blank lines
 
     } else {
-      // Prose block — collect until next ## or ** (new Q/A) or blank line
+      // Prose block — collect until next ## or ** (new Q/A) or blank line or image marker
       const paraLines = [line];
       i++;
-      while (i < lines.length && !lines[i].startsWith('## ') && !lines[i].startsWith('**') && lines[i].trim() !== '') {
+      while (i < lines.length && !lines[i].startsWith('## ') && !lines[i].startsWith('**') && lines[i].trim() !== '' && !/^\!\[.+\]$/.test(lines[i].trim())) {
         paraLines.push(lines[i]);
         i++;
       }
