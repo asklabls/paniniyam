@@ -29,7 +29,12 @@ const BOOKS = [
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
-  { id: 'shiksha',         devName: 'शिक्षा',         engName: 'Śikṣā',          type: 'leaf', dataPath: 'shiksha/data.txt',             icon: 'शिक्षा'  },
+  { id: 'shiksha-group', devName: 'शिक्षा', engName: 'Śikṣā', type: 'sub-tree', icon: 'शिक्षा',
+    pages: [
+      { id: 'shiksha',        devName: 'पाणिनीयशिक्षा',      engName: 'Pāṇinīya Śikṣā',      type: 'leaf',                  dataPath: 'shiksha/data.txt' },
+      { id: 'varnochchaaran', devName: 'वर्णोच्चारण-शिक्षा', engName: 'Varṇoccāraṇa Śikṣā',  type: 'varnochchaaran-panel' },
+    ]
+  },
   { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
   { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
   { id: 'avyaya', devName: 'अव्ययार्थाः', engName: 'Avyayas', type: 'avyaya-panel', icon: 'अव्य०' },
@@ -212,7 +217,8 @@ const $aboutPanelNav     = document.getElementById('about-panel-nav');
 const $aboutPanelContent = document.getElementById('about-panel-content');
 const $panelPratyaya     = document.getElementById('panel-pratyaya');
 const $panelShabda       = document.getElementById('panel-shabda');
-const $panelAvyaya       = document.getElementById('panel-avyaya');
+const $panelAvyaya            = document.getElementById('panel-avyaya');
+const $panelVarnochchaaran    = document.getElementById('panel-varnochchaaran');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -360,7 +366,8 @@ function showPanel(name) {
   $panelAbout.style.display    = name === 'about'    ? '' : 'none';
   $panelPratyaya.style.display = name === 'pratyaya' ? '' : 'none';
   $panelShabda.style.display   = name === 'shabda'   ? '' : 'none';
-  $panelAvyaya.style.display   = name === 'avyaya'   ? '' : 'none';
+  $panelAvyaya.style.display            = name === 'avyaya'            ? '' : 'none';
+  $panelVarnochchaaran.style.display    = name === 'varnochchaaran'    ? '' : 'none';
   $app.scrollTop = 0;
 }
 
@@ -814,6 +821,13 @@ function retranslit() {
     if (p._rawCommentary !== undefined) setCommentaryHTML(p, p._rawCommentary);
   });
 
+  // Varnochchaaran Shiksha content re-render on script change
+  const vnsWrap = document.querySelector('.vns-content');
+  if (vnsWrap && vnsWrap._vnsMarkdown !== undefined) {
+    vnsWrap.innerHTML = '';
+    vnsWrap.appendChild(renderVnsContent(vnsWrap._vnsMarkdown));
+  }
+
   // Search results in drawer
   $searchDrawerBody.querySelectorAll('.sri-text').forEach(el => {
     if (el._devText !== undefined) el.textContent = translit(el._devText);
@@ -1097,6 +1111,13 @@ function buildBookEntry(book) {
     return wrap;
   }
 
+  if (book.type === 'varnochchaaran-panel') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showVarnochchaaranPanel(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
   const arrow = document.createElement('span');
   arrow.className = 'arrow';
   arrow.textContent = '▶';
@@ -1127,7 +1148,15 @@ function buildBookEntry(book) {
       const pb = document.createElement('button');
       pb.className = 'nav-pada-btn';
       pb.appendChild(makeNavLabel(page.devName));
-      pb.addEventListener('click', () => { closeDrawer(); showPratyayaPage(page.id); });
+      let clickFn;
+      if (page.type === 'leaf') {
+        clickFn = () => { closeDrawer(); handleLeafClick(page, pb); };
+      } else if (page.type === 'varnochchaaran-panel') {
+        clickFn = () => { closeDrawer(); showVarnochchaaranPanel(); };
+      } else {
+        clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
+      }
+      pb.addEventListener('click', clickFn);
       container.appendChild(pb);
     }
     btn.addEventListener('click', () => {
@@ -2254,6 +2283,133 @@ function renderAvyayaTable(wrap, data, section, letter) {
   }
   table.appendChild(tbody);
   wrap.appendChild(table);
+}
+
+// ── Varnochchaaran Shiksha panel ──────────────────────────────────────────────
+
+let vnsState = { sectionId: 'prakashakiya' };
+
+async function showVarnochchaaranPanel() {
+  showPanel('varnochchaaran');
+  updateBookURL('varnochchaaran');
+  const panel = $panelVarnochchaaran;
+
+  if (panel._loaded) {
+    if (bookData['varnochchaaran']) renderVnsPanel(panel, bookData['varnochchaaran']);
+    return;
+  }
+  panel._loaded = true;
+  panel.innerHTML = '<div style="padding:24px;color:var(--muted)">…</div>';
+
+  try {
+    const base = PRIVATE_BASE || FORMS_BASE;
+    const res = await fetch(`${base}/varnochchaaran-shiksha.json`);
+    if (!res.ok) throw new Error(res.status);
+    bookData['varnochchaaran'] = await res.json();
+  } catch (_) {
+    panel.innerHTML = '<div style="padding:24px;color:var(--muted)">Data unavailable.</div>';
+    return;
+  }
+  renderVnsPanel(panel, bookData['varnochchaaran']);
+}
+
+function renderVnsPanel(panel, data) {
+  panel.innerHTML = '';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'vns-header';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'vns-title dev-text';
+  titleEl._devText = data.title;
+  titleEl.textContent = translit(data.title);
+
+  const authorEl = document.createElement('div');
+  authorEl.className = 'vns-author';
+  authorEl.textContent = data.author;
+
+  header.appendChild(titleEl);
+  header.appendChild(authorEl);
+  panel.appendChild(header);
+
+  // Pills row
+  const pillsRow = document.createElement('div');
+  pillsRow.className = 'vns-pills';
+  panel.appendChild(pillsRow);
+
+  // Content area
+  const contentWrap = document.createElement('div');
+  contentWrap.className = 'vns-content';
+  panel.appendChild(contentWrap);
+
+  function showSection(sectionId) {
+    vnsState.sectionId = sectionId;
+    pillsRow.querySelectorAll('.vns-pill').forEach(b =>
+      b.classList.toggle('active', b.dataset.id === sectionId)
+    );
+    const sec = data.sections.find(s => s.id === sectionId);
+    contentWrap.innerHTML = '';
+    if (sec) {
+      contentWrap._vnsMarkdown = sec.content;
+      contentWrap.appendChild(renderVnsContent(sec.content));
+    }
+    $panelVarnochchaaran.scrollTop = 0;
+  }
+
+  data.sections.forEach(sec => {
+    const pill = document.createElement('button');
+    pill.className = 'vns-pill dev-text' + (sec.id === vnsState.sectionId ? ' active' : '');
+    pill.dataset.id = sec.id;
+    pill._devText = sec.title;
+    pill.textContent = translit(sec.title);
+    pill.addEventListener('click', () => showSection(sec.id));
+    pillsRow.appendChild(pill);
+  });
+
+  showSection(vnsState.sectionId);
+}
+
+function renderVnsContent(markdown) {
+  const wrap = document.createElement('div');
+  wrap.className = 'vns-body';
+
+  // Split into blocks by blank lines
+  const blocks = markdown.split(/\n{2,}/);
+  blocks.forEach(block => {
+    block = block.trim();
+    if (!block) return;
+
+    if (block.startsWith('## ')) {
+      // Sutra heading — pure Sanskrit, use dev-text
+      const h = document.createElement('div');
+      h.className = 'vns-sutra dev-text';
+      h._devText = block.replace(/^##\s*/, '');
+      h.textContent = translit(block.replace(/^##\s*/, ''));
+      wrap.appendChild(h);
+    } else {
+      // Paragraph — join wrapped lines, render **bold** + transliterate mixed
+      const p = document.createElement('div');
+      p.className = 'vns-para';
+      const joined = block.replace(/\n/g, ' ').trim();
+      p.innerHTML = vnsRenderInline(joined);
+      wrap.appendChild(p);
+    }
+  });
+
+  return wrap;
+}
+
+function vnsRenderInline(text) {
+  // Split on **bold** markers, transliterate each segment
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  return parts.map(part => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const inner = part.slice(2, -2);
+      return `<strong>${translitMixed(inner)}</strong>`;
+    }
+    return translitMixed(part);
+  }).join('');
 }
 
 // ── Shabda engine (fires shabda.js) ──────────────────────────────────────────
@@ -3984,10 +4140,19 @@ async function init() {
     } else if (urlBook) {
       if (urlBook === 'avyaya') {
         await showAvyayaPanel();
+      } else if (urlBook === 'varnochchaaran') {
+        await showVarnochchaaranPanel();
       } else if (urlBook === 'shabda') {
         showShabdaEngine();
       } else {
-        const book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
+        // Search top-level leaf books, then sub-tree children
+        let book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
+        if (!book) {
+          for (const b of BOOKS) {
+            const p = (b.pages || []).find(p => p.id === urlBook && p.type === 'leaf');
+            if (p) { book = p; break; }
+          }
+        }
         if (book) {
           await handleLeafClick(book, null);
         } else {
