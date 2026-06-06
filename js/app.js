@@ -455,7 +455,8 @@ function renderReaderSutra(sutra) {
     const url = `${location.origin}${location.pathname}?sutra=${sutra.a}.${sutra.p}.${sutra.n}`;
     navigator.clipboard.writeText(url).then(() => {
       copyBtn.textContent = '✓';
-      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+      copyBtn.title = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = '📋'; copyBtn.title = 'Copy link'; }, 1500);
     });
   });
   topRight.appendChild(copyBtn);
