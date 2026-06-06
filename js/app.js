@@ -450,12 +450,12 @@ function renderReaderSutra(sutra) {
   const copyBtn = document.createElement('button');
   copyBtn.className = 'copy-link-btn';
   copyBtn.title = 'Copy link';
-  copyBtn.textContent = '🔗';
+  copyBtn.textContent = '📋';
   copyBtn.addEventListener('click', () => {
     const url = `${location.origin}${location.pathname}?sutra=${sutra.a}.${sutra.p}.${sutra.n}`;
     navigator.clipboard.writeText(url).then(() => {
       copyBtn.textContent = '✓';
-      setTimeout(() => { copyBtn.textContent = '🔗'; }, 1500);
+      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
     });
   });
   topRight.appendChild(copyBtn);
