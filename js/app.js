@@ -2087,13 +2087,94 @@ function renderPratyayaTable(rows, padaLabel) {
   return wrap;
 }
 
-// ── bar-ref click: toggle between reader and list view ────────────────────────
-$barRef.addEventListener('click', () => {
-  if (currentPanel === 'reader') {
-    showPanel('list');
-  } else if (currentPanel === 'list' && (readerType === 'dhatu' ? dhatuReaderList.length : readerList.length)) {
-    showPanel('reader');
+// ── bar-ref click: show 32-pada matrix popup ──────────────────────────────────
+let $padaMatrix = null;
+
+function buildPadaMatrix() {
+  const wrap = document.createElement('div');
+  wrap.id = 'pada-matrix';
+  wrap.className = 'pada-matrix';
+
+  // Sutra count per pada (computed from loaded sutraList)
+  const counts = {};
+  for (const s of sutraList) {
+    const key = `${s.a}.${s.p}`;
+    counts[key] = (counts[key] || 0) + 1;
   }
+
+  // Short adhyaya labels (१–८)
+  const devaDigit = n => '०१२३४५६७८९'[n];
+  const padaLabel = p => ['', 'I', 'II', 'III', 'IV'][p];
+
+  // Header row: pada columns
+  const headerRow = document.createElement('div');
+  headerRow.className = 'pm-row pm-header';
+  headerRow.appendChild(Object.assign(document.createElement('div'), { className: 'pm-corner', textContent: '' }));
+  for (let p = 1; p <= 4; p++) {
+    const h = document.createElement('div');
+    h.className = 'pm-head';
+    h.textContent = padaLabel(p);
+    headerRow.appendChild(h);
+  }
+  wrap.appendChild(headerRow);
+
+  for (let a = 1; a <= 8; a++) {
+    const row = document.createElement('div');
+    row.className = 'pm-row';
+
+    const rowLabel = document.createElement('div');
+    rowLabel.className = 'pm-row-label dev-text';
+    rowLabel._devText = devaDigit(a);
+    rowLabel.textContent = translit(devaDigit(a));
+    row.appendChild(rowLabel);
+
+    for (let p = 1; p <= 4; p++) {
+      const cell = document.createElement('button');
+      cell.className = 'pm-cell';
+      const ref = document.createElement('span');
+      ref.className = 'pm-ref';
+      ref.textContent = `${a}.${p}`;
+      const cnt = document.createElement('span');
+      cnt.className = 'pm-count';
+      cnt.textContent = counts[`${a}.${p}`] || '';
+      cell.appendChild(ref);
+      cell.appendChild(cnt);
+      cell.addEventListener('click', () => {
+        closePadaMatrix();
+        showPada(a, p, null);
+      });
+      row.appendChild(cell);
+    }
+    wrap.appendChild(row);
+  }
+
+  // Close on outside click
+  wrap.addEventListener('click', e => { if (e.target === wrap) closePadaMatrix(); });
+  return wrap;
+}
+
+function openPadaMatrix() {
+  if (!$padaMatrix) {
+    $padaMatrix = buildPadaMatrix();
+    document.body.appendChild($padaMatrix);
+  }
+  $padaMatrix.classList.add('open');
+}
+
+function closePadaMatrix() {
+  $padaMatrix?.classList.remove('open');
+}
+
+$barRef.addEventListener('click', () => {
+  if ($padaMatrix?.classList.contains('open')) {
+    closePadaMatrix();
+  } else if (readerType === 'sutra') {
+    openPadaMatrix();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePadaMatrix();
 });
 
 // ── Theme picker ──────────────────────────────────────────────────────────────

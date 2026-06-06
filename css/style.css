@@ -123,6 +123,49 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
 .bar-ref.empty { color: #607080; cursor: default; }
 .bar-ref.empty:hover { background: none; }
 
+/* ── 32-pada matrix popup ──────────────────────────────────────── */
+.pada-matrix {
+  position: fixed;
+  bottom: calc(var(--bar-h) + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 28px rgba(0,0,0,.28);
+  z-index: 600; padding: 10px;
+  display: none; flex-direction: column; gap: 4px;
+}
+.pada-matrix.open { display: flex; }
+.pm-row { display: flex; gap: 4px; align-items: center; }
+.pm-header { margin-bottom: 2px; }
+.pm-corner { width: 28px; }
+.pm-head {
+  width: 52px; text-align: center;
+  font-size: .7em; color: var(--muted);
+  font-family: 'Noto Sans', sans-serif;
+}
+.pm-row-label {
+  width: 28px; text-align: center;
+  font-size: .95em; color: var(--muted);
+  font-family: 'Vesper Libre', serif;
+}
+.pm-cell {
+  width: 52px; padding: 5px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.pm-cell:hover { background: var(--hover-bg); border-color: var(--accent); }
+.pm-ref {
+  font-size: .75em; font-family: 'Noto Sans', monospace;
+  color: var(--text); letter-spacing: .04em;
+}
+.pm-count {
+  font-size: .65em; color: var(--muted);
+  font-family: 'Noto Sans', sans-serif;
+}
+
 /* ── Icon bar (always-visible collapsed nav strip) ────────────── */
 #icon-bar {
   position: fixed; left: 0; top: var(--bar-h);
