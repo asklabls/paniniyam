@@ -2287,7 +2287,7 @@ function renderAvyayaTable(wrap, data, section, letter) {
 
 // ── Varnochchaaran Shiksha panel ──────────────────────────────────────────────
 
-let vnsState = { sectionId: 'prakashakiya' };
+let vnsState = { sectionId: 'bhumika' };
 
 async function showVarnochchaaranPanel() {
   showPanel('varnochchaaran');
@@ -2333,10 +2333,26 @@ function renderVnsPanel(panel, data) {
   header.appendChild(authorEl);
   panel.appendChild(header);
 
-  // Pills row
-  const pillsRow = document.createElement('div');
-  pillsRow.className = 'vns-pills';
-  panel.appendChild(pillsRow);
+  // Pills wrap (sticky, two rows)
+  const pillsWrap = document.createElement('div');
+  pillsWrap.className = 'vns-pills-wrap';
+  panel.appendChild(pillsWrap);
+
+  // Row 1: भूमिका + अथ वर्णोच्चारण-शिक्षा
+  const row1 = document.createElement('div');
+  row1.className = 'vns-pills-row';
+  pillsWrap.appendChild(row1);
+
+  // Row 2: प्रकरणम् label + १–८ pills
+  const row2 = document.createElement('div');
+  row2.className = 'vns-pills-row';
+  pillsWrap.appendChild(row2);
+
+  const labelEl = document.createElement('span');
+  labelEl.className = 'vns-prakarana-label dev-text';
+  labelEl._devText = 'प्रकरणम्';
+  labelEl.textContent = translit('प्रकरणम्');
+  row2.appendChild(labelEl);
 
   // Content area
   const contentWrap = document.createElement('div');
@@ -2345,7 +2361,7 @@ function renderVnsPanel(panel, data) {
 
   function showSection(sectionId) {
     vnsState.sectionId = sectionId;
-    pillsRow.querySelectorAll('.vns-pill').forEach(b =>
+    pillsWrap.querySelectorAll('.vns-pill').forEach(b =>
       b.classList.toggle('active', b.dataset.id === sectionId)
     );
     const sec = data.sections.find(s => s.id === sectionId);
@@ -2357,14 +2373,29 @@ function renderVnsPanel(panel, data) {
     $panelVarnochchaaran.scrollTop = 0;
   }
 
-  data.sections.forEach(sec => {
+  // Devanagari digits for prakarana 1–8
+  const devaDigits = ['१','२','३','४','५','६','७','८'];
+
+  const skipIds = new Set(['prakashakiya']);
+  data.sections.forEach((sec, idx) => {
+    if (skipIds.has(sec.id)) return;
+
+    const isPrakarana = sec.id.startsWith('prakarana-');
     const pill = document.createElement('button');
-    pill.className = 'vns-pill dev-text' + (sec.id === vnsState.sectionId ? ' active' : '');
     pill.dataset.id = sec.id;
-    pill._devText = sec.title;
-    pill.textContent = translit(sec.title);
     pill.addEventListener('click', () => showSection(sec.id));
-    pillsRow.appendChild(pill);
+
+    if (isPrakarana) {
+      const num = parseInt(sec.id.split('-')[1], 10);
+      pill.className = 'vns-pill vns-pill-num' + (sec.id === vnsState.sectionId ? ' active' : '');
+      pill.textContent = devaDigits[num - 1] || String(num);
+      row2.appendChild(pill);
+    } else {
+      pill.className = 'vns-pill dev-text' + (sec.id === vnsState.sectionId ? ' active' : '');
+      pill._devText = sec.title;
+      pill.textContent = translit(sec.title);
+      row1.appendChild(pill);
+    }
   });
 
   showSection(vnsState.sectionId);
@@ -2374,28 +2405,53 @@ function renderVnsContent(markdown) {
   const wrap = document.createElement('div');
   wrap.className = 'vns-body';
 
-  // Split into blocks by blank lines
-  const blocks = markdown.split(/\n{2,}/);
-  blocks.forEach(block => {
-    block = block.trim();
-    if (!block) return;
+  // Parse line by line so ## sutra headings separate cleanly from commentary
+  const lines = markdown.split('\n');
+  let i = 0;
 
-    if (block.startsWith('## ')) {
-      // Sutra heading — pure Sanskrit, use dev-text
+  function appendPara(textLines) {
+    const text = textLines.join(' ').trim();
+    if (!text) return;
+    const p = document.createElement('div');
+    p.className = 'vns-para';
+    p.innerHTML = vnsRenderInline(text);
+    wrap.appendChild(p);
+  }
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (line.startsWith('## ')) {
+      // Sutra heading — pure Sanskrit
       const h = document.createElement('div');
       h.className = 'vns-sutra dev-text';
-      h._devText = block.replace(/^##\s*/, '');
-      h.textContent = translit(block.replace(/^##\s*/, ''));
+      h._devText = line.replace(/^##\s*/, '');
+      h.textContent = translit(line.replace(/^##\s*/, ''));
       wrap.appendChild(h);
+      i++;
+
+      // Collect commentary lines until next sutra or blank line
+      const commentLines = [];
+      while (i < lines.length && !lines[i].startsWith('## ') && lines[i].trim() !== '') {
+        commentLines.push(lines[i]);
+        i++;
+      }
+      appendPara(commentLines);
+
+    } else if (line.trim() === '') {
+      i++; // skip blank lines
+
     } else {
-      // Paragraph — join wrapped lines, render **bold** + transliterate mixed
-      const p = document.createElement('div');
-      p.className = 'vns-para';
-      const joined = block.replace(/\n/g, ' ').trim();
-      p.innerHTML = vnsRenderInline(joined);
-      wrap.appendChild(p);
+      // Prose block — collect until next ## or ** (new Q/A) or blank line
+      const paraLines = [line];
+      i++;
+      while (i < lines.length && !lines[i].startsWith('## ') && !lines[i].startsWith('**') && lines[i].trim() !== '') {
+        paraLines.push(lines[i]);
+        i++;
+      }
+      appendPara(paraLines);
     }
-  });
+  }
 
   return wrap;
 }
