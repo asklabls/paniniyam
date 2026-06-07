@@ -1263,6 +1263,8 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   white-space: nowrap;
 }
 .siddhi-sutra-link:hover { color: var(--bar); border-bottom-style: solid; }
+.siddhi-ext-link { color: var(--accent); text-decoration: none; }
+.siddhi-ext-link:hover { text-decoration: underline; }
 .siddhi-dhatu-ref {
   font-family: var(--font-dev);
   font-size: .88em;

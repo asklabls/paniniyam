@@ -1726,7 +1726,26 @@ function renderSiddhiEntry(entry) {
     const cleanIntro = entry.intro.replace(/\[\[(?:[^\]|\\]*)(?:[\\|]+([^\]]+))?\]\]/g,
       (_, disp) => disp ? disp.trim() : '');
     intro._devText = cleanIntro;
-    intro.textContent = translit(cleanIntro);
+    // Parse [label](url) markdown links; render rest as transliterated text
+    const mdLink = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
+    let last = 0, m;
+    mdLink.lastIndex = 0;
+    while ((m = mdLink.exec(cleanIntro)) !== null) {
+      if (m.index > last) {
+        intro.appendChild(document.createTextNode(translit(cleanIntro.slice(last, m.index))));
+      }
+      const a = document.createElement('a');
+      a.href = m[2];
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'siddhi-ext-link';
+      a.textContent = m[1];
+      intro.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if (last < cleanIntro.length) {
+      intro.appendChild(document.createTextNode(translit(cleanIntro.slice(last))));
+    }
     wrap.appendChild(intro);
   }
 
