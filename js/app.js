@@ -24,7 +24,7 @@ const FEEDBACK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK9CYsZQ9y
 // ── Book catalogue ────────────────────────────────────────────────────────────
 const BOOKS = [
   { id: 'shivasutra',      devName: 'शिवसूत्राणि',    engName: 'Śiva Sūtras',    type: 'leaf', dataPath: 'shivasutra/data.txt',         icon: 'शिव'  },
-  { id: 'ashtadhyayi',     devName: 'अष्टाध्यायी',   engName: 'Ashtadhyayi',    type: 'adhyaya-tree',                                  icon: 'अष्ट०' },
+  { id: 'ashtadhyayi',     devName: 'अष्टाध्यायी',   engName: 'Ashtadhyayi',    type: 'pada-matrix-btn',                               icon: 'अष्ट०' },
   { id: 'dhatupatha',      devName: 'धातुपाठः',       engName: 'Dhatupatha',     type: 'lazy-gana-tree', dataPath: 'dhatu/data.txt',     icon: 'धातु'  },
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
@@ -1134,6 +1134,13 @@ function buildBookEntry(book) {
   if (book.type === 'varnochchaaran-panel') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showVarnochchaaranPanel(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'pada-matrix-btn') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); openPadaMatrix(); });
     wrap.appendChild(btn);
     return wrap;
   }
