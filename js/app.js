@@ -4414,7 +4414,10 @@ function renderFitAll(data) {
       lbl.className = 'detail-label';
       lbl.textContent = 'Commentary';
       sec.appendChild(lbl);
-      sec.appendChild(devEl('div', 'detail-sanskrit', f.sk));
+      const skDiv = document.createElement('div');
+      skDiv.className = 'detail-sanskrit commentary-panel';
+      setCommentaryHTML(skDiv, f.sk);
+      sec.appendChild(skDiv);
       detail.appendChild(sec);
     }
     card.appendChild(row);
