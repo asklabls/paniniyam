@@ -4478,7 +4478,8 @@ document.querySelectorAll('.drawer-close').forEach(btn => {
 // Keyboard: arrow keys for reader navigation, Escape for drawers
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeDrawer(); return; }
-  if (activeDrawer || document.activeElement === $searchInput) return;
+  const tag = document.activeElement?.tagName;
+  if (activeDrawer || tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (e.key === 'ArrowRight') {
     if (readerType === 'dhatu' && dhatuReaderItem && dhatuReaderIdx < dhatuReaderList.length - 1)
       showDhatuReader(dhatuReaderList[dhatuReaderIdx + 1], dhatuReaderIdx + 1);
@@ -4697,7 +4698,7 @@ async function loadDriveNotes() {
 async function saveDriveNotes() {
   if (!googleToken || !notesLoaded || _saveInProgress) return;
   _saveInProgress = true;
-  const body = JSON.stringify(notesData);
+  const body = JSON.stringify(notesData, null, 2);
   try {
     if (notesDriveFileId) {
       const res = await fetch(
