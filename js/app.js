@@ -45,10 +45,10 @@ const BOOKS = [
       { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta' },
     ]
   },
-  { id: 'legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
+  { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: '§',
     pages: [
-      { id: 'privacy', engName: 'Privacy Policy', type: 'legal-page' },
-      { id: 'terms',   engName: 'Terms of Use',   type: 'legal-page' },
+      { id: 'privacy', devName: 'Privacy Policy', engName: 'Privacy Policy', type: 'legal-page' },
+      { id: 'terms',   devName: 'Terms of Use',   engName: 'Terms of Use',   type: 'legal-page' },
     ]
   },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
