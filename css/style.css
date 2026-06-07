@@ -724,19 +724,43 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 /* Reader tab bars: flush left, no bleed */
 #reader-content .detail-tabs { margin: 0; padding: 0; }
 
-/* ── Notes placeholder row (Phase 4) ─────────────────────────── */
-.notes-group {
-  margin-top: 16px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 0;
-}
-.notes-placeholder { display: flex; gap: 28px; align-items: center; }
-.notes-btn {
-  font-size: .85em; color: var(--muted);
-  opacity: .55; cursor: not-allowed;
+/* ── Notes tab (Phase 4) ──────────────────────────────────────── */
+.notes-group { margin-top: 16px; border-top: 1px solid var(--border); }
+.notes-tab-panel { padding: 10px 0 4px; }
+
+.notes-signin-wrap { display: flex; flex-direction: column; gap: 10px; padding: 12px 0 8px; }
+.notes-signin-msg  { font-size: .88em; color: var(--text); font-family: 'Noto Sans', system-ui, sans-serif; }
+.notes-privacy     { font-size: .78em; color: var(--muted); font-family: 'Noto Sans', system-ui, sans-serif; }
+.notes-signin-btn  {
+  align-self: flex-start; padding: 7px 16px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-card); color: var(--text);
+  font-size: .85em; cursor: pointer;
   font-family: 'Noto Sans', system-ui, sans-serif;
-  padding: 4px 0;
+}
+.notes-signin-btn:hover { background: var(--hover-bg); }
+
+.notes-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 6px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.notes-user        { font-size: .78em; color: var(--muted); font-family: 'Noto Sans', system-ui, sans-serif; }
+.notes-signout-btn {
+  font-size: .78em; color: var(--muted); background: none; border: none;
+  cursor: pointer; text-decoration: underline;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+.notes-textarea {
+  width: 100%; min-height: 110px; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg); color: var(--text);
+  font-size: .9em; line-height: 1.65; resize: vertical;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+.notes-textarea:focus { outline: none; border-color: var(--accent); }
+.notes-status { font-size: .75em; color: var(--muted); margin-top: 4px; min-height: 1.1em;
+  font-family: 'Noto Sans', system-ui, sans-serif;
 }
 
 /* ── Section headers within flat lists ───────────────────────── */

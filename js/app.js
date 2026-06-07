@@ -162,6 +162,11 @@ const FORMS_BASE = isLocal
 const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f9189fffb000.r2.dev';
 const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
 
+// ── Google Drive notes (Phase 4) ─────────────────────────────────────────────
+const GOOGLE_CLIENT_ID = '474603804315-2kp436s1mbqjrnvhl3hc41sulcrlkn9f.apps.googleusercontent.com';
+const DRIVE_SCOPE      = 'https://www.googleapis.com/auth/drive.file';
+const NOTES_FILENAME   = 'paniniyam-notes.json';
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentScript = localStorage.getItem(SETTINGS_KEY) || SCRIPT_DEFAULT;
 let sutraList     = [];
@@ -183,6 +188,14 @@ let dhatuReaderList = [];
 let dhatuReaderIdx  = -1;
 let dhatuReaderItem = null;
 let readerType      = 'sutra'; // 'sutra' | 'dhatu'
+
+// Google Drive notes state
+let googleToken      = null;
+let googleUser       = null;   // { name, email }
+let notesData        = {};     // { sutraId: noteText }
+let notesDriveFileId = null;
+let notesLoaded      = false;
+let _saveNotesTimer  = null;
 
 // Drawer state
 let activeDrawer    = null;
@@ -1757,20 +1770,32 @@ function buildTabGroups(sutra, container, inCard) {
       continue;
     }
 
-    // ── Notes placeholder (Phase 4) ──
+    // ── Notes tab (Phase 4 — Google Drive) ──
     if (group.type === 'notes-placeholder') {
-      const notesEl = document.createElement('div');
-      notesEl.className = 'tab-group notes-group';
-      const inner = document.createElement('div');
-      inner.className = 'notes-placeholder';
-      ['Our notes', 'Your notes'].forEach(label => {
-        const btn = document.createElement('span');
-        btn.className = 'notes-btn';
-        btn.textContent = label;
-        inner.appendChild(btn);
-      });
-      notesEl.appendChild(inner);
-      container.appendChild(notesEl);
+      const groupEl = document.createElement('div');
+      groupEl.className = 'tab-group notes-group';
+
+      const tabBar = document.createElement('div');
+      tabBar.className = inCard ? 'detail-tabs detail-tabs-card' : 'detail-tabs';
+
+      const tabBtn = document.createElement('button');
+      tabBtn.className = 'detail-tab active';
+      tabBtn.textContent = 'Your notes';
+      tabBar.appendChild(tabBtn);
+
+      const panelWrap = document.createElement('div');
+      panelWrap.className = 'detail-tab-panels';
+
+      const panel = document.createElement('div');
+      panel.className = 'detail-tab-panel notes-tab-panel active';
+      renderNotesTab(panel, sutra.i);
+
+      tabBtn.addEventListener('click', () => renderNotesTab(panel, sutra.i));
+
+      panelWrap.appendChild(panel);
+      groupEl.appendChild(tabBar);
+      groupEl.appendChild(panelWrap);
+      container.appendChild(groupEl);
       continue;
     }
 
@@ -4431,6 +4456,179 @@ function setupHoverZones() {
   iconBar.addEventListener('mouseleave',   cancelTimers);
   drawerNav.addEventListener('mouseenter', cancelTimers);
   drawerNav.addEventListener('mouseleave', scheduleClose);
+}
+
+// ── Google Drive notes ────────────────────────────────────────────────────────
+
+function renderNotesTab(panel, sutraId) {
+  panel.innerHTML = '';
+  panel._notesSutraId = sutraId;
+
+  if (!googleToken) {
+    const wrap = document.createElement('div');
+    wrap.className = 'notes-signin-wrap';
+
+    const msg = document.createElement('p');
+    msg.className = 'notes-signin-msg';
+    msg.textContent = 'Save personal notes for each sūtra.';
+
+    const btn = document.createElement('button');
+    btn.className = 'notes-signin-btn';
+    btn.textContent = 'Sign in with Google';
+    btn.addEventListener('click', () => {
+      if (typeof google === 'undefined') {
+        alert('Google sign-in not loaded yet — please try again in a moment.');
+        return;
+      }
+      googleSignIn();
+    });
+
+    const privacy = document.createElement('p');
+    privacy.className = 'notes-privacy';
+    privacy.textContent = 'Notes are saved to your own Google Drive. We never see or store your data.';
+
+    wrap.appendChild(msg);
+    wrap.appendChild(btn);
+    wrap.appendChild(privacy);
+    panel.appendChild(wrap);
+    return;
+  }
+
+  // Signed-in state
+  const header = document.createElement('div');
+  header.className = 'notes-header';
+
+  const userEl = document.createElement('span');
+  userEl.className = 'notes-user';
+  userEl.textContent = googleUser ? googleUser.email : '';
+
+  const signOutBtn = document.createElement('button');
+  signOutBtn.className = 'notes-signout-btn';
+  signOutBtn.textContent = 'Sign out';
+  signOutBtn.addEventListener('click', googleSignOut);
+
+  header.appendChild(userEl);
+  header.appendChild(signOutBtn);
+
+  const textarea = document.createElement('textarea');
+  textarea.className = 'notes-textarea';
+  textarea.placeholder = 'Your notes for this sūtra…';
+  textarea.value = notesData[sutraId] || '';
+
+  const status = document.createElement('div');
+  status.className = 'notes-status';
+
+  textarea.addEventListener('input', () => {
+    notesData[sutraId] = textarea.value;
+    status.textContent = 'Saving…';
+    scheduleSaveNotes(status);
+  });
+
+  panel.appendChild(header);
+  panel.appendChild(textarea);
+  panel.appendChild(status);
+}
+
+function refreshAllNotesPanels() {
+  document.querySelectorAll('.notes-tab-panel').forEach(panel => {
+    if (panel._notesSutraId) renderNotesTab(panel, panel._notesSutraId);
+  });
+}
+
+function googleSignIn() {
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: async resp => {
+      if (resp.error) { console.warn('Google sign-in error:', resp.error); return; }
+      googleToken = resp.access_token;
+      // Get user info from Drive about endpoint (no extra scope needed)
+      try {
+        const info = await fetch(
+          'https://www.googleapis.com/drive/v3/about?fields=user',
+          { headers: { Authorization: `Bearer ${googleToken}` } }
+        ).then(r => r.json());
+        googleUser = { name: info.user?.displayName || '', email: info.user?.emailAddress || '' };
+      } catch (_) { googleUser = { name: '', email: '' }; }
+      await loadDriveNotes();
+      refreshAllNotesPanels();
+    },
+  });
+  client.requestAccessToken();
+}
+
+function googleSignOut() {
+  if (googleToken) google.accounts.oauth2.revoke(googleToken, () => {});
+  googleToken      = null;
+  googleUser       = null;
+  notesData        = {};
+  notesDriveFileId = null;
+  notesLoaded      = false;
+  refreshAllNotesPanels();
+}
+
+async function loadDriveNotes() {
+  if (!googleToken) return;
+  try {
+    const q   = encodeURIComponent(`name='${NOTES_FILENAME}' and trashed=false`);
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`,
+      { headers: { Authorization: `Bearer ${googleToken}` } }
+    );
+    const d = await res.json();
+    notesDriveFileId = d.files?.[0]?.id || null;
+    if (notesDriveFileId) {
+      const r2 = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${notesDriveFileId}?alt=media`,
+        { headers: { Authorization: `Bearer ${googleToken}` } }
+      );
+      notesData = await r2.json();
+    } else {
+      notesData = {};
+    }
+    notesLoaded = true;
+  } catch (e) {
+    console.warn('Notes load error:', e);
+  }
+}
+
+async function saveDriveNotes() {
+  if (!googleToken || !notesLoaded) return;
+  const body = JSON.stringify(notesData);
+  try {
+    if (notesDriveFileId) {
+      await fetch(
+        `https://www.googleapis.com/upload/drive/v3/files/${notesDriveFileId}?uploadType=media`,
+        { method: 'PATCH', headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' }, body }
+      );
+    } else {
+      const meta = JSON.stringify({ name: NOTES_FILENAME, mimeType: 'application/json' });
+      const form = new FormData();
+      form.append('metadata', new Blob([meta], { type: 'application/json' }));
+      form.append('file',     new Blob([body], { type: 'application/json' }));
+      const res = await fetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+        { method: 'POST', headers: { Authorization: `Bearer ${googleToken}` }, body: form }
+      );
+      const d = await res.json();
+      notesDriveFileId = d.id;
+    }
+    // Signal saved to all open notes panels
+    document.querySelectorAll('.notes-tab-panel .notes-status').forEach(el => {
+      el.textContent = 'Saved';
+      setTimeout(() => { if (el.textContent === 'Saved') el.textContent = ''; }, 2000);
+    });
+  } catch (e) {
+    console.warn('Notes save error:', e);
+    document.querySelectorAll('.notes-tab-panel .notes-status').forEach(el => {
+      el.textContent = 'Save failed — check connection';
+    });
+  }
+}
+
+function scheduleSaveNotes() {
+  clearTimeout(_saveNotesTimer);
+  _saveNotesTimer = setTimeout(saveDriveNotes, 1500);
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
