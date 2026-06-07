@@ -3637,7 +3637,7 @@ function showLegalPage(id) {
         { title: 'Third-party services',
           body: 'Content is served via jsDelivr CDN (open data) and Cloudflare R2 (owner-authored content). These services may log standard request metadata per their own privacy policies.' },
         { title: 'Contact',
-          body: 'Questions? Use the Contact Us form in About.' },
+          body: 'Questions? <a href="#" class="legal-contact-link">Contact Us</a> — we read every message.' },
       ],
     },
     terms: {
@@ -3680,6 +3680,15 @@ function showLegalPage(id) {
     el.appendChild(bodyEl);
     $sutraList.appendChild(el);
   }
+
+  // Wire contact links to open the feedback form directly
+  $sutraList.querySelectorAll('.legal-contact-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      showAbout();
+      showAboutSection('contact');
+    });
+  });
 
   showPanel('list');
 }
