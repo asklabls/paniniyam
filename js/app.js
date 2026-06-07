@@ -202,6 +202,7 @@ let notesData        = {};     // { sutraId: noteText }
 let notesDriveFileId = null;
 let notesLoaded      = false;
 let _saveNotesTimer  = null;
+let _saveInProgress  = false;
 
 // Drawer state
 let activeDrawer    = null;
@@ -4694,7 +4695,8 @@ async function loadDriveNotes() {
 }
 
 async function saveDriveNotes() {
-  if (!googleToken || !notesLoaded) return;
+  if (!googleToken || !notesLoaded || _saveInProgress) return;
+  _saveInProgress = true;
   const body = JSON.stringify(notesData);
   try {
     if (notesDriveFileId) {
@@ -4726,6 +4728,8 @@ async function saveDriveNotes() {
       btn.textContent = `Save failed (${e.message}) — retry`;
       btn.disabled = false;
     });
+  } finally {
+    _saveInProgress = false;
   }
 }
 
