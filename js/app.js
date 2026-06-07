@@ -4511,6 +4511,7 @@ function renderFitAll(data) {
       sec.appendChild(lbl);
       const skDiv = document.createElement('div');
       skDiv.className = 'detail-sanskrit commentary-panel';
+      skDiv._rawCommentary = f.sk;
       setCommentaryHTML(skDiv, f.sk);
       sec.appendChild(skDiv);
       detail.appendChild(sec);
