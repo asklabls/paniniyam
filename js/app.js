@@ -2104,70 +2104,52 @@ function renderPratyayaTable(rows, padaLabel) {
 // ── bar-ref click: show 32-pada matrix popup ──────────────────────────────────
 let $padaMatrix = null;
 
+const ADHYAYA_TABLE_DEV = ['','प्रथमोऽध्यायः','द्वितीयोऽध्यायः','तृतीयोऽध्यायः','चतुर्थोऽध्यायः','पञ्चमोऽध्यायः','षष्ठोऽध्यायः','सप्तमोऽध्यायः','अष्टमोऽध्यायः'];
+const PADA_COL_DEV     = ['','प्रथमः','द्वितीयः','तृतीयः','चतुर्थः'];
+
 function buildPadaMatrix() {
   const wrap = document.createElement('div');
   wrap.id = 'pada-matrix';
   wrap.className = 'pada-matrix';
 
-  // Sutra count per pada (computed from loaded sutraList)
   const counts = {};
   for (const s of sutraList) {
     const key = `${s.a}.${s.p}`;
     counts[key] = (counts[key] || 0) + 1;
   }
 
-  // Short adhyaya labels (१–८)
-  const devaDigit = n => '०१२३४५६७८९'[n];
-  const padaLabel = p => ['', 'I', 'II', 'III', 'IV'][p];
-
-  // Caption row: adhyaya label + पादः spanning columns
-  const captionRow = document.createElement('div');
-  captionRow.className = 'pm-row pm-caption-row';
-  const adhLabel = document.createElement('div');
-  adhLabel.className = 'pm-corner pm-adhyaya-cap dev-text';
-  adhLabel._devText = 'अध्या.';
-  adhLabel.textContent = translit('अध्या.');
-  captionRow.appendChild(adhLabel);
-  const padaLabel2 = document.createElement('div');
-  padaLabel2.className = 'pm-pada-cap dev-text';
-  padaLabel2._devText = 'पादः';
-  padaLabel2.textContent = translit('पादः');
-  captionRow.appendChild(padaLabel2);
-  wrap.appendChild(captionRow);
-
-  // Header row: I II III IV
+  // Header row
   const headerRow = document.createElement('div');
   headerRow.className = 'pm-row pm-header';
-  headerRow.appendChild(Object.assign(document.createElement('div'), { className: 'pm-corner' }));
+  const corner = document.createElement('div');
+  corner.className = 'pm-th pm-th-corner dev-text';
+  corner._devText = 'अध्यायः';
+  corner.textContent = translit('अध्यायः');
+  headerRow.appendChild(corner);
   for (let p = 1; p <= 4; p++) {
-    const h = document.createElement('div');
-    h.className = 'pm-head';
-    h.textContent = padaLabel(p);
-    headerRow.appendChild(h);
+    const th = document.createElement('div');
+    th.className = 'pm-th dev-text';
+    th._devText = PADA_COL_DEV[p];
+    th.textContent = translit(PADA_COL_DEV[p]);
+    headerRow.appendChild(th);
   }
   wrap.appendChild(headerRow);
 
+  // Data rows
   for (let a = 1; a <= 8; a++) {
     const row = document.createElement('div');
     row.className = 'pm-row';
 
-    const rowLabel = document.createElement('div');
-    rowLabel.className = 'pm-row-label dev-text';
-    rowLabel._devText = devaDigit(a);
-    rowLabel.textContent = translit(devaDigit(a));
-    row.appendChild(rowLabel);
+    const label = document.createElement('div');
+    label.className = 'pm-td-label dev-text';
+    label._devText = ADHYAYA_TABLE_DEV[a];
+    label.textContent = translit(ADHYAYA_TABLE_DEV[a]);
+    row.appendChild(label);
 
     for (let p = 1; p <= 4; p++) {
       const cell = document.createElement('button');
       cell.className = 'pm-cell';
-      const ref = document.createElement('span');
-      ref.className = 'pm-ref';
-      ref.textContent = `${a}.${p}`;
-      const cnt = document.createElement('span');
-      cnt.className = 'pm-count';
-      cnt.textContent = counts[`${a}.${p}`] || '';
-      cell.appendChild(ref);
-      cell.appendChild(cnt);
+      cell.textContent = counts[`${a}.${p}`] || 0;
       cell.addEventListener('click', () => {
         closePadaMatrix();
         showPada(a, p, null);
