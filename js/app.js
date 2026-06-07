@@ -4839,12 +4839,19 @@ async function loadDriveNotes() {
   try {
     const q   = encodeURIComponent(`name='${NOTES_FILENAME}' and trashed=false`);
     const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`,
+      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,modifiedTime)&orderBy=modifiedTime%20desc`,
       { headers: { Authorization: `Bearer ${googleToken}` } }
     );
     if (!res.ok) throw new Error(`Drive search ${res.status}`);
     const d = await res.json();
-    notesDriveFileId = d.files?.[0]?.id || null;
+    const files = d.files || [];
+    notesDriveFileId = files[0]?.id || null;
+    // Silently delete any duplicates (keep most recently modified)
+    for (const f of files.slice(1)) {
+      fetch(`https://www.googleapis.com/drive/v3/files/${f.id}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${googleToken}` } }
+      ).catch(() => {});
+    }
     if (notesDriveFileId) {
       const r2 = await fetch(
         `https://www.googleapis.com/drive/v3/files/${notesDriveFileId}?alt=media`,
@@ -4912,12 +4919,19 @@ async function loadAuthorDriveNotes() {
   try {
     const q   = encodeURIComponent(`name='${AUTHOR_NOTES_FILENAME}' and trashed=false`);
     const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`,
+      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,modifiedTime)&orderBy=modifiedTime%20desc`,
       { headers: { Authorization: `Bearer ${googleToken}` } }
     );
     if (!res.ok) throw new Error(`Drive search ${res.status}`);
     const d = await res.json();
-    authorNotesDriveFileId = d.files?.[0]?.id || null;
+    const files = d.files || [];
+    authorNotesDriveFileId = files[0]?.id || null;
+    // Silently delete any duplicates (keep most recently modified)
+    for (const f of files.slice(1)) {
+      fetch(`https://www.googleapis.com/drive/v3/files/${f.id}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${googleToken}` } }
+      ).catch(() => {});
+    }
     if (authorNotesDriveFileId) {
       const r2 = await fetch(
         `https://www.googleapis.com/drive/v3/files/${authorNotesDriveFileId}?alt=media`,
