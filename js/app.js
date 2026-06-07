@@ -1016,8 +1016,9 @@ function buildSutraMeta(sutra) {
         const wordSpan = devEl('span', '', word);
         if (id2) {
           const a = document.createElement('a');
-          a.className = 'detail-anuvritta';
+          a.className = 'detail-anuvritta sutra-link';
           a.href = '#';
+          a.dataset.id = id2;
           a.addEventListener('click', e => { e.preventDefault(); gotoSutra(id2); });
           a.appendChild(wordSpan);
           a.appendChild(document.createTextNode(` (${idToRef(id2)})`));
