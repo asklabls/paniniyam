@@ -3686,7 +3686,7 @@ function showLegalPage(id) {
     a.addEventListener('click', e => {
       e.preventDefault();
       showAbout();
-      showAboutSection('contact');
+      setTimeout(() => showAboutSection('contact'), 0);
     });
   });
 
