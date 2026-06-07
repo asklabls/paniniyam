@@ -29,6 +29,7 @@ const BOOKS = [
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
+  { id: 'paribhasha',      devName: 'परिभाषाः',        engName: 'Paribhāṣās',      type: 'leaf',                                                                   icon: 'परि०' },
   { id: 'shiksha-group', devName: 'शिक्षा', engName: 'Śikṣā', type: 'sub-tree', icon: 'शिक्षा',
     pages: [
       { id: 'shiksha',        devName: 'पाणिनीयशिक्षा',      engName: 'Pāṇinīya Śikṣā',      type: 'leaf',                  dataPath: 'shiksha/data.txt' },
@@ -1319,6 +1320,22 @@ async function handleLeafClick(book, btn) {
   updateReaderNav();
   activeCard  = null;
   updateBookURL(book.id);
+
+  // Paribhasha is private-only — no public data file
+  if (book.id === 'paribhasha') {
+    try {
+      if (!PRIVATE_BASE) throw new Error('no private base');
+      const r = await fetch(`${PRIVATE_BASE}/paribhasha.json`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      renderParibhashaAll(j.sutras || []);
+    } catch (_) {
+      setListHeader('परिभाषाः', '');
+      $sutraList.innerHTML = `<p style="padding:16px;color:var(--muted)">Paribhasha data not available.</p>`;
+      showPanel('list');
+    }
+    return;
+  }
 
   try {
     const data = await loadData(book.id, book.dataPath);
@@ -4164,6 +4181,54 @@ function renderLingaAll(acData, privateEntries) {
       card.addEventListener('click', () => toggleSimpleCard(card));
       $sutraList.appendChild(card);
     }
+  }
+  showPanel('list');
+}
+
+// ── Paribhasha ────────────────────────────────────────────────────────────────
+function renderParibhashaAll(sutras) {
+  $sutraList.innerHTML = '';
+  setListHeader('परिभाषाः', `${sutras.length} paribhāṣās`);
+
+  for (const e of sutras) {
+    const card = document.createElement('div');
+    card.className = 'sutra-card';
+
+    const row = document.createElement('div');
+    row.className = 'sutra-row';
+    const idEl = document.createElement('span');
+    idEl.className = 'sutra-id';
+    idEl.textContent = e.id;
+    row.appendChild(idEl);
+    row.appendChild(devEl('span', 'sutra-text', e.sutra));
+
+    const detail = document.createElement('div');
+    detail.className = 'sutra-detail';
+    detail.appendChild(devEl('div', 'detail-sutra-full', e.sutra));
+
+    if (e.source) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      sec.appendChild(devEl('div', 'detail-label', 'स्रोतः'));
+      sec.appendChild(devEl('div', 'detail-sanskrit', e.source));
+      detail.appendChild(sec);
+    }
+
+    if (e.vyakhya) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      sec.appendChild(devEl('div', 'detail-label', 'व्याख्या'));
+      const commentaryDiv = document.createElement('div');
+      commentaryDiv.className = 'commentary-panel detail-sanskrit';
+      setCommentaryHTML(commentaryDiv, e.vyakhya);
+      sec.appendChild(commentaryDiv);
+      detail.appendChild(sec);
+    }
+
+    card.appendChild(row);
+    card.appendChild(detail);
+    card.addEventListener('click', () => toggleSimpleCard(card));
+    $sutraList.appendChild(card);
   }
   showPanel('list');
 }
