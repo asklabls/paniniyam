@@ -14,7 +14,7 @@ const SCRIPTS = [
   { id: 'iast',       label: 'IAST',     name: 'IAST'       },
   { id: 'itrans',     label: 'ITRANS',   name: 'ITRANS'     },
 ];
-const SCRIPT_DEFAULT = 'itrans';
+const SCRIPT_DEFAULT = 'devanagari';
 const SETTINGS_KEY   = 'paniniyam-script';
 
 // ── Feedback form (Google Apps Script endpoint) ───────────────────────────────
