@@ -4812,7 +4812,7 @@ function googleSignOut() {
   authorNotesDriveFileId = null;
   authorNotesLoaded      = false;
   // reload author notes from R2 (public version) after sign-out
-  fetch(`${PRIVATE_BASE}/author-notes.json`)
+  fetch(`${PRIVATE_BASE}/paniniyam-author-notes.json`)
     .then(r => r.ok ? r.json() : {}).then(d => { authorNotesData = d; refreshAllNotesPanels(); })
     .catch(() => { authorNotesData = {}; refreshAllNotesPanels(); });
 }
@@ -4977,7 +4977,7 @@ async function init() {
             .catch(() => null)
         : Promise.resolve(null),
       PRIVATE_BASE
-        ? fetch(`${PRIVATE_BASE}/author-notes.json`)
+        ? fetch(`${PRIVATE_BASE}/paniniyam-author-notes.json`)
             .then(r => r.ok ? r.json() : {})
             .then(d => { authorNotesData = d; })
             .catch(() => null)
