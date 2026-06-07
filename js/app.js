@@ -4664,6 +4664,7 @@ async function loadDriveNotes() {
       `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`,
       { headers: { Authorization: `Bearer ${googleToken}` } }
     );
+    if (!res.ok) throw new Error(`Drive search ${res.status}`);
     const d = await res.json();
     notesDriveFileId = d.files?.[0]?.id || null;
     if (notesDriveFileId) {
@@ -4671,14 +4672,16 @@ async function loadDriveNotes() {
         `https://www.googleapis.com/drive/v3/files/${notesDriveFileId}?alt=media`,
         { headers: { Authorization: `Bearer ${googleToken}` } }
       );
+      if (!r2.ok) throw new Error(`Drive read ${r2.status}`);
       notesData = await r2.json();
     } else {
       notesData = {};
     }
-    notesLoaded = true;
   } catch (e) {
     console.warn('Notes load error:', e);
+    notesData = {};          // start fresh — saves will still work
   }
+  notesLoaded = true;        // always allow saves, even if load failed
 }
 
 async function saveDriveNotes() {
@@ -4686,10 +4689,11 @@ async function saveDriveNotes() {
   const body = JSON.stringify(notesData);
   try {
     if (notesDriveFileId) {
-      await fetch(
+      const res = await fetch(
         `https://www.googleapis.com/upload/drive/v3/files/${notesDriveFileId}?uploadType=media`,
         { method: 'PATCH', headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' }, body }
       );
+      if (!res.ok) throw new Error(`Drive update ${res.status}: ${await res.text()}`);
     } else {
       const meta = JSON.stringify({ name: NOTES_FILENAME, mimeType: 'application/json' });
       const form = new FormData();
@@ -4699,10 +4703,10 @@ async function saveDriveNotes() {
         'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
         { method: 'POST', headers: { Authorization: `Bearer ${googleToken}` }, body: form }
       );
+      if (!res.ok) throw new Error(`Drive create ${res.status}: ${await res.text()}`);
       const d = await res.json();
       notesDriveFileId = d.id;
     }
-    // Update save buttons in all open notes panels
     document.querySelectorAll('.notes-save-btn').forEach(btn => {
       btn.textContent = 'Saved';
       btn.disabled = true;
@@ -4710,7 +4714,7 @@ async function saveDriveNotes() {
   } catch (e) {
     console.warn('Notes save error:', e);
     document.querySelectorAll('.notes-save-btn').forEach(btn => {
-      btn.textContent = 'Save failed — retry';
+      btn.textContent = `Save failed (${e.message}) — retry`;
       btn.disabled = false;
     });
   }
