@@ -4342,8 +4342,9 @@ function renderLingaAll(acData, privateEntries) {
         lbl.textContent = 'हिन्दी';
         sec.appendChild(lbl);
         const hindiEl = document.createElement('div');
-        hindiEl.className = 'detail-english';
-        hindiEl.textContent = e.hindi;
+        hindiEl.className = 'detail-english mixed-text';
+        hindiEl._mixedText = e.hindi;
+        hindiEl.textContent = translitMixed(e.hindi);
         sec.appendChild(hindiEl);
         detail.appendChild(sec);
       }
