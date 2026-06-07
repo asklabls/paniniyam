@@ -169,7 +169,7 @@ const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f918
 const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
 
 // ── Google Drive notes (Phase 4) ─────────────────────────────────────────────
-const GOOGLE_CLIENT_ID = '474603804315-2kp436s1mbqjrnvhl3hc41sulcrlkn9f.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '868948839711-9o6jlfsrlhoa7qn5ngebqp91l60h7e35.apps.googleusercontent.com';
 const DRIVE_SCOPE      = 'https://www.googleapis.com/auth/drive.file';
 const NOTES_FILENAME   = 'paniniyam-notes.json';
 
