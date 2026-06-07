@@ -2173,12 +2173,16 @@ function buildPadaMatrix() {
   return wrap;
 }
 
+let _padaMatrixJustOpened = false;
+
 function openPadaMatrix() {
   if (!$padaMatrix) {
     $padaMatrix = buildPadaMatrix();
     document.body.appendChild($padaMatrix);
   }
   $padaMatrix.classList.add('open');
+  _padaMatrixJustOpened = true;
+  setTimeout(() => { _padaMatrixJustOpened = false; }, 0);
 }
 
 function closePadaMatrix() {
@@ -2210,6 +2214,7 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('click', e => {
+  if (_padaMatrixJustOpened) return;
   if ($padaMatrix?.classList.contains('open') &&
       !$padaMatrix.contains(e.target) &&
       e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
