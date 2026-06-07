@@ -4327,7 +4327,11 @@ function renderLingaAll(acData, privateEntries) {
         const sec = document.createElement('div');
         sec.className = 'detail-section';
         sec.appendChild(devEl('div', 'detail-label', 'व्याख्या'));
-        sec.appendChild(devEl('div', 'detail-sanskrit', e.vyakhya));
+        const vyakhyaDiv = document.createElement('div');
+        vyakhyaDiv.className = 'commentary-panel detail-sanskrit';
+        vyakhyaDiv._rawCommentary = e.vyakhya;
+        setCommentaryHTML(vyakhyaDiv, e.vyakhya);
+        sec.appendChild(vyakhyaDiv);
         detail.appendChild(sec);
       }
       if (e.hindi) {
@@ -4425,6 +4429,7 @@ function renderParibhashaAll(sutras) {
       sec.appendChild(devEl('div', 'detail-label', 'व्याख्या'));
       const commentaryDiv = document.createElement('div');
       commentaryDiv.className = 'commentary-panel detail-sanskrit';
+      commentaryDiv._rawCommentary = e.vyakhya;
       setCommentaryHTML(commentaryDiv, e.vyakhya);
       sec.appendChild(commentaryDiv);
       detail.appendChild(sec);
