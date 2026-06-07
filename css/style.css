@@ -524,6 +524,15 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .script-pill:hover { background: #ecdfc8; border-color: var(--accent); }
 
+/* ── Welcome footer (privacy / terms links) ──────────────────── */
+.welcome-footer {
+  margin-top: 32px; font-size: .78em; color: var(--muted);
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+.welcome-footer a { color: var(--muted); text-decoration: underline; }
+.welcome-footer a:hover { color: var(--text); }
+.welcome-footer-sep { margin: 0 8px; }
+
 /* ── Welcome hero (image + YouTube link) ─────────────────────── */
 .welcome-hero {
   margin-top: 28px;
