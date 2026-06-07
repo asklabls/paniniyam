@@ -25,7 +25,7 @@ const FEEDBACK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK9CYsZQ9y
 const BOOKS = [
   { id: 'shivasutra',      devName: 'शिवसूत्राणि',    engName: 'Śiva Sūtras',    type: 'leaf', dataPath: 'shivasutra/data.txt',         icon: 'शिव'  },
   { id: 'ashtadhyayi',     devName: 'अष्टाध्यायी',   engName: 'Ashtadhyayi',    type: 'pada-matrix-btn',                               icon: 'अष्ट०' },
-  { id: 'dhatupatha',      devName: 'धातुपाठः',       engName: 'Dhatupatha',     type: 'lazy-gana-tree', dataPath: 'dhatu/data.txt',     icon: 'धातु'  },
+  { id: 'dhatupatha',      devName: 'धातुपाठः',       engName: 'Dhatupatha',     type: 'gana-matrix-btn', dataPath: 'dhatu/data.txt',    icon: 'धातु'  },
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
@@ -1145,6 +1145,13 @@ function buildBookEntry(book) {
     return wrap;
   }
 
+  if (book.type === 'gana-matrix-btn') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); openGanaMatrix(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
   const arrow = document.createElement('span');
   arrow.className = 'arrow';
   arrow.textContent = '▶';
@@ -2209,16 +2216,95 @@ $btnPadaGrid.addEventListener('click', () => {
   }
 });
 
+// ── Gana matrix popup ─────────────────────────────────────────────────────────
+let $ganaMatrix = null;
+let _ganaMatrixJustOpened = false;
+
+const GANA_SHORT_DEV = ['','भ्वादिः','अदादिः','जुहोत्यादिः','दिवादिः','स्वादिः','तुदादिः','रुधादिः','तनादिः','क्र्यादिः','चुरादिः'];
+
+async function buildGanaMatrix() {
+  const wrap = document.createElement('div');
+  wrap.id = 'gana-matrix';
+  wrap.className = 'gana-matrix';
+
+  // Caption
+  const caption = document.createElement('div');
+  caption.className = 'gm-caption dev-text';
+  caption._devText = 'गणाः';
+  caption.textContent = translit('गणाः');
+  wrap.appendChild(caption);
+
+  // Load dhatu data for counts
+  let data = null;
+  try { data = await loadData('dhatupatha', 'dhatu/data.txt'); } catch (_) {}
+  const counts = {};
+  if (data) for (const d of data) counts[d.gana] = (counts[d.gana] || 0) + 1;
+
+  const grid = document.createElement('div');
+  grid.className = 'gm-grid';
+
+  for (let g = 1; g <= 10; g++) {
+    const cell = document.createElement('button');
+    cell.className = 'gm-cell';
+
+    const num = document.createElement('span');
+    num.className = 'gm-num';
+    num.textContent = String(g).padStart(2, '0');
+
+    const name = document.createElement('span');
+    name.className = 'gm-name dev-text';
+    name._devText = GANA_SHORT_DEV[g];
+    name.textContent = translit(GANA_SHORT_DEV[g]);
+
+    const cnt = document.createElement('span');
+    cnt.className = 'gm-count';
+    cnt.textContent = counts[String(g)] || '';
+
+    cell.appendChild(num);
+    cell.appendChild(name);
+    cell.appendChild(cnt);
+
+    cell.addEventListener('click', () => {
+      closeGanaMatrix();
+      currentPada = null; readerList = []; readerIdx = -1; readerSutra = null;
+      updateReaderNav();
+      if (data) renderDhatuList(data.filter(d => d.gana === String(g)), GANA_LABELS_DEV[g]);
+    });
+    grid.appendChild(cell);
+  }
+
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+async function openGanaMatrix() {
+  if (!$ganaMatrix) {
+    $ganaMatrix = await buildGanaMatrix();
+    document.body.appendChild($ganaMatrix);
+  }
+  $ganaMatrix.classList.add('open');
+  _ganaMatrixJustOpened = true;
+  setTimeout(() => { _ganaMatrixJustOpened = false; }, 0);
+}
+
+function closeGanaMatrix() {
+  $ganaMatrix?.classList.remove('open');
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closePadaMatrix();
+  if (e.key === 'Escape') { closePadaMatrix(); closeGanaMatrix(); }
 });
 
 document.addEventListener('click', e => {
-  if (_padaMatrixJustOpened) return;
+  if (_padaMatrixJustOpened || _ganaMatrixJustOpened) return;
   if ($padaMatrix?.classList.contains('open') &&
       !$padaMatrix.contains(e.target) &&
       e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
     closePadaMatrix();
+  }
+  if ($ganaMatrix?.classList.contains('open') &&
+      !$ganaMatrix.contains(e.target)) {
+    closeGanaMatrix();
   }
 });
 

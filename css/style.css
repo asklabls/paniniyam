@@ -177,6 +177,48 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
   font-family: 'Noto Sans', sans-serif;
 }
 
+/* ── Gana matrix popup ─────────────────────────────────────────── */
+.gana-matrix {
+  position: fixed;
+  bottom: calc(var(--bar-h) + 6px);
+  left: 8px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 28px rgba(0,0,0,.28);
+  z-index: 600; padding: 8px;
+  display: none; flex-direction: column; gap: 6px;
+}
+.gana-matrix.open { display: flex; }
+.gm-caption {
+  text-align: center; font-size: .7em; color: var(--muted);
+  font-family: 'Vesper Libre', serif; letter-spacing: .04em;
+}
+.gm-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+}
+.gm-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 6px 10px; min-width: 96px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.gm-cell:hover { background: var(--hover-bg); border-color: var(--accent); }
+.gm-num {
+  font-size: .65em; color: var(--muted);
+  font-family: 'Noto Sans', monospace; letter-spacing: .04em;
+}
+.gm-name {
+  font-size: .85em; font-weight: 600; color: var(--text);
+  font-family: 'Vesper Libre', serif;
+}
+.gm-cell:hover .gm-name { color: var(--accent); }
+.gm-count {
+  font-size: .65em; color: var(--muted);
+  font-family: 'Noto Sans', sans-serif;
+}
+
 /* ── Icon bar (always-visible collapsed nav strip) ────────────── */
 #icon-bar {
   position: fixed; left: 0; top: var(--bar-h);
