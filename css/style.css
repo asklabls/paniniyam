@@ -799,6 +799,14 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-size: .75em; color: var(--muted);
   font-family: 'Noto Sans', system-ui, sans-serif;
 }
+.notes-owner-signin {
+  margin-left: auto;
+  background: none; border: none; cursor: pointer;
+  font-size: .85em; color: var(--muted);
+  opacity: .4; padding: 2px 4px;
+  transition: opacity .15s;
+}
+.notes-owner-signin:hover { opacity: .9; }
 
 /* ── Section headers within flat lists ───────────────────────── */
 .section-header {

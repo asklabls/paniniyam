@@ -1841,6 +1841,19 @@ function buildTabGroups(sutra, container, inCard) {
 
       tabBar.appendChild(authorTabBtn);
       tabBar.appendChild(yourTabBtn);
+
+      // Subtle owner sign-in icon — right side of tab bar, hidden once signed in as owner
+      const ownerSignInBtn = document.createElement('button');
+      ownerSignInBtn.className = 'notes-owner-signin';
+      ownerSignInBtn.title = 'Author sign-in';
+      ownerSignInBtn.textContent = '✎';
+      ownerSignInBtn.style.display = (googleToken && googleUser?.email === OWNER_EMAIL) ? 'none' : '';
+      ownerSignInBtn.addEventListener('click', () => {
+        if (typeof google === 'undefined') { alert('Google sign-in not loaded yet — please try again.'); return; }
+        googleSignIn();
+      });
+      tabBar.appendChild(ownerSignInBtn);
+
       panelWrap.appendChild(authorPanel);
       panelWrap.appendChild(yourPanel);
       groupEl.appendChild(tabBar);
@@ -4773,6 +4786,10 @@ function renderNotesTab(panel, sutraId) {
 }
 
 function refreshAllNotesPanels() {
+  const isOwner = !!(googleToken && googleUser?.email === OWNER_EMAIL);
+  document.querySelectorAll('.notes-owner-signin').forEach(btn => {
+    btn.style.display = isOwner ? 'none' : '';
+  });
   document.querySelectorAll('.notes-tab-panel').forEach(panel => {
     if (panel._notesSutraId)       renderNotesTab(panel, panel._notesSutraId);
     if (panel._authorNotesSutraId) renderAuthorNotesTab(panel, panel._authorNotesSutraId);
