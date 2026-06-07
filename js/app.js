@@ -169,9 +169,11 @@ const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f918
 const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
 
 // ── Google Drive notes (Phase 4) ─────────────────────────────────────────────
-const GOOGLE_CLIENT_ID = '868948839711-9o6jlfsrlhoa7qn5ngebqp91l60h7e35.apps.googleusercontent.com';
-const DRIVE_SCOPE      = 'https://www.googleapis.com/auth/drive.file';
-const NOTES_FILENAME   = 'paniniyam-notes.json';
+const GOOGLE_CLIENT_ID        = '868948839711-9o6jlfsrlhoa7qn5ngebqp91l60h7e35.apps.googleusercontent.com';
+const DRIVE_SCOPE             = 'https://www.googleapis.com/auth/drive.file';
+const NOTES_FILENAME          = 'paniniyam-notes.json';
+const AUTHOR_NOTES_FILENAME   = 'paniniyam-author-notes.json';
+const OWNER_EMAIL             = 'akupadhyayula@gmail.com';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentScript = localStorage.getItem(SETTINGS_KEY) || SCRIPT_DEFAULT;
@@ -203,6 +205,13 @@ let notesDriveFileId = null;
 let notesLoaded      = false;
 let _saveNotesTimer  = null;
 let _saveInProgress  = false;
+
+// Author notes state
+let authorNotesData        = {};
+let authorNotesDriveFileId = null;
+let authorNotesLoaded      = false;
+let _saveAuthorTimer       = null;
+let _saveAuthorInProgress  = false;
 
 // Session tab memory — remembers last-clicked tab per group within one session
 const activeTabByGroup = {};
@@ -1783,7 +1792,7 @@ function buildTabGroups(sutra, container, inCard) {
       continue;
     }
 
-    // ── Notes tab (Phase 4 — Google Drive) ──
+    // ── Notes tabs (Author's Notes + Your notes) ──
     if (group.type === 'notes-placeholder') {
       const groupEl = document.createElement('div');
       groupEl.className = 'tab-group notes-group';
@@ -1791,21 +1800,49 @@ function buildTabGroups(sutra, container, inCard) {
       const tabBar = document.createElement('div');
       tabBar.className = inCard ? 'detail-tabs detail-tabs-card' : 'detail-tabs';
 
-      const tabBtn = document.createElement('button');
-      tabBtn.className = 'detail-tab active';
-      tabBtn.textContent = 'Your notes';
-      tabBar.appendChild(tabBtn);
-
       const panelWrap = document.createElement('div');
       panelWrap.className = 'detail-tab-panels';
 
-      const panel = document.createElement('div');
-      panel.className = 'detail-tab-panel notes-tab-panel active';
-      renderNotesTab(panel, sutra.i);
+      // Author's Notes tab
+      const authorTabBtn = document.createElement('button');
+      authorTabBtn.className = 'detail-tab';
+      authorTabBtn.textContent = "Author's Notes";
+      const authorPanel = document.createElement('div');
+      authorPanel.className = 'detail-tab-panel notes-tab-panel';
+      renderAuthorNotesTab(authorPanel, sutra.i);
 
-      tabBtn.addEventListener('click', () => renderNotesTab(panel, sutra.i));
+      // Your notes tab
+      const yourTabBtn = document.createElement('button');
+      yourTabBtn.className = 'detail-tab';
+      yourTabBtn.textContent = 'Your notes';
+      const yourPanel = document.createElement('div');
+      yourPanel.className = 'detail-tab-panel notes-tab-panel';
+      renderNotesTab(yourPanel, sutra.i);
 
-      panelWrap.appendChild(panel);
+      function activateNotesTab(which) {
+        activeTabByGroup['notes'] = which;
+        authorTabBtn.classList.toggle('active', which === 'author');
+        yourTabBtn.classList.toggle('active',   which === 'your');
+        authorPanel.classList.toggle('active',  which === 'author');
+        yourPanel.classList.toggle('active',    which === 'your');
+      }
+
+      authorTabBtn.addEventListener('click', () => {
+        activateNotesTab('author');
+        renderAuthorNotesTab(authorPanel, sutra.i);
+      });
+      yourTabBtn.addEventListener('click', () => {
+        activateNotesTab('your');
+        renderNotesTab(yourPanel, sutra.i);
+      });
+
+      // Restore last-used tab; default to Author's Notes
+      activateNotesTab(activeTabByGroup['notes'] || 'author');
+
+      tabBar.appendChild(authorTabBtn);
+      tabBar.appendChild(yourTabBtn);
+      panelWrap.appendChild(authorPanel);
+      panelWrap.appendChild(yourPanel);
       groupEl.appendChild(tabBar);
       groupEl.appendChild(panelWrap);
       container.appendChild(groupEl);
@@ -4575,6 +4612,65 @@ function setupHoverZones() {
 
 // ── Google Drive notes ────────────────────────────────────────────────────────
 
+function renderAuthorNotesTab(panel, sutraId) {
+  panel.innerHTML = '';
+  panel._authorNotesSutraId = sutraId;
+  const isOwner = !!(googleToken && googleUser?.email === OWNER_EMAIL);
+  const text = authorNotesData[sutraId] || '';
+
+  if (!isOwner) {
+    if (text) {
+      const content = document.createElement('div');
+      content.className = 'notes-readonly commentary-panel';
+      setCommentaryHTML(content, text);
+      panel.appendChild(content);
+    } else {
+      const empty = document.createElement('p');
+      empty.className = 'notes-empty';
+      empty.textContent = 'No author notes for this sūtra yet.';
+      panel.appendChild(empty);
+    }
+    return;
+  }
+
+  // Owner view — editable
+  const textarea = document.createElement('textarea');
+  textarea.className = 'notes-textarea';
+  textarea.placeholder = 'Author notes for this sūtra…';
+  textarea.value = text;
+
+  const footer = document.createElement('div');
+  footer.className = 'notes-author-footer';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'notes-save-btn author-save-btn';
+  saveBtn.textContent = 'Saved';
+  saveBtn.disabled = true;
+
+  const hint = document.createElement('span');
+  hint.className = 'notes-publish-hint';
+  hint.textContent = 'Save → download from Drive → upload to R2 to publish';
+
+  textarea.addEventListener('input', () => {
+    authorNotesData[sutraId] = textarea.value;
+    saveBtn.textContent = 'Save';
+    saveBtn.disabled = false;
+    scheduleAuthorSave();
+  });
+
+  saveBtn.addEventListener('click', () => {
+    saveBtn.textContent = 'Saving…';
+    saveBtn.disabled = true;
+    clearTimeout(_saveAuthorTimer);
+    saveAuthorNotes();
+  });
+
+  footer.appendChild(saveBtn);
+  footer.appendChild(hint);
+  panel.appendChild(textarea);
+  panel.appendChild(footer);
+}
+
 function renderNotesTab(panel, sutraId) {
   panel.innerHTML = '';
   panel._notesSutraId = sutraId;
@@ -4656,7 +4752,8 @@ function renderNotesTab(panel, sutraId) {
 
 function refreshAllNotesPanels() {
   document.querySelectorAll('.notes-tab-panel').forEach(panel => {
-    if (panel._notesSutraId) renderNotesTab(panel, panel._notesSutraId);
+    if (panel._notesSutraId)       renderNotesTab(panel, panel._notesSutraId);
+    if (panel._authorNotesSutraId) renderAuthorNotesTab(panel, panel._authorNotesSutraId);
   });
 }
 
@@ -4676,6 +4773,7 @@ function googleSignIn() {
         googleUser = { name: info.user?.displayName || '', email: info.user?.emailAddress || '' };
       } catch (_) { googleUser = { name: '', email: '' }; }
       await loadDriveNotes();
+      if (googleUser?.email === OWNER_EMAIL) await loadAuthorDriveNotes();
       refreshAllNotesPanels();
     },
   });
@@ -4684,12 +4782,17 @@ function googleSignIn() {
 
 function googleSignOut() {
   if (googleToken) google.accounts.oauth2.revoke(googleToken, () => {});
-  googleToken      = null;
-  googleUser       = null;
-  notesData        = {};
-  notesDriveFileId = null;
-  notesLoaded      = false;
-  refreshAllNotesPanels();
+  googleToken            = null;
+  googleUser             = null;
+  notesData              = {};
+  notesDriveFileId       = null;
+  notesLoaded            = false;
+  authorNotesDriveFileId = null;
+  authorNotesLoaded      = false;
+  // reload author notes from R2 (public version) after sign-out
+  fetch(`${PRIVATE_BASE}/author-notes.json`)
+    .then(r => r.ok ? r.json() : {}).then(d => { authorNotesData = d; refreshAllNotesPanels(); })
+    .catch(() => { authorNotesData = {}; refreshAllNotesPanels(); });
 }
 
 async function loadDriveNotes() {
@@ -4765,6 +4868,74 @@ function scheduleSaveNotes() {
   _saveNotesTimer = setTimeout(saveDriveNotes, 1500);
 }
 
+async function loadAuthorDriveNotes() {
+  if (!googleToken) return;
+  try {
+    const q   = encodeURIComponent(`name='${AUTHOR_NOTES_FILENAME}' and trashed=false`);
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`,
+      { headers: { Authorization: `Bearer ${googleToken}` } }
+    );
+    if (!res.ok) throw new Error(`Drive search ${res.status}`);
+    const d = await res.json();
+    authorNotesDriveFileId = d.files?.[0]?.id || null;
+    if (authorNotesDriveFileId) {
+      const r2 = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${authorNotesDriveFileId}?alt=media`,
+        { headers: { Authorization: `Bearer ${googleToken}` } }
+      );
+      if (!r2.ok) throw new Error(`Drive read ${r2.status}`);
+      authorNotesData = await r2.json();
+    }
+  } catch (e) {
+    console.warn('Author notes load error:', e);
+  }
+  authorNotesLoaded = true;
+}
+
+async function saveAuthorNotes() {
+  if (!googleToken || !authorNotesLoaded || _saveAuthorInProgress) return;
+  _saveAuthorInProgress = true;
+  const sorted = Object.fromEntries(Object.keys(authorNotesData).sort().map(k => [k, authorNotesData[k]]));
+  const body = JSON.stringify(sorted, null, 2);
+  try {
+    if (authorNotesDriveFileId) {
+      const res = await fetch(
+        `https://www.googleapis.com/upload/drive/v3/files/${authorNotesDriveFileId}?uploadType=media`,
+        { method: 'PATCH', headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' }, body }
+      );
+      if (!res.ok) throw new Error(`Drive update ${res.status}: ${await res.text()}`);
+    } else {
+      const meta = JSON.stringify({ name: AUTHOR_NOTES_FILENAME, mimeType: 'application/json' });
+      const form = new FormData();
+      form.append('metadata', new Blob([meta], { type: 'application/json' }));
+      form.append('file',     new Blob([body], { type: 'application/json' }));
+      const res = await fetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+        { method: 'POST', headers: { Authorization: `Bearer ${googleToken}` }, body: form }
+      );
+      if (!res.ok) throw new Error(`Drive create ${res.status}: ${await res.text()}`);
+      const d = await res.json();
+      authorNotesDriveFileId = d.id;
+    }
+    document.querySelectorAll('.author-save-btn').forEach(btn => {
+      btn.textContent = 'Saved'; btn.disabled = true;
+    });
+  } catch (e) {
+    console.warn('Author notes save error:', e);
+    document.querySelectorAll('.author-save-btn').forEach(btn => {
+      btn.textContent = `Save failed (${e.message}) — retry`; btn.disabled = false;
+    });
+  } finally {
+    _saveAuthorInProgress = false;
+  }
+}
+
+function scheduleAuthorSave() {
+  clearTimeout(_saveAuthorTimer);
+  _saveAuthorTimer = setTimeout(saveAuthorNotes, 1500);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   buildScriptDropdown();
@@ -4781,6 +4952,12 @@ async function init() {
         ? fetch(`${PRIVATE_BASE}/pravachanam.json`)
             .then(r => r.ok ? r.json() : null)
             .then(d => { if (d) bookData['pravachanam'] = d; })
+            .catch(() => null)
+        : Promise.resolve(null),
+      PRIVATE_BASE
+        ? fetch(`${PRIVATE_BASE}/author-notes.json`)
+            .then(r => r.ok ? r.json() : {})
+            .then(d => { authorNotesData = d; })
             .catch(() => null)
         : Promise.resolve(null),
     ]);
