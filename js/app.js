@@ -4699,7 +4699,8 @@ async function loadDriveNotes() {
 async function saveDriveNotes() {
   if (!googleToken || !notesLoaded || _saveInProgress) return;
   _saveInProgress = true;
-  const body = JSON.stringify(notesData, null, 2);
+  const sorted = Object.fromEntries(Object.keys(notesData).sort().map(k => [k, notesData[k]]));
+  const body = JSON.stringify(sorted, null, 2);
   try {
     if (notesDriveFileId) {
       const res = await fetch(
