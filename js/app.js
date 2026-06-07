@@ -4618,7 +4618,29 @@ function renderAuthorNotesTab(panel, sutraId) {
   const isOwner = !!(googleToken && googleUser?.email === OWNER_EMAIL);
   const text = authorNotesData[sutraId] || '';
 
+  if (!googleToken) {
+    // Show sign-in only — owner will use it; others never need to
+    const wrap = document.createElement('div');
+    wrap.className = 'notes-signin-wrap';
+    const msg = document.createElement('p');
+    msg.className = 'notes-signin-msg';
+    msg.textContent = text || 'No author notes for this sūtra yet.';
+    wrap.appendChild(msg);
+    if (text) { panel.appendChild(wrap); return; }
+    const btn = document.createElement('button');
+    btn.className = 'notes-signin-btn';
+    btn.textContent = 'Sign in to edit';
+    btn.addEventListener('click', () => {
+      if (typeof google === 'undefined') { alert('Google sign-in not loaded yet — please try again.'); return; }
+      googleSignIn();
+    });
+    wrap.appendChild(btn);
+    panel.appendChild(wrap);
+    return;
+  }
+
   if (!isOwner) {
+    // Signed in but not owner — read-only
     if (text) {
       const content = document.createElement('div');
       content.className = 'notes-readonly commentary-panel';
