@@ -45,7 +45,7 @@ const BOOKS = [
       { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta' },
     ]
   },
-  { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: '§',
+  { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
     pages: [
       { id: 'privacy', devName: 'Privacy Policy', engName: 'Privacy Policy', type: 'legal-page' },
       { id: 'terms',   devName: 'Terms of Use',   engName: 'Terms of Use',   type: 'legal-page' },
@@ -203,6 +203,9 @@ let notesDriveFileId = null;
 let notesLoaded      = false;
 let _saveNotesTimer  = null;
 let _saveInProgress  = false;
+
+// Session tab memory — remembers last-clicked tab per group within one session
+const activeTabByGroup = {};
 
 // Drawer state
 let activeDrawer    = null;
@@ -1841,21 +1844,32 @@ function buildTabGroups(sutra, container, inCard) {
         tab.classList.add('active');
         Object.values(panels).forEach(p => p.classList.remove('active'));
         panel.classList.add('active');
+        activeTabByGroup[group.id] = def.id;
         if (!panel._loaded) await loadTabData(def, panel, sutra);
       });
       tabBar.appendChild(tab);
       panelWrap.appendChild(panel);
     }
 
-    // Activate first tab; auto-load only first tab of first group
-    const firstTab   = tabBar.querySelector('.detail-tab');
-    const firstPanel = panelWrap.querySelector('.detail-tab-panel');
-    if (firstTab)   firstTab.classList.add('active');
-    if (firstPanel) {
-      firstPanel.classList.add('active');
+    // Restore last-used tab for this group, or fall back to first tab
+    const savedId    = activeTabByGroup[group.id];
+    const savedDef   = savedId && group.tabs.find(t => t.id === savedId);
+    const activeDef  = savedDef || group.tabs[0];
+    const activeTab  = tabBar.querySelector(`[data-panel="${activeDef.id}"]`) ||
+                       tabBar.querySelector('.detail-tab');
+    // querySelector on tabBar won't work for buttons — find by index instead
+    const tabBtns    = tabBar.querySelectorAll('.detail-tab');
+    const activeIdx  = group.tabs.indexOf(activeDef);
+    const activeTabEl  = tabBtns[activeIdx] || tabBtns[0];
+    const activePanel  = panels[activeDef.id] || Object.values(panels)[0];
+    if (activeTabEl)  activeTabEl.classList.add('active');
+    if (activePanel) {
+      activePanel.classList.add('active');
       if (!firstGroupRendered) {
         firstGroupRendered = true;
-        loadTabData(group.tabs[0], firstPanel, sutra);
+        loadTabData(activeDef, activePanel, sutra);
+      } else if (savedDef && !activePanel._loaded) {
+        loadTabData(activeDef, activePanel, sutra);
       }
     }
 
