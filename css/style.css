@@ -759,8 +759,20 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-family: 'Noto Sans', system-ui, sans-serif;
 }
 .notes-textarea:focus { outline: none; border-color: var(--accent); }
-.notes-status { font-size: .75em; color: var(--muted); margin-top: 4px; min-height: 1.1em;
-  font-family: 'Noto Sans', system-ui, sans-serif;
+.notes-save-btn {
+  margin-top: 6px; padding: 5px 16px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  font-size: .82em; font-family: 'Noto Sans', system-ui, sans-serif;
+  transition: background .15s, color .15s, border-color .15s;
+  cursor: pointer;
+}
+.notes-save-btn:disabled {
+  background: var(--bg); color: var(--muted);
+  border-color: var(--border); cursor: default;
+}
+.notes-save-btn:not(:disabled) {
+  background: var(--accent); color: #fff;
+  border-color: var(--accent); cursor: pointer;
 }
 
 /* ── Section headers within flat lists ───────────────────────── */

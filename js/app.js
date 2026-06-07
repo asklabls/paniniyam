@@ -4594,18 +4594,28 @@ function renderNotesTab(panel, sutraId) {
   textarea.placeholder = 'Your notes for this sūtra…';
   textarea.value = notesData[sutraId] || '';
 
-  const status = document.createElement('div');
-  status.className = 'notes-status';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'notes-save-btn';
+  saveBtn.textContent = 'Saved';
+  saveBtn.disabled = true;
 
   textarea.addEventListener('input', () => {
     notesData[sutraId] = textarea.value;
-    status.textContent = 'Saving…';
-    scheduleSaveNotes(status);
+    saveBtn.textContent = 'Save';
+    saveBtn.disabled = false;
+    scheduleSaveNotes();
+  });
+
+  saveBtn.addEventListener('click', () => {
+    saveBtn.textContent = 'Saving…';
+    saveBtn.disabled = true;
+    clearTimeout(_saveNotesTimer);
+    saveDriveNotes();
   });
 
   panel.appendChild(header);
   panel.appendChild(textarea);
-  panel.appendChild(status);
+  panel.appendChild(saveBtn);
 }
 
 function refreshAllNotesPanels() {
@@ -4692,15 +4702,16 @@ async function saveDriveNotes() {
       const d = await res.json();
       notesDriveFileId = d.id;
     }
-    // Signal saved to all open notes panels
-    document.querySelectorAll('.notes-tab-panel .notes-status').forEach(el => {
-      el.textContent = 'Saved';
-      setTimeout(() => { if (el.textContent === 'Saved') el.textContent = ''; }, 2000);
+    // Update save buttons in all open notes panels
+    document.querySelectorAll('.notes-save-btn').forEach(btn => {
+      btn.textContent = 'Saved';
+      btn.disabled = true;
     });
   } catch (e) {
     console.warn('Notes save error:', e);
-    document.querySelectorAll('.notes-tab-panel .notes-status').forEach(el => {
-      el.textContent = 'Save failed — check connection';
+    document.querySelectorAll('.notes-save-btn').forEach(btn => {
+      btn.textContent = 'Save failed — retry';
+      btn.disabled = false;
     });
   }
 }
