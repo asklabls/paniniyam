@@ -2759,8 +2759,15 @@ function vnsRenderInline(text) {
 
 function showShabdaEngine() {
   showPanel('shabda');
+  updateBookURL('shabda');
   const panel = $panelShabda;
   panel.innerHTML = '';
+
+  // ── Disclaimer ──────────────────────────────────────────────────────────
+  const disclaimer = document.createElement('div');
+  disclaimer.className = 'shabda-disclaimer';
+  disclaimer.textContent = 'Note: The declension algorithm is still under development. Some forms may be incorrect.';
+  panel.appendChild(disclaimer);
 
   // ── Pratipada input ──────────────────────────────────────────────────────
   const wrap = document.createElement('div');
