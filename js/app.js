@@ -45,16 +45,20 @@ const BOOKS = [
       { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta' },
     ]
   },
+  { id: 'legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
+    pages: [
+      { id: 'privacy', engName: 'Privacy Policy', type: 'legal-page' },
+      { id: 'terms',   engName: 'Terms of Use',   type: 'legal-page' },
+    ]
+  },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
       { id: 'gurus',     engName: 'Gurus'      },
       { id: 'resources', engName: 'Resources'  },
       { id: 'credits',   engName: 'Credits'    },
       { id: 'contact',   engName: 'Contact Us' },
-      { id: 'support',   engName: 'Support Us'    },
-      { id: 'themes',    engName: 'Themes'        },
-      { id: 'privacy',   engName: 'Privacy Policy' },
-      { id: 'terms',     engName: 'Terms of Use'  },
+      { id: 'support',   engName: 'Support Us' },
+      { id: 'themes',    engName: 'Themes'     },
     ]
   },
 ];
@@ -1203,6 +1207,8 @@ function buildBookEntry(book) {
         clickFn = () => { closeDrawer(); handleLeafClick(page, pb); };
       } else if (page.type === 'varnochchaaran-panel') {
         clickFn = () => { closeDrawer(); showVarnochchaaranPanel(); };
+      } else if (page.type === 'legal-page') {
+        clickFn = () => { closeDrawer(); showLegalPage(page.id); };
       } else {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       }
@@ -3607,6 +3613,77 @@ $searchClear.addEventListener('click', () => {
   $searchDrawerBody.innerHTML = '';
 });
 
+// ── Legal pages ───────────────────────────────────────────────────────────────
+function showLegalPage(id) {
+  currentPada  = null;
+  readerList   = [];
+  readerIdx    = -1;
+  readerSutra  = null;
+  updateReaderNav();
+  activeCard   = null;
+
+  const LEGAL = {
+    privacy: {
+      title: 'Privacy Policy',
+      cards: [
+        { title: 'What we collect',
+          body: 'We collect nothing. Paniniyam is a fully static site with no server, no database, and no analytics. No personal data is transmitted to or stored by us at any point.' },
+        { title: 'Your notes & Google Drive',
+          body: 'The optional "Your notes" feature uses Google OAuth 2.0 with the <code>drive.file</code> scope. This scope gives the app access <em>only</em> to files it creates — one file (<code>paniniyam-notes.json</code>) stored in your own Google Drive. We never read, access, or store any other files in your Drive. Your notes are your data, living entirely in your account.' },
+        { title: 'Sign-out & revocation',
+          body: 'Signing out immediately revokes the access token. You can also revoke access at any time from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions page</a>.' },
+        { title: 'Cookies & tracking',
+          body: 'No cookies. No tracking pixels. No third-party analytics. The only external services loaded are Google Fonts (typography) and Google Identity Services (optional sign-in).' },
+        { title: 'Third-party services',
+          body: 'Content is served via jsDelivr CDN (open data) and Cloudflare R2 (owner-authored content). These services may log standard request metadata per their own privacy policies.' },
+        { title: 'Contact',
+          body: 'Questions? Use the Contact Us form in About.' },
+      ],
+    },
+    terms: {
+      title: 'Terms of Use',
+      cards: [
+        { title: 'Free educational use',
+          body: 'Paniniyam is a free, ad-free educational tool for studying Pāṇini\'s Ashtadhyayi and related Sanskrit grammatical texts. You are welcome to use it for personal study, teaching, and research.' },
+        { title: 'Content ownership',
+          body: 'Classical texts (Ashtadhyayi sūtras, Kāśikā, Laghu Kaumudī, Dhatupatha, etc.) are in the public domain. Data sourced from ashtadhyayi.com is used under their open terms. Original commentary and analysis authored by us remains our intellectual property.' },
+        { title: 'Your notes',
+          body: 'Notes you write using the "Your notes" feature are entirely your own. We make no claim over them. They are stored in your Google Drive and we never access them.' },
+        { title: 'Acceptable use',
+          body: 'You agree to use Paniniyam for lawful purposes only. You may not attempt to disrupt the service or use the site in any manner that could damage or overburden it.' },
+        { title: 'No warranty',
+          body: 'This site is provided as-is for educational purposes. While we strive for accuracy, we make no guarantees regarding correctness of grammatical content. Always verify critical information against primary sources.' },
+        { title: 'Changes',
+          body: 'We may update these terms from time to time. Continued use of the site after changes constitutes acceptance of the updated terms.' },
+      ],
+    },
+  };
+
+  const page = LEGAL[id];
+  if (!page) return;
+
+  setListHeader(page.title, 'Effective June 2026');
+  $sutraList.innerHTML = '';
+
+  for (const card of page.cards) {
+    const el = document.createElement('div');
+    el.className = 'about-card';
+    el.style.margin = '0 0 10px';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'about-card-title';
+    titleEl.textContent = card.title;
+    const bodyEl = document.createElement('p');
+    bodyEl.innerHTML = card.body;
+    bodyEl.style.fontSize = '.9em';
+    bodyEl.style.lineHeight = '1.7';
+    el.appendChild(titleEl);
+    el.appendChild(bodyEl);
+    $sutraList.appendChild(el);
+  }
+
+  showPanel('list');
+}
+
 // ── About drawer ──────────────────────────────────────────────────────────────
 function buildAboutPanelNav() {
   if (aboutNavBuilt) return;
@@ -3886,60 +3963,6 @@ function renderAboutSection(id) {
           <div class="about-card">
             <div class="about-card-title">Spread the word</div>
             <p>Share with Sanskrit students, Vedanta study groups, linguistics researchers, and anyone learning Panini's grammar.</p>
-          </div>
-        </div>`,
-    },
-    privacy: {
-      html: `
-        <div class="about-section">
-          <h2 class="about-title">Privacy Policy</h2>
-          <p class="about-intro">Effective date: June 2026</p>
-          <div class="about-card">
-            <div class="about-card-title">What we collect</div>
-            <p>We collect nothing. Paniniyam is a fully static site with no server, no database, and no analytics.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Your notes &amp; Google Drive</div>
-            <p>The optional "Your notes" feature uses Google's OAuth 2.0 with the <code>drive.file</code> scope. This scope gives the app access <em>only</em> to files it creates — specifically one file (<code>paniniyam-notes.json</code>) stored in your own Google Drive. We never read, access, or store any other files in your Drive. Your notes are your data, living in your account.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Sign-out &amp; revocation</div>
-            <p>Signing out immediately revokes the app's access token. You can also revoke access at any time from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions page</a>.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Cookies &amp; tracking</div>
-            <p>No cookies. No tracking pixels. No third-party analytics. The only external services loaded are Google Fonts (for typography) and Google Identity Services (for optional sign-in).</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Contact</div>
-            <p>Questions about this policy? Use the <a href="#" onclick="showAboutSection('contact');return false;">Contact Us</a> form or email us directly via that form.</p>
-          </div>
-        </div>`,
-    },
-    terms: {
-      html: `
-        <div class="about-section">
-          <h2 class="about-title">Terms of Use</h2>
-          <p class="about-intro">Effective date: June 2026</p>
-          <div class="about-card">
-            <div class="about-card-title">Free educational use</div>
-            <p>Paniniyam is a free, ad-free educational tool for studying Pāṇini's Ashtadhyayi and related Sanskrit grammatical texts. You are welcome to use it for personal study, teaching, and research.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Content ownership</div>
-            <p>Classical texts (Ashtadhyayi sūtras, Kāśikā, Laghu Kaumudī, Dhatupatha, etc.) are in the public domain. Data sourced from <a href="https://ashtadhyayi.com" target="_blank" rel="noopener">ashtadhyayi.com</a> is used under their open terms. Original commentary and analysis authored by us remains our intellectual property.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Your notes</div>
-            <p>Notes you write using the "Your notes" feature are entirely your own. We make no claim over them. They are stored in your Google Drive and we never access them.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">No warranty</div>
-            <p>This site is provided as-is, for educational purposes. While we strive for accuracy, we make no guarantees regarding the correctness of grammatical content. Always verify critical information against primary sources.</p>
-          </div>
-          <div class="about-card">
-            <div class="about-card-title">Changes</div>
-            <p>We may update these terms from time to time. Continued use of the site after changes constitutes acceptance of the updated terms.</p>
           </div>
         </div>`,
     },
