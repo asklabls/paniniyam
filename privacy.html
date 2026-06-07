@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Paniniyam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Vesper+Libre:wght@400;700&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans', system-ui, sans-serif;
+      background: #fdf8f0;
+      color: #2c1d0e;
+      line-height: 1.75;
+      padding: 0 16px 60px;
+    }
+    header {
+      background: #1e2d3d;
+      color: #e8dcc8;
+      padding: 16px 24px;
+      margin: 0 -16px 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    header a {
+      color: #e8dcc8;
+      text-decoration: none;
+      font-size: .9em;
+      opacity: .75;
+    }
+    header a:hover { opacity: 1; }
+    .logo {
+      font-family: 'Vesper Libre', serif;
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    h1 { font-family: 'Vesper Libre', serif; font-size: 1.8em; margin-bottom: 6px; }
+    .effective { font-size: .85em; color: #7a6a55; margin-bottom: 32px; }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd3c0;
+      border-radius: 6px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: .95em;
+      margin-bottom: 8px;
+      color: #1e2d3d;
+    }
+    p { font-size: .92em; color: #2c1d0e; }
+    a { color: #62b2ba; }
+    code {
+      font-size: .88em;
+      background: #f0ebe0;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    footer {
+      margin-top: 48px;
+      font-size: .8em;
+      color: #7a6a55;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Paniniyam</span>
+  <a href="index.html">← Back to app</a>
+</header>
+
+<div class="wrap">
+
+  <h1>Privacy Policy</h1>
+  <p class="effective">Effective date: June 2026</p>
+
+  <div class="card">
+    <div class="card-title">What we collect</div>
+    <p>We collect nothing. Paniniyam is a fully static site with no server, no database, and no analytics. No personal data is transmitted to or stored by us at any point.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your notes &amp; Google Drive</div>
+    <p>The optional "Your notes" feature uses Google OAuth 2.0 with the <code>drive.file</code> scope. This scope gives the app access <em>only</em> to files it creates — specifically one file (<code>paniniyam-notes.json</code>) stored in your own Google Drive. We never read, access, or store any other files in your Drive, and we never receive or store your notes on our servers. Your notes are your data, living entirely in your account.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Sign-out &amp; revocation</div>
+    <p>Signing out immediately revokes the app's access token. You can also revoke access at any time from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions page</a>. After revocation, the app can no longer access your Drive until you sign in again.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cookies &amp; tracking</div>
+    <p>No cookies. No tracking pixels. No third-party analytics of any kind. The only external services loaded are Google Fonts (for typography) and Google Identity Services (for the optional sign-in feature).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Third-party services</div>
+    <p>Content is served via <a href="https://www.jsdelivr.com" target="_blank" rel="noopener">jsDelivr CDN</a> (open data) and Cloudflare R2 (owner-authored content). These services may log standard request metadata (IP address, timestamp) per their own privacy policies. We have no control over and do not access these logs.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Children's privacy</div>
+    <p>Paniniyam does not knowingly collect any information from children under 13. The site is an educational reference tool with no user registration or data collection.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Changes to this policy</div>
+    <p>We may update this policy from time to time. The effective date at the top will reflect the latest revision. Continued use of the site after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Contact</div>
+    <p>Questions about this privacy policy? Use the <a href="index.html">Contact Us</a> form in the app (About → Contact Us).</p>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Paniniyam &nbsp;·&nbsp; <a href="terms.html">Terms of Use</a> &nbsp;·&nbsp; <a href="index.html">Back to app</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
