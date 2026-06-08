@@ -5044,7 +5044,7 @@ async function init() {
     for (const s of sutraList) sutraIndex[s.i] = s;
     buildNavTree();
     retranslit();
-    $welcomeStats.textContent = `${sutraList.length} sūtras · 8 adhyāyas · 32 pādas`;
+    $welcomeStats.textContent = `${sutraList.length} sūtras · 8 adhyāyas · 32 pādas · in every Indic script`;
 
     // ── Welcome hero image + YouTube link (served from R2) ──────────────────
     const $hero = document.getElementById('welcome-hero');
@@ -5055,6 +5055,21 @@ async function init() {
           <img class="welcome-hero-img" src="${PRIVATE_BASE}/img/upadesh.png"
                alt="Paniniyam — a girl lovingly hugging a stack of grammar books">
           <div class="welcome-yt-badge">▶ Watch on YouTube</div>
+        </a>`;
+    }
+
+    // ── Intro video card (always shown, public YouTube thumbnail) ───────────
+    const $introVideo = document.getElementById('welcome-intro-video');
+    if ($introVideo) {
+      $introVideo.innerHTML = `
+        <a class="welcome-intro-link" href="https://youtu.be/G8q2MUjX1bU"
+           target="_blank" rel="noopener" title="How to use this site">
+          <div class="welcome-intro-thumb">
+            <img src="https://img.youtube.com/vi/G8q2MUjX1bU/mqdefault.jpg"
+                 alt="How to use site — intro video">
+            <div class="welcome-intro-play">▶</div>
+          </div>
+          <div class="welcome-intro-label">How to use this site</div>
         </a>`;
     }
 
