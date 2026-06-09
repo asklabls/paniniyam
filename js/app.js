@@ -58,6 +58,7 @@ const BOOKS = [
       { id: 'credits',   engName: 'Credits'    },
       { id: 'contact',   engName: 'Contact Us' },
       { id: 'support',   engName: 'Support Us' },
+      { id: 'copyright', engName: 'Copyright'  },
       { id: 'themes',    engName: 'Themes'     },
     ]
   },
@@ -4154,6 +4155,31 @@ function renderAboutSection(id) {
           <div class="about-card">
             <div class="about-card-title">Spread the word</div>
             <p>Share with Sanskrit students, Vedanta study groups, linguistics researchers, and anyone learning Panini's grammar.</p>
+          </div>
+        </div>`,
+    },
+    copyright: {
+      html: `
+        <div class="about-section">
+          <h2 class="about-title">Copyright &amp; Usage</h2>
+          <p class="about-intro">Paniniyam.com is a labour of love built for individual learners of Pāṇinian Sanskrit grammar. Please respect the following terms.</p>
+          <div class="about-card">
+            <div class="about-card-title">Author-created content</div>
+            <p>The Visual Notes (diagrams), Author's Notes, Siddhi derivation tables, and all original written commentary on this site are © Paniniyam.com. All rights reserved.</p>
+            <p style="margin-top:8px">This content may not be reproduced, republished, redistributed, or incorporated into any course material, institutional curriculum, application, or publication — in whole or in part — without the express written consent of the author.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-title">Institutional &amp; commercial use</div>
+            <p>Universities, schools, coaching centres, YouTube channels, apps, and any other institutional or commercial entity may <strong>not</strong> use the author-created content from this site without prior written permission.</p>
+            <p style="margin-top:8px">To request permission, please use the Contact Us page.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-title">Open-source data</div>
+            <p>Sutra text, Kashika, Vartika, Laghu Kaumudi, Dhatupatha, and audio recordings are sourced from <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a> under their respective licenses. Please refer to that project for terms governing that data.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-title">Personal use</div>
+            <p>You are welcome to use this site freely for personal study, share the URL with fellow learners, and link to individual sutras using the copy-link feature.</p>
           </div>
         </div>`,
     },
