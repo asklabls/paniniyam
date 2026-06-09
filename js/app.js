@@ -3897,6 +3897,7 @@ function showAbout() {
   buildAboutPanelNav();
   showPanel('about');
   closeDrawer();
+  history.replaceState({}, '', '?about');
 }
 
 function buildThemePreviewSection(section) {
@@ -5198,6 +5199,7 @@ async function init() {
     const urlSutra  = params.get('sutra');
     const urlDhatu  = params.get('dhatu');
     const urlBook   = params.get('book');
+    const urlAbout  = params.has('about');
 
     if (urlSutra) {
       const linkedId    = sutraRefToId(urlSutra);
@@ -5241,6 +5243,8 @@ async function init() {
           showPanel('welcome');
         }
       }
+    } else if (urlAbout) {
+      showAbout();
     } else {
       showPanel('welcome');
     }
