@@ -1,0 +1,874 @@
+{
+  "अक्": {
+    "path": "concepts/pratyahara/अक्.svg",
+    "category": "pratyahara"
+  },
+  "अच्": {
+    "path": "concepts/pratyahara/अच्.svg",
+    "category": "pratyahara"
+  },
+  "अट्": {
+    "path": "concepts/pratyahara/अट्.svg",
+    "category": "pratyahara"
+  },
+  "अण्": {
+    "path": "concepts/pratyahara/अण्.svg",
+    "category": "pratyahara"
+  },
+  "अम्": {
+    "path": "concepts/pratyahara/अम्.svg",
+    "category": "pratyahara"
+  },
+  "अल्": {
+    "path": "concepts/pratyahara/अल्.svg",
+    "category": "pratyahara"
+  },
+  "अश्": {
+    "path": "concepts/pratyahara/अश्.svg",
+    "category": "pratyahara"
+  },
+  "इक्": {
+    "path": "concepts/pratyahara/इक्.svg",
+    "category": "pratyahara"
+  },
+  "इच्": {
+    "path": "concepts/pratyahara/इच्.svg",
+    "category": "pratyahara"
+  },
+  "इण्": {
+    "path": "concepts/pratyahara/इण्.svg",
+    "category": "pratyahara"
+  },
+  "उक्": {
+    "path": "concepts/pratyahara/उक्.svg",
+    "category": "pratyahara"
+  },
+  "एङ्": {
+    "path": "concepts/pratyahara/एङ्.svg",
+    "category": "pratyahara"
+  },
+  "एच्": {
+    "path": "concepts/pratyahara/एच्.svg",
+    "category": "pratyahara"
+  },
+  "ऐच्": {
+    "path": "concepts/pratyahara/ऐच्.svg",
+    "category": "pratyahara"
+  },
+  "खय्": {
+    "path": "concepts/pratyahara/खय्.svg",
+    "category": "pratyahara"
+  },
+  "खर्": {
+    "path": "concepts/pratyahara/खर्.svg",
+    "category": "pratyahara"
+  },
+  "ङम्": {
+    "path": "concepts/pratyahara/ङम्.svg",
+    "category": "pratyahara"
+  },
+  "चय्": {
+    "path": "concepts/pratyahara/चय्.svg",
+    "category": "pratyahara"
+  },
+  "चर्": {
+    "path": "concepts/pratyahara/चर्.svg",
+    "category": "pratyahara"
+  },
+  "छव्": {
+    "path": "concepts/pratyahara/छव्.svg",
+    "category": "pratyahara"
+  },
+  "जश्": {
+    "path": "concepts/pratyahara/जश्.svg",
+    "category": "pratyahara"
+  },
+  "झय्": {
+    "path": "concepts/pratyahara/झय्.svg",
+    "category": "pratyahara"
+  },
+  "झर्": {
+    "path": "concepts/pratyahara/झर्.svg",
+    "category": "pratyahara"
+  },
+  "झल्": {
+    "path": "concepts/pratyahara/झल्.svg",
+    "category": "pratyahara"
+  },
+  "झश्": {
+    "path": "concepts/pratyahara/झश्.svg",
+    "category": "pratyahara"
+  },
+  "झष्": {
+    "path": "concepts/pratyahara/झष्.svg",
+    "category": "pratyahara"
+  },
+  "बश्": {
+    "path": "concepts/pratyahara/बश्.svg",
+    "category": "pratyahara"
+  },
+  "भष्": {
+    "path": "concepts/pratyahara/भष्.svg",
+    "category": "pratyahara"
+  },
+  "मय्": {
+    "path": "concepts/pratyahara/मय्.svg",
+    "category": "pratyahara"
+  },
+  "माहेश्वर-सूत्र": {
+    "path": "concepts/pratyahara/माहेश्वर-सूत्र.svg",
+    "category": "pratyahara"
+  },
+  "यञ्": {
+    "path": "concepts/pratyahara/यञ्.svg",
+    "category": "pratyahara"
+  },
+  "यण्": {
+    "path": "concepts/pratyahara/यण्.svg",
+    "category": "pratyahara"
+  },
+  "यम्": {
+    "path": "concepts/pratyahara/यम्.svg",
+    "category": "pratyahara"
+  },
+  "यय्": {
+    "path": "concepts/pratyahara/यय्.svg",
+    "category": "pratyahara"
+  },
+  "यर्": {
+    "path": "concepts/pratyahara/यर्.svg",
+    "category": "pratyahara"
+  },
+  "रल्": {
+    "path": "concepts/pratyahara/रल्.svg",
+    "category": "pratyahara"
+  },
+  "वर्": {
+    "path": "concepts/pratyahara/वर्.svg",
+    "category": "pratyahara"
+  },
+  "वर्णमाला": {
+    "path": "concepts/pratyahara/वर्णमाला.svg",
+    "category": "pratyahara"
+  },
+  "वल्": {
+    "path": "concepts/pratyahara/वल्.svg",
+    "category": "pratyahara"
+  },
+  "वश्": {
+    "path": "concepts/pratyahara/वश्.svg",
+    "category": "pratyahara"
+  },
+  "शर्": {
+    "path": "concepts/pratyahara/शर्.svg",
+    "category": "pratyahara"
+  },
+  "शल्": {
+    "path": "concepts/pratyahara/शल्.svg",
+    "category": "pratyahara"
+  },
+  "हल्": {
+    "path": "concepts/pratyahara/हल्.svg",
+    "category": "pratyahara"
+  },
+  "हश्": {
+    "path": "concepts/pratyahara/हश्.svg",
+    "category": "pratyahara"
+  },
+  "खित्": {
+    "path": "concepts/it-karyas/खित्.svg",
+    "category": "it-karyas"
+  },
+  "गित्": {
+    "path": "concepts/it-karyas/गित्.svg",
+    "category": "it-karyas"
+  },
+  "घित्": {
+    "path": "concepts/it-karyas/घित्.svg",
+    "category": "it-karyas"
+  },
+  "ङित्": {
+    "path": "concepts/it-karyas/ङित्.svg",
+    "category": "it-karyas"
+  },
+  "चित्": {
+    "path": "concepts/it-karyas/चित्.svg",
+    "category": "it-karyas"
+  },
+  "छित्": {
+    "path": "concepts/it-karyas/छित्.svg",
+    "category": "it-karyas"
+  },
+  "जित्": {
+    "path": "concepts/it-karyas/जित्.svg",
+    "category": "it-karyas"
+  },
+  "झित्": {
+    "path": "concepts/it-karyas/झित्.svg",
+    "category": "it-karyas"
+  },
+  "ञित्": {
+    "path": "concepts/it-karyas/ञित्.svg",
+    "category": "it-karyas"
+  },
+  "टित्": {
+    "path": "concepts/it-karyas/टित्.svg",
+    "category": "it-karyas"
+  },
+  "ठित्": {
+    "path": "concepts/it-karyas/ठित्.svg",
+    "category": "it-karyas"
+  },
+  "डित्": {
+    "path": "concepts/it-karyas/डित्.svg",
+    "category": "it-karyas"
+  },
+  "ढित्": {
+    "path": "concepts/it-karyas/ढित्.svg",
+    "category": "it-karyas"
+  },
+  "णित्": {
+    "path": "concepts/it-karyas/णित्.svg",
+    "category": "it-karyas"
+  },
+  "तित्": {
+    "path": "concepts/it-karyas/तित्.svg",
+    "category": "it-karyas"
+  },
+  "थित्": {
+    "path": "concepts/it-karyas/थित्.svg",
+    "category": "it-karyas"
+  },
+  "दित्": {
+    "path": "concepts/it-karyas/दित्.svg",
+    "category": "it-karyas"
+  },
+  "धित्": {
+    "path": "concepts/it-karyas/धित्.svg",
+    "category": "it-karyas"
+  },
+  "नित्": {
+    "path": "concepts/it-karyas/नित्.svg",
+    "category": "it-karyas"
+  },
+  "पित्": {
+    "path": "concepts/it-karyas/पित्.svg",
+    "category": "it-karyas"
+  },
+  "फित्": {
+    "path": "concepts/it-karyas/फित्.svg",
+    "category": "it-karyas"
+  },
+  "बित्": {
+    "path": "concepts/it-karyas/बित्.svg",
+    "category": "it-karyas"
+  },
+  "भित्": {
+    "path": "concepts/it-karyas/भित्.svg",
+    "category": "it-karyas"
+  },
+  "मित्": {
+    "path": "concepts/it-karyas/मित्.svg",
+    "category": "it-karyas"
+  },
+  "यित्": {
+    "path": "concepts/it-karyas/यित्.svg",
+    "category": "it-karyas"
+  },
+  "रित्": {
+    "path": "concepts/it-karyas/रित्.svg",
+    "category": "it-karyas"
+  },
+  "लित्": {
+    "path": "concepts/it-karyas/लित्.svg",
+    "category": "it-karyas"
+  },
+  "वित्": {
+    "path": "concepts/it-karyas/वित्.svg",
+    "category": "it-karyas"
+  },
+  "षित्": {
+    "path": "concepts/it-karyas/षित्.svg",
+    "category": "it-karyas"
+  },
+  "सित्": {
+    "path": "concepts/it-karyas/सित्.svg",
+    "category": "it-karyas"
+  },
+  "हित्": {
+    "path": "concepts/it-karyas/हित्.svg",
+    "category": "it-karyas"
+  },
+  "Untitled": {
+    "path": "concepts/krt/Untitled.svg",
+    "category": "krt"
+  },
+  "आय": {
+    "path": "concepts/krt/आय.svg",
+    "category": "krt"
+  },
+  "इन्": {
+    "path": "concepts/krt/इन्.svg",
+    "category": "krt"
+  },
+  "इष्णुच्": {
+    "path": "concepts/krt/इष्णुच्.svg",
+    "category": "krt"
+  },
+  "ईयङ्": {
+    "path": "concepts/krt/ईयङ्.svg",
+    "category": "krt"
+  },
+  "क्नुः": {
+    "path": "concepts/krt/क्नुः.svg",
+    "category": "krt"
+  },
+  "क्यङ्": {
+    "path": "concepts/krt/क्यङ्.svg",
+    "category": "krt"
+  },
+  "घञ्": {
+    "path": "concepts/krt/घञ्.svg",
+    "category": "krt"
+  },
+  "घिनुण्": {
+    "path": "concepts/krt/घिनुण्.svg",
+    "category": "krt"
+  },
+  "चानश्": {
+    "path": "concepts/krt/चानश्.svg",
+    "category": "krt"
+  },
+  "तृन्": {
+    "path": "concepts/krt/तृन्.svg",
+    "category": "krt"
+  },
+  "यक्": {
+    "path": "concepts/krt/यक्.svg",
+    "category": "krt"
+  },
+  "लट्": {
+    "path": "concepts/krt/लट्.svg",
+    "category": "krt"
+  },
+  "शतृ": {
+    "path": "concepts/krt/शतृ.svg",
+    "category": "krt"
+  },
+  "Types": {
+    "path": "concepts/sutra-type/Types.svg",
+    "category": "sutra-type"
+  },
+  "संज्ञा": {
+    "path": "concepts/sutra-type/संज्ञा.svg",
+    "category": "sutra-type"
+  },
+  "अ": {
+    "path": "concepts/general/अ.svg",
+    "category": "general"
+  },
+  "अत्": {
+    "path": "concepts/general/अत्.svg",
+    "category": "general"
+  },
+  "आत्": {
+    "path": "concepts/general/आत्.svg",
+    "category": "general"
+  },
+  "क्रिया विशेष": {
+    "path": "concepts/general/क्रिया विशेष.svg",
+    "category": "general"
+  },
+  "लेट्-भू": {
+    "path": "concepts/general/लेट्-भू.svg",
+    "category": "general"
+  },
+  "सूत्र-विशेष": {
+    "path": "concepts/general/सूत्र-विशेष.svg",
+    "category": "general"
+  },
+  "सूत्र": {
+    "path": "concepts/general/सूत्र.svg",
+    "category": "general"
+  },
+  "2026-02-22": {
+    "path": "prakaranas/2026-02-22.svg",
+    "category": "prakarana"
+  },
+  "3.1": {
+    "path": "prakaranas/3.1.svg",
+    "category": "prakarana"
+  },
+  "Abbreviations": {
+    "path": "prakaranas/Abbreviations.svg",
+    "category": "prakarana"
+  },
+  "guru": {
+    "path": "prakaranas/guru.svg",
+    "category": "prakarana"
+  },
+  "अङ्गाधिकार": {
+    "path": "prakaranas/अङ्गाधिकार.svg",
+    "category": "prakarana"
+  },
+  "अतिदेशप्रकरणम्": {
+    "path": "prakaranas/अतिदेशप्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "अदादि": {
+    "path": "prakaranas/अदादि.svg",
+    "category": "prakarana"
+  },
+  "अधिकरणम्": {
+    "path": "prakaranas/अधिकरणम्.svg",
+    "category": "prakarana"
+  },
+  "अधिकार-१": {
+    "path": "prakaranas/अधिकार-१.svg",
+    "category": "prakarana"
+  },
+  "अधिकार": {
+    "path": "prakaranas/अधिकार.svg",
+    "category": "prakarana"
+  },
+  "अनुदात्त-विधि": {
+    "path": "prakaranas/अनुदात्त-विधि.svg",
+    "category": "prakarana"
+  },
+  "अनुनासिक-अच्": {
+    "path": "prakaranas/अनुनासिक-अच्.svg",
+    "category": "prakarana"
+  },
+  "अनुबन्ध लोप": {
+    "path": "prakaranas/अनुबन्ध लोप.svg",
+    "category": "prakarana"
+  },
+  "अन्तोदात्त": {
+    "path": "prakaranas/अन्तोदात्त.svg",
+    "category": "prakarana"
+  },
+  "अपादानम्": {
+    "path": "prakaranas/अपादानम्.svg",
+    "category": "prakarana"
+  },
+  "अमागम": {
+    "path": "prakaranas/अमागम.svg",
+    "category": "prakarana"
+  },
+  "अव्यय": {
+    "path": "prakaranas/अव्यय.svg",
+    "category": "prakarana"
+  },
+  "आकारादेश": {
+    "path": "prakaranas/आकारादेश.svg",
+    "category": "prakarana"
+  },
+  "आगम": {
+    "path": "prakaranas/आगम.svg",
+    "category": "prakarana"
+  },
+  "आत्मनेपद": {
+    "path": "prakaranas/आत्मनेपद.svg",
+    "category": "prakarana"
+  },
+  "आदेश-प्रकरणम्": {
+    "path": "prakaranas/आदेश-प्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "आदेश": {
+    "path": "prakaranas/आदेश.svg",
+    "category": "prakarana"
+  },
+  "आदेशप्रकरणम्": {
+    "path": "prakaranas/आदेशप्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "आद्युदात्त": {
+    "path": "prakaranas/आद्युदात्त.svg",
+    "category": "prakarana"
+  },
+  "इत् संज्ञा प्रकरणम्": {
+    "path": "prakaranas/इत् संज्ञा प्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "उत्तरपद-आदेश": {
+    "path": "prakaranas/उत्तरपद-आदेश.svg",
+    "category": "prakarana"
+  },
+  "उपपद-तत्पुरुषः": {
+    "path": "prakaranas/उपपद-तत्पुरुषः.svg",
+    "category": "prakarana"
+  },
+  "एकदेशिना": {
+    "path": "prakaranas/एकदेशिना.svg",
+    "category": "prakarana"
+  },
+  "करणम्": {
+    "path": "prakaranas/करणम्.svg",
+    "category": "prakarana"
+  },
+  "कर्ता": {
+    "path": "prakaranas/कर्ता.svg",
+    "category": "prakarana"
+  },
+  "कर्म": {
+    "path": "prakaranas/कर्म.svg",
+    "category": "prakarana"
+  },
+  "कर्मवच्य": {
+    "path": "prakaranas/कर्मवच्य.svg",
+    "category": "prakarana"
+  },
+  "काम्यच्": {
+    "path": "prakaranas/काम्यच्.svg",
+    "category": "prakarana"
+  },
+  "कित्": {
+    "path": "prakaranas/कित्.svg",
+    "category": "prakarana"
+  },
+  "क्र्यादि": {
+    "path": "prakaranas/क्र्यादि.svg",
+    "category": "prakarana"
+  },
+  "गति-संज्ञा": {
+    "path": "prakaranas/गति-संज्ञा.svg",
+    "category": "prakarana"
+  },
+  "गुणवृद्धी": {
+    "path": "prakaranas/गुणवृद्धी.svg",
+    "category": "prakarana"
+  },
+  "गुरुवन्दना": {
+    "path": "prakaranas/गुरुवन्दना.svg",
+    "category": "prakarana"
+  },
+  "घि": {
+    "path": "prakaranas/घि.svg",
+    "category": "prakarana"
+  },
+  "चकार": {
+    "path": "prakaranas/चकार.svg",
+    "category": "prakarana"
+  },
+  "चतुर्थीविभक्ति": {
+    "path": "prakaranas/चतुर्थीविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "च्लि-आदेश": {
+    "path": "prakaranas/च्लि-आदेश.svg",
+    "category": "prakarana"
+  },
+  "जुहोत्यादि": {
+    "path": "prakaranas/जुहोत्यादि.svg",
+    "category": "prakarana"
+  },
+  "झल्-पदान्त": {
+    "path": "prakaranas/झल्-पदान्त.svg",
+    "category": "prakarana"
+  },
+  "तङ्": {
+    "path": "prakaranas/तङ्.svg",
+    "category": "prakarana"
+  },
+  "तनादि": {
+    "path": "prakaranas/तनादि.svg",
+    "category": "prakarana"
+  },
+  "तिङ्": {
+    "path": "prakaranas/तिङ्.svg",
+    "category": "prakarana"
+  },
+  "तुक्-आगम": {
+    "path": "prakaranas/तुक्-आगम.svg",
+    "category": "prakarana"
+  },
+  "तुदादि": {
+    "path": "prakaranas/तुदादि.svg",
+    "category": "prakarana"
+  },
+  "तृतीया-तत्पुरुष": {
+    "path": "prakaranas/तृतीया-तत्पुरुष.svg",
+    "category": "prakarana"
+  },
+  "तृतीयाविभक्ति": {
+    "path": "prakaranas/तृतीयाविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "त्यादृक्": {
+    "path": "prakaranas/त्यादृक्.svg",
+    "category": "prakarana"
+  },
+  "दिवादि": {
+    "path": "prakaranas/दिवादि.svg",
+    "category": "prakarana"
+  },
+  "दीर्घ-प्रकरण": {
+    "path": "prakaranas/दीर्घ-प्रकरण.svg",
+    "category": "prakarana"
+  },
+  "दीर्घ": {
+    "path": "prakaranas/दीर्घ.svg",
+    "category": "prakarana"
+  },
+  "द्युतादि": {
+    "path": "prakaranas/द्युतादि.svg",
+    "category": "prakarana"
+  },
+  "द्वन्द्व": {
+    "path": "prakaranas/द्वन्द्व.svg",
+    "category": "prakarana"
+  },
+  "द्वितीया-तत्पुरुष": {
+    "path": "prakaranas/द्वितीया-तत्पुरुष.svg",
+    "category": "prakarana"
+  },
+  "द्वितीयाविभक्ति": {
+    "path": "prakaranas/द्वितीयाविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "धातु": {
+    "path": "prakaranas/धातु.svg",
+    "category": "prakarana"
+  },
+  "नदी": {
+    "path": "prakaranas/नदी.svg",
+    "category": "prakarana"
+  },
+  "नाम-धातु": {
+    "path": "prakaranas/नाम-धातु.svg",
+    "category": "prakarana"
+  },
+  "निरनुनासिक-अच्": {
+    "path": "prakaranas/निरनुनासिक-अच्.svg",
+    "category": "prakarana"
+  },
+  "पञ्चमी-तत्पुरुष": {
+    "path": "prakaranas/पञ्चमी-तत्पुरुष.svg",
+    "category": "prakarana"
+  },
+  "पञ्चमीविभक्ति": {
+    "path": "prakaranas/पञ्चमीविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "पद-वचन-विभक्ति": {
+    "path": "prakaranas/पद-वचन-विभक्ति.svg",
+    "category": "prakarana"
+  },
+  "पद-संज्ञा": {
+    "path": "prakaranas/पद-संज्ञा.svg",
+    "category": "prakarana"
+  },
+  "पदस्य": {
+    "path": "prakaranas/पदस्य.svg",
+    "category": "prakarana"
+  },
+  "परस्मैपद-प्रकरणम्": {
+    "path": "prakaranas/परस्मैपद-प्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "परस्मैपद": {
+    "path": "prakaranas/परस्मैपद.svg",
+    "category": "prakarana"
+  },
+  "परिभाषा": {
+    "path": "prakaranas/परिभाषा.svg",
+    "category": "prakarana"
+  },
+  "पुरुष": {
+    "path": "prakaranas/पुरुष.svg",
+    "category": "prakarana"
+  },
+  "पुषादि": {
+    "path": "prakaranas/पुषादि.svg",
+    "category": "prakarana"
+  },
+  "पूर्वनिपात-परनिपात": {
+    "path": "prakaranas/पूर्वनिपात-परनिपात.svg",
+    "category": "prakarana"
+  },
+  "पूर्वस्वर": {
+    "path": "prakaranas/पूर्वस्वर.svg",
+    "category": "prakarana"
+  },
+  "प्रत्यय-स्वर": {
+    "path": "prakaranas/प्रत्यय-स्वर.svg",
+    "category": "prakarana"
+  },
+  "प्रत्ययादेशः": {
+    "path": "prakaranas/प्रत्ययादेशः.svg",
+    "category": "prakarana"
+  },
+  "प्रथमाविभक्ति": {
+    "path": "prakaranas/प्रथमाविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "प्रातिपदिक": {
+    "path": "prakaranas/प्रातिपदिक.svg",
+    "category": "prakarana"
+  },
+  "भ-संज्ञा": {
+    "path": "prakaranas/भ-संज्ञा.svg",
+    "category": "prakarana"
+  },
+  "भाधिकार": {
+    "path": "prakaranas/भाधिकार.svg",
+    "category": "prakarana"
+  },
+  "भूते": {
+    "path": "prakaranas/भूते.svg",
+    "category": "prakarana"
+  },
+  "रुधादि": {
+    "path": "prakaranas/रुधादि.svg",
+    "category": "prakarana"
+  },
+  "लकार": {
+    "path": "prakaranas/लकार.svg",
+    "category": "prakarana"
+  },
+  "लेट्": {
+    "path": "prakaranas/लेट्.svg",
+    "category": "prakarana"
+  },
+  "लोप": {
+    "path": "prakaranas/लोप.svg",
+    "category": "prakarana"
+  },
+  "वचन-प्रकरणम्": {
+    "path": "prakaranas/वचन-प्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "वचन": {
+    "path": "prakaranas/वचन.svg",
+    "category": "prakarana"
+  },
+  "वचनप्रकरणम्": {
+    "path": "prakaranas/वचनप्रकरणम्.svg",
+    "category": "prakarana"
+  },
+  "वर्तमान": {
+    "path": "prakaranas/वर्तमान.svg",
+    "category": "prakarana"
+  },
+  "विकरण": {
+    "path": "prakaranas/विकरण.svg",
+    "category": "prakarana"
+  },
+  "विभक्ति-अलुक्": {
+    "path": "prakaranas/विभक्ति-अलुक्.svg",
+    "category": "prakarana"
+  },
+  "विभक्ति-प्रकरण": {
+    "path": "prakaranas/विभक्ति-प्रकरण.svg",
+    "category": "prakarana"
+  },
+  "विभक्ति-संज्ञा": {
+    "path": "prakaranas/विभक्ति-संज्ञा.svg",
+    "category": "prakarana"
+  },
+  "विभक्ति": {
+    "path": "prakaranas/विभक्ति.svg",
+    "category": "prakarana"
+  },
+  "वृद्ध-संज्ञा": {
+    "path": "prakaranas/वृद्ध-संज्ञा.svg",
+    "category": "prakarana"
+  },
+  "शप्": {
+    "path": "prakaranas/शप्.svg",
+    "category": "prakarana"
+  },
+  "श्यन्": {
+    "path": "prakaranas/श्यन्.svg",
+    "category": "prakarana"
+  },
+  "षट्": {
+    "path": "prakaranas/षट्.svg",
+    "category": "prakarana"
+  },
+  "षष्ठी-तत्पुरुष": {
+    "path": "prakaranas/षष्ठी-तत्पुरुष.svg",
+    "category": "prakarana"
+  },
+  "षष्ठीविभक्ति": {
+    "path": "prakaranas/षष्ठीविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "संहिताधिकार-१": {
+    "path": "prakaranas/संहिताधिकार-१.svg",
+    "category": "prakarana"
+  },
+  "संहिताधिकार": {
+    "path": "prakaranas/संहिताधिकार.svg",
+    "category": "prakarana"
+  },
+  "सकार-changes": {
+    "path": "prakaranas/सकार-changes.svg",
+    "category": "prakarana"
+  },
+  "सकार-लोप": {
+    "path": "prakaranas/सकार-लोप.svg",
+    "category": "prakarana"
+  },
+  "सनादि": {
+    "path": "prakaranas/सनादि.svg",
+    "category": "prakarana"
+  },
+  "सप्तमी-तत्पुरुष": {
+    "path": "prakaranas/सप्तमी-तत्पुरुष.svg",
+    "category": "prakarana"
+  },
+  "सप्तमीविभक्ति": {
+    "path": "prakaranas/सप्तमीविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "समास विशेष": {
+    "path": "prakaranas/समास विशेष.svg",
+    "category": "prakarana"
+  },
+  "सम्प्रदानम्": {
+    "path": "prakaranas/सम्प्रदानम्.svg",
+    "category": "prakarana"
+  },
+  "सम्प्रसारण": {
+    "path": "prakaranas/सम्प्रसारण.svg",
+    "category": "prakarana"
+  },
+  "सवर्ण": {
+    "path": "prakaranas/सवर्ण.svg",
+    "category": "prakarana"
+  },
+  "सुप्-विशेष-fix": {
+    "path": "prakaranas/सुप्-विशेष-fix.svg",
+    "category": "prakarana"
+  },
+  "सुप्-विशेष": {
+    "path": "prakaranas/सुप्-विशेष.svg",
+    "category": "prakarana"
+  },
+  "सुबन्त विभाग": {
+    "path": "prakaranas/सुबन्त विभाग.svg",
+    "category": "prakarana"
+  },
+  "स्त्रियाः-पुंवद्भाव": {
+    "path": "prakaranas/स्त्रियाः-पुंवद्भाव.svg",
+    "category": "prakarana"
+  },
+  "स्वरित-विधि": {
+    "path": "prakaranas/स्वरित-विधि.svg",
+    "category": "prakarana"
+  },
+  "स्वादि की उत्पत्ति": {
+    "path": "prakaranas/स्वादि की उत्पत्ति.svg",
+    "category": "prakarana"
+  },
+  "स्वादि": {
+    "path": "prakaranas/स्वादि.svg",
+    "category": "prakarana"
+  },
+  "ह्रस्वदीर्घप्लुत": {
+    "path": "prakaranas/ह्रस्वदीर्घप्लुत.svg",
+    "category": "prakarana"
+  }
+}

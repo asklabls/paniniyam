@@ -39,6 +39,7 @@ const BOOKS = [
   { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
   { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
   { id: 'avyaya', devName: 'अव्ययार्थाः', engName: 'Avyayas', type: 'avyaya-panel', icon: 'अव्य०' },
+  { id: 'visuals', devName: 'दृश्यग्रन्थागारम्', engName: 'Visual Library', type: 'visual-library', icon: 'दृश्य' },
   { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree', icon: 'प्र०',
     pages: [
       { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta'  },
@@ -213,6 +214,8 @@ let authorNotesData        = {};
 let authorNotesDriveFileId = null;
 let authorNotesLoaded      = false;
 let youtubeData            = null;   // {sutraId: videoId} loaded from forms/youtube.json
+let conceptsIndex          = null;   // {term: {path, category}} loaded from forms/concepts_index.json
+const conceptSvgCache      = {};     // term → SVG text, cached after first fetch
 let _saveAuthorTimer       = null;
 let _saveAuthorInProgress  = false;
 
@@ -255,6 +258,7 @@ const $panelPratyaya     = document.getElementById('panel-pratyaya');
 const $panelShabda       = document.getElementById('panel-shabda');
 const $panelAvyaya            = document.getElementById('panel-avyaya');
 const $panelVarnochchaaran    = document.getElementById('panel-varnochchaaran');
+const $panelVisuals           = document.getElementById('panel-visuals');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -313,10 +317,14 @@ function renderCommentaryHTML(raw) {
         flush();
         const inner = raw.slice(i + 2, end);
         const sid = sutraRefToId(inner);
-        const display = devDigitsToAscii(inner.trim());
-        html += sid
-          ? `<a class="sutra-link" data-id="${sid}" href="#">${display}</a>`
-          : `[[${display}]]`;
+        if (sid) {
+          const display = devDigitsToAscii(inner.trim());
+          html += `<a class="sutra-link" data-id="${sid}" href="#">${display}</a>`;
+        } else {
+          const term = inner.trim();
+          const esc = term.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+          html += `<a class="concept-link" data-concept="${esc}" href="#">${translit(term)}</a>`;
+        }
         i = end + 2;
         continue;
       }
@@ -404,6 +412,7 @@ function showPanel(name) {
   $panelShabda.style.display   = name === 'shabda'   ? '' : 'none';
   $panelAvyaya.style.display            = name === 'avyaya'            ? '' : 'none';
   $panelVarnochchaaran.style.display    = name === 'varnochchaaran'    ? '' : 'none';
+  $panelVisuals.style.display           = name === 'visuals'           ? '' : 'none';
   $app.scrollTop = 0;
 }
 
@@ -1175,6 +1184,13 @@ function buildBookEntry(book) {
     return wrap;
   }
 
+  if (book.type === 'visual-library') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showVisualLibrary(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
   if (book.type === 'pada-matrix-btn') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); openPadaMatrix(); });
@@ -1596,6 +1612,15 @@ async function loadArthaData() {
   } catch (_) { return null; }
 }
 
+async function loadConceptsIndex() {
+  if (conceptsIndex) return conceptsIndex;
+  try {
+    const res = await fetch(`${FORMS_BASE}/concepts_index.json`);
+    if (res.ok) conceptsIndex = await res.json();
+  } catch (_) {}
+  return conceptsIndex;
+}
+
 async function showSiddhiTip(el, sutraId) {
   clearTimeout(arthaHideTimer);
   const sutra = sutraIndex[sutraId];
@@ -1687,6 +1712,112 @@ function hideSiddhiTip() {
   }, 120);
 }
 
+// ── Concept popup (hover SVG for [[term]] links) ───────────────────────────────
+let $conceptPopup = null;
+let conceptHideTimer = null;
+
+function getConceptPopup() {
+  if (!$conceptPopup) {
+    $conceptPopup = document.createElement('div');
+    $conceptPopup.className = 'concept-popup';
+    $conceptPopup.addEventListener('mouseenter', () => clearTimeout(conceptHideTimer));
+    $conceptPopup.addEventListener('mouseleave', hideConceptPopup);
+    document.body.appendChild($conceptPopup);
+  }
+  return $conceptPopup;
+}
+
+function positionConceptPopup(el) {
+  const popup = getConceptPopup();
+  const r = el.getBoundingClientRect();
+  const popW = Math.min(480, window.innerWidth - 16);
+  const margin = 8;
+  let left = r.left;
+  if (left + popW > window.innerWidth - margin) left = window.innerWidth - popW - margin;
+  if (left < margin) left = margin;
+  const spaceBelow = window.innerHeight - r.bottom;
+  if (spaceBelow < 260 && r.top > 260) {
+    popup.style.top = '';
+    popup.style.bottom = (window.innerHeight - r.top + 4) + 'px';
+  } else {
+    popup.style.bottom = '';
+    popup.style.top = (r.bottom + 4) + 'px';
+  }
+  popup.style.left = left + 'px';
+  popup.style.width = popW + 'px';
+}
+
+async function showConceptPopup(el, term) {
+  clearTimeout(conceptHideTimer);
+  if (!DIAGRAM_BASE) return;
+
+  const index = await loadConceptsIndex();
+  const entry = index?.[term];
+  if (!entry) return;
+
+  const popup = getConceptPopup();
+  popup.innerHTML = '';
+
+  // Label
+  const lbl = document.createElement('div');
+  lbl.className = 'concept-popup-label dev-text';
+  lbl._devText = term;
+  lbl.textContent = translit(term);
+  popup.appendChild(lbl);
+
+  // SVG area
+  const svgWrap = document.createElement('div');
+  svgWrap.className = 'concept-popup-svg';
+  popup.appendChild(svgWrap);
+
+  positionConceptPopup(el);
+  popup.classList.add('visible');
+
+  // Load SVG (cached)
+  if (conceptSvgCache[term]) {
+    svgWrap.innerHTML = conceptSvgCache[term];
+    applyConceptSvgRetranslit(svgWrap);
+    return;
+  }
+  svgWrap.innerHTML = '<span class="concept-popup-loading">…</span>';
+  try {
+    const r = await fetch(`${DIAGRAM_BASE}/${entry.path}`);
+    if (!r.ok) { svgWrap.textContent = '—'; return; }
+    const svgText = await r.text();
+    conceptSvgCache[term] = svgText;
+    // Only inject if popup is still visible for this term
+    if (popup.classList.contains('visible') && popup.querySelector('.concept-popup-label')?._devText === term) {
+      svgWrap.innerHTML = svgText;
+      applyConceptSvgRetranslit(svgWrap);
+    }
+  } catch (_) { svgWrap.textContent = '—'; }
+}
+
+function applyConceptSvgRetranslit(wrap) {
+  const svgEl = wrap.querySelector('svg');
+  if (!svgEl) return;
+  svgEl.removeAttribute('width');
+  svgEl.removeAttribute('height');
+  svgEl.style.width = '100%';
+  svgEl.style.height = 'auto';
+  for (const el of svgEl.querySelectorAll('text[data-dev]')) {
+    el._devText = el.textContent;
+    el.classList.add('dev-text');
+    if (currentScript !== 'devanagari') el.textContent = translit(el.textContent);
+  }
+  for (const el of svgEl.querySelectorAll('text[data-mixed]')) {
+    el._mixedText = el.textContent;
+    el.classList.add('mixed-text');
+    if (currentScript !== 'devanagari') el.textContent = translitMixed(el.textContent);
+  }
+}
+
+function hideConceptPopup() {
+  conceptHideTimer = setTimeout(() => {
+    if ($conceptPopup) $conceptPopup.classList.remove('visible');
+  }, 120);
+}
+
 // Render an array of segments [{t,v,id,...}] as inline DOM nodes into container.
 // 'sl' segments become clickable sutra links with hover tooltip.
 function renderSiddhiSegs(segs, container) {
@@ -1718,37 +1849,63 @@ function renderSiddhiSegs(segs, container) {
   });
 }
 
+/**
+ * Append inline-marked-up text to a container element.
+ * Handles:  [[A.B.C]] → sutra-link   [[term]] → concept-link
+ *           [label](url) → external link   plain text → transliterated text node
+ * The container gets `_devText` set to the raw text for retranslit support.
+ */
+function appendInlineMarkup(container, raw) {
+  container._devText = raw;
+  const TOKEN = /\[\[([^\]]+)\]\]|\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
+  let last = 0, m;
+  TOKEN.lastIndex = 0;
+  while ((m = TOKEN.exec(raw)) !== null) {
+    if (m.index > last) {
+      container.appendChild(document.createTextNode(translit(raw.slice(last, m.index))));
+    }
+    if (m[1] !== undefined) {
+      // [[...]] wiki-link
+      const inner = m[1].trim();
+      const sid = sutraRefToId(inner);
+      const a = document.createElement('a');
+      a.href = '#';
+      if (sid) {
+        a.className = 'sutra-link';
+        a.dataset.id = sid;
+        a.textContent = devDigitsToAscii(inner);
+      } else {
+        a.className = 'concept-link dev-text';
+        a._devText = inner;
+        a.dataset.concept = inner;
+        a.textContent = translit(inner);
+      }
+      container.appendChild(a);
+    } else {
+      // [label](url) markdown link
+      const a = document.createElement('a');
+      a.href = m[3];
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'siddhi-ext-link';
+      a.textContent = m[2];
+      container.appendChild(a);
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < raw.length) {
+    container.appendChild(document.createTextNode(translit(raw.slice(last))));
+  }
+}
+
 function renderSiddhiEntry(entry) {
   const wrap = document.createElement('div');
   wrap.className = 'siddhi-entry';
 
   if (entry.intro) {
     const intro = document.createElement('div');
-    intro.className = 'siddhi-intro dev-text';
-    // Strip any residual [[wiki-links]] — keep display text after \| or whole content
-    const cleanIntro = entry.intro.replace(/\[\[(?:[^\]|\\]*)(?:[\\|]+([^\]]+))?\]\]/g,
-      (_, disp) => disp ? disp.trim() : '');
-    intro._devText = cleanIntro;
-    // Parse [label](url) markdown links; render rest as transliterated text
-    const mdLink = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
-    let last = 0, m;
-    mdLink.lastIndex = 0;
-    while ((m = mdLink.exec(cleanIntro)) !== null) {
-      if (m.index > last) {
-        intro.appendChild(document.createTextNode(translit(cleanIntro.slice(last, m.index))));
-      }
-      const a = document.createElement('a');
-      a.href = m[2];
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.className = 'siddhi-ext-link';
-      a.textContent = m[1];
-      intro.appendChild(a);
-      last = m.index + m[0].length;
-    }
-    if (last < cleanIntro.length) {
-      intro.appendChild(document.createTextNode(translit(cleanIntro.slice(last))));
-    }
+    intro.className = 'siddhi-intro';
+    appendInlineMarkup(intro, entry.intro);
     wrap.appendChild(intro);
   }
 
@@ -2918,6 +3075,163 @@ function vnsRenderInline(text) {
     }
     return translitMixed(part);
   }).join('');
+}
+
+// ── Visual Library ────────────────────────────────────────────────────────────
+
+const VISUAL_CATEGORIES = [
+  { id: 'pratyahara', devName: 'प्रत्याहाराः',    engName: 'Pratyāhāras',  path: 'concepts/pratyahara' },
+  { id: 'it-karyas',  devName: 'इत्-कार्याणि',    engName: 'It-kāryas',    path: 'concepts/it-karyas'  },
+  { id: 'krt',        devName: 'कृत्प्रत्ययाः',   engName: 'Kṛt pratyayas', path: 'concepts/krt'       },
+  { id: 'sutra-type', devName: 'सूत्रविशेष',       engName: 'Sūtra types',  path: 'concepts/sutra-type' },
+  { id: 'general',    devName: 'सामान्यम्',        engName: 'General',      path: 'concepts/general'    },
+  { id: 'prakarana',  devName: 'प्रकरणम्',         engName: 'Prakaraṇas',   path: 'prakaranas'          },
+];
+
+async function showVisualLibrary() {
+  showPanel('visuals');
+  updateBookURL('visuals');
+  const panel = $panelVisuals;
+  if (panel._loaded) return;
+  panel._loaded = true;
+  panel.innerHTML = '';
+
+  // Title
+  const title = document.createElement('div');
+  title.className = 'vlib-title';
+  const titleText = document.createElement('span');
+  titleText.className = 'dev-text';
+  titleText._devText = 'दृश्यग्रन्थागारम्';
+  titleText.textContent = translit('दृश्यग्रन्थागारम्');
+  title.appendChild(titleText);
+  panel.appendChild(title);
+
+  // Load index
+  const index = await loadConceptsIndex();
+  if (!index) {
+    const err = document.createElement('p');
+    err.className = 'vlib-empty';
+    err.textContent = 'Visual index not available.';
+    panel.appendChild(err);
+    return;
+  }
+
+  // Group entries by category
+  const grouped = {};
+  for (const cat of VISUAL_CATEGORIES) grouped[cat.id] = [];
+  for (const [term, entry] of Object.entries(index)) {
+    if (grouped[entry.category]) grouped[entry.category].push({ term, ...entry });
+  }
+
+  // Category tabs
+  const tabRow = document.createElement('div');
+  tabRow.className = 'vlib-tabs';
+  const contentArea = document.createElement('div');
+  contentArea.className = 'vlib-content';
+  panel.appendChild(tabRow);
+  panel.appendChild(contentArea);
+
+  let activeLibCat = null;
+
+  function showLibCategory(catId) {
+    activeLibCat = catId;
+    tabRow.querySelectorAll('.vlib-tab').forEach(b =>
+      b.classList.toggle('active', b.dataset.cat === catId));
+    contentArea.innerHTML = '';
+
+    const cat = VISUAL_CATEGORIES.find(c => c.id === catId);
+    const items = grouped[catId] || [];
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'vlib-empty';
+      empty.textContent = 'No visuals yet.';
+      contentArea.appendChild(empty);
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'vlib-grid';
+    contentArea.appendChild(grid);
+
+    for (const item of items.sort((a, b) => a.term.localeCompare(b.term, 'sa'))) {
+      const card = document.createElement('div');
+      card.className = 'vlib-card';
+      card.dataset.term = item.term;
+
+      const label = document.createElement('div');
+      label.className = 'vlib-card-label dev-text';
+      label._devText = item.term;
+      label.textContent = translit(item.term);
+      card.appendChild(label);
+
+      card.addEventListener('click', () => showVisualDetail(item, contentArea, grid));
+      grid.appendChild(card);
+    }
+  }
+
+  for (const cat of VISUAL_CATEGORIES) {
+    const items = grouped[cat.id] || [];
+    if (!items.length) continue;
+    const tab = document.createElement('button');
+    tab.className = 'vlib-tab';
+    tab.dataset.cat = cat.id;
+    const span = document.createElement('span');
+    span.className = 'dev-text';
+    span._devText = cat.devName;
+    span.textContent = translit(cat.devName);
+    tab.appendChild(span);
+    const count = document.createElement('span');
+    count.className = 'vlib-tab-count';
+    count.textContent = items.length;
+    tab.appendChild(count);
+    tab.addEventListener('click', () => showLibCategory(cat.id));
+    tabRow.appendChild(tab);
+    if (!activeLibCat) showLibCategory(cat.id);
+  }
+}
+
+async function showVisualDetail(item, contentArea, grid) {
+  if (!DIAGRAM_BASE) return;
+  // Toggle: if already showing this item's detail, go back to grid
+  const existing = contentArea.querySelector('.vlib-detail');
+  if (existing && existing.dataset.term === item.term) {
+    existing.remove();
+    return;
+  }
+  if (existing) existing.remove();
+
+  const detail = document.createElement('div');
+  detail.className = 'vlib-detail';
+  detail.dataset.term = item.term;
+
+  const backBtn = document.createElement('button');
+  backBtn.className = 'vlib-back';
+  backBtn.textContent = '← Back';
+  backBtn.addEventListener('click', () => detail.remove());
+  detail.appendChild(backBtn);
+
+  const svgWrap = document.createElement('div');
+  svgWrap.className = 'vlib-svg-wrap';
+  svgWrap.innerHTML = '<span class="vlib-loading">Loading…</span>';
+  detail.appendChild(svgWrap);
+
+  // Insert detail below grid
+  grid.after(detail);
+
+  // Load SVG
+  if (conceptSvgCache[item.term]) {
+    svgWrap.innerHTML = conceptSvgCache[item.term];
+    applyConceptSvgRetranslit(svgWrap);
+    return;
+  }
+  try {
+    const r = await fetch(`${DIAGRAM_BASE}/${item.path}`);
+    if (!r.ok) { svgWrap.textContent = '—'; return; }
+    const svgText = await r.text();
+    conceptSvgCache[item.term] = svgText;
+    svgWrap.innerHTML = svgText;
+    applyConceptSvgRetranslit(svgWrap);
+  } catch (_) { svgWrap.textContent = '—'; }
 }
 
 // ── Shabda engine (fires shabda.js) ──────────────────────────────────────────
@@ -5232,6 +5546,8 @@ async function init() {
         await showVarnochchaaranPanel();
       } else if (urlBook === 'shabda') {
         showShabdaEngine();
+      } else if (urlBook === 'visuals') {
+        await showVisualLibrary();
       } else {
         // Search top-level leaf books, then sub-tree children
         let book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
@@ -5265,6 +5581,20 @@ document.addEventListener('mouseover', e => {
 document.addEventListener('mouseout', e => {
   const link = e.target.closest('.sutra-link');
   if (link) hideSiddhiTip();
+});
+
+// ── Global concept-link hover ─────────────────────────────────────────────────
+document.addEventListener('mouseover', e => {
+  const link = e.target.closest('.concept-link');
+  if (link && link.dataset.concept) showConceptPopup(link, link.dataset.concept);
+});
+document.addEventListener('mouseout', e => {
+  const link = e.target.closest('.concept-link');
+  if (link) hideConceptPopup();
+});
+document.addEventListener('click', e => {
+  const link = e.target.closest('.concept-link');
+  if (link) { e.preventDefault(); showConceptPopup(link, link.dataset.concept); }
 });
 
 window.gotoSutra = gotoSutra;

@@ -3,6 +3,7 @@ admin/
 scripts/
 CLAUDE.md
 private/
+visuals/
 forms/shabda_words.tsv
 forms/shabda_niyam.json
 forms/shabda_sample.json
