@@ -4026,9 +4026,13 @@ function renderAboutSection(id) {
           <h2 class="about-title">Our Gurus</h2>
           <p class="about-intro">This work stands on the shoulders of teachers who have dedicated their lives to preserving and transmitting the Pāṇinian tradition.</p>
           <div class="about-card about-guru-card">
-            <div class="about-guru-name">Ācārya Chandradatta Sharma</div>
-            <div class="about-guru-tradition">[ tradition / lineage — to be filled ]</div>
-            <p>[ A few sentences about Ācārya Chandradatta Sharma, your connection to him, and what his teaching has meant to your study of the Ashtadhyayi. ]</p>
+            <div class="about-guru-name">Ācārya Chandradutt Sharma</div>
+            <div class="about-guru-tradition">Custodian of the Pāṇinian Tradition</div>
+            <p>In an age that hastens to call Sanskrit a dead language, Acharya Chandradutt Sharma stands as living proof of its immortality.</p>
+            <p>A scholar of extraordinary depth and discipline, Acharyaji has committed to memory over <strong>15,000 Vedic mantras</strong> — a feat that places him in the rare company of those who have kept the oral tradition of ancient India alive not merely as an academic exercise, but as a sacred way of life. His mastery extends to the complete works of <strong>Maharshi Pāṇini</strong>, the greatest linguist of antiquity, whose monumental <em>Aṣṭādhyāyī</em> codified the Sanskrit language with a precision unmatched in the history of human thought. Acharyaji is equally steeped in the foundational commentaries of <strong>Maharshi Patañjali</strong>, whose <em>Mahābhāṣya</em> stands as the definitive elaboration of the Pāṇinian system.</p>
+            <p>What truly sets Acharya Chandradutt Sharma apart, however, is not only what he knows — but how he teaches. His methodology transforms the formidable architecture of Pāṇinian grammar into something accessible, logical, and even joyful. Concepts that have intimidated scholars for centuries become, in his classroom, a child's play. This is the hallmark of a true <em>Acharya</em>: the ability to make the profound feel simple, without ever diminishing its depth.</p>
+            <p>With decades of teaching experience and an unbroken connection to the living tradition of Sanskrit <em>Shastra</em>, Acharyaji offers students across the world a rare opportunity — to learn not just a language, but an ancient path of self-knowledge, exactly as it was intended to be transmitted.</p>
+            <p>His lectures are conducted in <strong>Hindi</strong>, making this treasury of wisdom accessible to millions. Through the preservation of recorded teachings and online archives, this knowledge is now being safeguarded for generations yet to come — so that the flame Pāṇini lit over two millennia ago may never be extinguished.</p>
           </div>
           <div class="about-card about-guru-card">
             <div class="about-guru-name">Ācārya Vedshrami</div>
