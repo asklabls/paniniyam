@@ -3490,9 +3490,12 @@ function makeGanaResultItem(g, q) {
   ref.textContent = g.sutra || '';
   item.appendChild(ref);
   item.appendChild(highlightMatch(g.name || '', q));
-  item.addEventListener('click', () => {
-    handleLeafClick(BOOKS.find(b => b.id === 'ganapatha'),
-      document.querySelector('[data-book-id="ganapatha"]'));
+  item.addEventListener('click', async () => {
+    const data = await loadData('ganapatha', 'ganapath/data.txt');
+    renderGanaList(data);
+    closeDrawer();
+    const card = $sutraList.querySelector(`[data-id="${g.ind}"]`);
+    if (card) { card.scrollIntoView({ block: 'center' }); toggleSimpleCard(card); }
   });
   return item;
 }
@@ -3505,9 +3508,12 @@ function makeUnaadiResultItem(u, q) {
   ref.textContent = u.pratyay || u.i || '';
   item.appendChild(ref);
   item.appendChild(highlightMatch(u.sutra || '', q));
-  item.addEventListener('click', () => {
-    handleLeafClick(BOOKS.find(b => b.id === 'unaadi'),
-      document.querySelector('[data-book-id="unaadi"]'));
+  item.addEventListener('click', async () => {
+    const data = await loadData('unaadi', 'unaadi/data.txt');
+    renderUnaadiAll(data);
+    closeDrawer();
+    const card = $sutraList.querySelector(`[data-id="${u.i}"]`);
+    if (card) { card.scrollIntoView({ block: 'center' }); toggleSimpleCard(card); }
   });
   return item;
 }
@@ -4248,6 +4254,7 @@ function renderGanaList(data) {
     detail.appendChild(wordsSec);
     card.appendChild(row);
     card.appendChild(detail);
+    card.dataset.id = g.ind;
     card.addEventListener('click', () => toggleSimpleCard(card));
     $sutraList.appendChild(card);
   }
@@ -4286,6 +4293,7 @@ function renderUnaadiAll(data) {
       sec.appendChild(skDiv);
       detail.appendChild(sec);
     }
+    card.dataset.id = u.i;
     card.appendChild(row);
     card.appendChild(detail);
     card.addEventListener('click', () => toggleSimpleCard(card));
