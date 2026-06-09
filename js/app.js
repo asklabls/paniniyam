@@ -3829,7 +3829,7 @@ function showLegalPage(id) {
         { title: 'Free educational use',
           body: 'Paniniyam is a free, ad-free educational tool for studying Pāṇini\'s Ashtadhyayi and related Sanskrit grammatical texts. You are welcome to use it for personal study, teaching, and research.' },
         { title: 'Content ownership',
-          body: 'Classical texts (Ashtadhyayi sūtras, Kāśikā, Laghu Kaumudī, Dhatupatha, etc.) are in the public domain. Data sourced from ashtadhyayi.com is used under their open terms. Original commentary and analysis authored by us remains our intellectual property.' },
+          body: 'Classical texts (Ashtadhyayi sūtras, Kāśikā, Laghu Kaumudī, Dhatupatha, etc.) are in the public domain. Data sourced from the <a href="https://github.com/ashtadhyayi-com/data" target="_blank">ashtadhyayi-com/data</a> open repository is used under their open terms. Original commentary and analysis authored by us remains our intellectual property.' },
         { title: 'Your notes',
           body: 'Notes you write using the "Your notes" feature are entirely your own. We make no claim over them. They are stored in your Google Drive and we never access them.' },
         { title: 'Acceptable use',
@@ -4098,8 +4098,8 @@ function renderAboutSection(id) {
           </div>
 
           <div class="about-card">
-            <div class="about-card-title">Classical Commentaries — ashtadhyayi.com</div>
-            <p>The classical commentaries displayed on this site — Kāśikā Vṛtti, Vārtikam, Laghu Kaumudī — along with Dhatupatha, Ganapatha, Uṇādi Kośa, and audio recordings, are sourced from the open data repository maintained by <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>. We are grateful for their contribution to the Sanskrit community.</p>
+            <div class="about-card-title">Classical Commentaries — ashtadhyayi-com/data</div>
+            <p>The classical commentaries displayed on this site — Kāśikā Vṛtti, Vārtikam, Laghu Kaumudī — along with Dhatupatha, Ganapatha, Uṇādi Kośa, and audio recordings, are sourced from the open data repository <a href="https://github.com/ashtadhyayi-com/data" target="_blank">ashtadhyayi-com/data</a> on GitHub, which also powers <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>. We are grateful for their contribution to the Sanskrit community.</p>
           </div>
 
           <div class="about-card">
@@ -4127,7 +4127,7 @@ function renderAboutSection(id) {
           <p class="about-intro">Have a question, found an error, or want to contribute?</p>
           <div class="about-card">
             <div class="about-card-title">Data corrections</div>
-            <p>For errors in padavibhāga, artha, or Hindi content, use the feedback form below — this content is maintained by us. For errors in classical commentaries (Kāśikā, Laghu Kaumudī, etc.), please report at <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>.</p>
+            <p>For errors in padavibhāga, artha, or Hindi content, use the feedback form below — this content is maintained by us. For errors in classical commentaries (Kāśikā, Laghu Kaumudī, etc.), please report at the <a href="https://github.com/ashtadhyayi-com/data" target="_blank">ashtadhyayi-com/data</a> repository.</p>
           </div>
           <div class="about-card">
             <div class="about-card-title">Send feedback</div>
@@ -4155,7 +4155,7 @@ function renderAboutSection(id) {
           <p class="about-intro">This site is free, ad-free, and open. If it has been useful to your studies, consider supporting the ecosystem that makes it possible.</p>
           <div class="about-card">
             <div class="about-card-title">Support ashtadhyayi.com</div>
-            <p>The data powering this site comes from <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>. Supporting them directly sustains the data, audio recordings, and research this site depends on.</p>
+            <p>The data powering this site comes from the open repository <a href="https://github.com/ashtadhyayi-com/data" target="_blank">ashtadhyayi-com/data</a>, which also powers <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>. Supporting them directly sustains the data, audio recordings, and research this site depends on.</p>
           </div>
           <div class="about-card">
             <div class="about-card-title">Spread the word</div>
@@ -4180,7 +4180,7 @@ function renderAboutSection(id) {
           </div>
           <div class="about-card">
             <div class="about-card-title">Open-source data</div>
-            <p>Sutra text, Kashika, Vartika, Laghu Kaumudi, Dhatupatha, and audio recordings are sourced from <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a> under their respective licenses. Please refer to that project for terms governing that data.</p>
+            <p>Sutra text, Kashika, Vartika, Laghu Kaumudi, Dhatupatha, and audio recordings are sourced from the open repository <a href="https://github.com/ashtadhyayi-com/data" target="_blank">ashtadhyayi-com/data</a>, which also powers <a href="https://ashtadhyayi.com" target="_blank">ashtadhyayi.com</a>. Please refer to that repository for terms governing that data.</p>
           </div>
           <div class="about-card">
             <div class="about-card-title">Personal use</div>
