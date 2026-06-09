@@ -83,8 +83,8 @@ const TAB_GROUPS = [
     ],
   },
   {
-    id: 'notes',
-    type: 'notes-placeholder',   // Phase 4 — Gmail login + Google Drive notes
+    id: 'media',
+    type: 'media-notes',   // Diagram + YouTube + Author's Notes + Your notes
   },
   {
     id: 'kaumudi',
@@ -166,7 +166,8 @@ const FORMS_BASE = isLocal
 // Set PRIVATE_BASE to a private CDN URL (R2, Cloudflare Worker, etc.) when deploying.
 // All private features fall back silently when null.
 const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f9189fffb000.r2.dev';
-const SIDDHI_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi' : null;
+const SIDDHI_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi'   : null;
+const DIAGRAM_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/visuals' : null;
 
 // ── Google Drive notes (Phase 4) ─────────────────────────────────────────────
 const GOOGLE_CLIENT_ID        = '868948839711-9o6jlfsrlhoa7qn5ngebqp91l60h7e35.apps.googleusercontent.com';
@@ -210,6 +211,7 @@ let _saveInProgress  = false;
 let authorNotesData        = {};
 let authorNotesDriveFileId = null;
 let authorNotesLoaded      = false;
+let youtubeData            = null;   // {sutraId: videoId} loaded from forms/youtube.json
 let _saveAuthorTimer       = null;
 let _saveAuthorInProgress  = false;
 
@@ -1811,10 +1813,10 @@ function buildTabGroups(sutra, container, inCard) {
       continue;
     }
 
-    // ── Notes tabs (Author's Notes + Your notes) ──
-    if (group.type === 'notes-placeholder') {
+    // ── Media & Notes tabs (Diagram + YouTube + Author's Notes + Your notes) ──
+    if (group.type === 'media-notes') {
       const groupEl = document.createElement('div');
-      groupEl.className = 'tab-group notes-group';
+      groupEl.className = 'tab-group notes-group media-notes-group';
 
       const tabBar = document.createElement('div');
       tabBar.className = inCard ? 'detail-tabs detail-tabs-card' : 'detail-tabs';
@@ -1822,46 +1824,126 @@ function buildTabGroups(sutra, container, inCard) {
       const panelWrap = document.createElement('div');
       panelWrap.className = 'detail-tab-panels';
 
-      // Author's Notes tab
-      const authorTabBtn = document.createElement('button');
-      authorTabBtn.className = 'detail-tab';
-      authorTabBtn.textContent = "Author's Notes";
-      const authorPanel = document.createElement('div');
-      authorPanel.className = 'detail-tab-panel notes-tab-panel';
-      renderAuthorNotesTab(authorPanel, sutra.i);
+      const tabs = {};
 
-      // Your notes tab
-      const yourTabBtn = document.createElement('button');
-      yourTabBtn.className = 'detail-tab';
-      yourTabBtn.textContent = 'Your notes';
-      const yourPanel = document.createElement('div');
-      yourPanel.className = 'detail-tab-panel notes-tab-panel';
-      renderNotesTab(yourPanel, sutra.i);
-
-      function activateNotesTab(which) {
-        activeTabByGroup['notes'] = which;
-        authorTabBtn.classList.toggle('active', which === 'author');
-        yourTabBtn.classList.toggle('active',   which === 'your');
-        authorPanel.classList.toggle('active',  which === 'author');
-        yourPanel.classList.toggle('active',    which === 'your');
+      // Helper: make a tab button + panel pair
+      function makeTab(id, label) {
+        const btn = document.createElement('button');
+        btn.className = 'detail-tab';
+        btn.textContent = label;
+        const panel = document.createElement('div');
+        panel.className = 'detail-tab-panel notes-tab-panel';
+        tabs[id] = { btn, panel };
+        return { btn, panel };
       }
 
-      authorTabBtn.addEventListener('click', () => {
-        activateNotesTab('author');
-        renderAuthorNotesTab(authorPanel, sutra.i);
-      });
-      yourTabBtn.addEventListener('click', () => {
-        activateNotesTab('your');
-        renderNotesTab(yourPanel, sutra.i);
-      });
+      // ── Diagram tab ──
+      const { btn: diagBtn, panel: diagPanel } = makeTab('diagram', 'Visual notes');
+      diagBtn.style.display = 'none';   // hidden until we confirm image exists
+      if (DIAGRAM_BASE) {
+        const parts = sutra.i.match(/^(\d)(\d)(\d+)$/);
+        if (parts) {
+          const a = parts[1], p = parts[2], n = parseInt(parts[3], 10);
+          const padded = `${a}.${p}.${n.toString().padStart(3,'0')}`;
+          const svgUrl = `${DIAGRAM_BASE}/${a}/${padded}.svg`;
+          const wrap = document.createElement('div');
+          wrap.className = 'sutra-diagram-wrap';
+          diagPanel.appendChild(wrap);
+          // Fetch SVG and inline it so retranslit() can reach the <text> elements
+          fetch(svgUrl).then(r => {
+            if (!r.ok) return;
+            return r.text();
+          }).then(svgText => {
+            if (!svgText) return;
+            wrap.innerHTML = svgText;
+            const svgEl = wrap.querySelector('svg');
+            if (!svgEl) return;
+            svgEl.removeAttribute('width');
+            svgEl.removeAttribute('height');
+            svgEl.style.width  = '100%';
+            svgEl.style.height = '100%';
+            // Mark text elements for retransliteration
+            for (const el of svgEl.querySelectorAll('text[data-dev]')) {
+              el._devText = el.textContent;
+              el.classList.add('dev-text');
+            }
+            for (const el of svgEl.querySelectorAll('text[data-mixed]')) {
+              el._mixedText = el.textContent;
+              el.classList.add('mixed-text');
+            }
+            // Apply current script immediately
+            if (currentScript !== 'devanagari') {
+              for (const el of svgEl.querySelectorAll('.dev-text'))   el.textContent = translit(el._devText);
+              for (const el of svgEl.querySelectorAll('.mixed-text')) el.textContent = translitMixed(el._mixedText);
+            }
+            diagBtn.style.display = '';
+          }).catch(() => { /* no SVG for this sutra — tab stays hidden */ });
+        }
+      }
+
+      // ── YouTube tab ──
+      const { btn: ytBtn, panel: ytPanel } = makeTab('youtube', 'YouTube');
+      ytBtn.style.display = 'none';   // hidden until youtube.json confirms entry
+      (async () => {
+        if (!youtubeData) {
+          try {
+            const r = await fetch(`${FORMS_BASE}/youtube.json`);
+            youtubeData = r.ok ? await r.json() : {};
+          } catch { youtubeData = {}; }
+        }
+        const videoId = youtubeData[sutra.i];
+        if (videoId) {
+          ytBtn.style.display = '';
+          ytPanel._videoId = videoId;
+          // Only embed iframe when tab is activated (lazy)
+        }
+      })();
+
+      // ── Author's Notes tab ──
+      const { btn: authorTabBtn, panel: authorPanel } = makeTab('author', "Author's Notes");
+      authorPanel.classList.add('notes-tab-panel');
+      renderAuthorNotesTab(authorPanel, sutra.i);
+
+      // ── Your notes tab ──
+      const { btn: yourTabBtn, panel: yourPanel } = makeTab('your', 'Your notes');
+      yourPanel.classList.add('notes-tab-panel');
+      renderNotesTab(yourPanel, sutra.i);
+
+      function activateMediaTab(which) {
+        activeTabByGroup['media'] = which;
+        for (const [id, { btn, panel }] of Object.entries(tabs)) {
+          btn.classList.toggle('active',   id === which);
+          panel.classList.toggle('active', id === which);
+        }
+        // Lazy-build YouTube iframe when first activated
+        if (which === 'youtube' && ytPanel._videoId && !ytPanel._built) {
+          ytPanel._built = true;
+          const iframe = document.createElement('iframe');
+          iframe.className = 'sutra-youtube-iframe';
+          iframe.src = `https://www.youtube-nocookie.com/embed/${ytPanel._videoId}`;
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
+          iframe.loading = 'lazy';
+          ytPanel.appendChild(iframe);
+        }
+        if (which === 'author') renderAuthorNotesTab(authorPanel, sutra.i);
+        if (which === 'your')   renderNotesTab(yourPanel, sutra.i);
+      }
+
+      diagBtn.addEventListener('click',      () => activateMediaTab('diagram'));
+      ytBtn.addEventListener('click',        () => activateMediaTab('youtube'));
+      authorTabBtn.addEventListener('click', () => activateMediaTab('author'));
+      yourTabBtn.addEventListener('click',   () => activateMediaTab('your'));
 
       // Restore last-used tab; default to Author's Notes
-      activateNotesTab(activeTabByGroup['notes'] || 'author');
+      activateMediaTab(activeTabByGroup['media'] || 'author');
 
       tabBar.appendChild(authorTabBtn);
       tabBar.appendChild(yourTabBtn);
+      tabBar.appendChild(diagBtn);
+      tabBar.appendChild(ytBtn);
 
-      // Subtle owner sign-in icon — right side of tab bar, hidden once signed in as owner
+      // Subtle owner sign-in icon
       const ownerSignInBtn = document.createElement('button');
       ownerSignInBtn.className = 'notes-owner-signin';
       ownerSignInBtn.title = 'Author sign-in';
@@ -1875,6 +1957,8 @@ function buildTabGroups(sutra, container, inCard) {
 
       panelWrap.appendChild(authorPanel);
       panelWrap.appendChild(yourPanel);
+      panelWrap.appendChild(diagPanel);
+      panelWrap.appendChild(ytPanel);
       groupEl.appendChild(tabBar);
       groupEl.appendChild(panelWrap);
       container.appendChild(groupEl);

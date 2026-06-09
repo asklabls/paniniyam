@@ -770,6 +770,24 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .notes-group { margin-top: 16px; border-top: 1px solid var(--border); }
 .notes-tab-panel { padding: 10px 0 4px; }
 
+/* Visual notes tab */
+.sutra-diagram-wrap {
+  width: 100%; height: 420px;
+  background: var(--bg-card); border-radius: var(--radius);
+  margin: 8px 0 4px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.sutra-diagram-wrap svg {
+  max-width: 100%; max-height: 420px;
+  display: block;
+}
+
+/* YouTube tab */
+.sutra-youtube-iframe {
+  display: block; width: 100%; aspect-ratio: 16/9;
+  border: none; border-radius: var(--radius); margin: 8px 0 4px;
+}
+
 .notes-signin-wrap { display: flex; flex-direction: column; gap: 10px; padding: 12px 0 8px; }
 .notes-signin-msg  { font-size: .88em; color: var(--text); font-family: 'Noto Sans', system-ui, sans-serif; }
 .notes-privacy     { font-size: .78em; color: var(--muted); font-family: 'Noto Sans', system-ui, sans-serif; }
