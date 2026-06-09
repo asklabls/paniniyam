@@ -4162,7 +4162,7 @@ function renderAboutSection(id) {
       html: `
         <div class="about-section">
           <h2 class="about-title">Copyright &amp; Usage</h2>
-          <p class="about-intro">Paniniyam.com is a labour of love built for individual learners of Pāṇinian Sanskrit grammar. Please respect the following terms.</p>
+          <p class="about-intro">Paniniyam.com is a labour of love built for individual learners of Pāṇinian Sanskrit grammar, under the GNU Affero General Public License (AGPL). Please respect the following terms.</p>
           <div class="about-card">
             <div class="about-card-title">Author-created content</div>
             <p>The Visual Notes (diagrams), Author's Notes, Siddhi derivation tables, and all original written commentary on this site are © Paniniyam.com. All rights reserved.</p>
