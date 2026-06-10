@@ -3665,7 +3665,7 @@ const SEARCH_SCOPES = [
   { id: 'unaadi',      devLabel: 'उणादिः'        },
   { id: 'sarva',       devLabel: 'सर्वम्'        },
 ];
-const SEARCH_CAP = 20;   // max results per book/group
+const SEARCH_CAP = 75;   // max results per book/group
 
 let $copyMdBtn   = null;   // persistent Copy MD button in row 2
 let $typeFilter  = null;   // sutra type dropdown (ashtadhyayi only)

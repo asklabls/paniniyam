@@ -1762,7 +1762,6 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   text-decoration: none;
   border-bottom: 1px dashed var(--accent);
   cursor: pointer;
-  font-family: var(--font-dev);
 }
 .concept-link:hover {
   background: var(--hover-bg, rgba(0,0,0,.06));
