@@ -36,8 +36,8 @@ const BOOKS = [
     ]
   },
   { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
-  { id: 'visuals', devName: 'चित्रसंग्रह', engName: 'Visual Library', type: 'visual-library', icon: 'चित्र' },
-  { id: 'references', devName: 'संदर्भाः', engName: 'References', type: 'sub-tree', icon: 'संद०',
+  { id: 'visuals', devName: 'Visuals', engName: 'Visuals', type: 'visual-library', icon: 'Vis' },
+  { id: 'references', devName: 'References', engName: 'References', type: 'sub-tree', icon: 'Ref',
     pages: [
       { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree',
         pages: [
@@ -1152,7 +1152,7 @@ function collapseAllAdhyayas(container, exceptPadas) {
   });
 }
 
-function buildBookEntry(book) {
+function buildBookEntry(book, nested = false) {
   const wrap = document.createElement('div');
   wrap.className = 'nav-book';
 
@@ -1245,9 +1245,9 @@ function buildBookEntry(book) {
     for (const page of (book.pages || [])) {
       if (page.type === 'sub-tree') {
         // Nested sub-tree — render recursively
-        const nested = buildBookEntry(page);
-        nested.classList.add('nav-nested');
-        container.appendChild(nested);
+        const nestedEntry = buildBookEntry(page, true);
+        nestedEntry.classList.add('nav-nested');
+        container.appendChild(nestedEntry);
         continue;
       }
       const pb = document.createElement('button');
@@ -1274,7 +1274,7 @@ function buildBookEntry(book) {
       const open = container.classList.toggle('open');
       btn.classList.toggle('open', open);
       btn.setAttribute('aria-expanded', open);
-      if (open) collapseAllBooks(container);
+      if (open && !nested) collapseAllBooks(container);
     });
   }
 
@@ -3139,8 +3139,7 @@ async function showVisualLibrary() {
   title.className = 'vlib-title';
   const titleText = document.createElement('span');
   titleText.className = 'dev-text';
-  titleText._devText = 'चित्रसंग्रह';
-  titleText.textContent = translit('चित्रसंग्रह');
+  titleText.textContent = 'Visuals';
   title.appendChild(titleText);
   panel.appendChild(title);
 
