@@ -914,6 +914,10 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .nav-pada-btn:hover  { background: #e5d8c0; color: var(--text); }
 .nav-pada-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
+
+/* Nested sub-tree inside a sub-tree */
+.nav-nested .nav-book-btn { padding-left: 32px; font-size: .82em; }
+.nav-nested .nav-pada-btn { padding-left: 48px; }
 .nav-pada-count { font-size: .75em; opacity: .75; }
 
 .nav-section-btn {

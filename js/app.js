@@ -29,21 +29,25 @@ const BOOKS = [
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
-  { id: 'paribhasha',      devName: 'परिभाषाः',        engName: 'Paribhāṣās',      type: 'leaf',                                                                   icon: 'परि०' },
   { id: 'shiksha-group', devName: 'शिक्षा', engName: 'Śikṣā', type: 'sub-tree', icon: 'शिक्षा',
     pages: [
       { id: 'shiksha',        devName: 'पाणिनीयशिक्षा',      engName: 'Pāṇinīya Śikṣā',      type: 'leaf',                  dataPath: 'shiksha/data.txt' },
       { id: 'varnochchaaran', devName: 'वर्णोच्चारण-शिक्षा', engName: 'Varṇoccāraṇa Śikṣā',  type: 'varnochchaaran-panel' },
     ]
   },
-  { id: 'fit',             devName: 'फिट्सूत्राणि',   engName: 'Fiṭ Sūtrāṇi',   type: 'leaf', dataPath: 'fit/data.txt',                icon: 'फिट्' },
   { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
-  { id: 'avyaya', devName: 'अव्ययार्थाः', engName: 'Avyayas', type: 'avyaya-panel', icon: 'अव्य०' },
-  { id: 'visuals', devName: 'दृश्यग्रन्थागारम्', engName: 'Visual Library', type: 'visual-library', icon: 'दृश्य' },
-  { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree', icon: 'प्र०',
+  { id: 'visuals', devName: 'चित्रसंग्रह', engName: 'Visual Library', type: 'visual-library', icon: 'चित्र' },
+  { id: 'references', devName: 'संदर्भाः', engName: 'References', type: 'sub-tree', icon: 'संद०',
     pages: [
-      { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta'  },
-      { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta' },
+      { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree',
+        pages: [
+          { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta',  type: 'pratyaya-page' },
+          { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta', type: 'pratyaya-page' },
+        ]
+      },
+      { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
+      { id: 'paribhasha', devName: 'परिभाषाः',      engName: 'Paribhāṣās',    type: 'leaf' },
+      { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
     ]
   },
   { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
@@ -1239,6 +1243,13 @@ function buildBookEntry(book) {
     });
   } else if (book.type === 'sub-tree') {
     for (const page of (book.pages || [])) {
+      if (page.type === 'sub-tree') {
+        // Nested sub-tree — render recursively
+        const nested = buildBookEntry(page);
+        nested.classList.add('nav-nested');
+        container.appendChild(nested);
+        continue;
+      }
       const pb = document.createElement('button');
       pb.className = 'nav-pada-btn';
       pb.appendChild(makeNavLabel(page.devName));
@@ -1249,6 +1260,10 @@ function buildBookEntry(book) {
         clickFn = () => { closeDrawer(); showVarnochchaaranPanel(); };
       } else if (page.type === 'legal-page') {
         clickFn = () => { closeDrawer(); showLegalPage(page.id); };
+      } else if (page.type === 'avyaya-panel') {
+        clickFn = () => { closeDrawer(); showAvyayaPanel(); };
+      } else if (page.type === 'pratyaya-page') {
+        clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       } else {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       }
@@ -3106,7 +3121,7 @@ const VISUAL_CATEGORIES = [
   { id: 'pratyahara', devName: 'प्रत्याहाराः',    engName: 'Pratyāhāras',  path: 'concepts/pratyahara' },
   { id: 'it-karyas',  devName: 'इत्-कार्याणि',    engName: 'It-kāryas',    path: 'concepts/it-karyas'  },
   { id: 'krt',        devName: 'कृत्प्रत्ययाः',   engName: 'Kṛt pratyayas', path: 'concepts/krt'       },
-  { id: 'sutra-type', devName: 'सूत्रविशेष',       engName: 'Sūtra types',  path: 'concepts/sutra-type' },
+  { id: 'sutra-type', devName: 'मुख्य अधिकार',      engName: 'Sūtra types',  path: 'concepts/sutra-type' },
   { id: 'general',    devName: 'सामान्यम्',        engName: 'General',      path: 'concepts/general'    },
   { id: 'prakarana',  devName: 'प्रकरणम्',         engName: 'Prakaraṇas',   path: 'prakaranas'          },
 ];
@@ -3124,8 +3139,8 @@ async function showVisualLibrary() {
   title.className = 'vlib-title';
   const titleText = document.createElement('span');
   titleText.className = 'dev-text';
-  titleText._devText = 'दृश्यग्रन्थागारम्';
-  titleText.textContent = translit('दृश्यग्रन्थागारम्');
+  titleText._devText = 'चित्रसंग्रह';
+  titleText.textContent = translit('चित्रसंग्रह');
   title.appendChild(titleText);
   panel.appendChild(title);
 
