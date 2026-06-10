@@ -4997,6 +4997,20 @@ document.getElementById('btn-search').addEventListener('click', () => {
 // btn-script click handled inside buildScriptDropdown (hover + click toggle)
 document.getElementById('btn-about').addEventListener('click', () => showAbout());
 
+// Welcome footer legal links — open inline instead of navigating away
+document.querySelectorAll('.welcome-legal-link').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.dataset.legal;
+    if (id === 'privacy' || id === 'terms') {
+      showLegalPage(id);
+    } else {
+      showAbout();
+      setTimeout(() => showAboutSection(id), 0);
+    }
+  });
+});
+
 $btnPrev.addEventListener('click', () => {
   if (readerType === 'dhatu') {
     if (dhatuReaderIdx > 0) showDhatuReader(dhatuReaderList[dhatuReaderIdx - 1], dhatuReaderIdx - 1);
