@@ -1839,6 +1839,14 @@ function renderSiddhiSegs(segs, container) {
       span._devText = seg.v;
       span.textContent = translit(seg.v);
       container.appendChild(span);
+    } else if (seg.t === 'cl') {
+      const a = document.createElement('a');
+      a.className = 'concept-link dev-text';
+      a.href = '#';
+      a._devText = seg.v;
+      a.dataset.concept = seg.v;
+      a.textContent = translit(seg.v);
+      container.appendChild(a);
     } else {
       const span = document.createElement('span');
       span.className = 'dev-text';
