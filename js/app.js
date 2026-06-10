@@ -401,6 +401,13 @@ document.getElementById('btn-pin-nav').addEventListener('click', () => {
   applyPinState();
 });
 
+// Nav drawer "Welcome" title → go home
+document.querySelector('#drawer-nav .drawer-title').addEventListener('click', () => {
+  closeDrawer();
+  showPanel('welcome');
+  clearURL();
+});
+
 // ── Panel switcher ────────────────────────────────────────────────────────────
 function showPanel(name) {
   currentPanel = name;

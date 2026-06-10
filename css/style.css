@@ -293,7 +293,9 @@ body.nav-pinned #app {
   font-size: .7em; font-weight: 700; letter-spacing: .1em;
   text-transform: uppercase; color: var(--muted);
   font-family: 'Noto Sans', system-ui, sans-serif;
+  cursor: pointer;
 }
+.drawer-title:hover { color: var(--fg); }
 .drawer-header-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
 
 .drawer-pin {
