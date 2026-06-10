@@ -3134,20 +3134,24 @@ async function showVisualLibrary() {
   panel._loaded = true;
   panel.innerHTML = '';
 
-  // Title
+  // Header (title + tabs)
+  const header = document.createElement('div');
+  header.className = 'vlib-header';
   const title = document.createElement('div');
   title.className = 'vlib-title';
-  const titleText = document.createElement('span');
-  titleText.className = 'dev-text';
-  titleText.textContent = 'Visuals';
-  title.appendChild(titleText);
-  panel.appendChild(title);
+  title.textContent = 'Visuals';
+  header.appendChild(title);
+  const tabRow = document.createElement('div');
+  tabRow.className = 'vlib-tabs';
+  header.appendChild(tabRow);
+  panel.appendChild(header);
 
   // Load index
   const index = await loadConceptsIndex();
   if (!index) {
     const err = document.createElement('p');
     err.className = 'vlib-empty';
+    err.style.padding = '16px';
     err.textContent = 'Visual index not available.';
     panel.appendChild(err);
     return;
@@ -3160,52 +3164,76 @@ async function showVisualLibrary() {
     if (grouped[entry.category]) grouped[entry.category].push({ term, ...entry });
   }
 
-  // Category tabs
-  const tabRow = document.createElement('div');
-  tabRow.className = 'vlib-tabs';
-  const contentArea = document.createElement('div');
-  contentArea.className = 'vlib-content';
-  panel.appendChild(tabRow);
-  panel.appendChild(contentArea);
+  // Split pane
+  const split = document.createElement('div');
+  split.className = 'vlib-split';
+  const listPane = document.createElement('div');
+  listPane.className = 'vlib-list';
+  const detailPane = document.createElement('div');
+  detailPane.className = 'vlib-detail-pane';
+  split.appendChild(listPane);
+  split.appendChild(detailPane);
+  panel.appendChild(split);
 
-  let activeLibCat = null;
+  async function loadSvgInto(item, pane) {
+    if (!DIAGRAM_BASE) return;
+    pane.innerHTML = '<span class="vlib-loading">Loading…</span>';
+    if (conceptSvgCache[item.term]) {
+      pane.innerHTML = conceptSvgCache[item.term];
+      applyConceptSvgRetranslit(pane);
+      return;
+    }
+    try {
+      const r = await fetch(`${DIAGRAM_BASE}/${item.path}`);
+      if (!r.ok) { pane.innerHTML = '<span class="vlib-empty">—</span>'; return; }
+      const svgText = await r.text();
+      conceptSvgCache[item.term] = svgText;
+      pane.innerHTML = svgText;
+      applyConceptSvgRetranslit(pane);
+    } catch (_) { pane.innerHTML = '<span class="vlib-empty">—</span>'; }
+  }
+
+  let activeCatId = null;
 
   function showLibCategory(catId) {
-    activeLibCat = catId;
+    activeCatId = catId;
     tabRow.querySelectorAll('.vlib-tab').forEach(b =>
       b.classList.toggle('active', b.dataset.cat === catId));
-    contentArea.innerHTML = '';
 
-    const cat = VISUAL_CATEGORIES.find(c => c.id === catId);
-    const items = grouped[catId] || [];
+    listPane.innerHTML = '';
+    detailPane.innerHTML = '';
+
+    const items = (grouped[catId] || []).sort((a, b) => a.term.localeCompare(b.term, 'sa'));
     if (!items.length) {
-      const empty = document.createElement('p');
-      empty.className = 'vlib-empty';
-      empty.textContent = 'No visuals yet.';
-      contentArea.appendChild(empty);
+      listPane.innerHTML = '<span class="vlib-empty">No visuals yet.</span>';
       return;
     }
 
-    const grid = document.createElement('div');
-    grid.className = 'vlib-grid';
-    contentArea.appendChild(grid);
+    let activeListItem = null;
 
-    for (const item of items.sort((a, b) => a.term.localeCompare(b.term, 'sa'))) {
-      const card = document.createElement('div');
-      card.className = 'vlib-card';
-      card.dataset.term = item.term;
-
-      const label = document.createElement('div');
-      label.className = 'vlib-card-label dev-text';
-      label._devText = item.term;
-      label.textContent = translit(item.term);
-      card.appendChild(label);
-
-      card.addEventListener('click', () => showVisualDetail(item, contentArea, grid));
-      grid.appendChild(card);
+    function selectItem(item, el) {
+      if (activeListItem) activeListItem.classList.remove('active');
+      activeListItem = el;
+      el.classList.add('active');
+      // On mobile, scroll detail pane into view
+      if (window.innerWidth < 600) detailPane.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      loadSvgInto(item, detailPane);
     }
+
+    for (const item of items) {
+      const li = document.createElement('div');
+      li.className = 'vlib-list-item dev-text';
+      li._devText = item.term;
+      li.textContent = translit(item.term);
+      li.addEventListener('click', () => selectItem(item, li));
+      listPane.appendChild(li);
+    }
+
+    // Auto-select first item
+    selectItem(items[0], listPane.firstElementChild);
   }
 
+  let firstCat = true;
   for (const cat of VISUAL_CATEGORIES) {
     const items = grouped[cat.id] || [];
     if (!items.length) continue;
@@ -3223,52 +3251,8 @@ async function showVisualLibrary() {
     tab.appendChild(count);
     tab.addEventListener('click', () => showLibCategory(cat.id));
     tabRow.appendChild(tab);
-    if (!activeLibCat) showLibCategory(cat.id);
+    if (firstCat) { firstCat = false; showLibCategory(cat.id); }
   }
-}
-
-async function showVisualDetail(item, contentArea, grid) {
-  if (!DIAGRAM_BASE) return;
-  // Toggle: if already showing this item's detail, go back to grid
-  const existing = contentArea.querySelector('.vlib-detail');
-  if (existing && existing.dataset.term === item.term) {
-    existing.remove();
-    return;
-  }
-  if (existing) existing.remove();
-
-  const detail = document.createElement('div');
-  detail.className = 'vlib-detail';
-  detail.dataset.term = item.term;
-
-  const backBtn = document.createElement('button');
-  backBtn.className = 'vlib-back';
-  backBtn.textContent = '← Back';
-  backBtn.addEventListener('click', () => detail.remove());
-  detail.appendChild(backBtn);
-
-  const svgWrap = document.createElement('div');
-  svgWrap.className = 'vlib-svg-wrap';
-  svgWrap.innerHTML = '<span class="vlib-loading">Loading…</span>';
-  detail.appendChild(svgWrap);
-
-  // Insert detail below grid
-  grid.after(detail);
-
-  // Load SVG
-  if (conceptSvgCache[item.term]) {
-    svgWrap.innerHTML = conceptSvgCache[item.term];
-    applyConceptSvgRetranslit(svgWrap);
-    return;
-  }
-  try {
-    const r = await fetch(`${DIAGRAM_BASE}/${item.path}`);
-    if (!r.ok) { svgWrap.textContent = '—'; return; }
-    const svgText = await r.text();
-    conceptSvgCache[item.term] = svgText;
-    svgWrap.innerHTML = svgText;
-    applyConceptSvgRetranslit(svgWrap);
-  } catch (_) { svgWrap.textContent = '—'; }
 }
 
 // ── Shabda engine (fires shabda.js) ──────────────────────────────────────────
