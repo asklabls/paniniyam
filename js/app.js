@@ -5006,7 +5006,7 @@ document.querySelectorAll('.welcome-legal-link').forEach(a => {
       showLegalPage(id);
     } else {
       showAbout();
-      setTimeout(() => showAboutSection(id), 0);
+      setTimeout(() => renderAboutSection(id), 0);
     }
   });
 });
