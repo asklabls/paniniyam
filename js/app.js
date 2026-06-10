@@ -3215,6 +3215,7 @@ async function showVisualLibrary() {
       if (activeListItem) activeListItem.classList.remove('active');
       activeListItem = el;
       el.classList.add('active');
+      $app.scrollTop = 0;
       detailPane.scrollTop = 0;
       if (window.innerWidth < 600) detailPane.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       loadSvgInto(item, detailPane);
