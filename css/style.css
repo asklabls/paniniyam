@@ -504,6 +504,12 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .panel-welcome {
   max-width: 600px; margin: 48px auto 0; text-align: center;
 }
+.welcome-logo-img { text-align: center; margin-bottom: 16px; }
+.welcome-logo-img-el {
+  width: 180px; height: auto;
+  opacity: .88;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.12));
+}
 .welcome-logo {
   font-size: .75em; letter-spacing: .18em; text-transform: uppercase;
   color: var(--muted); margin-bottom: 10px;
