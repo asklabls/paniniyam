@@ -1936,17 +1936,25 @@ function renderSiddhiEntry(entry) {
   (entry.steps || []).forEach(step => {
     const tr = document.createElement('tr');
 
-    // Step number
+    // Step number (may contain concept/sutra links)
     const tdNum = document.createElement('td');
     tdNum.className = 'siddhi-num';
-    tdNum.textContent = step.num || '';
+    if (step.num_segs) {
+      renderSiddhiSegs(step.num_segs, tdNum);
+    } else {
+      tdNum.textContent = step.num || '';
+    }
     tr.appendChild(tdNum);
 
-    // Form (prakriya)
+    // Form (prakriya — may contain concept/sutra links)
     const tdForm = document.createElement('td');
     tdForm.className = 'siddhi-form dev-text';
-    tdForm._devText = step.form || '';
-    tdForm.textContent = translit(step.form || '');
+    if (step.form_segs) {
+      renderSiddhiSegs(step.form_segs, tdForm);
+    } else {
+      tdForm._devText = step.form || '';
+      tdForm.textContent = translit(step.form || '');
+    }
     tr.appendChild(tdForm);
 
     // Note — rendered as inline segments: sutra links + Hindi prose interleaved
