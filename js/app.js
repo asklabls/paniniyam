@@ -931,16 +931,14 @@ function retranslit() {
   document.querySelectorAll('.nav-label').forEach(el => {
     if (el._devText) el.textContent = translit(el._devText);
   });
-  const svgRoman = !!(Sanscript.schemes[currentScript]?.isRomanScheme);
   document.querySelectorAll('.dev-text').forEach(el => {
     if (el._devText === undefined) return;
-    // SVG text elements: revert to Devanagari for Roman schemes (fixed coords overflow)
-    if (svgRoman && el.closest('svg')) { el.textContent = el._devText; return; }
+    if (el.closest && el.closest('svg')) { _applySvgEl(el, el._devText, true); return; }
     el.textContent = translit(el._devText);
   });
   document.querySelectorAll('.mixed-text').forEach(el => {
     if (el._mixedText === undefined) return;
-    if (svgRoman && el.closest('svg')) { el.textContent = el._mixedText; return; }
+    if (el.closest && el.closest('svg')) { _applySvgEl(el, el._mixedText, false); return; }
     el.textContent = translitMixed(el._mixedText);
   });
 
@@ -1904,6 +1902,51 @@ async function showConceptPopup(el, term) {
   } catch (_) { svgWrap.textContent = '—'; }
 }
 
+// Per-script font-size scale for concept SVGs.
+// Indic scripts with larger/wider glyphs need a slight reduction to fit fixed SVG boxes.
+// IAST uses diacritics (same character count as Devanagari) — slight reduction is enough.
+// Roman multi-char schemes (ITRANS RRi, HK, SLP1…) keep Devanagari regardless.
+const SVG_FONT_SCALE = {
+  telugu: 0.82, kannada: 0.82, malayalam: 0.80, tamil: 0.82,
+  iast: 0.92,
+};
+// Schemes where even scaling won't help — multi-char sequences expand text too much
+const SVG_ROMAN_SKIP = new Set([
+  'itrans','itrans_lowercase','itrans_dravidian','hk','hk_dravidian',
+  'slp1','slp1_accented','velthuis','wx','optitrans','optitrans_dravidian',
+  'kolkata_v2','baraha','titus',
+]);
+
+function _svgUseDevanagari() {
+  if (currentScript === 'devanagari') return true;
+  const scheme = Sanscript.schemes[currentScript];
+  return !!(scheme?.isRomanScheme) && SVG_ROMAN_SKIP.has(currentScript);
+}
+
+function _applySvgEl(el, devText, isDevType) {
+  const useDevanagari = _svgUseDevanagari();
+  // Store original font-size once so retranslit() can restore + rescale
+  if (!el._origFontSize) {
+    el._origFontSize = el.getAttribute('font-size') || '';
+  }
+  if (useDevanagari) {
+    el.textContent = devText;
+    if (el._origFontSize) el.setAttribute('font-size', el._origFontSize);
+  } else {
+    el.textContent = isDevType ? translit(devText) : translitMixed(devText);
+    const scale = SVG_FONT_SCALE[currentScript] || 1.0;
+    if (scale !== 1.0 && el._origFontSize) {
+      const n = parseFloat(el._origFontSize);
+      if (!isNaN(n)) {
+        const unit = el._origFontSize.replace(/[\d.]/g, '');
+        el.setAttribute('font-size', (n * scale).toFixed(1) + unit);
+      }
+    } else if (el._origFontSize) {
+      el.setAttribute('font-size', el._origFontSize);
+    }
+  }
+}
+
 function applyConceptSvgRetranslit(wrap) {
   const svgEl = wrap.querySelector('svg');
   if (!svgEl) return;
@@ -1911,20 +1954,15 @@ function applyConceptSvgRetranslit(wrap) {
   svgEl.removeAttribute('height');
   svgEl.style.width = '100%';
   svgEl.style.height = 'auto';
-  // Roman transliteration schemes (ITRANS, HK, IAST…) produce text 3–4× wider than
-  // Devanagari — fixed SVG coordinates can't accommodate it. Keep Devanagari for Roman
-  // schemes; only retranslit to other Indic scripts (Telugu, Kannada, etc.).
-  const svgUseDevanagari = currentScript === 'devanagari' ||
-    !!(Sanscript.schemes[currentScript]?.isRomanScheme);
   for (const el of svgEl.querySelectorAll('text[data-dev]')) {
     el._devText = el.textContent;
     el.classList.add('dev-text');
-    if (!svgUseDevanagari) el.textContent = translit(el.textContent);
+    _applySvgEl(el, el._devText, true);
   }
   for (const el of svgEl.querySelectorAll('text[data-mixed]')) {
     el._mixedText = el.textContent;
     el.classList.add('mixed-text');
-    if (!svgUseDevanagari) el.textContent = translitMixed(el.textContent);
+    _applySvgEl(el, el._mixedText, false);
   }
 }
 
