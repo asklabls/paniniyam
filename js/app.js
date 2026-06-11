@@ -37,6 +37,7 @@ const BOOKS = [
   },
   { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
   { id: 'visuals', devName: 'Visuals', engName: 'Visuals', type: 'visual-library', icon: 'Vis' },
+  { id: 'bhattikavya', devName: 'भट्टिकाव्यम्', engName: 'Bhaṭṭikāvya', type: 'bhattikavya-panel', icon: 'भट्टि' },
   { id: 'references', devName: 'References', engName: 'References', type: 'sub-tree', icon: 'Ref',
     pages: [
       { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree',
@@ -198,6 +199,19 @@ let readerList  = [];   // ordered sutras available for prev/next navigation
 let readerIdx   = -1;   // current position in readerList
 let readerSutra = null; // currently displayed sutra in reader panel
 
+// Bhattikavya state
+const BK_SARGAS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21]; // sarga 15 absent
+const BK_SARGA_NAMES_DEV = {
+  1:'प्रथमः सर्गः', 2:'द्वितीयः सर्गः', 3:'तृतीयः सर्गः', 4:'चतुर्थः सर्गः',
+  5:'पञ्चमः सर्गः', 6:'षष्ठः सर्गः', 7:'सप्तमः सर्गः', 8:'अष्टमः सर्गः',
+  9:'नवमः सर्गः', 10:'दशमः सर्गः', 11:'एकादशः सर्गः', 12:'द्वादशः सर्गः',
+  13:'त्रयोदशः सर्गः', 14:'चतुर्दशः सर्गः', 16:'षोडशः सर्गः',
+  17:'सप्तदशः सर्गः', 18:'अष्टादशः सर्गः', 19:'ऊनविंशः सर्गः',
+  20:'विंशः सर्गः', 21:'एकविंशः सर्गः',
+};
+let bkCurrentSarga = 1;
+const bkCache = {};
+
 // Dhatu reader state
 let dhatuReaderList = [];
 let dhatuReaderIdx  = -1;
@@ -264,6 +278,7 @@ const $panelShabda       = document.getElementById('panel-shabda');
 const $panelAvyaya            = document.getElementById('panel-avyaya');
 const $panelVarnochchaaran    = document.getElementById('panel-varnochchaaran');
 const $panelVisuals           = document.getElementById('panel-visuals');
+const $panelBhattikavya       = document.getElementById('panel-bhattikavya');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -365,6 +380,7 @@ function renderCommentaryHTML(raw) {
   for (const para of paragraphs) {
     const trimmed = para.trim();
     if (!trimmed) continue;
+    if (trimmed === '---') { html += '<hr class="bk-fn-sep">'; continue; }
 
     let paraLines = '';
     for (const line of trimmed.split('\n')) {
@@ -468,6 +484,7 @@ function showPanel(name) {
   $panelAvyaya.style.display            = name === 'avyaya'            ? '' : 'none';
   $panelVarnochchaaran.style.display    = name === 'varnochchaaran'    ? '' : 'none';
   $panelVisuals.style.display           = name === 'visuals'           ? '' : 'none';
+  $panelBhattikavya.style.display       = name === 'bhattikavya'       ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
   $app.scrollTop = 0;
@@ -1244,6 +1261,13 @@ function buildBookEntry(book, nested = false) {
   if (book.type === 'visual-library') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showVisualLibrary(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'bhattikavya-panel') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showBhattikavya(bkCurrentSarga); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -4958,6 +4982,150 @@ function renderParibhashaAll(sutras) {
   showPanel('list');
 }
 
+// ── Bhattikavya ───────────────────────────────────────────────────────────────
+async function showBhattikavya(sargaNum) {
+  sargaNum = sargaNum || bkCurrentSarga;
+  if (!BK_SARGAS.includes(sargaNum)) sargaNum = BK_SARGAS[0];
+  bkCurrentSarga = sargaNum;
+  history.replaceState({ book: 'bhattikavya' }, '', `?book=bhattikavya&sarga=${sargaNum}`);
+
+  const panel = $panelBhattikavya;
+  if (!bkCache[sargaNum]) {
+    panel.innerHTML = '<div class="loading-inline">Loading…</div>';
+    showPanel('bhattikavya');
+    if (!PRIVATE_BASE) { panel.innerHTML = '<div class="no-data">Bhattikavya data not available.</div>'; return; }
+    try {
+      const num = String(sargaNum).padStart(2, '0');
+      const res = await fetch(`${PRIVATE_BASE}/bhattikavya/sarga_${num}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      bkCache[sargaNum] = await res.json();
+    } catch (e) {
+      panel.innerHTML = `<div class="no-data">Could not load sarga ${sargaNum}: ${e.message}</div>`;
+      return;
+    }
+  }
+
+  renderBkSarga(bkCache[sargaNum]);
+  showPanel('bhattikavya');
+
+  // Background prefetch of adjacent sargas
+  const idx = BK_SARGAS.indexOf(sargaNum);
+  [BK_SARGAS[idx - 1], BK_SARGAS[idx + 1]].filter(Boolean).forEach(n => {
+    if (n && !bkCache[n]) {
+      const num = String(n).padStart(2, '0');
+      fetch(`${PRIVATE_BASE}/bhattikavya/sarga_${num}.json`)
+        .then(r => r.json()).then(d => { bkCache[n] = d; }).catch(() => {});
+    }
+  });
+}
+
+function renderBkSarga(data) {
+  const panel = $panelBhattikavya;
+  panel.innerHTML = '';
+
+  const idx      = BK_SARGAS.indexOf(data.sarga);
+  const prevN    = idx > 0 ? BK_SARGAS[idx - 1] : null;
+  const nextN    = idx < BK_SARGAS.length - 1 ? BK_SARGAS[idx + 1] : null;
+
+  // ── Sticky sarga nav ──
+  const nav = document.createElement('div');
+  nav.className = 'bk-nav';
+
+  const btnP = document.createElement('button');
+  btnP.className = 'bar-btn bk-nav-btn';
+  btnP.textContent = '◀';
+  btnP.disabled = !prevN;
+  if (prevN) btnP.addEventListener('click', () => showBhattikavya(prevN));
+  nav.appendChild(btnP);
+
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'bk-nav-title';
+  const nameEl = document.createElement('span');
+  nameEl.className = 'bk-sarga-name dev-text';
+  nameEl._devText = data.name;
+  nameEl.textContent = translit(data.name);
+  titleWrap.appendChild(nameEl);
+  const countEl = document.createElement('span');
+  countEl.className = 'bk-sarga-count';
+  countEl.textContent = `${data.total} ślokas`;
+  titleWrap.appendChild(countEl);
+  nav.appendChild(titleWrap);
+
+  const btnN = document.createElement('button');
+  btnN.className = 'bar-btn bk-nav-btn';
+  btnN.textContent = '▶';
+  btnN.disabled = !nextN;
+  if (nextN) btnN.addEventListener('click', () => showBhattikavya(nextN));
+  nav.appendChild(btnN);
+
+  panel.appendChild(nav);
+
+  // ── Shloka cards ──
+  const list = document.createElement('div');
+  list.className = 'bk-list';
+  for (const shloka of data.shlokas) {
+    list.appendChild(renderBkCard(shloka, data.sarga));
+  }
+  panel.appendChild(list);
+}
+
+function bkVerseIsClean(verse) {
+  if (!verse) return false;
+  const first = verse.split('\n')[0].trim();
+  // Commentary transition lines: 'Xāha —', 'cedāha --', etc.
+  if (/[आन]ाह\s*-{1,2}\s*$/.test(first)) return false;
+  if (/चेदाह\s*-{1,2}\s*$/.test(first)) return false;
+  // Long prose line ending with space-dash (not OCR compound-word hyphen)
+  if (/ -$/.test(first) && first.length > 30) return false;
+  return true;
+}
+
+function renderBkCard(shloka, sarga) {
+  const card = document.createElement('div');
+  card.className = 'sutra-card bk-card';
+
+  // Row: sarga.shloka number + verse text
+  const row = document.createElement('div');
+  row.className = 'sutra-row';
+
+  const idEl = document.createElement('span');
+  idEl.className = 'sutra-id';
+  idEl.textContent = `${sarga}.${shloka.n}`;
+  row.appendChild(idEl);
+
+  const verseEl = document.createElement('div');
+  verseEl.className = 'sutra-text bk-verse dev-text';
+  verseEl._devText = shloka.verse || '';
+  verseEl.textContent = translit(shloka.verse || '');
+
+  if (bkVerseIsClean(shloka.verse)) {
+    const callout = document.createElement('div');
+    callout.className = 'bk-callout';
+    callout.appendChild(verseEl);
+    row.appendChild(callout);
+  } else {
+    row.appendChild(verseEl);
+  }
+
+  card.appendChild(row);
+
+  // Detail: commentary with sutra links
+  const detail = document.createElement('div');
+  detail.className = 'sutra-detail';
+
+  if (shloka.commentary) {
+    const commDiv = document.createElement('div');
+    commDiv.className = 'commentary-panel detail-sanskrit';
+    commDiv._rawCommentary = shloka.commentary;
+    setCommentaryHTML(commDiv, shloka.commentary);
+    detail.appendChild(commDiv);
+  }
+
+  card.appendChild(detail);
+  card.addEventListener('click', () => toggleSimpleCard(card));
+  return card;
+}
+
 // ── Shiksha ───────────────────────────────────────────────────────────────────
 function renderShikshaAll(data) {
   setListHeader('शिक्षा', `${data.length} ślokas`);
@@ -5639,6 +5807,9 @@ async function init() {
         showShabdaEngine();
       } else if (urlBook === 'visuals') {
         await showVisualLibrary();
+      } else if (urlBook === 'bhattikavya') {
+        const sargaParam = parseInt(params.get('sarga')) || 1;
+        await showBhattikavya(sargaParam);
       } else {
         // Search top-level leaf books, then sub-tree children
         let book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');

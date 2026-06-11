@@ -547,6 +547,10 @@
     "path": "prakaranas/गति-संज्ञा.svg",
     "category": "prakarana"
   },
+  "गुण": {
+    "path": "prakaranas/गुण.svg",
+    "category": "prakarana"
+  },
   "गुणवृद्धी": {
     "path": "prakaranas/गुणवृद्धी.svg",
     "category": "prakarana"
@@ -555,8 +559,16 @@
     "path": "prakaranas/गुरुवन्दना.svg",
     "category": "prakarana"
   },
+  "घ": {
+    "path": "prakaranas/घ.svg",
+    "category": "prakarana"
+  },
   "घि": {
     "path": "prakaranas/घि.svg",
+    "category": "prakarana"
+  },
+  "घु": {
+    "path": "prakaranas/घु.svg",
     "category": "prakarana"
   },
   "चकार": {
@@ -703,6 +715,10 @@
     "path": "prakaranas/पूर्वस्वर.svg",
     "category": "prakarana"
   },
+  "प्रगृह्य": {
+    "path": "prakaranas/प्रगृह्य.svg",
+    "category": "prakarana"
+  },
   "प्रत्यय-स्वर": {
     "path": "prakaranas/प्रत्यय-स्वर.svg",
     "category": "prakarana"
@@ -787,6 +803,10 @@
     "path": "prakaranas/वृद्ध-संज्ञा.svg",
     "category": "prakarana"
   },
+  "वृद्धि": {
+    "path": "prakaranas/वृद्धि.svg",
+    "category": "prakarana"
+  },
   "शप्": {
     "path": "prakaranas/शप्.svg",
     "category": "prakarana"
@@ -805,6 +825,10 @@
   },
   "षष्ठीविभक्ति": {
     "path": "prakaranas/षष्ठीविभक्ति.svg",
+    "category": "prakarana"
+  },
+  "संयोग": {
+    "path": "prakaranas/संयोग.svg",
     "category": "prakarana"
   },
   "संहिताधिकार-१": {

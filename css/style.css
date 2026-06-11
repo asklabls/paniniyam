@@ -1957,3 +1957,34 @@ body.vlib-active #app { overflow: hidden; }
   .vlib-list { width: 100%; max-height: 180px; border-right: none; border-bottom: 1px solid var(--border); }
   .vlib-detail-pane { overflow: auto; padding: 12px; min-height: 60vw; }
 }
+
+/* ── Bhattikavya panel ──────────────────────────────────────────── */
+.bk-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg); z-index: 5;
+  gap: 8px;
+}
+.bk-nav-title {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; flex: 1; text-align: center; min-width: 0;
+}
+.bk-sarga-name { font-weight: 700; font-size: 1.05em; color: var(--text); }
+.bk-sarga-count { font-size: .72em; color: var(--muted); letter-spacing: .02em; }
+.bk-nav-btn { font-size: .9em; }
+.bk-list { padding: 10px 12px 60px; }
+.bk-verse { white-space: pre-line; line-height: 1.65; }
+.bk-callout {
+  flex: 1;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-sidebar);
+  padding: 6px 10px;
+  border-radius: 0 4px 4px 0;
+}
+hr.bk-fn-sep {
+  border: none; border-top: 1px dashed var(--border);
+  margin: 10px 0 4px;
+}
+.loading-inline {
+  color: var(--muted); font-style: italic; padding: 24px; text-align: center;
+}
