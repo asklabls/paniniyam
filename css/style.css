@@ -1661,6 +1661,13 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   .reader-sutra-text { font-size: 1.65em; }
   .bar-btn { min-width: 32px; padding: 0 4px; font-size: .95em; }
   .bar-ref { min-width: 54px; font-size: .76em; }
+  /* Matrix popups — compact on small screens */
+  .pm-th         { padding: 5px 6px;  font-size: .68em; min-width: 52px; }
+  .pm-th-corner  { min-width: 88px; }
+  .pm-td-label   { min-width: 88px;  padding: 5px 6px; font-size: .7em; }
+  .pm-cell       { min-width: 52px;  padding: 5px 2px; font-size: .76em; }
+  /* BK sarga matrix has 7 cols — shrink further */
+  .bk-matrix .pm-cell { min-width: 42px; }
 }
 
 /* ── Paribhasha भूमिका callout ─────────────────────────────────────────────── */
