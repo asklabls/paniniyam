@@ -5032,27 +5032,23 @@ function showBkMatrix() {
   const panel = $panelBhattikavya;
   panel.innerHTML = '';
 
-  // ── Header ──
+  // ── Header label ──
   const header = document.createElement('div');
   header.className = 'bk-matrix-header';
-  const titleEl = document.createElement('div');
-  titleEl.className = 'bk-matrix-title dev-text';
-  titleEl._devText = 'भट्टिकाव्यम्';
-  titleEl.textContent = translit('भट्टिकाव्यम्');
-  header.appendChild(titleEl);
-  const subtitleEl = document.createElement('div');
-  subtitleEl.className = 'bk-matrix-subtitle';
-  subtitleEl.textContent = '22 sargas · 1323 ślokas · Jayamaṅgalā commentary';
-  header.appendChild(subtitleEl);
+  const labelEl = document.createElement('span');
+  labelEl.className = 'bk-matrix-label dev-text';
+  labelEl._devText = 'सर्गः';
+  labelEl.textContent = translit('सर्गः');
+  header.appendChild(labelEl);
   panel.appendChild(header);
 
-  // ── 6-column sarga grid (sargas 1–21; sarga 15 absent) ──
+  // ── 6-column sarga grid (sargas 1–21; sarga 15 absent from OCR) ──
   const grid = document.createElement('div');
   grid.className = 'bk-matrix-grid';
 
   for (let n = 1; n <= 21; n++) {
-    const cell = document.createElement('div');
     const absent = n === 15;
+    const cell = document.createElement(absent ? 'div' : 'button');
     cell.className = 'bk-matrix-cell' + (absent ? ' bk-matrix-absent' : '');
     if (!absent) cell.addEventListener('click', () => showBhattikavya(n));
 
