@@ -3848,6 +3848,18 @@ function normalizeRoman(s) {
 }
 
 // Convert any script input to Devanagari for search comparison
+// Unicode ranges → Sanscript scheme name for auto-detection
+const INDIC_RANGES = [
+  [/[\u0C00-\u0C7F]/, 'telugu'],
+  [/[\u0B80-\u0BFF]/, 'tamil'],
+  [/[\u0C80-\u0CFF]/, 'kannada'],
+  [/[\u0D00-\u0D7F]/, 'malayalam'],
+  [/[\u0980-\u09FF]/, 'bengali'],
+  [/[\u0A80-\u0AFF]/, 'gujarati'],
+  [/[\u0A00-\u0A7F]/, 'gurmukhi'],
+  [/[\u0B00-\u0B7F]/, 'oriya'],
+];
+
 function normalizeToDevanagari(q) {
   if (!q || /^\d+$/.test(q)) return q;
   // Already Devanagari
@@ -3857,6 +3869,16 @@ function normalizeToDevanagari(q) {
     const r = Sanscript.t(q, currentScript, 'devanagari');
     if (r && r !== q) return r;
   } catch(e) {}
+  // Auto-detect Indic script (handles typing in a different script than the display)
+  for (const [re, sc] of INDIC_RANGES) {
+    if (sc !== currentScript && re.test(q)) {
+      try {
+        const r = Sanscript.t(q, sc, 'devanagari');
+        if (r && r !== q) return r;
+      } catch(e) {}
+      break;
+    }
+  }
   // Fallback: try IAST (for Roman input when not in IAST mode)
   if (/[a-zA-Z]/.test(q) && currentScript !== 'iast') {
     try {
