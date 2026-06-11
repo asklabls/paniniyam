@@ -1974,6 +1974,31 @@ body.vlib-active #app { overflow: hidden; }
 .bk-nav-btn { font-size: .9em; }
 .bk-list { padding: 10px 12px 60px; }
 .bk-verse { white-space: pre-line; line-height: 1.65; }
+/* Sarga matrix */
+.bk-matrix-header {
+  padding: 18px 14px 10px; text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.bk-matrix-title { font-size: 1.4em; font-weight: 700; color: var(--text); }
+.bk-matrix-subtitle { font-size: .72em; color: var(--muted); margin-top: 3px; }
+.bk-matrix-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 6px; padding: 12px;
+}
+.bk-matrix-cell {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px; border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; background: var(--bg-card);
+  transition: border-color .15s, background .15s; min-height: 52px;
+}
+.bk-matrix-cell:hover { border-color: var(--accent); background: var(--bg-sidebar); }
+.bk-matrix-absent { cursor: default; opacity: .3; }
+.bk-matrix-absent:hover { border-color: var(--border) !important; background: var(--bg-card) !important; }
+.bk-matrix-num { font-size: 1.1em; font-weight: 700; color: var(--text); }
+.bk-matrix-count { font-size: .67em; color: var(--muted); margin-top: 2px; }
+.bk-nav-title { cursor: pointer; }
+.bk-nav-title:hover .bk-sarga-name { text-decoration: underline; }
+
 .bk-callout {
   flex: 1;
   border-left: 3px solid var(--accent);

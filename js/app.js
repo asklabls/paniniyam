@@ -209,8 +209,12 @@ const BK_SARGA_NAMES_DEV = {
   17:'सप्तदशः सर्गः', 18:'अष्टादशः सर्गः', 19:'ऊनविंशः सर्गः',
   20:'विंशः सर्गः', 21:'एकविंशः सर्गः',
 };
-let bkCurrentSarga = 1;
+let bkCurrentSarga = 0;   // 0 = matrix view
 const bkCache = {};
+const BK_SARGA_COUNTS = {
+  1:23, 2:48, 3:49, 4:30, 5:96, 6:123, 7:96, 8:115, 9:116, 10:67,
+  11:42, 12:81, 13:47, 14:120, 16:36, 17:101, 18:39, 19:27, 20:33, 21:34,
+};
 
 // Dhatu reader state
 let dhatuReaderList = [];
@@ -1267,7 +1271,7 @@ function buildBookEntry(book, nested = false) {
 
   if (book.type === 'bhattikavya-panel') {
     btn.classList.add('nav-book-leaf');
-    btn.addEventListener('click', () => { closeDrawer(); showBhattikavya(bkCurrentSarga); });
+    btn.addEventListener('click', () => { closeDrawer(); showBhattikavya(0); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -4984,8 +4988,13 @@ function renderParibhashaAll(sutras) {
 
 // ── Bhattikavya ───────────────────────────────────────────────────────────────
 async function showBhattikavya(sargaNum) {
-  sargaNum = sargaNum || bkCurrentSarga;
-  if (!BK_SARGAS.includes(sargaNum)) sargaNum = BK_SARGAS[0];
+  if (!sargaNum || !BK_SARGAS.includes(sargaNum)) {
+    bkCurrentSarga = 0;
+    history.replaceState({ book: 'bhattikavya' }, '', '?book=bhattikavya');
+    showBkMatrix();
+    showPanel('bhattikavya');
+    return;
+  }
   bkCurrentSarga = sargaNum;
   history.replaceState({ book: 'bhattikavya' }, '', `?book=bhattikavya&sarga=${sargaNum}`);
 
@@ -5019,6 +5028,49 @@ async function showBhattikavya(sargaNum) {
   });
 }
 
+function showBkMatrix() {
+  const panel = $panelBhattikavya;
+  panel.innerHTML = '';
+
+  // ── Header ──
+  const header = document.createElement('div');
+  header.className = 'bk-matrix-header';
+  const titleEl = document.createElement('div');
+  titleEl.className = 'bk-matrix-title dev-text';
+  titleEl._devText = 'भट्टिकाव्यम्';
+  titleEl.textContent = translit('भट्टिकाव्यम्');
+  header.appendChild(titleEl);
+  const subtitleEl = document.createElement('div');
+  subtitleEl.className = 'bk-matrix-subtitle';
+  subtitleEl.textContent = '22 sargas · 1323 ślokas · Jayamaṅgalā commentary';
+  header.appendChild(subtitleEl);
+  panel.appendChild(header);
+
+  // ── 6-column sarga grid (sargas 1–21; sarga 15 absent) ──
+  const grid = document.createElement('div');
+  grid.className = 'bk-matrix-grid';
+
+  for (let n = 1; n <= 21; n++) {
+    const cell = document.createElement('div');
+    const absent = n === 15;
+    cell.className = 'bk-matrix-cell' + (absent ? ' bk-matrix-absent' : '');
+    if (!absent) cell.addEventListener('click', () => showBhattikavya(n));
+
+    const numEl = document.createElement('div');
+    numEl.className = 'bk-matrix-num';
+    numEl.textContent = n;
+    cell.appendChild(numEl);
+
+    const countEl = document.createElement('div');
+    countEl.className = 'bk-matrix-count';
+    countEl.textContent = absent ? '—' : `${BK_SARGA_COUNTS[n]} ś`;
+    cell.appendChild(countEl);
+
+    grid.appendChild(cell);
+  }
+  panel.appendChild(grid);
+}
+
 function renderBkSarga(data) {
   const panel = $panelBhattikavya;
   panel.innerHTML = '';
@@ -5040,6 +5092,8 @@ function renderBkSarga(data) {
 
   const titleWrap = document.createElement('div');
   titleWrap.className = 'bk-nav-title';
+  titleWrap.title = 'Back to sarga list';
+  titleWrap.addEventListener('click', () => showBhattikavya(0));
   const nameEl = document.createElement('span');
   nameEl.className = 'bk-sarga-name dev-text';
   nameEl._devText = data.name;
@@ -5808,7 +5862,7 @@ async function init() {
       } else if (urlBook === 'visuals') {
         await showVisualLibrary();
       } else if (urlBook === 'bhattikavya') {
-        const sargaParam = parseInt(params.get('sarga')) || 1;
+        const sargaParam = parseInt(params.get('sarga')) || 0;
         await showBhattikavya(sargaParam);
       } else {
         // Search top-level leaf books, then sub-tree children
