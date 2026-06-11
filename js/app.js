@@ -46,7 +46,7 @@ const BOOKS = [
         ]
       },
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
-      { id: 'paribhasha', devName: 'परिभाषाः',      engName: 'Paribhāṣās',    type: 'leaf' },
+      { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
       { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
     ]
   },
@@ -1414,7 +1414,7 @@ async function handleLeafClick(book, btn) {
       const j = await r.json();
       renderParibhashaAll(j.sutras || []);
     } catch (_) {
-      setListHeader('परिभाषाः', '');
+      setListHeader('पारिभाषिक', '');
       $sutraList.innerHTML = `<p style="padding:16px;color:var(--muted)">Paribhasha data not available.</p>`;
       showPanel('list');
     }
@@ -4862,10 +4862,34 @@ function renderLingaAll(acData, privateEntries) {
 
 // ── Paribhasha ────────────────────────────────────────────────────────────────
 function renderParibhashaAll(sutras) {
+  const displaySutras = sutras.filter(e => e.id !== 0);
   $sutraList.innerHTML = '';
-  setListHeader('परिभाषाः', `${sutras.length} paribhāṣās`);
+  setListHeader('पारिभाषिक', `${displaySutras.length} paribhāṣās`);
 
-  for (const e of sutras) {
+  const bhumika = sutras.find(e => e.id === 0);
+  if (bhumika) {
+    const callout = document.createElement('div');
+    callout.className = 'paribhasha-bhumika';
+    const label = document.createElement('div');
+    label.className = 'paribhasha-bhumika-label dev-text';
+    label._devText = 'भूमिका';
+    label.textContent = translit('भूमिका');
+    callout.appendChild(label);
+    if (bhumika.source) {
+      const src = devEl('div', 'paribhasha-bhumika-source', bhumika.source);
+      callout.appendChild(src);
+    }
+    if (bhumika.vyakhya) {
+      const body = document.createElement('div');
+      body.className = 'commentary-panel paribhasha-bhumika-body';
+      body._rawCommentary = bhumika.vyakhya;
+      setCommentaryHTML(body, bhumika.vyakhya);
+      callout.appendChild(body);
+    }
+    $sutraList.appendChild(callout);
+  }
+
+  for (const e of displaySutras) {
     const card = document.createElement('div');
     card.className = 'sutra-card';
 

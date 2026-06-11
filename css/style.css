@@ -1661,6 +1661,25 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   .bar-ref { min-width: 54px; font-size: .76em; }
 }
 
+/* ── Paribhasha भूमिका callout ─────────────────────────────────────────────── */
+.paribhasha-bhumika {
+  margin: 12px 12px 4px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--card-bg);
+}
+.paribhasha-bhumika-label {
+  font-size: .72em; font-weight: 700; letter-spacing: .08em;
+  color: var(--accent); margin-bottom: 6px;
+}
+.paribhasha-bhumika-source {
+  font-size: .85em; color: var(--muted); margin-bottom: 6px;
+}
+.paribhasha-bhumika-body {
+  font-size: .95em; line-height: 1.7; color: var(--text);
+}
+
 /* ── Varnochchaaran Shiksha panel ──────────────────────────────────────────── */
 .panel-varnochchaaran {
   max-width: 760px;
