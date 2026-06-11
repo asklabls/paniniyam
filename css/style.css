@@ -1974,30 +1974,20 @@ body.vlib-active #app { overflow: hidden; }
 .bk-nav-btn { font-size: .9em; }
 .bk-list { padding: 10px 12px 60px; }
 .bk-verse { white-space: pre-line; line-height: 1.65; }
-/* Sarga matrix */
-.bk-matrix-header {
-  padding: 7px 14px; border-bottom: 1px solid var(--border);
-  background: var(--bg-card);
+/* Sarga matrix popup */
+.bk-matrix {
+  position: fixed;
+  bottom: calc(var(--bar-h) + 6px);
+  left: 8px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 28px rgba(0,0,0,.28);
+  z-index: 600; padding: 0; overflow: hidden;
+  display: none; flex-direction: column;
 }
-.bk-matrix-label {
-  font-size: .8em; font-weight: 600; color: var(--muted);
-}
-.bk-matrix-grid {
-  display: grid; grid-template-columns: repeat(6, 1fr);
-}
-.bk-matrix-cell {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 7px 4px;
-  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  cursor: pointer; background: transparent;
-  transition: background .12s, color .12s;
-}
-.bk-matrix-cell:nth-child(6n) { border-right: none; }
-.bk-matrix-cell:hover { background: var(--hover-bg); color: var(--accent); }
-.bk-matrix-cell:hover .bk-matrix-num { color: var(--accent); }
-.bk-matrix-absent { cursor: default; opacity: .3; pointer-events: none; }
-.bk-matrix-num { font-size: .9em; font-weight: 600; color: var(--text); }
-.bk-matrix-count { font-size: .65em; color: var(--muted); margin-top: 1px; }
+.bk-matrix.open { display: flex; }
+.bk-cell-absent { opacity: .3; cursor: default; }
 .bk-nav-title { cursor: pointer; }
 .bk-nav-title:hover .bk-sarga-name { text-decoration: underline; }
 
