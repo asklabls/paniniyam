@@ -1342,6 +1342,10 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showAvyayaPanel(); };
       } else if (page.type === 'pratyaya-page') {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
+      } else if (page.type === 'bhattikavya-panel') {
+        clickFn = () => { closeDrawer(); openBkMatrix(); };
+      } else if (page.type === 'shabda-browser') {
+        clickFn = () => { closeDrawer(); showShabdaBrowser(); };
       } else {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       }
