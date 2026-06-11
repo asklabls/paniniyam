@@ -11,9 +11,9 @@ paniniyam/
 ├── terms.html              # Terms of Use page
 ├── copyright.html          # Copyright page
 ├── contact.html            # Contact Us page
-├── css/style.css           # All styles (v93)
+├── css/style.css           # All styles (v95)
 ├── js/
-│   ├── app.js              # All app logic (~6000 lines, v163)
+│   ├── app.js              # All app logic (~6000 lines, v167)
 │   └── sanscript.js        # Transliteration library (do not edit)
 ├── forms/
 │   ├── pratyaya.txt        # Pratyaya reference table (pipe-delimited, see format below)
@@ -210,7 +210,7 @@ Each segment: `{t, v, ...}`
 - `VISUAL_CATEGORIES` — ordered list of `{ id, label, prefix }` for tab display
 - `showVisualLibrary()` — renders category tabs + SVG card grid from `conceptsIndex`
 - `showVisualDetail(term, entry)` — full-size SVG view with back button
-- SVGs loaded from `DIAGRAM_BASE/{entry.path}`; retransliterated on script change
+- SVGs loaded from `DIAGRAM_BASE/{entry.path}`; retransliterated to Indic scripts on script change; Roman schemes keep Devanagari (see Concept SVG retransliteration rule)
 
 ### SVG pipeline (`convert_visuals.py` in paniniyam-private)
 - Strips `<style class="style-fonts">` (~900KB base64 font), removes white `<rect>`, replaces font-family
@@ -317,6 +317,9 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 ### Search
 - `SEARCH_CAP = 75` — max results per book/group
 - Searches across Ashtadhyayi (silently includes Pravachanam artha/hindi when loaded), Dhatupatha, or all books
+- `normalizeRoman(s)` — folds `ri` and `ru` (before consonant/end) to `r` for vocalic-r comparison; applied to both the query and `s.e` field so "vriddhi", "vruddhi", "vrddhi" all match the same sutras
+- `INDIC_RANGES` — Unicode block → Sanscript scheme map; `normalizeToDevanagari` auto-detects input script so typing Telugu while Devanagari is displayed still works correctly
+- Script/theme/about buttons now call `closeDrawer()` before toggling — previously `e.stopPropagation()` in those handlers blocked the search drawer from closing
 
 ### Lazy loading
 - `loadData(key, path)` fetches once, caches in `bookData[key]`
@@ -365,10 +368,19 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 - `॥ N ॥` appears twice per shloka: first = verse end, second = commentary end
 - Upload: `private/bhattikavya/` → R2 `bhattikavya/` (use boto3 S3 client, see session history)
 
+### Concept SVG retransliteration rule
+- Indic scripts (Telugu, Kannada, etc.) → transliterate SVG text (glyphs are comparable width to Devanagari, looks acceptable)
+- Roman schemes (ITRANS, HK, IAST, SLP1, etc.) → **keep Devanagari** in SVGs — Roman text is 3–4× wider per character (e.g. ऋ → RRRi) and overflows fixed SVG coordinates
+- `applyConceptSvgRetranslit(wrap)` checks `Sanscript.schemes[currentScript]?.isRomanScheme` to decide; same check in `retranslit()` for live script switching
+
+### Matrix popup behaviour (mobile)
+- All three popups (`.pada-matrix`, `.gana-matrix`, `.bk-matrix`) have `max-height: calc(100dvh - var(--bar-h) - 16px)` + `overflow-y: auto` — scroll when taller than viewport
+- `@media (max-width: 480px)`: `.pm-td-label` 88px, `.pm-th-corner` 88px, `.pm-th`/`.pm-cell` 52px — total pada-matrix ≈296px (fits 360px phone); `.bk-matrix .pm-cell` 42px — 7 cols ≈294px
+
 ### Cache busting
 - `index.html` loads `app.js?v=N` and `style.css?v=N`
 - Bump `N` in both tags on every push with user-visible changes
-- Current: `app.js?v=163`, `style.css?v=93`
+- Current: `app.js?v=167`, `style.css?v=95`
 
 ## Fonts
 - **Vesper Libre** — Sanskrit / Devanagari text (sutra text, commentary, meta block, nav labels)
@@ -441,7 +453,7 @@ cp -r visuals/prakaranas private/visuals/
 - **Bhattikavya panel**: 1323 shlokas across 20 sargas with Jayamaṅgalā commentary; sarga picker popup (3×7 grid, same style as pada/gana matrix); verse callouts for clean verses; `---` → footnote separator `<hr>`; sutra links in commentary; full retransliteration
 
 ### UI / UX
-- 11 scripts (**ITRANS default**): full retransliteration on every script change — Sanskrit, Hindi artha, siddhi prose, and inlined SVG text all retranslit
+- 11 scripts (**ITRANS default**): full retransliteration on every script change — Sanskrit, Hindi artha, siddhi prose retranslit; SVG diagrams retranslit to Indic scripts only (Roman schemes keep Devanagari — see rule above)
 - Top nav bar + left icon bar + slide-in drawers (nav left, search right)
 - **Nav structure**: Books sub-tree (Bhattikavya; Ramayanam to come) + References sub-tree (Pratyayas, Śabdarūpāvalī, Avyayas, Pāribhāṣika, Fiṭ Sūtras)
 - **Pada matrix popup**: ⊞ button in left bar + अष्टाध्यायी nav entry → proper table (adhyaya rows × pada columns) with sutra counts; click cell to jump to that pada; closes on outside click / Escape
