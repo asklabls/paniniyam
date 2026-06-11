@@ -132,7 +132,8 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: 0 8px 28px rgba(0,0,0,.28);
-  z-index: 600; padding: 0; overflow: hidden;
+  z-index: 600; padding: 0;
+  max-height: calc(100dvh - var(--bar-h) - 16px); overflow-y: auto;
   display: none; flex-direction: column;
 }
 .pada-matrix.open { display: flex; }
@@ -182,6 +183,7 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
   border-radius: var(--radius);
   box-shadow: 0 8px 28px rgba(0,0,0,.28);
   z-index: 600; padding: 8px;
+  max-height: calc(100dvh - var(--bar-h) - 16px); overflow-y: auto;
   display: none; flex-direction: column; gap: 6px;
 }
 .gana-matrix.open { display: flex; }
@@ -1983,7 +1985,8 @@ body.vlib-active #app { overflow: hidden; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: 0 8px 28px rgba(0,0,0,.28);
-  z-index: 600; padding: 0; overflow: hidden;
+  z-index: 600; padding: 0;
+  max-height: calc(100dvh - var(--bar-h) - 16px); overflow-y: auto;
   display: none; flex-direction: column;
 }
 .bk-matrix.open { display: flex; }
