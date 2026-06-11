@@ -908,6 +908,7 @@ $scriptDropdown.addEventListener('mouseleave', () => {
 // Click / tap toggle
 $scriptBtn.addEventListener('click', (e) => {
   e.stopPropagation();
+  if (activeDrawer && activeDrawer !== 'nav') closeDrawer();
   toggleScriptDropdown();
 });
 
@@ -2833,6 +2834,7 @@ function buildThemePicker() {
 
 document.getElementById('btn-theme').addEventListener('click', e => {
   e.stopPropagation();
+  if (activeDrawer && activeDrawer !== 'nav') closeDrawer();
   $themePicker.classList.toggle('open');
 });
 document.addEventListener('click', e => {
@@ -5320,7 +5322,7 @@ document.getElementById('btn-search').addEventListener('click', () => {
   setTimeout(() => $searchInput.focus(), 280);
 });
 // btn-script click handled inside buildScriptDropdown (hover + click toggle)
-document.getElementById('btn-about').addEventListener('click', () => showAbout());
+document.getElementById('btn-about').addEventListener('click', () => { closeDrawer(); showAbout(); });
 
 // Welcome footer legal links — open inline instead of navigating away
 document.querySelectorAll('.welcome-legal-link').forEach(a => {
