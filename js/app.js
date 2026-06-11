@@ -3837,6 +3837,16 @@ function buildSearchScopes() {
   if ($typeFilter) $typeFilter.style.display = searchScope === 'ashtadhyayi' ? '' : 'none';
 }
 
+// Normalize casual Roman romanization for e-field comparison.
+// Both 'ri' and 'ru' are common ways to write the vocalic-r (ṛ/ृ) informally
+// (e.g. "vriddhi" and "vruddhi" both mean वृद्धि). Fold them to 'r' before
+// a consonant or end-of-string so both spellings match the data's 'vruddhi' form.
+function normalizeRoman(s) {
+  return s.toLowerCase()
+    .replace(/ru(?=[^aeiou]|$)/g, 'r')
+    .replace(/ri(?=[^aeiou]|$)/g, 'r');
+}
+
 // Convert any script input to Devanagari for search comparison
 function normalizeToDevanagari(q) {
   if (!q || /^\d+$/.test(q)) return q;
@@ -3954,7 +3964,7 @@ function searchSutras(q) {
   const pravaData = bookData['pravachanam'];
   return sutraList.filter(s => {
     if (s.s.includes(dq) || (s.ss && s.ss.includes(dq)) ||
-        (s.e && s.e.toLowerCase().includes(lower)) ||
+        (s.e && normalizeRoman(s.e).includes(normalizeRoman(lower))) ||
         (s.ad && s.ad.includes(dq)) || (s.an && s.an.includes(dq))) return true;
     if (pravaData) {
       const p = pravaData[s.i];
