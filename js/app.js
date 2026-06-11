@@ -267,9 +267,13 @@ const $panelVisuals           = document.getElementById('panel-visuals');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
+// Vedic accent / extension codepoints that have no equivalents in other scripts
+const VEDIC_MARKS_RE = /[\u0951-\u0954\u1CD0-\u1CFF\uA8E0-\uA8F7]/g;
+
 function translit(text) {
   if (!text || typeof text !== 'string') return text || '';
   if (currentScript === 'devanagari') return text;
+  text = text.replace(VEDIC_MARKS_RE, '');
   try { return Sanscript.t(text, 'devanagari', currentScript); }
   catch (_) { return text; }
 }
@@ -277,7 +281,8 @@ function translit(text) {
 function translitMixed(text) {
   if (!text) return '';
   if (currentScript === 'devanagari') return text;
-  return text.replace(/[\u0900-\u097F]+/g, m => translit(m));
+  // Include Vedic Extension blocks so they're stripped rather than left as boxes
+  return text.replace(/[\u0900-\u097F\u1CD0-\u1CFF\uA8E0-\uA8F7]+/g, m => translit(m));
 }
 
 // ── Commentary markup helpers ─────────────────────────────────────────────────
