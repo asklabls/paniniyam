@@ -931,11 +931,17 @@ function retranslit() {
   document.querySelectorAll('.nav-label').forEach(el => {
     if (el._devText) el.textContent = translit(el._devText);
   });
+  const svgRoman = !!(Sanscript.schemes[currentScript]?.isRomanScheme);
   document.querySelectorAll('.dev-text').forEach(el => {
-    if (el._devText !== undefined) el.textContent = translit(el._devText);
+    if (el._devText === undefined) return;
+    // SVG text elements: revert to Devanagari for Roman schemes (fixed coords overflow)
+    if (svgRoman && el.closest('svg')) { el.textContent = el._devText; return; }
+    el.textContent = translit(el._devText);
   });
   document.querySelectorAll('.mixed-text').forEach(el => {
-    if (el._mixedText !== undefined) el.textContent = translitMixed(el._mixedText);
+    if (el._mixedText === undefined) return;
+    if (svgRoman && el.closest('svg')) { el.textContent = el._mixedText; return; }
+    el.textContent = translitMixed(el._mixedText);
   });
 
   // Sutra cards in list view
@@ -1905,15 +1911,20 @@ function applyConceptSvgRetranslit(wrap) {
   svgEl.removeAttribute('height');
   svgEl.style.width = '100%';
   svgEl.style.height = 'auto';
+  // Roman transliteration schemes (ITRANS, HK, IAST…) produce text 3–4× wider than
+  // Devanagari — fixed SVG coordinates can't accommodate it. Keep Devanagari for Roman
+  // schemes; only retranslit to other Indic scripts (Telugu, Kannada, etc.).
+  const svgUseDevanagari = currentScript === 'devanagari' ||
+    !!(Sanscript.schemes[currentScript]?.isRomanScheme);
   for (const el of svgEl.querySelectorAll('text[data-dev]')) {
     el._devText = el.textContent;
     el.classList.add('dev-text');
-    if (currentScript !== 'devanagari') el.textContent = translit(el.textContent);
+    if (!svgUseDevanagari) el.textContent = translit(el.textContent);
   }
   for (const el of svgEl.querySelectorAll('text[data-mixed]')) {
     el._mixedText = el.textContent;
     el.classList.add('mixed-text');
-    if (currentScript !== 'devanagari') el.textContent = translitMixed(el.textContent);
+    if (!svgUseDevanagari) el.textContent = translitMixed(el.textContent);
   }
 }
 
