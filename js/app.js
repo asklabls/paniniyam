@@ -229,7 +229,8 @@ const activeTabByGroup = {};
 // Drawer state
 let activeDrawer    = null;
 let hoverOpened     = false;   // true when drawer was opened by edge hover (not button click)
-let pinnedNav       = localStorage.getItem('nav-pinned') === '1';
+const _storedPin = localStorage.getItem('nav-pinned');
+let pinnedNav    = _storedPin !== null ? _storedPin === '1' : window.innerWidth >= 768;
 let aboutNavBuilt   = false;
 let currentPanel    = 'welcome';
 
