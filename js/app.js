@@ -299,50 +299,88 @@ function sutraRefToId(ref) {
 }
 
 function renderCommentaryHTML(raw) {
-  let html = '';
-  let buf  = '';
-  let i = 0;
+  if (!raw) return '<span class="no-data">n/a</span>';
 
-  function flush() {
-    if (!buf) return;
-    html += translit(buf);
-    buf = '';
-  }
+  // ── Inline renderer: handles <<>>, [[]], **bold**, plain text ─────────────
+  function renderInline(text) {
+    let html = '', buf = '', i = 0;
 
-  while (i < raw.length) {
-    if (raw[i] === '<' && raw[i + 1] === '<') {
-      const end = raw.indexOf('>>', i + 2);
-      if (end !== -1) {
-        flush();
-        const devText = raw.slice(i + 2, end);
-        const esc = devText.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-        html += `<span class="sutra-quote" data-dev="${esc}">${translit(devText)}</span>`;
-        i = end + 2;
-        continue;
-      }
-    }
-    if (raw[i] === '[' && raw[i + 1] === '[') {
-      const end = raw.indexOf(']]', i + 2);
-      if (end !== -1) {
-        flush();
-        const inner = raw.slice(i + 2, end);
-        const sid = sutraRefToId(inner);
-        if (sid) {
-          const display = devDigitsToAscii(inner.trim());
-          html += `<a class="sutra-link" data-id="${sid}" href="#">${display}</a>`;
+    function flush() {
+      if (!buf) return;
+      // Split on **bold** spans and transliterate each part
+      const parts = buf.split(/(\*\*[^*]+\*\*)/);
+      for (const part of parts) {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          html += `<strong>${translitMixed(part.slice(2, -2))}</strong>`;
         } else {
-          const term = inner.trim();
-          const esc = term.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-          html += `<a class="concept-link" data-concept="${esc}" href="#">${translit(term)}</a>`;
+          html += translitMixed(part);
         }
-        i = end + 2;
-        continue;
+      }
+      buf = '';
+    }
+
+    while (i < text.length) {
+      // <<sutra quote>>
+      if (text[i] === '<' && text[i+1] === '<') {
+        const end = text.indexOf('>>', i+2);
+        if (end !== -1) {
+          flush();
+          const devText = text.slice(i+2, end);
+          const esc = devText.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          html += `<span class="sutra-quote" data-dev="${esc}">${translit(devText)}</span>`;
+          i = end + 2; continue;
+        }
+      }
+      // [[ref]] or [[ref| display text]]
+      if (text[i] === '[' && text[i+1] === '[') {
+        const end = text.indexOf(']]', i+2);
+        if (end !== -1) {
+          flush();
+          const inner   = text.slice(i+2, end);
+          const pipeIdx = inner.indexOf('|');
+          const ref     = (pipeIdx >= 0 ? inner.slice(0, pipeIdx) : inner).trim();
+          const display = pipeIdx >= 0 ? inner.slice(pipeIdx+1).trim() : null;
+          const sid = sutraRefToId(ref);
+          if (sid) {
+            const label = display ? translitMixed(display) : devDigitsToAscii(ref);
+            html += `<a class="sutra-link" data-id="${sid}" href="#">${label}</a>`;
+          } else {
+            const esc = ref.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const label = display ? translitMixed(display) : translit(ref);
+            html += `<a class="concept-link" data-concept="${esc}" href="#">${label}</a>`;
+          }
+          i = end + 2; continue;
+        }
+      }
+      buf += text[i]; i++;
+    }
+    flush();
+    return html;
+  }
+
+  // ── Paragraph/heading renderer ─────────────────────────────────────────────
+  let html = '';
+  const paragraphs = raw.split(/\n{2,}/);
+
+  for (const para of paragraphs) {
+    const trimmed = para.trim();
+    if (!trimmed) continue;
+
+    let paraLines = '';
+    for (const line of trimmed.split('\n')) {
+      const t = line.trim();
+      if (!t) continue;
+      if (t.startsWith('### ')) {
+        // Flush accumulated paragraph lines before heading
+        if (paraLines) { html += `<p>${paraLines}</p>`; paraLines = ''; }
+        html += `<div class="commentary-heading">${renderInline(t.slice(4))}</div>`;
+      } else {
+        paraLines += (paraLines ? '<br>' : '') + renderInline(t);
       }
     }
-    buf += raw[i];
-    i++;
+    if (paraLines) html += `<p>${paraLines}</p>`;
   }
-  flush();
+
   return html || '<span class="no-data">n/a</span>';
 }
 

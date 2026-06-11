@@ -1679,6 +1679,9 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .paribhasha-bhumika-body {
   font-size: .95em; line-height: 1.7; color: var(--text);
 }
+.commentary-heading {
+  font-weight: 700; margin: 10px 0 4px; color: var(--fg);
+}
 
 /* ── Varnochchaaran Shiksha panel ──────────────────────────────────────────── */
 .panel-varnochchaaran {
