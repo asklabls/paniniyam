@@ -4904,30 +4904,10 @@ function renderParibhashaAll(sutras) {
   $sutraList.innerHTML = '';
   setListHeader('पारिभाषिक', `${displaySutras.length} paribhāṣās`);
 
-  const bhumika = sutras.find(e => e.id === 0);
-  if (bhumika) {
-    const callout = document.createElement('div');
-    callout.className = 'paribhasha-bhumika';
-    const label = document.createElement('div');
-    label.className = 'paribhasha-bhumika-label dev-text';
-    label._devText = 'भूमिका';
-    label.textContent = translit('भूमिका');
-    callout.appendChild(label);
-    if (bhumika.source) {
-      const src = devEl('div', 'paribhasha-bhumika-source', bhumika.source);
-      callout.appendChild(src);
-    }
-    if (bhumika.vyakhya) {
-      const body = document.createElement('div');
-      body.className = 'commentary-panel paribhasha-bhumika-body';
-      body._rawCommentary = bhumika.vyakhya;
-      setCommentaryHTML(body, bhumika.vyakhya);
-      callout.appendChild(body);
-    }
-    $sutraList.appendChild(callout);
-  }
+  // Render all entries (id=0 = भूमिका first, then numbered)
+  const allEntries = [...sutras.filter(e => e.id === 0), ...displaySutras];
 
-  for (const e of displaySutras) {
+  for (const e of allEntries) {
     const card = document.createElement('div');
     card.className = 'sutra-card';
 
@@ -4935,7 +4915,14 @@ function renderParibhashaAll(sutras) {
     row.className = 'sutra-row';
     const idEl = document.createElement('span');
     idEl.className = 'sutra-id';
-    idEl.textContent = e.id;
+    // id=0 shows "भूमिका" label instead of 0
+    if (e.id === 0) {
+      idEl.className += ' dev-text';
+      idEl._devText = 'भूमिका';
+      idEl.textContent = translit('भूमिका');
+    } else {
+      idEl.textContent = e.id;
+    }
     row.appendChild(idEl);
     row.appendChild(devEl('span', 'sutra-text', e.sutra));
 
