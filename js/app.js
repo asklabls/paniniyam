@@ -35,9 +35,12 @@ const BOOKS = [
       { id: 'varnochchaaran', devName: 'वर्णोच्चारण-शिक्षा', engName: 'Varṇoccāraṇa Śikṣā',  type: 'varnochchaaran-panel' },
     ]
   },
-  { id: 'shabda', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabda-browser', icon: 'शब्द' },
   { id: 'visuals', devName: 'Visuals', engName: 'Visuals', type: 'visual-library', icon: 'Vis' },
-  { id: 'bhattikavya', devName: 'भट्टिकाव्यम्', engName: 'Bhaṭṭikāvya', type: 'bhattikavya-panel', icon: 'भट्टि' },
+  { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
+    pages: [
+      { id: 'bhattikavya', devName: 'भट्टिकाव्यम्', engName: 'Bhaṭṭikāvya', type: 'bhattikavya-panel' },
+    ]
+  },
   { id: 'references', devName: 'References', engName: 'References', type: 'sub-tree', icon: 'Ref',
     pages: [
       { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree',
@@ -46,6 +49,7 @@ const BOOKS = [
           { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta', type: 'pratyaya-page' },
         ]
       },
+      { id: 'shabda',     devName: 'शब्दरूपावली',   engName: 'Śabdarūpāvalī', type: 'shabda-browser' },
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
       { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
       { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
