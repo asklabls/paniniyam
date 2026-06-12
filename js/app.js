@@ -1907,8 +1907,8 @@ async function showConceptPopup(el, term) {
 // IAST uses diacritics (same character count as Devanagari) — slight reduction is enough.
 // Roman multi-char schemes (ITRANS RRi, HK, SLP1…) keep Devanagari regardless.
 const SVG_FONT_SCALE = {
-  telugu: 0.82, kannada: 0.82, malayalam: 0.80, tamil: 0.82,
-  iast: 0.92,
+  telugu: 0.75, kannada: 0.75, malayalam: 0.75, tamil: 0.75,
+  iast: 0.82,
 };
 // Schemes where even scaling won't help — multi-char sequences expand text too much
 const SVG_ROMAN_SKIP = new Set([
