@@ -217,9 +217,68 @@ Each segment: `{t, v, ...}`
 - Marks `<text>` elements with `data-dev` / `data-mixed` for retransliteration
 - Adds `© paniniyam.com` watermark (font-size = 3.2% of SVG height)
 - `--force` flag reconverts even if local output already exists (use when updating vault SVGs)
+- `TEMPLATE_RE = re.compile(r'_template', re.IGNORECASE)` — skips any file with `_template` in name
 - Output: `visuals/{adhyaya}/{A.P.NNN}.svg` for sutras, `visuals/concepts/{cat}/{name}.svg` for concepts
 - Also generates `forms/concepts_index.json` after concept conversion
 - Local dev: after convert, copy `visuals/concepts/` and `visuals/prakaranas/` into `private/visuals/`
+
+**Full pipeline order** (vault → live):
+```
+1. Edit diagram in Excalidraw (vault auto-exports SVG)
+2. normalize_svg.py path/to/diagram.svg   ← only if old diagram with large fonts
+3. convert_visuals.py --no-sutras --upload --force
+4. commit + push forms/concepts_index.json if changed
+5. cp -r visuals/concepts private/visuals/   ← local dev only
+```
+
+### normalize_svg.py (paniniyam-private/scripts)
+Scales Excalidraw SVGs so dominant font = 28px. Only needed for old diagrams drawn
+at low zoom (fonts 60–100px). New diagrams drawn with Large (28px) preset are a no-op.
+```bash
+python3 scripts/normalize_svg.py path/to/diagram.svg        # single file
+python3 scripts/normalize_svg.py path/to/folder/ --dry-run  # preview folder
+python3 scripts/normalize_svg.py path/to/folder/            # run folder
+```
+⚠️ Always --dry-run first on folders. Never run on full vault — complex annotated
+diagrams with intentional mixed font sizes will be distorted by uniform scaling.
+
+### Excalidraw diagram design standard (for paniniyam.com)
+All new concept/prakarana diagrams must follow this standard for correct multi-script rendering:
+
+**Setup**: run **Paniniyam Setup** script (`Excalidraw/Scripts/Paniniyam Setup.md`) on every
+new file — sets 200px grid and default font to 28px in one step.
+
+**Font sizes**:
+| Use | Excalidraw preset | SVG export |
+|---|---|---|
+| Primary letters/terms | Large (28px) | 28px |
+| Secondary labels/headers | Medium (20px) | 20px |
+| Never use | Extra Large (36px) for dense content | — |
+
+**Cell sizes** (on 20px minor grid):
+| Content | Cell size | Notes |
+|---|---|---|
+| Single letter (consonant, vowel) | **40 × 40px** | 5 cells = 200px = 1 major grid unit |
+| Short term (2–3 syllables) | **80 × 40px** or **100 × 40px** | width varies, height stays 40px |
+| Header / title | **120 × 40px** or wider | — |
+
+**Cell structure** (for auto-resize support):
+- Draw a **rectangle** (`R`) for each cell
+- Type the **text** (`T`) inside it
+- Select both → `Ctrl+G` to group
+- Rectangle stroke/fill can be anything — transparent/invisible is fine
+- This gives the browser a `<rect>` to resize when ITRANS/other scripts expand text width
+
+**Canvas sizes**:
+| Layout | Canvas |
+|---|---|
+| Standard concept card | 800 × 1200 (4×6 at 200px) |
+| Complex / double-tall | 800 × 2400 (4×12) |
+| Wide grid | 1200 × 800 (6×4) |
+
+**Why the old diagrams are a problem**: drawn at low zoom → fonts 60–100px, no grouped
+rect+text structure → font-scaling workaround (0.75 Indic, 0.42 ITRANS) is the fallback.
+New diagrams with the above standard will auto-resize cleanly across all scripts.
 
 ### Sutra card data fields (from `sutraani/data.txt`)
 | Field | Meaning | Example |
@@ -368,11 +427,6 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 - `॥ N ॥` appears twice per shloka: first = verse end, second = commentary end
 - Upload: `private/bhattikavya/` → R2 `bhattikavya/` (use boto3 S3 client, see session history)
 
-### Concept SVG retransliteration rule
-- Indic scripts (Telugu, Kannada, etc.) → transliterate SVG text (glyphs are comparable width to Devanagari, looks acceptable)
-- Roman schemes (ITRANS, HK, IAST, SLP1, etc.) → **keep Devanagari** in SVGs — Roman text is 3–4× wider per character (e.g. ऋ → RRRi) and overflows fixed SVG coordinates
-- `applyConceptSvgRetranslit(wrap)` checks `Sanscript.schemes[currentScript]?.isRomanScheme` to decide; same check in `retranslit()` for live script switching
-
 ### Matrix popup behaviour (mobile)
 - All three popups (`.pada-matrix`, `.gana-matrix`, `.bk-matrix`) have `max-height: calc(100dvh - var(--bar-h) - 16px)` + `overflow-y: auto` — scroll when taller than viewport
 - `@media (max-width: 480px)`: `.pm-td-label` 88px, `.pm-th-corner` 88px, `.pm-th`/`.pm-cell` 52px — total pada-matrix ≈296px (fits 360px phone); `.bk-matrix .pm-cell` 42px — 7 cols ≈294px
@@ -380,7 +434,7 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 ### Cache busting
 - `index.html` loads `app.js?v=N` and `style.css?v=N`
 - Bump `N` in both tags on every push with user-visible changes
-- Current: `app.js?v=167`, `style.css?v=95`
+- Current: `app.js?v=171`, `style.css?v=95`
 
 ## Fonts
 - **Vesper Libre** — Sanskrit / Devanagari text (sutra text, commentary, meta block, nav labels)
@@ -525,10 +579,23 @@ cp -r visuals/prakaranas private/visuals/
 ### Excalidraw / Obsidian Integration (decided)
 - **Static SVG exports only** — no live Excalidraw embeds
 - Obsidian vault already auto-exports SVGs (`excalidraw-autoexport: svg`)
-- Workflow: update diagram in Obsidian → run `convert_visuals.py --force --upload` → live on R2
-- SVG cards being standardised to **4×6 or 3×4 at 200px grid** for visual consistency
+- Workflow: see **Full pipeline order** in SVG pipeline section above
 - Sutra diagrams: `visuals/{adhyaya}/{A.P.NNN}.svg` (shown in sutra reader when available)
 - Concept/prakarana diagrams: browsable via Visual Library + popup on `[[concept]]` links
+- **Paniniyam Setup script**: `_anant_vault/Excalidraw/Scripts/Paniniyam Setup.md`
+  Sets 200px grid + default font 28px. Run on every new diagram file. Also resizes
+  selected text elements to 28px in bulk (for fixing old diagrams in Excalidraw).
+
+### Concept SVG retransliteration rule
+- Indic scripts (Telugu, Kannada, Malayalam, Tamil) → transliterate, scale font 0.75
+- ITRANS / HK / SLP1 / Velthuis / WX etc. → transliterate, scale font 0.42–0.52
+- IAST → keep Devanagari (SVG fonts lack IAST diacritics — ā ī ṛ render as boxes)
+- Devanagari → native, no scaling
+- `SVG_FONT_SCALE` — per-scheme scale factors in app.js
+- `SVG_ROMAN_SKIP` — schemes that keep Devanagari in SVGs (currently: iast, iast_dravidian)
+- `_svgUseDevanagari()` — returns true if current script should show Devanagari in SVGs
+- `_applySvgEl(el, devText, isDevType)` — applies text + font-size to one SVG text element
+- `applyConceptSvgRetranslit(wrap)` — retransliterates all data-dev/data-mixed elements in an inlined SVG
 
 ### Gmail Login / Notes (planned — Phase 4)
 - Google OAuth — no password management needed
