@@ -1908,15 +1908,14 @@ async function showConceptPopup(el, term) {
 // Roman multi-char schemes (ITRANS RRi, HK, SLP1…) keep Devanagari regardless.
 const SVG_FONT_SCALE = {
   telugu: 0.75, kannada: 0.75, malayalam: 0.75, tamil: 0.75,
-  iast: 0.82,
   itrans: 0.42, itrans_lowercase: 0.42, itrans_dravidian: 0.42,
   hk: 0.48, hk_dravidian: 0.48,
   slp1: 0.50, slp1_accented: 0.50,
   velthuis: 0.48, wx: 0.52, optitrans: 0.44, optitrans_dravidian: 0.44,
   kolkata_v2: 0.48, baraha: 0.48, titus: 0.48,
 };
-// Roman schemes that stay Devanagari — none currently; all are scaled above instead
-const SVG_ROMAN_SKIP = new Set([]);
+// Roman schemes that stay Devanagari in SVGs — fonts don't include their diacritics/encodings
+const SVG_ROMAN_SKIP = new Set(['iast', 'iast_dravidian']);
 
 function _svgUseDevanagari() {
   if (currentScript === 'devanagari') return true;
