@@ -1909,13 +1909,14 @@ async function showConceptPopup(el, term) {
 const SVG_FONT_SCALE = {
   telugu: 0.75, kannada: 0.75, malayalam: 0.75, tamil: 0.75,
   iast: 0.82,
+  itrans: 0.42, itrans_lowercase: 0.42, itrans_dravidian: 0.42,
+  hk: 0.48, hk_dravidian: 0.48,
+  slp1: 0.50, slp1_accented: 0.50,
+  velthuis: 0.48, wx: 0.52, optitrans: 0.44, optitrans_dravidian: 0.44,
+  kolkata_v2: 0.48, baraha: 0.48, titus: 0.48,
 };
-// Schemes where even scaling won't help — multi-char sequences expand text too much
-const SVG_ROMAN_SKIP = new Set([
-  'itrans','itrans_lowercase','itrans_dravidian','hk','hk_dravidian',
-  'slp1','slp1_accented','velthuis','wx','optitrans','optitrans_dravidian',
-  'kolkata_v2','baraha','titus',
-]);
+// Roman schemes that stay Devanagari — none currently; all are scaled above instead
+const SVG_ROMAN_SKIP = new Set([]);
 
 function _svgUseDevanagari() {
   if (currentScript === 'devanagari') return true;
