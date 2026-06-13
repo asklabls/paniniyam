@@ -1622,43 +1622,7 @@ async function renderPravachanamTab(panel, sutraId) {
   if (!PRIVATE_BASE) { panel.textContent = '—'; return; }
   const data = await loadArthaData();
   const entry = data?.[sutraId];
-  if (!entry?.pv && !entry?.a && !entry?.h) { panel.textContent = '—'; return; }
-  if (entry.pv) {
-    const row = document.createElement('div');
-    row.className = 'prav-row prav-pv';
-    const lbl = document.createElement('span');
-    lbl.className = 'prav-lbl dev-text';
-    lbl._devText = 'प०वि०';
-    lbl.textContent = translit('प०वि०');
-    const val = document.createElement('span');
-    val.className = 'prav-val pv-tokens';
-    entry.pv.split('##').forEach((tok, idx) => {
-      if (idx > 0) val.appendChild(document.createTextNode(' '));
-      const parts = tok.split('$');
-      const word = parts[0];
-      const wordEl = document.createElement('span');
-      wordEl.className = 'dev-text';
-      wordEl._devText = word;
-      wordEl.textContent = translit(word);
-      val.appendChild(wordEl);
-      if (parts.length >= 3) {
-        const vib = parseInt(parts[1]);
-        const vac = parseInt(parts[2]);
-        const label = parts[3] || '';
-        const DEV = '०१२३४५६७८९';
-        const gram = vib === 0 ? (label || 'अव्य०')
-                   : vac       ? `${DEV[vib]}/${DEV[vac]}`
-                   :             DEV[vib];
-        const sup = document.createElement('sup');
-        sup.className = 'pv-sup';
-        sup.textContent = gram;
-        val.appendChild(sup);
-      }
-    });
-    row.appendChild(lbl);
-    row.appendChild(val);
-    panel.appendChild(row);
-  }
+  if (!entry?.a && !entry?.h) { panel.textContent = '—'; return; }
   if (entry.a) {
     const row = document.createElement('div');
     row.className = 'prav-row';
