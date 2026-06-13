@@ -2,6 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  --font-dev:   'Tiro Devanagari Sanskrit', 'Noto Sans Devanagari', serif;
   --bar-h:      50px;
   --bg:         #fdf8f0;
   --bg-sidebar: #f5efe2;
@@ -61,17 +62,17 @@
 }
 
 html, body { height: 100%; overflow: hidden; }
-body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
+body { font-family: var(--font-dev);
        background: var(--bg); color: var(--text); font-size: 15px; }
 
-/* Sanskrit / Indic text — Vesper Libre where it counts */
+/* Sanskrit / Indic text — Tiro Devanagari Sanskrit */
 .sutra-text, .detail-sutra-full, .detail-split,
 .nav-label, .nav-book-btn, .nav-adhyaya-btn, .nav-pada-btn, .nav-section-btn,
 .meta-label, .meta-value, .pc-word, .pc-gram,
 .detail-anuvritta, .commentary-text, .gana-words,
 .detail-sanskrit, .reader-sutra-text,
 .about-title, .sri-text {
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
 }
 
 /* ── App area ─────────────────────────────────────────────────── */
@@ -146,7 +147,7 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
 .pm-th {
   padding: 7px 12px; text-align: center;
   font-size: .8em; font-weight: 600; color: var(--muted);
-  font-family: 'Vesper Libre', serif;
+  font-family: var(--font-dev);
   border-right: 1px solid var(--border);
   min-width: 72px;
 }
@@ -157,7 +158,7 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
 .pm-td-label {
   min-width: 130px; padding: 7px 12px;
   font-size: .82em; color: var(--text);
-  font-family: 'Vesper Libre', serif;
+  font-family: var(--font-dev);
   border-right: 1px solid var(--border);
   display: flex; align-items: center;
 }
@@ -189,7 +190,7 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
 .gana-matrix.open { display: flex; }
 .gm-caption {
   text-align: center; font-size: .7em; color: var(--muted);
-  font-family: 'Vesper Libre', serif; letter-spacing: .04em;
+  font-family: var(--font-dev); letter-spacing: .04em;
 }
 .gm-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
@@ -208,7 +209,7 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
 }
 .gm-name {
   font-size: .85em; font-weight: 600; color: var(--text);
-  font-family: 'Vesper Libre', serif;
+  font-family: var(--font-dev);
 }
 .gm-cell:hover .gm-name { color: var(--accent); }
 .gm-count {
@@ -239,7 +240,7 @@ body { font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
 .icon-bar-btn.active { background: #e8d8c0; }
 .icon-bar-char {
   font-size: .92em; font-weight: 700; color: var(--text); line-height: 1;
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
   pointer-events: none;
   letter-spacing: .01em;
 }
@@ -355,7 +356,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   border: 1px solid var(--border); background: var(--bg-card);
   border-radius: 12px; padding: 3px 10px;
   font-size: .78em; cursor: pointer; color: var(--muted);
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
   transition: background .12s, color .12s, border-color .12s;
   white-space: nowrap;
 }
@@ -365,7 +366,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   border: 1px solid var(--border); background: var(--bg-card);
   border-radius: 12px; padding: 3px 8px;
   font-size: .78em; color: var(--muted); cursor: pointer;
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
   appearance: none; -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 7px center;
@@ -514,7 +515,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .welcome-title {
   font-size: 2.4em; font-weight: 700; color: var(--accent);
   letter-spacing: .03em; margin-bottom: 14px;
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
 }
 .welcome-sub { color: var(--muted); line-height: 1.7; margin-bottom: 22px; }
 .welcome-stats { font-size: .85em; color: var(--muted); margin-bottom: 20px; }
@@ -605,7 +606,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   border-bottom: 2px solid var(--border);
 }
 .list-title { font-size: 1.1em; font-weight: 700; color: var(--accent);
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif; }
+  font-family: var(--font-dev); }
 .list-count  { font-size: .8em; color: var(--muted); }
 
 /* ── Sutra card ───────────────────────────────────────────────── */
@@ -938,7 +939,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .dhatu-artha { font-size: .78em; color: var(--muted); font-style: italic; }
 .dhatu-strip {
   font-size: .85em; color: var(--muted); margin-bottom: 10px;
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
 }
 .upasarga-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -950,7 +951,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   display: flex; flex-direction: column; gap: 2px;
 }
 .upasarga-name    { font-size: .92em; color: var(--accent); font-weight: 600;
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif; }
+  font-family: var(--font-dev); }
 .upasarga-meaning { font-size: .78em; color: var(--muted); }
 
 /* ── Gana words ───────────────────────────────────────────────── */
@@ -977,7 +978,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .about-title {
   font-size: 1.5em; font-weight: 700; color: var(--accent);
   margin-bottom: 10px;
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
 }
 .about-intro { color: var(--muted); line-height: 1.7; margin-bottom: 18px; font-size: .95em; }
 .about-card {
@@ -996,7 +997,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 
 /* Guru cards */
 .about-guru-name {
-  font-family: 'Vesper Libre', 'Noto Sans Devanagari', serif;
+  font-family: var(--font-dev);
   font-size: 1.1em; font-weight: 700;
   color: var(--text); margin-bottom: 3px;
 }
