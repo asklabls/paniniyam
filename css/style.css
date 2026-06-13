@@ -1438,6 +1438,12 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-size: .88em;
   color: #555;
 }
+.pv-tokens { line-height: 1.9; }
+.pv-sup {
+  font-size: .62em;
+  color: var(--muted);
+  vertical-align: super;
+}
 
 /* ── Shabda browser ───────────────────────────────────────────── */
 .panel-shabda { padding: 0 0 80px; }

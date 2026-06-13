@@ -1090,9 +1090,37 @@ function buildSutraMeta(sutra) {
     val.appendChild(dash);
   }
 
-  // पदच्छेदः
+  // पदच्छेदः — prefer pv from pravachanam.json (vibhakti superscripts), fall back to pc
   addRow('पदच्छेदः', val => {
-    if (sutra.pc) {
+    const pvStr = bookData['pravachanam']?.[sutra.i]?.pv;
+    if (pvStr) {
+      pvStr.split('##').forEach((tok, idx) => {
+        if (idx > 0) val.appendChild(document.createTextNode(' '));
+        const parts = tok.split('$');
+        const word = parts[0];
+        const wordEl = document.createElement('span');
+        wordEl.className = 'pc-word dev-text';
+        wordEl._devText = word;
+        wordEl.textContent = translit(word);
+        val.appendChild(wordEl);
+        if (parts.length >= 3) {
+          const vib = parseInt(parts[1]);
+          const vac = parseInt(parts[2]);
+          const extraLabel = parts[3] || '';
+          let supText;
+          if (vib === 0) {
+            supText = extraLabel || 'अव्ययम्';
+          } else {
+            supText = vac ? `${VIBHAKTI_DEV[vib]}-${VACANA_DEV[vac]}` : VIBHAKTI_DEV[vib];
+          }
+          const sup = document.createElement('sup');
+          sup.className = 'dev-text pv-sup';
+          sup._devText = supText;
+          sup.textContent = translit(supText);
+          val.appendChild(sup);
+        }
+      });
+    } else if (sutra.pc) {
       sutra.pc.split('##').filter(Boolean).forEach((part, idx) => {
         const bits = part.split('$');
         const word = bits[0];
@@ -1597,7 +1625,46 @@ async function renderPravachanamTab(panel, sutraId) {
   if (!PRIVATE_BASE) { panel.textContent = '—'; return; }
   const data = await loadArthaData();
   const entry = data?.[sutraId];
-  if (!entry?.a && !entry?.h) { panel.textContent = '—'; return; }
+  if (!entry?.pv && !entry?.a && !entry?.h) { panel.textContent = '—'; return; }
+  if (entry.pv) {
+    const row = document.createElement('div');
+    row.className = 'prav-row prav-pv';
+    const lbl = document.createElement('span');
+    lbl.className = 'prav-lbl dev-text';
+    lbl._devText = 'प०वि०';
+    lbl.textContent = translit('प०वि०');
+    const val = document.createElement('span');
+    val.className = 'prav-val pv-tokens';
+    entry.pv.split('##').forEach((tok, idx) => {
+      if (idx > 0) val.appendChild(document.createTextNode(' '));
+      const parts = tok.split('$');
+      const word = parts[0];
+      const wordEl = document.createElement('span');
+      wordEl.className = 'dev-text';
+      wordEl._devText = word;
+      wordEl.textContent = translit(word);
+      val.appendChild(wordEl);
+      if (parts.length >= 3) {
+        const vib = parseInt(parts[1]);
+        const vac = parseInt(parts[2]);
+        const extraLabel = parts[3] || '';
+        let supText;
+        if (vib === 0) {
+          supText = extraLabel || 'अव्ययम्';
+        } else {
+          supText = vac ? `${VIBHAKTI_DEV[vib]}-${VACANA_DEV[vac]}` : VIBHAKTI_DEV[vib];
+        }
+        const sup = document.createElement('sup');
+        sup.className = 'dev-text pv-sup';
+        sup._devText = supText;
+        sup.textContent = translit(supText);
+        val.appendChild(sup);
+      }
+    });
+    row.appendChild(lbl);
+    row.appendChild(val);
+    panel.appendChild(row);
+  }
   if (entry.a) {
     const row = document.createElement('div');
     row.className = 'prav-row';
@@ -2379,6 +2446,7 @@ function showPada(a, p, btnEl) {
   currentPada = { a, p };
   activeCard  = null;
   if (btnEl) setActiveNavBtn(btnEl);
+  loadArthaData();   // prefetch pravachanam.json in background
 
   const filtered = sutraList.filter(s => +s.a === +a && +s.p === +p);
 
