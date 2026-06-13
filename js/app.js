@@ -1090,7 +1090,7 @@ function buildSutraMeta(sutra) {
     val.appendChild(dash);
   }
 
-  // पदच्छेदः — prefer pv from pravachanam.json (vibhakti superscripts), fall back to pc
+  // पदच्छेदः — prefer pv from pravachanam.json (१/१ superscript), fall back to pc
   addRow('पदच्छेदः', val => {
     const pvStr = bookData['pravachanam']?.[sutra.i]?.pv;
     if (pvStr) {
@@ -1106,17 +1106,14 @@ function buildSutraMeta(sutra) {
         if (parts.length >= 3) {
           const vib = parseInt(parts[1]);
           const vac = parseInt(parts[2]);
-          const extraLabel = parts[3] || '';
-          let supText;
-          if (vib === 0) {
-            supText = extraLabel || 'अव्ययम्';
-          } else {
-            supText = vac ? `${VIBHAKTI_DEV[vib]}-${VACANA_DEV[vac]}` : VIBHAKTI_DEV[vib];
-          }
+          const label = parts[3] || '';
+          const DEV = '०१२३४५६७८९';
+          const gram = vib === 0 ? (label || 'अव्य०')
+                     : vac       ? `${DEV[vib]}/${DEV[vac]}`
+                     :             DEV[vib];
           const sup = document.createElement('sup');
-          sup.className = 'dev-text pv-sup';
-          sup._devText = supText;
-          sup.textContent = translit(supText);
+          sup.className = 'pv-sup';
+          sup.textContent = gram;
           val.appendChild(sup);
         }
       });
@@ -1647,17 +1644,14 @@ async function renderPravachanamTab(panel, sutraId) {
       if (parts.length >= 3) {
         const vib = parseInt(parts[1]);
         const vac = parseInt(parts[2]);
-        const extraLabel = parts[3] || '';
-        let supText;
-        if (vib === 0) {
-          supText = extraLabel || 'अव्ययम्';
-        } else {
-          supText = vac ? `${VIBHAKTI_DEV[vib]}-${VACANA_DEV[vac]}` : VIBHAKTI_DEV[vib];
-        }
+        const label = parts[3] || '';
+        const DEV = '०१२३४५६७८९';
+        const gram = vib === 0 ? (label || 'अव्य०')
+                   : vac       ? `${DEV[vib]}/${DEV[vac]}`
+                   :             DEV[vib];
         const sup = document.createElement('sup');
-        sup.className = 'dev-text pv-sup';
-        sup._devText = supText;
-        sup.textContent = translit(supText);
+        sup.className = 'pv-sup';
+        sup.textContent = gram;
         val.appendChild(sup);
       }
     });

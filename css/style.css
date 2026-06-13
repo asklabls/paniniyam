@@ -1440,7 +1440,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .pv-tokens { line-height: 1.9; }
 .pv-sup {
-  font-size: .62em;
+  font-size: .65em;
   color: var(--muted);
   vertical-align: super;
 }
