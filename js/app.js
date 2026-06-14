@@ -4933,9 +4933,9 @@ function renderGanaList(data) {
 // ── Unaadi ────────────────────────────────────────────────────────────────────
 // Commentary tabs shown inside each expanded unaadi sutra card
 const UNAADI_TABS = [
-  { id: 'sk',  label: 'स्वा०द०वृ०'   },  // open-source (ashtadhyayi.com data)
-  { id: 'sh',  label: 'आ० सत्यव्रत'  },  // UnadiKosha-San-Hin-Commentary (R2)
-  { id: 'uk',  label: 'अर्थः'         },  // unadi-kosha OCR (future)
+  { id: 'sk',  label: 'स्वामिदयानन्दः'         },  // open-source (ashtadhyayi.com data)
+  { id: 'sh',  label: 'आ० सत्यव्रत'             },  // UnadiKosha-San-Hin-Commentary (R2)
+  { id: 'uk',  label: 'सोमलेखा / प० ईश्वरचन्द' },  // unadi-kosha OCR (future)
 ];
 
 // Structured field labels within the San-Hin tab
