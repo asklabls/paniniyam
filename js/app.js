@@ -1546,14 +1546,16 @@ async function handleLeafClick(book, btn) {
       case 'shivasutra':      renderShivaSutra(data);    break;
       case 'ganapatha':       renderGanaList(data);      break;
       case 'unaadi': {
-        let unaadiSanHin = null;
+        let unaadiSanHin = null, unaadiSatyavrata = null;
         if (PRIVATE_BASE) {
-          try {
-            const r = await fetch(`${PRIVATE_BASE}/unaadi_san_hin.json`);
-            if (r.ok) unaadiSanHin = await r.json();
-          } catch (_) {}
+          const [r1, r2] = await Promise.allSettled([
+            fetch(`${PRIVATE_BASE}/unaadi_san_hin.json`),
+            fetch(`${PRIVATE_BASE}/unaadi_satyavrata.json`),
+          ]);
+          if (r1.status === 'fulfilled' && r1.value.ok) unaadiSanHin      = await r1.value.json();
+          if (r2.status === 'fulfilled' && r2.value.ok) unaadiSatyavrata  = await r2.value.json();
         }
-        renderUnaadiAll(data, unaadiSanHin);
+        renderUnaadiAll(data, unaadiSanHin, unaadiSatyavrata);
         break;
       }
       case 'linganushasanam': {
@@ -4949,7 +4951,33 @@ const UNAADI_SAN_HIN_FIELDS = [
   { key: 'vs', label: 'विशेषः'     },
 ];
 
-function buildUnaadiTabPanel(tabId, u, shEntry) {
+const UNAADI_SATYAVRATA_FIELDS = [
+  { key: 'ar', label: 'अर्थः'          },
+  { key: 'ud', label: 'उदाहरणम्'      },
+  { key: 'sd', label: 'स्वा०द०वृत्तिः' },
+  { key: 'hi', label: 'हिन्दी'          },
+];
+
+function buildUnaadiFieldRows(fields, fieldDefs, panel) {
+  let hasContent = false;
+  for (const { key, label } of fieldDefs) {
+    const val = fields[key];
+    if (!val) continue;
+    hasContent = true;
+    const fieldRow = document.createElement('div');
+    fieldRow.className = 'unaadi-field-row';
+    fieldRow.appendChild(devEl('span', 'unaadi-field-label', label));
+    const valDiv = document.createElement('div');
+    valDiv.className = 'unaadi-field-val commentary-panel detail-sanskrit';
+    valDiv._rawCommentary = val;
+    setCommentaryHTML(valDiv, val);
+    fieldRow.appendChild(valDiv);
+    panel.appendChild(fieldRow);
+  }
+  return hasContent;
+}
+
+function buildUnaadiTabPanel(tabId, u, shEntry, svEntry) {
   const panel = document.createElement('div');
   panel.className = 'detail-tab-panel commentary-text';
   panel.dataset.panel = tabId;
@@ -4963,35 +4991,22 @@ function buildUnaadiTabPanel(tabId, u, shEntry) {
       panel.innerHTML = `<span class="no-data">No data.</span>`;
     }
   } else if (tabId === 'sh') {
-    if (shEntry) {
-      for (const { key, label } of UNAADI_SAN_HIN_FIELDS) {
-        const val = shEntry[key];
-        if (!val) continue;
-        const fieldRow = document.createElement('div');
-        fieldRow.className = 'unaadi-field-row';
-        fieldRow.appendChild(devEl('span', 'unaadi-field-label', label));
-        const valDiv = document.createElement('div');
-        valDiv.className = 'unaadi-field-val commentary-panel detail-sanskrit';
-        valDiv._rawCommentary = val;
-        setCommentaryHTML(valDiv, val);
-        fieldRow.appendChild(valDiv);
-        panel.appendChild(fieldRow);
-      }
-    } else {
+    if (!shEntry || !buildUnaadiFieldRows(shEntry, UNAADI_SAN_HIN_FIELDS, panel))
       panel.innerHTML = `<span class="no-data">No data.</span>`;
-    }
   } else if (tabId === 'uk') {
-    panel.innerHTML = `<span class="no-data">Being digitised — coming soon.</span>`;
+    if (!svEntry || !buildUnaadiFieldRows(svEntry, UNAADI_SATYAVRATA_FIELDS, panel))
+      panel.innerHTML = `<span class="no-data">No data.</span>`;
   }
 
   return panel;
 }
 
-function renderUnaadiAll(data, sanHin) {
+function renderUnaadiAll(data, sanHin, satyavrata) {
   setListHeader('उणादिकोशः', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
   for (const u of data) {
-    const shEntry = sanHin && sanHin[u.i];
+    const shEntry = sanHin    && sanHin[u.i];
+    const svEntry = satyavrata && satyavrata[u.i];
 
     const card = document.createElement('div');
     card.className = 'sutra-card';
@@ -5020,7 +5035,7 @@ function renderUnaadiAll(data, sanHin) {
     let firstTabBtn = null;
     let firstPanel = null;
     for (const tabDef of UNAADI_TABS) {
-      const panel = buildUnaadiTabPanel(tabDef.id, u, shEntry);
+      const panel = buildUnaadiTabPanel(tabDef.id, u, shEntry, svEntry);
       panelWrap.appendChild(panel);
 
       const btn = devEl('button', 'detail-tab', tabDef.label);
