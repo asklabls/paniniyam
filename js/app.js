@@ -4931,23 +4931,72 @@ function renderGanaList(data) {
 }
 
 // ── Unaadi ────────────────────────────────────────────────────────────────────
-// San-Hin commentary fields and their labels
-const UNAADI_SAN_HIN_FIELDS = [
-  { key: 'pc', label: 'पदच्छेदः'     },
-  { key: 'an', label: 'अनुवृत्तिः'   },
-  { key: 'sn', label: 'संक्षेपः'      },
-  { key: 'vy', label: 'व्याख्या'      },
-  { key: 'sd', label: 'स्वा०द०वृ०'   },
-  { key: 'ud', label: 'उदाहरणम्'     },
-  { key: 'vs', label: 'विशेषः'        },
+// Commentary tabs shown inside each expanded unaadi sutra card
+const UNAADI_TABS = [
+  { id: 'sk',  label: 'स्वा०द०वृ०'   },  // open-source (ashtadhyayi.com data)
+  { id: 'sh',  label: 'आ० सत्यव्रत'  },  // UnadiKosha-San-Hin-Commentary (R2)
+  { id: 'uk',  label: 'अर्थः'         },  // unadi-kosha OCR (future)
 ];
+
+// Structured field labels within the San-Hin tab
+const UNAADI_SAN_HIN_FIELDS = [
+  { key: 'pc', label: 'पदच्छेदः'   },
+  { key: 'an', label: 'अनुवृत्तिः' },
+  { key: 'sn', label: 'संक्षेपः'   },
+  { key: 'vy', label: 'व्याख्या'   },
+  { key: 'sd', label: 'स्वा०द०वृ०' },
+  { key: 'ud', label: 'उदाहरणम्'  },
+  { key: 'vs', label: 'विशेषः'     },
+];
+
+function buildUnaadiTabPanel(tabId, u, shEntry) {
+  const panel = document.createElement('div');
+  panel.className = 'detail-tab-panel commentary-text';
+  panel.dataset.panel = tabId;
+
+  if (tabId === 'sk') {
+    if (u.sk) {
+      panel.classList.add('commentary-panel');
+      panel._rawCommentary = u.sk.replace(/<[^>]*>/g, '');
+      setCommentaryHTML(panel, panel._rawCommentary);
+    } else {
+      panel.innerHTML = `<span class="no-data">No data.</span>`;
+    }
+  } else if (tabId === 'sh') {
+    if (shEntry) {
+      for (const { key, label } of UNAADI_SAN_HIN_FIELDS) {
+        const val = shEntry[key];
+        if (!val) continue;
+        const fieldRow = document.createElement('div');
+        fieldRow.className = 'unaadi-field-row';
+        fieldRow.appendChild(devEl('span', 'unaadi-field-label', label));
+        const valDiv = document.createElement('div');
+        valDiv.className = 'unaadi-field-val commentary-panel detail-sanskrit';
+        valDiv._rawCommentary = val;
+        setCommentaryHTML(valDiv, val);
+        fieldRow.appendChild(valDiv);
+        panel.appendChild(fieldRow);
+      }
+    } else {
+      panel.innerHTML = `<span class="no-data">No data.</span>`;
+    }
+  } else if (tabId === 'uk') {
+    panel.innerHTML = `<span class="no-data">Being digitised — coming soon.</span>`;
+  }
+
+  return panel;
+}
 
 function renderUnaadiAll(data, sanHin) {
   setListHeader('उणादिकोशः', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
   for (const u of data) {
+    const shEntry = sanHin && sanHin[u.i];
+
     const card = document.createElement('div');
     card.className = 'sutra-card';
+
+    // Row: id + sutra text + pratyaya badge
     const row = document.createElement('div');
     row.className = 'sutra-row';
     const idEl = document.createElement('span');
@@ -4956,42 +5005,44 @@ function renderUnaadiAll(data, sanHin) {
     row.appendChild(idEl);
     row.appendChild(devEl('span', 'sutra-text', u.sutra));
     row.appendChild(devEl('span', 'sutra-badge badge-S', u.pratyay || ''));
+
+    // Detail: sutra full + commentary tabs
     const detail = document.createElement('div');
     detail.className = 'sutra-detail';
     detail.appendChild(devEl('div', 'detail-sutra-full', u.sutra));
-    // Existing open-source commentary (Swami Dayananda — from ashtadhyayi.com data)
-    if (u.sk) {
-      const sec = document.createElement('div');
-      sec.className = 'detail-section';
-      sec.appendChild(devEl('div', 'detail-label', 'स्वामिदयानन्दवृत्तिः'));
-      const skDiv = document.createElement('div');
-      skDiv.className = 'detail-sanskrit commentary-panel';
-      skDiv._rawCommentary = u.sk.replace(/<[^>]*>/g, '');
-      setCommentaryHTML(skDiv, skDiv._rawCommentary);
-      sec.appendChild(skDiv);
-      detail.appendChild(sec);
+
+    // Tab bar
+    const tabBar = document.createElement('div');
+    tabBar.className = 'detail-tabs';
+    const panelWrap = document.createElement('div');
+    panelWrap.className = 'detail-tab-panels';
+
+    let firstTabBtn = null;
+    let firstPanel = null;
+    for (const tabDef of UNAADI_TABS) {
+      const panel = buildUnaadiTabPanel(tabDef.id, u, shEntry);
+      panelWrap.appendChild(panel);
+
+      const btn = devEl('button', 'detail-tab', tabDef.label);
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panelWrap.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+        panel.classList.add('active');
+      });
+      tabBar.appendChild(btn);
+
+      if (!firstTabBtn) { firstTabBtn = btn; firstPanel = panel; }
     }
-    // Private San-Hin commentary (आ० सत्यव्रत शास्त्री & प० ईश्वरचन्द्र)
-    const shEntry = sanHin && sanHin[u.i];
-    if (shEntry) {
-      const shSec = document.createElement('div');
-      shSec.className = 'detail-section';
-      shSec.appendChild(devEl('div', 'detail-label', 'आ० सत्यव्रतशास्त्री'));
-      for (const { key, label } of UNAADI_SAN_HIN_FIELDS) {
-        const val = shEntry[key];
-        if (!val) continue;
-        const row2 = document.createElement('div');
-        row2.className = 'detail-row';
-        row2.appendChild(devEl('div', 'detail-sublabel', label));
-        const valDiv = document.createElement('div');
-        valDiv.className = 'detail-value detail-sanskrit commentary-panel';
-        valDiv._rawCommentary = val;
-        setCommentaryHTML(valDiv, val);
-        row2.appendChild(valDiv);
-        shSec.appendChild(row2);
-      }
-      detail.appendChild(shSec);
+    if (firstTabBtn) {
+      firstTabBtn.classList.add('active');
+      firstPanel.classList.add('active');
     }
+
+    detail.appendChild(tabBar);
+    detail.appendChild(panelWrap);
+
     card.dataset.id = u.i;
     card.appendChild(row);
     card.appendChild(detail);
