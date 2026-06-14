@@ -38,7 +38,9 @@ const BOOKS = [
   { id: 'visuals', devName: 'Visuals', engName: 'Visuals', type: 'visual-library', icon: 'Vis' },
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
-      { id: 'bhattikavya', devName: 'भट्टिकाव्यम्', engName: 'Bhaṭṭikāvya', type: 'bhattikavya-panel' },
+      { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',   engName: 'Bhaṭṭikāvya',    type: 'bhattikavya-panel'    },
+      { id: 'nirukta',        devName: 'निरुक्तम्',       engName: 'Nirukta',         type: 'nirukta-panel'        },
+      { id: 'yogadarshana',   devName: 'योगदर्शनम्',      engName: 'Yoga Darśana',    type: 'yogadarshana-panel'   },
     ]
   },
   { id: 'references', devName: 'References', engName: 'References', type: 'sub-tree', icon: 'Ref',
@@ -287,6 +289,8 @@ const $panelAvyaya            = document.getElementById('panel-avyaya');
 const $panelVarnochchaaran    = document.getElementById('panel-varnochchaaran');
 const $panelVisuals           = document.getElementById('panel-visuals');
 const $panelBhattikavya       = document.getElementById('panel-bhattikavya');
+const $panelNirukta           = document.getElementById('panel-nirukta');
+const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -493,6 +497,8 @@ function showPanel(name) {
   $panelVarnochchaaran.style.display    = name === 'varnochchaaran'    ? '' : 'none';
   $panelVisuals.style.display           = name === 'visuals'           ? '' : 'none';
   $panelBhattikavya.style.display       = name === 'bhattikavya'       ? '' : 'none';
+  $panelNirukta.style.display           = name === 'nirukta'           ? '' : 'none';
+  $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
   $app.scrollTop = 0;
@@ -1141,8 +1147,13 @@ function buildSutraMeta(sutra) {
     else addEmpty(val);
   });
 
-  // अनुवृत्तिः
+  // अनुवृत्तिः — prefer prose form from pravachanam.json, fall back to linked list
   addRow('अनुवृत्तिः', val => {
+    const anProse = bookData['pravachanam']?.[sutra.i]?.an;
+    if (anProse) {
+      val.appendChild(devEl('span', 'dev-text', anProse));
+      return;
+    }
     const parts = sutra.an ? sutra.an.split('##').filter(Boolean) : [];
     if (parts.length) {
       parts.forEach((part, idx) => {
@@ -1374,6 +1385,10 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       } else if (page.type === 'bhattikavya-panel') {
         clickFn = () => { closeDrawer(); openBkMatrix(); };
+      } else if (page.type === 'nirukta-panel') {
+        clickFn = () => { closeDrawer(); showNiruktaPanel(); };
+      } else if (page.type === 'yogadarshana-panel') {
+        clickFn = () => { closeDrawer(); showYogaDarshanaPanel(); };
       } else if (page.type === 'shabda-browser') {
         clickFn = () => { closeDrawer(); showShabdaBrowser(); };
       } else {
@@ -1530,7 +1545,17 @@ async function handleLeafClick(book, btn) {
     switch (book.id) {
       case 'shivasutra':      renderShivaSutra(data);    break;
       case 'ganapatha':       renderGanaList(data);      break;
-      case 'unaadi':          renderUnaadiAll(data);     break;
+      case 'unaadi': {
+        let unaadiSanHin = null;
+        if (PRIVATE_BASE) {
+          try {
+            const r = await fetch(`${PRIVATE_BASE}/unaadi_san_hin.json`);
+            if (r.ok) unaadiSanHin = await r.json();
+          } catch (_) {}
+        }
+        renderUnaadiAll(data, unaadiSanHin);
+        break;
+      }
       case 'linganushasanam': {
         let lingaPrivate = null;
         if (PRIVATE_BASE) {
@@ -4906,7 +4931,18 @@ function renderGanaList(data) {
 }
 
 // ── Unaadi ────────────────────────────────────────────────────────────────────
-function renderUnaadiAll(data) {
+// San-Hin commentary fields and their labels
+const UNAADI_SAN_HIN_FIELDS = [
+  { key: 'pc', label: 'पदच्छेदः'     },
+  { key: 'an', label: 'अनुवृत्तिः'   },
+  { key: 'sn', label: 'संक्षेपः'      },
+  { key: 'vy', label: 'व्याख्या'      },
+  { key: 'sd', label: 'स्वा०द०वृ०'   },
+  { key: 'ud', label: 'उदाहरणम्'     },
+  { key: 'vs', label: 'विशेषः'        },
+];
+
+function renderUnaadiAll(data, sanHin) {
   setListHeader('उणादिकोशः', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
   for (const u of data) {
@@ -4916,26 +4952,45 @@ function renderUnaadiAll(data) {
     row.className = 'sutra-row';
     const idEl = document.createElement('span');
     idEl.className = 'sutra-id';
-    idEl.textContent = `${u.i.slice(0, -3)}.${u.i.slice(-3)}`;
+    idEl.textContent = `${u.i.slice(0, -3)}.${parseInt(u.i.slice(-3), 10)}`;
     row.appendChild(idEl);
     row.appendChild(devEl('span', 'sutra-text', u.sutra));
     row.appendChild(devEl('span', 'sutra-badge badge-S', u.pratyay || ''));
     const detail = document.createElement('div');
     detail.className = 'sutra-detail';
     detail.appendChild(devEl('div', 'detail-sutra-full', u.sutra));
+    // Existing open-source commentary (Swami Dayananda — from ashtadhyayi.com data)
     if (u.sk) {
       const sec = document.createElement('div');
       sec.className = 'detail-section';
-      const lbl = document.createElement('div');
-      lbl.className = 'detail-label';
-      lbl.textContent = 'Commentary';
-      sec.appendChild(lbl);
+      sec.appendChild(devEl('div', 'detail-label', 'स्वामिदयानन्दवृत्तिः'));
       const skDiv = document.createElement('div');
       skDiv.className = 'detail-sanskrit commentary-panel';
       skDiv._rawCommentary = u.sk.replace(/<[^>]*>/g, '');
       setCommentaryHTML(skDiv, skDiv._rawCommentary);
       sec.appendChild(skDiv);
       detail.appendChild(sec);
+    }
+    // Private San-Hin commentary (आ० सत्यव्रत शास्त्री & प० ईश्वरचन्द्र)
+    const shEntry = sanHin && sanHin[u.i];
+    if (shEntry) {
+      const shSec = document.createElement('div');
+      shSec.className = 'detail-section';
+      shSec.appendChild(devEl('div', 'detail-label', 'आ० सत्यव्रतशास्त्री'));
+      for (const { key, label } of UNAADI_SAN_HIN_FIELDS) {
+        const val = shEntry[key];
+        if (!val) continue;
+        const row2 = document.createElement('div');
+        row2.className = 'detail-row';
+        row2.appendChild(devEl('div', 'detail-sublabel', label));
+        const valDiv = document.createElement('div');
+        valDiv.className = 'detail-value detail-sanskrit commentary-panel';
+        valDiv._rawCommentary = val;
+        setCommentaryHTML(valDiv, val);
+        row2.appendChild(valDiv);
+        shSec.appendChild(row2);
+      }
+      detail.appendChild(shSec);
     }
     card.dataset.id = u.i;
     card.appendChild(row);
@@ -5297,6 +5352,43 @@ function renderBkCard(shloka, sarga) {
   card.appendChild(detail);
   card.addEventListener('click', () => toggleSimpleCard(card));
   return card;
+}
+
+// ── Skeleton placeholder helper ───────────────────────────────────────────────
+function buildPlaceholderPanel($panel, titleDev, subtitle, body, urlBookId) {
+  $panel.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'panel-placeholder';
+  wrap.appendChild(devEl('div', 'placeholder-title', titleDev));
+  const sub = document.createElement('div');
+  sub.className = 'placeholder-subtitle';
+  sub.textContent = subtitle;
+  wrap.appendChild(sub);
+  const bd = document.createElement('div');
+  bd.className = 'placeholder-body';
+  bd.innerHTML = body;
+  wrap.appendChild(bd);
+  $panel.appendChild(wrap);
+  history.replaceState({ book: urlBookId }, '', `?book=${urlBookId}`);
+  showPanel(urlBookId);
+}
+
+// ── Nirukta (skeleton) ────────────────────────────────────────────────────────
+function showNiruktaPanel() {
+  buildPlaceholderPanel(
+    $panelNirukta, 'निरुक्तम्', 'Nirukta — Yāska',
+    'Commentary by Bhagavad-Datta (Ram Lal Kapur Trust).<br>Content being digitised — coming soon.',
+    'nirukta'
+  );
+}
+
+// ── Yoga Darshana (skeleton) ──────────────────────────────────────────────────
+function showYogaDarshanaPanel() {
+  buildPlaceholderPanel(
+    $panelYogadarshana, 'योगदर्शनम्', 'Yoga Darśana — Patañjali + Vyāsa Bhāṣya',
+    'Commentary by Swami Satyapati Parivrajaka.<br>Content being digitised — coming soon.',
+    'yogadarshana'
+  );
 }
 
 // ── Shiksha ───────────────────────────────────────────────────────────────────
@@ -5983,6 +6075,10 @@ async function init() {
       } else if (urlBook === 'bhattikavya') {
         const sargaParam = parseInt(params.get('sarga')) || 1;
         await showBhattikavya(sargaParam);
+      } else if (urlBook === 'nirukta') {
+        showNiruktaPanel();
+      } else if (urlBook === 'yogadarshana') {
+        showYogaDarshanaPanel();
       } else {
         // Search top-level leaf books, then sub-tree children
         let book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
