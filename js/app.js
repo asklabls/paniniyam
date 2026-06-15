@@ -206,6 +206,22 @@ let readerIdx   = -1;   // current position in readerList
 let readerSutra = null; // currently displayed sutra in reader panel
 
 // Bhattikavya state
+// ── Nirukta constants ─────────────────────────────────────────────────────────
+const NR_ADHYAYAS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+const NR_ADHYAYA_NAMES_DEV = {
+  1:'प्रथमोऽध्यायः', 2:'द्वितीयोऽध्यायः', 3:'तृतीयोऽध्यायः', 4:'चतुर्थोऽध्यायः',
+  5:'पञ्चमोऽध्यायः', 6:'षष्ठोऽध्यायः', 7:'सप्तमोऽध्यायः', 8:'अष्टमोऽध्यायः',
+  9:'नवमोऽध्यायः', 10:'दशमोऽध्यायः', 11:'एकादशोऽध्यायः', 12:'द्वादशोऽध्यायः',
+  13:'त्रयोदशोऽध्यायः', 14:'चतुर्दशोऽध्यायः',
+};
+const NR_ADHYAYA_COUNTS = {
+  1:18, 2:26, 3:18, 4:18, 5:22, 6:32, 7:23, 8:12, 9:25, 10:36, 11:30, 12:22, 13:8, 14:22,
+};
+let nrCurrentAdhyaya = 0;
+const nrCache = {};
+let $nrMatrix = null;
+let _nrMatrixJustOpened = false;
+
 const BK_SARGAS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21]; // sarga 15 absent
 const BK_SARGA_NAMES_DEV = {
   1:'प्रथमः सर्गः', 2:'द्वितीयः सर्गः', 3:'तृतीयः सर्गः', 4:'चतुर्थः सर्गः',
@@ -2874,11 +2890,11 @@ function closeGanaMatrix() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closePadaMatrix(); closeGanaMatrix(); }
+  if (e.key === 'Escape') { closePadaMatrix(); closeGanaMatrix(); closeNrMatrix(); }
 });
 
 document.addEventListener('click', e => {
-  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened) return;
+  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened) return;
   if ($padaMatrix?.classList.contains('open') &&
       !$padaMatrix.contains(e.target) &&
       e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
@@ -2891,6 +2907,10 @@ document.addEventListener('click', e => {
   if ($bkMatrix?.classList.contains('open') &&
       !$bkMatrix.contains(e.target)) {
     closeBkMatrix();
+  }
+  if ($nrMatrix?.classList.contains('open') &&
+      !$nrMatrix.contains(e.target)) {
+    closeNrMatrix();
   }
 });
 
@@ -5439,14 +5459,198 @@ function buildPlaceholderPanel($panel, titleDev, subtitle, body, urlBookId) {
   showPanel(urlBookId);
 }
 
-// ── Nirukta (skeleton) ────────────────────────────────────────────────────────
-function showNiruktaPanel() {
-  buildPlaceholderPanel(
-    $panelNirukta, 'निरुक्तम्', 'Nirukta — Yāska',
-    'Commentary by Bhagavad-Datta (Ram Lal Kapur Trust).<br>Content being digitised — coming soon.',
-    'nirukta'
-  );
+// ── Nirukta ───────────────────────────────────────────────────────────────────
+function buildNrMatrix() {
+  const wrap = document.createElement('div');
+  wrap.id = 'nr-matrix';
+  wrap.className = 'bk-matrix';   // reuse BK matrix styles
+
+  // Header
+  const headerRow = document.createElement('div');
+  headerRow.className = 'pm-row pm-header';
+  const th = document.createElement('div');
+  th.className = 'pm-th dev-text';
+  th.style.cssText = 'min-width:0; flex:1; text-align:left;';
+  th._devText = 'निरुक्तम् — अध्यायाः';
+  th.textContent = translit('निरुक्तम् — अध्यायाः');
+  headerRow.appendChild(th);
+  wrap.appendChild(headerRow);
+
+  // 2 rows × 7 columns = adhyayas 1–14
+  for (let row = 0; row < 2; row++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'pm-row';
+    for (let col = 0; col < 7; col++) {
+      const n = row * 7 + col + 1;
+      const cell = document.createElement('button');
+      cell.className = 'pm-cell';
+      cell.textContent = n;
+      const count = NR_ADHYAYA_COUNTS[n] || 0;
+      cell.title = NR_ADHYAYA_NAMES_DEV[n] + (count ? ` (${count})` : '');
+      cell.addEventListener('click', () => { closeNrMatrix(); showNirukta(n); });
+      rowEl.appendChild(cell);
+    }
+    wrap.appendChild(rowEl);
+  }
+  return wrap;
 }
+
+function openNrMatrix() {
+  if (!$nrMatrix) { $nrMatrix = buildNrMatrix(); document.body.appendChild($nrMatrix); }
+  $nrMatrix.classList.add('open');
+  _nrMatrixJustOpened = true;
+  setTimeout(() => { _nrMatrixJustOpened = false; }, 0);
+}
+
+function closeNrMatrix() { $nrMatrix?.classList.remove('open'); }
+
+async function showNirukta(adhyayaNum) {
+  if (!adhyayaNum || !NR_ADHYAYAS.includes(adhyayaNum)) adhyayaNum = 1;
+  nrCurrentAdhyaya = adhyayaNum;
+  history.replaceState({ book: 'nirukta' }, '', `?book=nirukta&adhyaya=${adhyayaNum}`);
+
+  const panel = $panelNirukta;
+  if (!nrCache[adhyayaNum]) {
+    panel.innerHTML = '<div class="loading-inline">Loading…</div>';
+    showPanel('nirukta');
+    if (!PRIVATE_BASE) {
+      panel.innerHTML = '<div class="no-data">Nirukta data not available locally.</div>';
+      return;
+    }
+    try {
+      const num = String(adhyayaNum).padStart(2, '0');
+      const res = await fetch(`${PRIVATE_BASE}/nirukta/adhyaya_${num}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      nrCache[adhyayaNum] = await res.json();
+    } catch (e) {
+      panel.innerHTML = `<div class="no-data">Could not load adhyaya ${adhyayaNum}: ${e.message}</div>`;
+      return;
+    }
+  }
+
+  renderNiruktaAdhyaya(nrCache[adhyayaNum]);
+  showPanel('nirukta');
+
+  // Background prefetch of adjacent adhyayas
+  const idx = NR_ADHYAYAS.indexOf(adhyayaNum);
+  [NR_ADHYAYAS[idx - 1], NR_ADHYAYAS[idx + 1]].filter(Boolean).forEach(n => {
+    if (n && !nrCache[n]) {
+      const num = String(n).padStart(2, '0');
+      fetch(`${PRIVATE_BASE}/nirukta/adhyaya_${num}.json`)
+        .then(r => r.json()).then(d => { nrCache[n] = d; }).catch(() => {});
+    }
+  });
+}
+
+function renderNiruktaAdhyaya(data) {
+  const panel = $panelNirukta;
+  panel.innerHTML = '';
+
+  const idx  = NR_ADHYAYAS.indexOf(data.adhyaya);
+  const prevN = idx > 0 ? NR_ADHYAYAS[idx - 1] : null;
+  const nextN = idx < NR_ADHYAYAS.length - 1 ? NR_ADHYAYAS[idx + 1] : null;
+
+  // ── Sticky nav ──
+  const nav = document.createElement('div');
+  nav.className = 'bk-nav';
+
+  const btnP = document.createElement('button');
+  btnP.className = 'bar-btn bk-nav-btn';
+  btnP.textContent = '◀';
+  btnP.disabled = !prevN;
+  if (prevN) btnP.addEventListener('click', () => showNirukta(prevN));
+  nav.appendChild(btnP);
+
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'bk-nav-title';
+  titleWrap.title = 'Back to adhyaya list';
+  titleWrap.addEventListener('click', () => openNrMatrix());
+  const nameEl = document.createElement('span');
+  nameEl.className = 'bk-sarga-name dev-text';
+  nameEl._devText = data.name;
+  nameEl.textContent = translit(data.name);
+  titleWrap.appendChild(nameEl);
+  const countEl = document.createElement('span');
+  countEl.className = 'bk-sarga-count';
+  countEl.textContent = `${data.total} sūtras`;
+  titleWrap.appendChild(countEl);
+  nav.appendChild(titleWrap);
+
+  const btnN = document.createElement('button');
+  btnN.className = 'bar-btn bk-nav-btn';
+  btnN.textContent = '▶';
+  btnN.disabled = !nextN;
+  if (nextN) btnN.addEventListener('click', () => showNirukta(nextN));
+  nav.appendChild(btnN);
+
+  panel.appendChild(nav);
+
+  // ── Sutra cards ──
+  const list = document.createElement('div');
+  list.className = 'bk-list';
+  for (const sutra of data.sutras) {
+    list.appendChild(renderNrCard(sutra, data.adhyaya));
+  }
+  panel.appendChild(list);
+}
+
+function renderNrCard(sutra, adhyaya) {
+  const card = document.createElement('div');
+  card.className = 'sutra-card bk-card';
+
+  // ID badge
+  const idBadge = document.createElement('div');
+  idBadge.className = 'bk-verse-num';
+  idBadge.textContent = `${adhyaya}.${sutra.n}`;
+  card.appendChild(idBadge);
+
+  // Sutra text (Sanskrit)
+  if (sutra.sutra) {
+    const sutEl = document.createElement('div');
+    sutEl.className = 'bk-verse nr-sutra-text dev-text';
+    sutEl._devText = sutra.sutra;
+    sutEl.textContent = translit(sutra.sutra);
+    card.appendChild(sutEl);
+  }
+
+  // Artha (Hindi translation)
+  if (sutra.artha) {
+    const arthaWrap = document.createElement('div');
+    arthaWrap.className = 'nr-field-wrap';
+    const arthaLabel = document.createElement('span');
+    arthaLabel.className = 'nr-field-label dev-text';
+    arthaLabel._devText = 'अर्थः';
+    arthaLabel.textContent = translit('अर्थः');
+    arthaWrap.appendChild(arthaLabel);
+    const arthaEl = document.createElement('div');
+    arthaEl.className = 'commentary-panel nr-field-val';
+    arthaEl._rawCommentary = sutra.artha;
+    setCommentaryHTML(arthaEl, sutra.artha);
+    arthaWrap.appendChild(arthaEl);
+    card.appendChild(arthaWrap);
+  }
+
+  // Bhashya (commentary)
+  if (sutra.bhashya) {
+    const bWrap = document.createElement('div');
+    bWrap.className = 'nr-field-wrap';
+    const bLabel = document.createElement('span');
+    bLabel.className = 'nr-field-label dev-text';
+    bLabel._devText = 'भाष्यम्';
+    bLabel.textContent = translit('भाष्यम्');
+    bWrap.appendChild(bLabel);
+    const bEl = document.createElement('div');
+    bEl.className = 'commentary-panel nr-field-val';
+    bEl._rawCommentary = sutra.bhashya;
+    setCommentaryHTML(bEl, sutra.bhashya);
+    bWrap.appendChild(bEl);
+    card.appendChild(bWrap);
+  }
+
+  return card;
+}
+
+function showNiruktaPanel() { openNrMatrix(); showPanel('nirukta'); history.replaceState({ book: 'nirukta' }, '', '?book=nirukta'); }
 
 // ── Yoga Darshana (skeleton) ──────────────────────────────────────────────────
 function showYogaDarshanaPanel() {
@@ -6142,7 +6346,9 @@ async function init() {
         const sargaParam = parseInt(params.get('sarga')) || 1;
         await showBhattikavya(sargaParam);
       } else if (urlBook === 'nirukta') {
-        showNiruktaPanel();
+        const adhyayaParam = parseInt(params.get('adhyaya')) || 0;
+        if (adhyayaParam) await showNirukta(adhyayaParam);
+        else showNiruktaPanel();
       } else if (urlBook === 'yogadarshana') {
         showYogaDarshanaPanel();
       } else {
