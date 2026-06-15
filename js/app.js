@@ -5614,7 +5614,13 @@ function renderNiruktaAdhyaya(data) {
   showPanel('list');
 }
 
-function showNiruktaPanel() { openNrMatrix(); showPanel('nirukta'); history.replaceState({ book: 'nirukta' }, '', '?book=nirukta'); }
+function showNiruktaPanel() {
+  buildPlaceholderPanel(
+    $panelNirukta, 'निरुक्तम्', 'Nirukta — Yāska',
+    'This book is being digitised — coming soon.',
+    'nirukta'
+  );
+}
 
 // ── Yoga Darshana (skeleton) ──────────────────────────────────────────────────
 function showYogaDarshanaPanel() {
@@ -6310,9 +6316,7 @@ async function init() {
         const sargaParam = parseInt(params.get('sarga')) || 1;
         await showBhattikavya(sargaParam);
       } else if (urlBook === 'nirukta') {
-        const adhyayaParam = parseInt(params.get('adhyaya')) || 0;
-        if (adhyayaParam) await showNirukta(adhyayaParam);
-        else showNiruktaPanel();
+        showNiruktaPanel();
       } else if (urlBook === 'yogadarshana') {
         showYogaDarshanaPanel();
       } else {
