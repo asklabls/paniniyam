@@ -5509,12 +5509,11 @@ async function showNirukta(adhyayaNum) {
   nrCurrentAdhyaya = adhyayaNum;
   history.replaceState({ book: 'nirukta' }, '', `?book=nirukta&adhyaya=${adhyayaNum}`);
 
-  const panel = $panelNirukta;
   if (!nrCache[adhyayaNum]) {
-    panel.innerHTML = '<div class="loading-inline">Loading…</div>';
-    showPanel('nirukta');
+    setListHeader('निरुक्तम्', ''); $sutraList.innerHTML = '<div class="loading-inline">Loading…</div>';
+    showPanel('list');
     if (!PRIVATE_BASE) {
-      panel.innerHTML = '<div class="no-data">Nirukta data not available locally.</div>';
+      $sutraList.innerHTML = '<div class="no-data">Nirukta data not available locally.</div>';
       return;
     }
     try {
@@ -5523,13 +5522,12 @@ async function showNirukta(adhyayaNum) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       nrCache[adhyayaNum] = await res.json();
     } catch (e) {
-      panel.innerHTML = `<div class="no-data">Could not load adhyaya ${adhyayaNum}: ${e.message}</div>`;
+      $sutraList.innerHTML = `<div class="no-data">Could not load adhyaya ${adhyayaNum}: ${e.message}</div>`;
       return;
     }
   }
 
   renderNiruktaAdhyaya(nrCache[adhyayaNum]);
-  showPanel('nirukta');
 
   // Background prefetch of adjacent adhyayas
   const idx = NR_ADHYAYAS.indexOf(adhyayaNum);
@@ -5542,110 +5540,78 @@ async function showNirukta(adhyayaNum) {
   });
 }
 
+const NR_TABS = [
+  { id: 'ar', label: 'अर्थः'   },
+  { id: 'bh', label: 'भाष्यम्' },
+];
+
 function renderNiruktaAdhyaya(data) {
-  const panel = $panelNirukta;
-  panel.innerHTML = '';
+  setListHeader(data.name, `${data.total} sūtras`);
+  $sutraList.innerHTML = '';
 
-  const idx  = NR_ADHYAYAS.indexOf(data.adhyaya);
-  const prevN = idx > 0 ? NR_ADHYAYAS[idx - 1] : null;
-  const nextN = idx < NR_ADHYAYAS.length - 1 ? NR_ADHYAYAS[idx + 1] : null;
-
-  // ── Sticky nav ──
-  const nav = document.createElement('div');
-  nav.className = 'bk-nav';
-
-  const btnP = document.createElement('button');
-  btnP.className = 'bar-btn bk-nav-btn';
-  btnP.textContent = '◀';
-  btnP.disabled = !prevN;
-  if (prevN) btnP.addEventListener('click', () => showNirukta(prevN));
-  nav.appendChild(btnP);
-
-  const titleWrap = document.createElement('div');
-  titleWrap.className = 'bk-nav-title';
-  titleWrap.title = 'Back to adhyaya list';
-  titleWrap.addEventListener('click', () => openNrMatrix());
-  const nameEl = document.createElement('span');
-  nameEl.className = 'bk-sarga-name dev-text';
-  nameEl._devText = data.name;
-  nameEl.textContent = translit(data.name);
-  titleWrap.appendChild(nameEl);
-  const countEl = document.createElement('span');
-  countEl.className = 'bk-sarga-count';
-  countEl.textContent = `${data.total} sūtras`;
-  titleWrap.appendChild(countEl);
-  nav.appendChild(titleWrap);
-
-  const btnN = document.createElement('button');
-  btnN.className = 'bar-btn bk-nav-btn';
-  btnN.textContent = '▶';
-  btnN.disabled = !nextN;
-  if (nextN) btnN.addEventListener('click', () => showNirukta(nextN));
-  nav.appendChild(btnN);
-
-  panel.appendChild(nav);
-
-  // ── Sutra cards ──
-  const list = document.createElement('div');
-  list.className = 'bk-list';
   for (const sutra of data.sutras) {
-    list.appendChild(renderNrCard(sutra, data.adhyaya));
+    const card = document.createElement('div');
+    card.className = 'sutra-card';
+
+    // Top row: id + sutra text
+    const row = document.createElement('div');
+    row.className = 'sutra-row';
+    const idEl = document.createElement('span');
+    idEl.className = 'sutra-id';
+    idEl.textContent = `${data.adhyaya}.${sutra.n}`;
+    row.appendChild(idEl);
+    if (sutra.sutra) row.appendChild(devEl('span', 'sutra-text', sutra.sutra));
+    card.appendChild(row);
+
+    // Detail: full sutra + tabs
+    const detail = document.createElement('div');
+    detail.className = 'sutra-detail';
+    if (sutra.sutra) detail.appendChild(devEl('div', 'detail-sutra-full', sutra.sutra));
+
+    const tabBar = document.createElement('div');
+    tabBar.className = 'detail-tabs';
+    const panelWrap = document.createElement('div');
+    panelWrap.className = 'detail-tab-panels';
+
+    let firstBtn = null, firstPanel = null;
+    const tabData = { ar: sutra.artha, bh: sutra.bhashya };
+    for (const tab of NR_TABS) {
+      const val = tabData[tab.id];
+      const tp = document.createElement('div');
+      tp.className = 'detail-tab-panel';
+      if (val) {
+        const el = document.createElement('div');
+        el.className = 'commentary-panel detail-sanskrit';
+        el._rawCommentary = val;
+        setCommentaryHTML(el, val);
+        tp.appendChild(el);
+      } else {
+        tp.innerHTML = '<span class="no-data">No data.</span>';
+      }
+      panelWrap.appendChild(tp);
+
+      const btn = devEl('button', 'detail-tab', tab.label);
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panelWrap.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+        tp.classList.add('active');
+      });
+      tabBar.appendChild(btn);
+      if (!firstBtn) { firstBtn = btn; firstPanel = tp; }
+    }
+    if (firstBtn) { firstBtn.classList.add('active'); firstPanel.classList.add('active'); }
+
+    detail.appendChild(tabBar);
+    detail.appendChild(panelWrap);
+    card.dataset.id = `${data.adhyaya}.${sutra.n}`;
+    card.appendChild(detail);
+    card.addEventListener('click', () => toggleSimpleCard(card));
+    $sutraList.appendChild(card);
   }
-  panel.appendChild(list);
-}
 
-function renderNrCard(sutra, adhyaya) {
-  const card = document.createElement('div');
-  card.className = 'sutra-card bk-card';
-
-  // Top row: id + sutra text (matches standard sutra-row pattern)
-  const row = document.createElement('div');
-  row.className = 'sutra-row';
-  const idEl = document.createElement('span');
-  idEl.className = 'sutra-id';
-  idEl.textContent = `${adhyaya}.${sutra.n}`;
-  row.appendChild(idEl);
-  if (sutra.sutra) {
-    const sutEl = devEl('span', 'sutra-text', sutra.sutra);
-    row.appendChild(sutEl);
-  }
-  card.appendChild(row);
-
-  // Artha (Hindi translation)
-  if (sutra.artha) {
-    const arthaWrap = document.createElement('div');
-    arthaWrap.className = 'nr-field-wrap';
-    const arthaLabel = document.createElement('span');
-    arthaLabel.className = 'nr-field-label dev-text';
-    arthaLabel._devText = 'अर्थः';
-    arthaLabel.textContent = translit('अर्थः');
-    arthaWrap.appendChild(arthaLabel);
-    const arthaEl = document.createElement('div');
-    arthaEl.className = 'commentary-panel nr-field-val';
-    arthaEl._rawCommentary = sutra.artha;
-    setCommentaryHTML(arthaEl, sutra.artha);
-    arthaWrap.appendChild(arthaEl);
-    card.appendChild(arthaWrap);
-  }
-
-  // Bhashya (commentary)
-  if (sutra.bhashya) {
-    const bWrap = document.createElement('div');
-    bWrap.className = 'nr-field-wrap';
-    const bLabel = document.createElement('span');
-    bLabel.className = 'nr-field-label dev-text';
-    bLabel._devText = 'भाष्यम्';
-    bLabel.textContent = translit('भाष्यम्');
-    bWrap.appendChild(bLabel);
-    const bEl = document.createElement('div');
-    bEl.className = 'commentary-panel nr-field-val';
-    bEl._rawCommentary = sutra.bhashya;
-    setCommentaryHTML(bEl, sutra.bhashya);
-    bWrap.appendChild(bEl);
-    card.appendChild(bWrap);
-  }
-
-  return card;
+  showPanel('list');
 }
 
 function showNiruktaPanel() { openNrMatrix(); showPanel('nirukta'); history.replaceState({ book: 'nirukta' }, '', '?book=nirukta'); }
