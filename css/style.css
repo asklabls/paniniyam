@@ -2040,7 +2040,6 @@ body.vlib-active #app { overflow: hidden; }
 /* Nirukta matrix (reuses .bk-matrix) */
 #nr-matrix { left: 8px; }
 /* Nirukta sutra card fields */
-.nr-sutra-text { font-family: var(--font-dev); font-size: 1.05em; line-height: 1.7; margin-bottom: 8px; }
 .nr-field-wrap { margin-top: 10px; }
 .nr-field-label { display: block; font-size: .78em; font-weight: 600; color: var(--accent); margin-bottom: 3px; }
 .nr-field-val { font-size: .9em; line-height: 1.75; color: var(--fg-muted); }

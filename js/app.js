@@ -5598,20 +5598,18 @@ function renderNrCard(sutra, adhyaya) {
   const card = document.createElement('div');
   card.className = 'sutra-card bk-card';
 
-  // ID badge
-  const idBadge = document.createElement('div');
-  idBadge.className = 'bk-verse-num';
-  idBadge.textContent = `${adhyaya}.${sutra.n}`;
-  card.appendChild(idBadge);
-
-  // Sutra text (Sanskrit)
+  // Top row: id + sutra text (matches standard sutra-row pattern)
+  const row = document.createElement('div');
+  row.className = 'sutra-row';
+  const idEl = document.createElement('span');
+  idEl.className = 'sutra-id';
+  idEl.textContent = `${adhyaya}.${sutra.n}`;
+  row.appendChild(idEl);
   if (sutra.sutra) {
-    const sutEl = document.createElement('div');
-    sutEl.className = 'bk-verse nr-sutra-text dev-text';
-    sutEl._devText = sutra.sutra;
-    sutEl.textContent = translit(sutra.sutra);
-    card.appendChild(sutEl);
+    const sutEl = devEl('span', 'sutra-text', sutra.sutra);
+    row.appendChild(sutEl);
   }
+  card.appendChild(row);
 
   // Artha (Hindi translation)
   if (sutra.artha) {
