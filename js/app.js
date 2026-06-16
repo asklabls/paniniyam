@@ -203,7 +203,9 @@ async function loadVidyut() {
   if (!VIDYUT_BASE) return null;
   if (!_vidyutLoadPromise) {
     _vidyutLoadPromise = (async () => {
-      const mod = await import(VIDYUT_BASE + '/vidyut-prakriya.js');
+      const url = VIDYUT_BASE.startsWith('http') ? VIDYUT_BASE + '/vidyut-prakriya.js'
+                  : new URL(VIDYUT_BASE + '/vidyut-prakriya.js', location.href).href;
+      const mod = await import(url);
       await mod.initWasm();
       _vidyutMod = new mod.Vidyut();
       return _vidyutMod;
