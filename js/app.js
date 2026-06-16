@@ -872,13 +872,17 @@ async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
     const purusha     = VIDYUT_PURUSH[Math.floor(cellIndex / 3)];
     const vacana      = VIDYUT_VACANA[cellIndex % 3];
 
-    const results = v.deriveTinantas({
-      dhatu:    { aupadeshika, gana },
+    // Call the low-level WASM directly with string enum names.
+    // The high-level JS wrapper converts strings→ints before sending to WASM,
+    // but WASM's serde deserializer expects the string variant names, not ints.
+    const results = v.wasm.deriveTinantas({
+      dhatu:         { aupadeshika, gana, antargana: null, sanadi: [], prefixes: [] },
       lakara,
-      prayoga:  'Kartari',
+      prayoga:       'Kartari',
       purusha,
       vacana,
-      pada:     padaKey,
+      skip_at_agama: false,
+      pada:          padaKey || null,
     });
 
     panel.innerHTML = '';
