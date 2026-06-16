@@ -922,6 +922,40 @@ function renderVidyutPanel(panel, results) {
     note.textContent = `${results.length} alternatives`;
     header.appendChild(note);
   }
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'vidyut-copy';
+  copyBtn.title = 'Copy prakriyā as text';
+  copyBtn.textContent = '📋';
+  copyBtn.addEventListener('click', () => {
+    const devFormsFinal = results.map(r => Sanscript.t(r.text, 'slp1', 'devanagari')).join(' / ');
+    const lines = [`${devFormsFinal} — tiṅanta prakriyā | paniniyam.com`, ''];
+    results[0].history.forEach(step => {
+      const formParts = (step.result || []).map(t => Sanscript.t(t.text || '', 'slp1', 'devanagari'));
+      const formStr = formParts.join(' + ');
+      const rule = step.rule || {};
+      let sutraStr = '';
+      if (rule.code && rule.source === 'ashtadhyayi') {
+        const parts = rule.code.split('.');
+        if (parts.length === 3) {
+          const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
+          const sutra = sutraIndex[sid];
+          sutraStr = sutra ? `${rule.code}  ${sutra.s}` : rule.code;
+        }
+      } else if (rule.code) {
+        sutraStr = `${rule.source || ''} ${rule.code}`.trim();
+      }
+      lines.push(sutraStr ? `${formStr}\t→  ${sutraStr}` : formStr);
+    });
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      copyBtn.textContent = '✓';
+      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+    }).catch(() => {
+      copyBtn.textContent = '✗';
+      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+    });
+  });
+  header.appendChild(copyBtn);
+
   const closeBtn = document.createElement('button');
   closeBtn.className = 'vidyut-close';
   closeBtn.textContent = '✕';

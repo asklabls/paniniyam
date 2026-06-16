@@ -1232,17 +1232,17 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-size: .78em;
   color: rgba(255,255,255,.75);
 }
-.vidyut-close {
+.vidyut-copy, .vidyut-close {
   background: none;
   border: none;
   color: rgba(255,255,255,.8);
   font-size: 1em;
   cursor: pointer;
-  padding: 2px 4px;
-  margin-left: auto;
+  padding: 2px 5px;
   line-height: 1;
 }
-.vidyut-close:hover { color: #fff; }
+.vidyut-copy { margin-left: auto; }
+.vidyut-copy:hover, .vidyut-close:hover { color: #fff; }
 
 .vidyut-steps-wrap {
   flex: 1;
