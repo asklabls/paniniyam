@@ -3253,15 +3253,17 @@ function renderVnsContent(markdown) {
   const wrap = document.createElement('div');
   wrap.className = 'vns-body';
 
-  // Parse line by line so ## sutra headings separate cleanly from commentary
   const lines = markdown.split('\n');
   let i = 0;
+  let proseLines = [];
 
-  function appendPara(textLines) {
-    const text = textLines.join(' ').trim();
+  function flushProse() {
+    const text = proseLines.join(' ').replace(/\s+/g, ' ').trim();
+    proseLines = [];
     if (!text) return;
     const p = document.createElement('div');
-    p.className = 'vns-para';
+    p.className = 'vns-prose mixed-text';
+    p._mixedText = text;
     p.innerHTML = vnsRenderInline(text);
     wrap.appendChild(p);
   }
@@ -3270,7 +3272,7 @@ function renderVnsContent(markdown) {
     const line = lines[i];
 
     if (/^\!\[.+\]$/.test(line.trim())) {
-      // Inline image marker: ![filename]
+      flushProse();
       const src = line.trim().slice(2, -1);
       const img = document.createElement('img');
       img.src = `${PRIVATE_BASE || FORMS_BASE}/${src}`;
@@ -3279,36 +3281,71 @@ function renderVnsContent(markdown) {
       i++;
 
     } else if (line.startsWith('## ')) {
-      // Sutra heading — pure Sanskrit
-      const h = document.createElement('div');
-      h.className = 'vns-sutra dev-text';
-      h._devText = line.replace(/^##\s*/, '');
-      h.textContent = translit(line.replace(/^##\s*/, ''));
-      wrap.appendChild(h);
-      i++;
+      flushProse();
+      const heading = line.replace(/^##\s*/, '').trim();
+      // Extract leading number (Devanagari or Arabic) followed by - or space
+      const numMatch = heading.match(/^([०-९\d]+)[-\s]/);
+      const idText  = numMatch ? numMatch[1] : '';
+      const sutraText = numMatch ? heading.slice(numMatch[0].length).trim() : heading;
 
-      // Collect commentary lines until next sutra or blank line
+      // Collect commentary until next ## or image marker
       const commentLines = [];
-      while (i < lines.length && !lines[i].startsWith('## ') && lines[i].trim() !== '' && !/^\!\[.+\]$/.test(lines[i].trim())) {
+      i++;
+      while (i < lines.length && !lines[i].startsWith('## ') && !/^\!\[.+\]$/.test(lines[i].trim())) {
         commentLines.push(lines[i]);
         i++;
       }
-      appendPara(commentLines);
+      const commentary = commentLines.join(' ').replace(/\s+/g, ' ').trim();
+
+      // sutra-card (same pattern as Linganushasanam / Unaadi)
+      const card = document.createElement('div');
+      card.className = 'sutra-card';
+
+      const row = document.createElement('div');
+      row.className = 'sutra-row';
+      const idEl = document.createElement('span');
+      idEl.className = 'sutra-id';
+      idEl.textContent = idText;
+      const textEl = document.createElement('span');
+      textEl.className = 'sutra-text dev-text';
+      textEl._devText = sutraText;
+      textEl.textContent = translit(sutraText);
+      row.appendChild(idEl);
+      row.appendChild(textEl);
+
+      const detail = document.createElement('div');
+      detail.className = 'sutra-detail';
+      const fullEl = document.createElement('div');
+      fullEl.className = 'detail-sutra-full dev-text';
+      fullEl._devText = sutraText;
+      fullEl.textContent = translit(sutraText);
+      detail.appendChild(fullEl);
+
+      if (commentary) {
+        const sec = document.createElement('div');
+        sec.className = 'detail-section';
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'detail-english mixed-text';
+        commentDiv._mixedText = commentary;
+        commentDiv.innerHTML = vnsRenderInline(commentary);
+        sec.appendChild(commentDiv);
+        detail.appendChild(sec);
+      }
+
+      card.appendChild(row);
+      card.appendChild(detail);
+      card.addEventListener('click', () => toggleSimpleCard(card));
+      wrap.appendChild(card);
 
     } else if (line.trim() === '') {
-      i++; // skip blank lines
+      i++;
 
     } else {
-      // Prose block — collect until next ## or ** (new Q/A) or blank line or image marker
-      const paraLines = [line];
+      proseLines.push(line);
       i++;
-      while (i < lines.length && !lines[i].startsWith('## ') && !lines[i].startsWith('**') && lines[i].trim() !== '' && !/^\!\[.+\]$/.test(lines[i].trim())) {
-        paraLines.push(lines[i]);
-        i++;
-      }
-      appendPara(paraLines);
     }
   }
+  flushProse();
 
   return wrap;
 }
@@ -5423,17 +5460,63 @@ function renderBkCard(shloka, sarga) {
 
   card.appendChild(row);
 
-  // Detail: commentary with sutra links
+  // Detail: two-tab commentary (जयमङ्गला / टिप्पणी)
   const detail = document.createElement('div');
   detail.className = 'sutra-detail';
 
-  if (shloka.commentary) {
-    const commDiv = document.createElement('div');
-    commDiv.className = 'commentary-panel detail-sanskrit';
-    commDiv._rawCommentary = shloka.commentary;
-    setCommentaryHTML(commDiv, shloka.commentary);
-    detail.appendChild(commDiv);
+  const BK_TABS = [
+    { id: 'jm', label: 'जयमङ्गला' },
+    { id: 'tp', label: 'टिप्पणी'   },
+  ];
+
+  const tabBar    = document.createElement('div');
+  tabBar.className = 'detail-tabs';
+  const panelWrap = document.createElement('div');
+  panelWrap.className = 'detail-tab-panels';
+
+  let firstBtn = null, firstPanel = null;
+  for (const tabDef of BK_TABS) {
+    const tp = document.createElement('div');
+    tp.className = 'detail-tab-panel commentary-text';
+    tp.dataset.panel = tabDef.id;
+
+    if (tabDef.id === 'jm') {
+      if (shloka.commentary) {
+        tp.classList.add('commentary-panel', 'detail-sanskrit');
+        tp._rawCommentary = shloka.commentary;
+        setCommentaryHTML(tp, shloka.commentary);
+      } else {
+        tp.innerHTML = `<span class="no-data">No data.</span>`;
+      }
+    } else {
+      // टिप्पणी — use notes field if present, else placeholder
+      if (shloka.notes) {
+        tp.classList.add('commentary-panel', 'detail-sanskrit');
+        tp._rawCommentary = shloka.notes;
+        setCommentaryHTML(tp, shloka.notes);
+      } else {
+        tp.innerHTML = `<span class="no-data">No data.</span>`;
+      }
+    }
+
+    panelWrap.appendChild(tp);
+
+    const btn = devEl('button', 'detail-tab', tabDef.label);
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      panelWrap.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+      tp.classList.add('active');
+    });
+    tabBar.appendChild(btn);
+
+    if (!firstBtn) { firstBtn = btn; firstPanel = tp; }
   }
+  if (firstBtn) { firstBtn.classList.add('active'); firstPanel.classList.add('active'); }
+
+  detail.appendChild(tabBar);
+  detail.appendChild(panelWrap);
 
   card.appendChild(detail);
   card.addEventListener('click', () => toggleSimpleCard(card));
