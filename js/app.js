@@ -183,10 +183,10 @@ const SIDDHI_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi'   : null;
 const DIAGRAM_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/visuals' : null;
 const VIDYUT_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/vidyut'  : null;
 const VIDYUT_GANA   = { '1':'Bhvadi','2':'Adadi','3':'Juhotyadi','4':'Divadi','5':'Svadi','6':'Tudadi','7':'Rudhadi','8':'Tanadi','9':'Kryadi','10':'Curadi' };
-const VIDYUT_LAKARA = { lat:'Lat',lot:'Lot',lang:'Lang',vidhiling:'Vidhiling',lit:'Lit',lut:'Lut',lrut:'Lrut',ashirling:'Ashirling',lung:'Lung',lrung:'Lrung' };
+const VIDYUT_LAKARA = { lat:'Lat',lot:'Lot',lang:'Lan',vidhiling:'VidhiLin',lit:'Lit',lut:'Lut',lrut:'Lrt',ashirling:'AshirLin',lung:'Lun',lrung:'Lrn' };
 const VIDYUT_PURUSH = ['Prathama','Madhyama','Uttama'];
 const VIDYUT_VACANA = ['Eka','Dvi','Bahu'];
-const VIDYUT_PADA   = { 'परस्मैपद':'Parasmai', 'आत्मनेपद':'Atmanepada' };
+const VIDYUT_PADA   = { 'परस्मैपद':'Parasmaipada', 'आत्मनेपद':'Atmanepada' };
 
 // ── Google Drive notes (Phase 4) ─────────────────────────────────────────────
 const GOOGLE_CLIENT_ID        = '868948839711-9o6jlfsrlhoa7qn5ngebqp91l60h7e35.apps.googleusercontent.com';
