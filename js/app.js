@@ -203,11 +203,24 @@ async function loadVidyut() {
   if (!VIDYUT_BASE) return null;
   if (!_vidyutLoadPromise) {
     _vidyutLoadPromise = (async () => {
-      const url = VIDYUT_BASE.startsWith('http') ? VIDYUT_BASE + '/vidyut-prakriya.js'
-                  : new URL(VIDYUT_BASE + '/vidyut-prakriya.js', location.href).href;
-      const mod = await import(url);
-      await mod.initWasm();
-      _vidyutMod = new mod.Vidyut();
+      const base = VIDYUT_BASE.startsWith('http') ? VIDYUT_BASE
+                   : new URL(VIDYUT_BASE, location.href).href.replace(/\/$/, '');
+      // Import inner WASM JS directly to avoid wrapper module-cache issues
+      const wasmMod = await import(base + '/wasm/vidyut_prakriya.js');
+      await wasmMod.default({ module_or_path: base + '/wasm/vidyut_prakriya_bg.wasm' });
+      const tsvRes = await fetch(base + '/vidyut_dhatupatha_5.tsv').catch(() => null);
+      const tsv = (tsvRes && tsvRes.ok) ? await tsvRes.text() : '';
+      // Parse TSV into baseindex → aupadeshika map for exact Vidyut SLP1 forms
+      // (Vidyut uses accent marks like \ ^ ~ that our transliterator drops)
+      const tsvMap = {};
+      if (tsv) {
+        tsv.split('\n').slice(1).forEach(line => {
+          const parts = line.split('\t');
+          if (parts[0] && parts[1]) tsvMap[parts[0]] = parts[1];
+        });
+      }
+      // Store as { wasm, tsvMap } to match existing v.wasm.deriveTinantas() calls
+      _vidyutMod = { wasm: wasmMod.Vidyut.init(tsv), tsvMap };
       return _vidyutMod;
     })();
   }
@@ -875,7 +888,10 @@ async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
     const v = await loadVidyut();
     if (!v) { panel.innerHTML = '<div class="vidyut-loading">Vidyut unavailable.</div>'; return; }
 
-    const aupadeshika = Sanscript.t(dhatu.aupadeshik || dhatu.dhatu, 'devanagari', 'slp1');
+    // Use exact Vidyut SLP1 form from TSV (includes accent marks like \ ^ ~)
+    // Falling back to transliteration only if baseindex not in TSV
+    const aupadeshika = (v.tsvMap && v.tsvMap[dhatu.baseindex])
+                        || Sanscript.t(dhatu.aupadeshik || dhatu.dhatu, 'devanagari', 'slp1');
     const gana        = VIDYUT_GANA[String(dhatu.gana)] || 'Bhvadi';
     const lakara      = VIDYUT_LAKARA[lakaraKey];
     const purusha     = VIDYUT_PURUSH[Math.floor(cellIndex / 3)];
@@ -906,11 +922,14 @@ async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
   }
 }
 
+// Strip Vidyut accent markers (\ = anudātta, ^ = udātta) before SLP1→Devanagari conversion
+function vslp1(s) { return (s || '').replace(/[\\^]/g, ''); }
+
 function renderVidyutPanel(panel, results) {
   // Header: final form(s)
   const header = document.createElement('div');
   header.className = 'vidyut-header';
-  const devForms = results.map(r => Sanscript.t(r.text, 'slp1', 'devanagari'));
+  const devForms = results.map(r => Sanscript.t(vslp1(r.text), 'slp1', 'devanagari'));
   const formSpan = document.createElement('span');
   formSpan.className = 'vidyut-final-form dev-text';
   formSpan._devText = devForms.join(' / ');
@@ -927,10 +946,10 @@ function renderVidyutPanel(panel, results) {
   copyBtn.title = 'Copy prakriyā as text';
   copyBtn.textContent = '📋';
   copyBtn.addEventListener('click', () => {
-    const devFormsFinal = results.map(r => Sanscript.t(r.text, 'slp1', 'devanagari')).join(' / ');
+    const devFormsFinal = results.map(r => Sanscript.t(vslp1(r.text), 'slp1', 'devanagari')).join(' / ');
     const lines = [`${devFormsFinal} — tiṅanta prakriyā | paniniyam.com`, ''];
     results[0].history.forEach(step => {
-      const formParts = (step.result || []).map(t => Sanscript.t(t.text || '', 'slp1', 'devanagari'));
+      const formParts = (step.result || []).map(t => Sanscript.t(vslp1(t.text), 'slp1', 'devanagari'));
       const formStr = formParts.join(' + ');
       const rule = step.rule || {};
       let sutraStr = '';
@@ -983,7 +1002,7 @@ function renderVidyutPanel(panel, results) {
         sep.textContent = '+';
         formTd.appendChild(sep);
       }
-      const devText = Sanscript.t(term.text || '', 'slp1', 'devanagari');
+      const devText = Sanscript.t(vslp1(term.text), 'slp1', 'devanagari');
       const sp = document.createElement('span');
       sp.className = 'vidyut-term dev-text' + (term.wasChanged ? ' vidyut-changed' : '');
       sp._devText = devText;
