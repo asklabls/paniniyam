@@ -181,6 +181,12 @@ const FORMS_BASE = isLocal
 const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f9189fffb000.r2.dev';
 const SIDDHI_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi'   : null;
 const DIAGRAM_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/visuals' : null;
+const VIDYUT_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/vidyut'  : null;
+const VIDYUT_GANA   = { '1':'Bhvadi','2':'Adadi','3':'Juhotyadi','4':'Divadi','5':'Svadi','6':'Tudadi','7':'Rudhadi','8':'Tanadi','9':'Kryadi','10':'Curadi' };
+const VIDYUT_LAKARA = { lat:'Lat',lot:'Lot',lang:'Lang',vidhiling:'Vidhiling',lit:'Lit',lut:'Lut',lrut:'Lrut',ashirling:'Ashirling',lung:'Lung',lrung:'Lrung' };
+const VIDYUT_PURUSH = ['Prathama','Madhyama','Uttama'];
+const VIDYUT_VACANA = ['Eka','Dvi','Bahu'];
+const VIDYUT_PADA   = { 'परस्मैपद':'Parasmai', 'आत्मनेपद':'Atmanepada' };
 
 // ── Google Drive notes (Phase 4) ─────────────────────────────────────────────
 const GOOGLE_CLIENT_ID        = '868948839711-9o6jlfsrlhoa7qn5ngebqp91l60h7e35.apps.googleusercontent.com';
@@ -188,6 +194,23 @@ const DRIVE_SCOPE             = 'https://www.googleapis.com/auth/drive.file';
 const NOTES_FILENAME          = 'paniniyam-notes.json';
 const AUTHOR_NOTES_FILENAME   = 'paniniyam-author-notes.json';
 const OWNER_EMAIL             = 'akupadhyayula@gmail.com';
+
+let _vidyutMod = null;
+let _vidyutLoadPromise = null;
+
+async function loadVidyut() {
+  if (_vidyutMod) return _vidyutMod;
+  if (!VIDYUT_BASE) return null;
+  if (!_vidyutLoadPromise) {
+    _vidyutLoadPromise = (async () => {
+      const mod = await import(VIDYUT_BASE + '/vidyut-prakriya.js');
+      await mod.initWasm();
+      _vidyutMod = new mod.Vidyut();
+      return _vidyutMod;
+    })();
+  }
+  return _vidyutLoadPromise;
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentScript = localStorage.getItem(SETTINGS_KEY) || SCRIPT_DEFAULT;
@@ -793,14 +816,14 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
       if (pForms && aForms) {
         const split = document.createElement('div');
         split.className = 'forms-split';
-        split.appendChild(renderFormsTable(pForms, 'परस्मैपद'));
+        split.appendChild(renderFormsTable(pForms, 'परस्मैपद', d, lakara.key));
         const divider = document.createElement('div');
         divider.className = 'forms-divider';
         split.appendChild(divider);
-        split.appendChild(renderFormsTable(aForms, 'आत्मनेपद'));
+        split.appendChild(renderFormsTable(aForms, 'आत्मनेपद', d, lakara.key));
         sec.appendChild(split);
       } else {
-        sec.appendChild(renderFormsTable(pForms || aForms, null));
+        sec.appendChild(renderFormsTable(pForms || aForms, null, d, lakara.key));
       }
       panel.appendChild(sec);
     }
@@ -810,7 +833,146 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
   }
 }
 
-function renderFormsTable(formsStr, padaLabel) {
+async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
+  const section = td.closest('.dhatu-lakara-section');
+
+  const existing = section.querySelector('.vidyut-prakriya-panel');
+  const isSame = existing && existing._cellIndex === cellIndex && existing._lakaraKey === lakaraKey && existing._padaKey === padaKey;
+
+  td.closest('.detail-tab-panel, .reader-content, [class*="dhatu"]')
+    ?.querySelectorAll('.forms-cell-active')
+    .forEach(c => c.classList.remove('forms-cell-active'));
+  section.querySelectorAll('.vidyut-prakriya-panel').forEach(p => p.remove());
+
+  if (isSame) return;
+
+  td.classList.add('forms-cell-active');
+
+  const panel = document.createElement('div');
+  panel.className = 'vidyut-prakriya-panel';
+  panel._cellIndex = cellIndex;
+  panel._lakaraKey = lakaraKey;
+  panel._padaKey   = padaKey;
+
+  const loading = document.createElement('div');
+  loading.className = 'vidyut-loading';
+  loading.textContent = 'Computing prakriyā…';
+  panel.appendChild(loading);
+  section.appendChild(panel);
+
+  try {
+    const v = await loadVidyut();
+    if (!v) { loading.textContent = 'Vidyut unavailable.'; return; }
+
+    const aupadeshika = Sanscript.t(dhatu.aupadeshik || dhatu.dhatu, 'devanagari', 'slp1');
+    const gana        = VIDYUT_GANA[String(dhatu.gana)] || 'Bhvadi';
+    const lakara      = VIDYUT_LAKARA[lakaraKey];
+    const purusha     = VIDYUT_PURUSH[Math.floor(cellIndex / 3)];
+    const vacana      = VIDYUT_VACANA[cellIndex % 3];
+
+    const results = v.deriveTinantas({
+      dhatu:    { aupadeshika, gana },
+      lakara,
+      prayoga:  'Kartari',
+      purusha,
+      vacana,
+      pada:     padaKey,
+    });
+
+    panel.innerHTML = '';
+    if (!results || results.length === 0) {
+      panel.innerHTML = '<div class="vidyut-loading">No derivation found.</div>';
+      return;
+    }
+    renderVidyutPanel(panel, results);
+  } catch (err) {
+    console.error('Vidyut error:', err);
+    panel.innerHTML = `<div class="vidyut-loading">Error: ${err.message}</div>`;
+  }
+}
+
+function renderVidyutPanel(panel, results) {
+  const header = document.createElement('div');
+  header.className = 'vidyut-header';
+  const formSpan = document.createElement('span');
+  formSpan.className = 'vidyut-final-form dev-text';
+  const devForms = results.map(r => Sanscript.t(r.text, 'slp1', 'devanagari'));
+  formSpan._devText = devForms.join(' / ');
+  formSpan.textContent = translit(devForms.join(' / '));
+  header.appendChild(formSpan);
+  if (results.length > 1) {
+    const note = document.createElement('span');
+    note.className = 'vidyut-alt-note';
+    note.textContent = `${results.length} alternatives`;
+    header.appendChild(note);
+  }
+  panel.appendChild(header);
+
+  const history = results[0].history;
+  const table = document.createElement('table');
+  table.className = 'vidyut-steps-table';
+
+  history.forEach((step, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'vidyut-step';
+
+    const numTd = document.createElement('td');
+    numTd.className = 'vidyut-step-num';
+    numTd.textContent = i + 1;
+    tr.appendChild(numTd);
+
+    const formTd = document.createElement('td');
+    formTd.className = 'vidyut-step-form';
+    (step.result || []).forEach((term, ti) => {
+      if (ti > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'vidyut-sep';
+        sep.textContent = ' + ';
+        formTd.appendChild(sep);
+      }
+      const devText = Sanscript.t(term.text || '', 'slp1', 'devanagari');
+      const sp = document.createElement('span');
+      sp.className = 'vidyut-term dev-text' + (term.wasChanged ? ' vidyut-changed' : '');
+      sp._devText = devText;
+      sp.textContent = translit(devText);
+      formTd.appendChild(sp);
+    });
+    tr.appendChild(formTd);
+
+    const sutraTd = document.createElement('td');
+    sutraTd.className = 'vidyut-step-sutra';
+    const rule = step.rule || {};
+    if (rule.code) {
+      const parts = rule.code.split('.');
+      if (parts.length === 3 && rule.source === 'ashtadhyayi') {
+        const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
+        const a = document.createElement('a');
+        a.className = 'sutra-link';
+        a.href = `?sutra=${rule.code}`;
+        a.dataset.id = sid;
+        a.textContent = `[${rule.code}]`;
+        a.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
+        sutraTd.appendChild(a);
+      } else {
+        const sp = document.createElement('span');
+        sp.className = 'vidyut-vartika';
+        sp.textContent = `${rule.source || ''} ${rule.code}`.trim();
+        sutraTd.appendChild(sp);
+      }
+    }
+    tr.appendChild(sutraTd);
+    table.appendChild(tr);
+  });
+
+  panel.appendChild(table);
+
+  const credit = document.createElement('div');
+  credit.className = 'vidyut-credit';
+  credit.innerHTML = 'Machine prakriyā: <a href="https://github.com/ambuda-org/vidyut" target="_blank" rel="noopener">Vidyut</a> (MIT) · <a href="https://github.com/asklabls/paniniyam-vidyut" target="_blank" rel="noopener">paniniyam-vidyut</a>';
+  panel.appendChild(credit);
+}
+
+function renderFormsTable(formsStr, padaLabel, dhatu, lakaraKey) {
   const cells = String(formsStr || '').split(';').map(s => s.trim());
   while (cells.length < 9) cells.push('—');
 
@@ -862,6 +1024,15 @@ function renderFormsTable(formsStr, padaLabel) {
       td.className = 'forms-cell dev-text';
       td._devText = val;
       td.textContent = translit(val);
+      if (dhatu && lakaraKey && VIDYUT_BASE) {
+        const cellIndex = row * 3 + col;
+        const padaKey = VIDYUT_PADA[padaLabel] || null;
+        td.title = 'Click for prakriyā';
+        td.addEventListener('click', e => {
+          e.stopPropagation();
+          showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td);
+        });
+      }
       tr.appendChild(td);
     }
     tbody.appendChild(tr);

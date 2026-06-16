@@ -1189,6 +1189,92 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .forms-table tbody tr:last-child .forms-row-label { border-bottom: none; }
 .forms-table tbody tr:hover .forms-cell { background: #fdf0dc; }
 
+/* ── Vidyut prakriya panel ─────────────────────────────────── */
+.forms-cell         { cursor: pointer; }
+.forms-cell-active  { background: var(--accent) !important; color: #fff !important; font-weight: 700; }
+
+.vidyut-prakriya-panel {
+  margin: 6px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  overflow: hidden;
+  font-size: .85em;
+}
+.vidyut-header {
+  background: var(--accent);
+  padding: 7px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.vidyut-final-form {
+  font-family: var(--font-dev);
+  font-size: 1.25em;
+  color: #fff;
+  font-weight: 700;
+}
+.vidyut-alt-note {
+  font-size: .78em;
+  color: rgba(255,255,255,.75);
+}
+.vidyut-steps-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.vidyut-step td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.vidyut-step:last-child td { border-bottom: none; }
+.vidyut-step-num {
+  color: var(--muted);
+  font-size: .72em;
+  width: 26px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.vidyut-step-form {
+  font-family: var(--font-dev);
+  color: var(--text);
+}
+.vidyut-sep { color: var(--muted); }
+.vidyut-changed {
+  color: var(--accent);
+  font-weight: 700;
+}
+.vidyut-step-sutra {
+  text-align: right;
+  white-space: nowrap;
+  width: 80px;
+}
+.vidyut-step-sutra .sutra-link {
+  font-size: .8em;
+  color: var(--accent2);
+}
+.vidyut-vartika {
+  font-size: .78em;
+  color: var(--muted);
+  font-style: italic;
+}
+.vidyut-loading {
+  padding: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.vidyut-credit {
+  padding: 5px 12px;
+  font-size: .7em;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  text-align: right;
+  background: var(--bg-sidebar);
+}
+.vidyut-credit a { color: var(--accent); text-decoration: none; }
+.vidyut-credit a:hover { text-decoration: underline; }
+
 /* ── Pratyaya reference panel ─────────────────────────────────── */
 .panel-pratyaya {
   max-width: 900px;
