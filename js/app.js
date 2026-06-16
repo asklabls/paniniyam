@@ -835,36 +835,45 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
   }
 }
 
+let _vidyutSidePanel = null;
+let _vidyutHideTimer = null;
+
+function getVidyutSidePanel() {
+  if (!_vidyutSidePanel) {
+    _vidyutSidePanel = document.getElementById('vidyut-panel');
+    _vidyutSidePanel.addEventListener('mouseenter', () => clearTimeout(_vidyutHideTimer));
+    _vidyutSidePanel.addEventListener('mouseleave', () => {
+      _vidyutHideTimer = setTimeout(hideVidyutPanel, 300);
+    });
+  }
+  return _vidyutSidePanel;
+}
+
+function hideVidyutPanel() {
+  const p = document.getElementById('vidyut-panel');
+  if (p) p.classList.remove('open');
+  document.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+}
+
 async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
-  const section = td.closest('.dhatu-lakara-section');
+  clearTimeout(_vidyutHideTimer);
 
-  const existing = section.querySelector('.vidyut-prakriya-panel');
-  const isSame = existing && existing._cellIndex === cellIndex && existing._lakaraKey === lakaraKey && existing._padaKey === padaKey;
+  // Toggle off if same cell clicked again
+  if (td.classList.contains('forms-cell-active')) {
+    hideVidyutPanel();
+    return;
+  }
 
-  td.closest('.detail-tab-panel, .reader-content, [class*="dhatu"]')
-    ?.querySelectorAll('.forms-cell-active')
-    .forEach(c => c.classList.remove('forms-cell-active'));
-  section.querySelectorAll('.vidyut-prakriya-panel').forEach(p => p.remove());
-
-  if (isSame) return;
-
+  document.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
   td.classList.add('forms-cell-active');
 
-  const panel = document.createElement('div');
-  panel.className = 'vidyut-prakriya-panel';
-  panel._cellIndex = cellIndex;
-  panel._lakaraKey = lakaraKey;
-  panel._padaKey   = padaKey;
-
-  const loading = document.createElement('div');
-  loading.className = 'vidyut-loading';
-  loading.textContent = 'Computing prakriyā…';
-  panel.appendChild(loading);
-  section.appendChild(panel);
+  const panel = getVidyutSidePanel();
+  panel.innerHTML = '<div class="vidyut-loading">Computing prakriyā…</div>';
+  panel.classList.add('open');
 
   try {
     const v = await loadVidyut();
-    if (!v) { loading.textContent = 'Vidyut unavailable.'; return; }
+    if (!v) { panel.innerHTML = '<div class="vidyut-loading">Vidyut unavailable.</div>'; return; }
 
     const aupadeshika = Sanscript.t(dhatu.aupadeshik || dhatu.dhatu, 'devanagari', 'slp1');
     const gana        = VIDYUT_GANA[String(dhatu.gana)] || 'Bhvadi';
@@ -898,11 +907,12 @@ async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
 }
 
 function renderVidyutPanel(panel, results) {
+  // Header: final form(s)
   const header = document.createElement('div');
   header.className = 'vidyut-header';
+  const devForms = results.map(r => Sanscript.t(r.text, 'slp1', 'devanagari'));
   const formSpan = document.createElement('span');
   formSpan.className = 'vidyut-final-form dev-text';
-  const devForms = results.map(r => Sanscript.t(r.text, 'slp1', 'devanagari'));
   formSpan._devText = devForms.join(' / ');
   formSpan.textContent = translit(devForms.join(' / '));
   header.appendChild(formSpan);
@@ -912,69 +922,81 @@ function renderVidyutPanel(panel, results) {
     note.textContent = `${results.length} alternatives`;
     header.appendChild(note);
   }
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'vidyut-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', hideVidyutPanel);
+  header.appendChild(closeBtn);
   panel.appendChild(header);
 
-  const history = results[0].history;
-  const table = document.createElement('table');
-  table.className = 'vidyut-steps-table';
+  // Steps
+  const steps = document.createElement('div');
+  steps.className = 'vidyut-steps';
 
-  history.forEach((step, i) => {
-    const tr = document.createElement('tr');
-    tr.className = 'vidyut-step';
+  results[0].history.forEach(step => {
+    const row = document.createElement('div');
+    row.className = 'vidyut-step';
 
-    const numTd = document.createElement('td');
-    numTd.className = 'vidyut-step-num';
-    numTd.textContent = i + 1;
-    tr.appendChild(numTd);
-
-    const formTd = document.createElement('td');
-    formTd.className = 'vidyut-step-form';
+    // Morpheme result for this step
+    const formDiv = document.createElement('div');
+    formDiv.className = 'vidyut-step-form';
     (step.result || []).forEach((term, ti) => {
       if (ti > 0) {
         const sep = document.createElement('span');
         sep.className = 'vidyut-sep';
         sep.textContent = ' + ';
-        formTd.appendChild(sep);
+        formDiv.appendChild(sep);
       }
       const devText = Sanscript.t(term.text || '', 'slp1', 'devanagari');
       const sp = document.createElement('span');
       sp.className = 'vidyut-term dev-text' + (term.wasChanged ? ' vidyut-changed' : '');
       sp._devText = devText;
       sp.textContent = translit(devText);
-      formTd.appendChild(sp);
+      formDiv.appendChild(sp);
     });
-    tr.appendChild(formTd);
+    row.appendChild(formDiv);
 
-    const sutraTd = document.createElement('td');
-    sutraTd.className = 'vidyut-step-sutra';
+    // Sutra card: text + ref (click goes to sutra, hover shows artha popup)
     const rule = step.rule || {};
     if (rule.code) {
       const parts = rule.code.split('.');
       if (parts.length === 3 && rule.source === 'ashtadhyayi') {
         const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
-        const a = document.createElement('a');
-        a.className = 'sutra-link';
-        a.href = `?sutra=${rule.code}`;
-        a.dataset.id = sid;
-        a.textContent = `[${rule.code}]`;
-        a.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
-        sutraTd.appendChild(a);
+        const sutra = sutraIndex[sid];
+        const card = document.createElement('a');
+        card.className = 'vidyut-sutra-card sutra-link';
+        card.href = `?sutra=${rule.code}`;
+        card.dataset.id = sid;
+        card.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
+
+        if (sutra) {
+          const txt = document.createElement('span');
+          txt.className = 'vidyut-sutra-text dev-text';
+          txt._devText = sutra.s;
+          txt.textContent = translit(sutra.s);
+          card.appendChild(txt);
+        }
+        const ref = document.createElement('span');
+        ref.className = 'vidyut-sutra-ref';
+        ref.textContent = rule.code;
+        card.appendChild(ref);
+        row.appendChild(card);
       } else {
-        const sp = document.createElement('span');
-        sp.className = 'vidyut-vartika';
-        sp.textContent = `${rule.source || ''} ${rule.code}`.trim();
-        sutraTd.appendChild(sp);
+        const vt = document.createElement('span');
+        vt.className = 'vidyut-vartika';
+        vt.textContent = `${rule.source || ''} ${rule.code}`.trim();
+        row.appendChild(vt);
       }
     }
-    tr.appendChild(sutraTd);
-    table.appendChild(tr);
+
+    steps.appendChild(row);
   });
 
-  panel.appendChild(table);
+  panel.appendChild(steps);
 
   const credit = document.createElement('div');
   credit.className = 'vidyut-credit';
-  credit.innerHTML = 'Machine prakriyā: <a href="https://github.com/ambuda-org/vidyut" target="_blank" rel="noopener">Vidyut</a> (MIT) · <a href="https://github.com/asklabls/paniniyam-vidyut" target="_blank" rel="noopener">paniniyam-vidyut</a>';
+  credit.innerHTML = 'Prakriyā: <a href="https://github.com/ambuda-org/vidyut" target="_blank" rel="noopener">Vidyut</a> (MIT)';
   panel.appendChild(credit);
 }
 
