@@ -1244,54 +1244,52 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .vidyut-close:hover { color: #fff; }
 
-.vidyut-steps {
+.vidyut-steps-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 6px 0;
 }
-.vidyut-step {
-  padding: 8px 14px;
+.vidyut-steps-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.vidyut-step td {
+  padding: 7px 10px;
   border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  vertical-align: middle;
 }
-.vidyut-step:last-child { border-bottom: none; }
+.vidyut-step:last-child td { border-bottom: none; }
 .vidyut-step-form {
   font-family: var(--font-dev);
-  font-size: 1em;
+  font-size: .95em;
   color: var(--text);
+  white-space: nowrap;
 }
-.vidyut-sep { color: var(--muted); font-size: .9em; }
+.vidyut-sep {
+  color: var(--muted);
+  font-size: .8em;
+  margin: 0 3px;
+}
 .vidyut-changed {
   color: var(--accent);
   font-weight: 700;
 }
-/* Sutra card inside each step */
-.vidyut-sutra-card {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  text-decoration: none;
-  background: var(--bg-sidebar);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 5px 10px;
-  cursor: pointer;
+.vidyut-step-sutra {
+  width: 55%;
 }
-.vidyut-sutra-card:hover { background: var(--bg-hover, var(--border)); }
 .vidyut-sutra-text {
   font-family: var(--font-dev);
-  font-size: .92em;
+  font-size: .88em;
   color: var(--text);
-  flex: 1;
+  display: block;
+  margin-bottom: 2px;
 }
 .vidyut-sutra-ref {
   font-size: .75em;
   color: var(--accent2);
-  white-space: nowrap;
+  text-decoration: none;
   font-variant-numeric: tabular-nums;
 }
+.vidyut-sutra-ref:hover { text-decoration: underline; }
 .vidyut-vartika {
   font-size: .8em;
   color: var(--muted);

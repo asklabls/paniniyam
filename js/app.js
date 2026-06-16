@@ -929,70 +929,72 @@ function renderVidyutPanel(panel, results) {
   header.appendChild(closeBtn);
   panel.appendChild(header);
 
-  // Steps
-  const steps = document.createElement('div');
-  steps.className = 'vidyut-steps';
+  // Steps — two-column table: form result | sutra text + ref
+  const wrap = document.createElement('div');
+  wrap.className = 'vidyut-steps-wrap';
+  const table = document.createElement('table');
+  table.className = 'vidyut-steps-table';
 
   results[0].history.forEach(step => {
-    const row = document.createElement('div');
-    row.className = 'vidyut-step';
+    const tr = document.createElement('tr');
+    tr.className = 'vidyut-step';
 
-    // Morpheme result for this step
-    const formDiv = document.createElement('div');
-    formDiv.className = 'vidyut-step-form';
+    // Left col: morpheme result
+    const formTd = document.createElement('td');
+    formTd.className = 'vidyut-step-form';
     (step.result || []).forEach((term, ti) => {
       if (ti > 0) {
         const sep = document.createElement('span');
         sep.className = 'vidyut-sep';
-        sep.textContent = ' + ';
-        formDiv.appendChild(sep);
+        sep.textContent = '+';
+        formTd.appendChild(sep);
       }
       const devText = Sanscript.t(term.text || '', 'slp1', 'devanagari');
       const sp = document.createElement('span');
       sp.className = 'vidyut-term dev-text' + (term.wasChanged ? ' vidyut-changed' : '');
       sp._devText = devText;
       sp.textContent = translit(devText);
-      formDiv.appendChild(sp);
+      formTd.appendChild(sp);
     });
-    row.appendChild(formDiv);
+    tr.appendChild(formTd);
 
-    // Sutra card: text + ref (click goes to sutra, hover shows artha popup)
+    // Right col: sutra text (plain) + ref number (sutra-link → artha popup on hover)
+    const sutraTd = document.createElement('td');
+    sutraTd.className = 'vidyut-step-sutra';
     const rule = step.rule || {};
     if (rule.code) {
       const parts = rule.code.split('.');
       if (parts.length === 3 && rule.source === 'ashtadhyayi') {
         const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
         const sutra = sutraIndex[sid];
-        const card = document.createElement('a');
-        card.className = 'vidyut-sutra-card sutra-link';
-        card.href = `?sutra=${rule.code}`;
-        card.dataset.id = sid;
-        card.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
-
         if (sutra) {
           const txt = document.createElement('span');
           txt.className = 'vidyut-sutra-text dev-text';
           txt._devText = sutra.s;
           txt.textContent = translit(sutra.s);
-          card.appendChild(txt);
+          sutraTd.appendChild(txt);
         }
-        const ref = document.createElement('span');
-        ref.className = 'vidyut-sutra-ref';
+        // Ref number is the sutra-link — hover triggers artha popup, click navigates
+        const ref = document.createElement('a');
+        ref.className = 'vidyut-sutra-ref sutra-link';
+        ref.href = `?sutra=${rule.code}`;
+        ref.dataset.id = sid;
         ref.textContent = rule.code;
-        card.appendChild(ref);
-        row.appendChild(card);
+        ref.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
+        sutraTd.appendChild(ref);
       } else {
         const vt = document.createElement('span');
         vt.className = 'vidyut-vartika';
         vt.textContent = `${rule.source || ''} ${rule.code}`.trim();
-        row.appendChild(vt);
+        sutraTd.appendChild(vt);
       }
     }
-
-    steps.appendChild(row);
+    tr.appendChild(sutraTd);
+    table.appendChild(tr);
   });
 
-  panel.appendChild(steps);
+  wrap.appendChild(table);
+  panel.appendChild(wrap);
 
   const credit = document.createElement('div');
   credit.className = 'vidyut-credit';
