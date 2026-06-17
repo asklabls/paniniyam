@@ -293,6 +293,7 @@ let _saveInProgress  = false;
 
 // Author notes state
 let authorNotesData        = {};
+let pvNotesData            = null;   // {sutraId: "note text"} from paniniyam-author-notes.json
 let authorNotesDriveFileId = null;
 let authorNotesLoaded      = false;
 let youtubeData            = null;   // {sutraId: videoId} loaded from forms/youtube.json
@@ -410,6 +411,22 @@ function renderCommentaryHTML(raw) {
           const esc = devText.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
           html += `<span class="sutra-quote" data-dev="${esc}">${translit(devText)}</span>`;
           i = end + 2; continue;
+        }
+      }
+      // [label](url) markdown link — handles [1:20](youtubeUrl?t=N) timestamps etc.
+      if (text[i] === '[' && text[i+1] !== '[') {
+        const closeBracket = text.indexOf(']', i+1);
+        if (closeBracket !== -1 && text[closeBracket+1] === '(') {
+          const closeParens = text.indexOf(')', closeBracket+2);
+          if (closeParens !== -1) {
+            const url = text.slice(closeBracket+2, closeParens);
+            if (url.startsWith('http')) {
+              flush();
+              const label = text.slice(i+1, closeBracket);
+              html += `<a href="${url}" target="_blank" rel="noopener" class="siddhi-ext-link">${label}</a>`;
+              i = closeParens + 1; continue;
+            }
+          }
         }
       }
       // [[ref]] or [[ref| display text]]
@@ -2043,6 +2060,16 @@ async function loadArthaData() {
   } catch (_) { return null; }
 }
 
+async function loadPvNotes() {
+  if (pvNotesData !== null) return pvNotesData;
+  if (!PRIVATE_BASE) { pvNotesData = {}; return pvNotesData; }
+  try {
+    const r = await fetch(`${PRIVATE_BASE}/paniniyam-author-notes.json`);
+    pvNotesData = r.ok ? await r.json() : {};
+  } catch (_) { pvNotesData = {}; }
+  return pvNotesData;
+}
+
 async function loadConceptsIndex() {
   if (conceptsIndex) return conceptsIndex;
   try {
@@ -2702,6 +2729,7 @@ function showPada(a, p, btnEl) {
   activeCard  = null;
   if (btnEl) setActiveNavBtn(btnEl);
   loadArthaData();   // prefetch pravachanam.json in background
+  loadPvNotes();     // prefetch paniniyam-author-notes.json in background
 
   const filtered = sutraList.filter(s => +s.a === +a && +s.p === +p);
 
@@ -6195,39 +6223,47 @@ function renderAuthorNotesTab(panel, sutraId) {
   const isOwner = !!(googleToken && googleUser?.email === OWNER_EMAIL);
   const text = authorNotesData[sutraId] || '';
 
-  if (!googleToken) {
-    // Show sign-in only — owner will use it; others never need to
-    const wrap = document.createElement('div');
-    wrap.className = 'notes-signin-wrap';
-    const msg = document.createElement('p');
-    msg.className = 'notes-signin-msg';
-    msg.textContent = text || 'No author notes for this sūtra yet.';
-    wrap.appendChild(msg);
-    if (text) { panel.appendChild(wrap); return; }
-    const btn = document.createElement('button');
-    btn.className = 'notes-signin-btn';
-    btn.textContent = 'Sign in to edit';
-    btn.addEventListener('click', () => {
-      if (typeof google === 'undefined') { alert('Google sign-in not loaded yet — please try again.'); return; }
-      googleSignIn();
+  // ── Lecture notes from paniniyam-author-notes.json (R2) ──
+  if (pvNotesData === null) {
+    // Still fetching — load and re-render when done
+    loadPvNotes().then(() => {
+      if (panel._authorNotesSutraId === sutraId) renderAuthorNotesTab(panel, sutraId);
     });
-    wrap.appendChild(btn);
-    panel.appendChild(wrap);
+  } else {
+    const pvText = pvNotesData[sutraId];
+    if (pvText) {
+      const pvDiv = document.createElement('div');
+      pvDiv.className = 'pv-notes commentary-panel';
+      panel.appendChild(pvDiv);
+      setCommentaryHTML(pvDiv, pvText);
+    }
+  }
+
+  if (!googleToken) {
+    if (!text && !pvNotesData?.[sutraId]) {
+      // Nothing to show — offer sign-in for owner
+      const wrap = document.createElement('div');
+      wrap.className = 'notes-signin-wrap';
+      const btn = document.createElement('button');
+      btn.className = 'notes-signin-btn';
+      btn.textContent = 'Sign in to edit';
+      btn.addEventListener('click', () => {
+        if (typeof google === 'undefined') { alert('Google sign-in not loaded yet — please try again.'); return; }
+        googleSignIn();
+      });
+      wrap.appendChild(btn);
+      panel.appendChild(wrap);
+    }
     return;
   }
 
   if (!isOwner) {
-    // Signed in but not owner — read-only
+    // Signed in but not owner — read-only (PV notes already shown above)
     if (text) {
       const content = document.createElement('div');
       content.className = 'notes-readonly commentary-panel';
       setCommentaryHTML(content, text);
       panel.appendChild(content);
-    } else {
-      const empty = document.createElement('p');
-      empty.className = 'notes-empty';
-      empty.textContent = 'No author notes for this sūtra yet.';
-      panel.appendChild(empty);
     }
     return;
   }
