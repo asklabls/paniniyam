@@ -6238,83 +6238,10 @@ function setupHoverZones() {
 
 function renderAuthorNotesTab(panel, sutraId) {
   panel.innerHTML = '';
-  panel._authorNotesSutraId = sutraId;
-  const isOwner = !!(googleToken && googleUser?.email === OWNER_EMAIL);
-  const text = authorNotesData[sutraId] || '';
-
-  if (!googleToken) {
-    // Show sign-in only — owner will use it; others never need to
-    const wrap = document.createElement('div');
-    wrap.className = 'notes-signin-wrap';
-    const msg = document.createElement('p');
-    msg.className = 'notes-signin-msg';
-    msg.textContent = text || 'No author notes for this sūtra yet.';
-    wrap.appendChild(msg);
-    if (text) { panel.appendChild(wrap); return; }
-    const btn = document.createElement('button');
-    btn.className = 'notes-signin-btn';
-    btn.textContent = 'Sign in to edit';
-    btn.addEventListener('click', () => {
-      if (typeof google === 'undefined') { alert('Google sign-in not loaded yet — please try again.'); return; }
-      googleSignIn();
-    });
-    wrap.appendChild(btn);
-    panel.appendChild(wrap);
-    return;
-  }
-
-  if (!isOwner) {
-    // Signed in but not owner — read-only
-    if (text) {
-      const content = document.createElement('div');
-      content.className = 'notes-readonly commentary-panel';
-      setCommentaryHTML(content, text);
-      panel.appendChild(content);
-    } else {
-      const empty = document.createElement('p');
-      empty.className = 'notes-empty';
-      empty.textContent = 'No author notes for this sūtra yet.';
-      panel.appendChild(empty);
-    }
-    return;
-  }
-
-  // Owner view — editable
-  const textarea = document.createElement('textarea');
-  textarea.className = 'notes-textarea';
-  textarea.placeholder = 'Author notes for this sūtra…';
-  textarea.value = text;
-
-  const footer = document.createElement('div');
-  footer.className = 'notes-author-footer';
-
-  const saveBtn = document.createElement('button');
-  saveBtn.className = 'notes-save-btn author-save-btn';
-  saveBtn.textContent = 'Saved';
-  saveBtn.disabled = true;
-
-  const hint = document.createElement('span');
-  hint.className = 'notes-publish-hint';
-  hint.textContent = 'Save → download from Drive → upload to R2 to publish';
-
-  textarea.addEventListener('input', () => {
-    authorNotesData[sutraId] = textarea.value;
-    saveBtn.textContent = 'Save';
-    saveBtn.disabled = false;
-    scheduleAuthorSave();
-  });
-
-  saveBtn.addEventListener('click', () => {
-    saveBtn.textContent = 'Saving…';
-    saveBtn.disabled = true;
-    clearTimeout(_saveAuthorTimer);
-    saveAuthorNotes();
-  });
-
-  footer.appendChild(saveBtn);
-  footer.appendChild(hint);
-  panel.appendChild(textarea);
-  panel.appendChild(footer);
+  const p = document.createElement('p');
+  p.className = 'notes-empty';
+  p.textContent = 'Coming soon.';
+  panel.appendChild(p);
 }
 
 function renderNotesTab(panel, sutraId) {
