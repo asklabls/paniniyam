@@ -3557,6 +3557,7 @@ function renderVnsContent(markdown) {
   const lines = markdown.split('\n');
   let i = 0;
   let proseLines = [];
+  let pendingQuestion = null;
 
   function flushProse() {
     const text = proseLines.join(' ').replace(/\s+/g, ' ').trim();
@@ -3583,20 +3584,66 @@ function renderVnsContent(markdown) {
 
     } else if (line.startsWith('## ')) {
       flushProse();
-      const heading = line.replace(/^##\s*/, '').trim();
+      let heading = line.replace(/^##\s*/, '').trim();
+      // Strip embedded image markers (![img/...]) from heading line
+      let embeddedImgSrc = null;
+      heading = heading.replace(/!\[img\/([^\]]+)\]/g, (_, src) => { embeddedImgSrc = `img/${src}`; return ''; }).trim();
       // Extract leading number (Devanagari or Arabic) followed by - or space
       const numMatch = heading.match(/^([०-९\d]+)[-\s]/);
       const idText  = numMatch ? numMatch[1] : '';
       const sutraText = numMatch ? heading.slice(numMatch[0].length).trim() : heading;
 
-      // Collect commentary until next ## or image marker
+      // Collect commentary until next ## or image marker or ** line
       const commentLines = [];
       i++;
-      while (i < lines.length && !lines[i].startsWith('## ') && !/^\!\[.+\]$/.test(lines[i].trim())) {
+      while (i < lines.length && !lines[i].startsWith('## ') && !lines[i].startsWith('**') && !/^\!\[.+\]$/.test(lines[i].trim())) {
         commentLines.push(lines[i]);
         i++;
       }
       const commentary = commentLines.join(' ').replace(/\s+/g, ' ').trim();
+
+      // If this is an answer line (उत्तर) and we have a pending question, build Q&A card
+      if (sutraText.includes('(उत्तर)') && pendingQuestion !== null) {
+        const uttarM = sutraText.match(/\(उत्तर\)[^\s]*[-\s]*(.*)/);
+        let ansText = uttarM ? uttarM[1].trim() : sutraText;
+        if (commentary) ansText += ' ' + commentary;
+
+        const card = document.createElement('div');
+        card.className = 'sutra-card vns-qa-card';
+        const row = document.createElement('div');
+        row.className = 'sutra-row';
+        const idEl2 = document.createElement('span');
+        idEl2.className = 'sutra-id';
+        idEl2.textContent = idText;
+        const qText2 = '( प्रश्न )- ' + pendingQuestion;
+        const qEl2 = document.createElement('span');
+        qEl2.className = 'sutra-text mixed-text';
+        qEl2._mixedText = qText2;
+        qEl2.innerHTML = vnsRenderInline(qText2);
+        row.appendChild(idEl2);
+        row.appendChild(qEl2);
+        card.appendChild(row);
+        if (ansText) {
+          const detail2 = document.createElement('div');
+          detail2.className = 'sutra-detail';
+          const ansEl2 = document.createElement('div');
+          ansEl2.className = 'detail-english mixed-text';
+          ansEl2._mixedText = ansText;
+          ansEl2.innerHTML = vnsRenderInline(ansText);
+          detail2.appendChild(ansEl2);
+          card.appendChild(detail2);
+        }
+        card.addEventListener('click', () => toggleSimpleCard(card));
+        wrap.appendChild(card);
+        pendingQuestion = null;
+        if (embeddedImgSrc) {
+          const img2 = document.createElement('img');
+          img2.src = `${PRIVATE_BASE || FORMS_BASE}/${embeddedImgSrc}`;
+          img2.className = 'vns-section-img';
+          wrap.appendChild(img2);
+        }
+        continue;
+      }
 
       // sutra-card (same pattern as Linganushasanam / Unaadi)
       const card = document.createElement('div');
@@ -3637,12 +3684,90 @@ function renderVnsContent(markdown) {
       card.appendChild(detail);
       card.addEventListener('click', () => toggleSimpleCard(card));
       wrap.appendChild(card);
+      if (embeddedImgSrc) {
+        const imgE = document.createElement('img');
+        imgE.src = `${PRIVATE_BASE || FORMS_BASE}/${embeddedImgSrc}`;
+        imgE.className = 'vns-section-img';
+        wrap.appendChild(imgE);
+      }
 
     } else if (line.trim() === '') {
       i++;
 
+    } else if (line.startsWith('**')) {
+      flushProse();
+      const isQ = /^\*\*[^*]*प्रश/.test(line);
+      const isA = /^\*\*\s*[०-९\d]/.test(line);  // numbered उत्तर line
+
+      if (isQ) {
+        // Store question text; card is built when we see the matching उत्तर line
+        const m = line.match(/^\*\*[^*]*\*\*[-\s]*(.*)/);
+        pendingQuestion = m ? m[1].trim() : '';
+        i++;
+
+      } else if (isA) {
+        // Build collapsed sutra-card: number + question as header, answer as detail
+        const labelM = line.match(/^\*\*\s*([०-९\d]+)[^*]*\*\*[-\s]*(.*)/);
+        const num = labelM ? labelM[1] : '';
+        let answerText = labelM ? labelM[2].trim() : '';
+        i++;
+        while (i < lines.length && !lines[i].startsWith('**') &&
+               !lines[i].startsWith('## ') && !/^\!\[.+\]$/.test(lines[i].trim())) {
+          if (lines[i].trim()) answerText += ' ' + lines[i].trim();
+          i++;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'sutra-card vns-qa-card';
+
+        const row = document.createElement('div');
+        row.className = 'sutra-row';
+
+        const idEl = document.createElement('span');
+        idEl.className = 'sutra-id';
+        idEl.textContent = num;
+
+        const qText = '( प्रश्न )- ' + (pendingQuestion || '');
+        const qEl = document.createElement('span');
+        qEl.className = 'sutra-text mixed-text';
+        qEl._mixedText = qText;
+        qEl.innerHTML = vnsRenderInline(qText);
+
+        row.appendChild(idEl);
+        row.appendChild(qEl);
+        card.appendChild(row);
+
+        if (answerText) {
+          const detail = document.createElement('div');
+          detail.className = 'sutra-detail';
+          const ansEl = document.createElement('div');
+          ansEl.className = 'detail-english mixed-text';
+          ansEl._mixedText = answerText;
+          ansEl.innerHTML = vnsRenderInline(answerText);
+          detail.appendChild(ansEl);
+          card.appendChild(detail);
+        }
+
+        card.addEventListener('click', () => toggleSimpleCard(card));
+        wrap.appendChild(card);
+        pendingQuestion = null;
+
+      } else {
+        // Other ** line → prose
+        const m = line.match(/^\*\*[^*]*\*\*[-\s]*(.*)/);
+        proseLines.push(m ? m[1] : line);
+        i++;
+      }
+
     } else {
-      proseLines.push(line);
+      // Detect plain (non-bold) question line: (प्रश्न)- or (प्रश्‍न)-
+      if (/\(प्रश[\u094D\u200D]?न\)/.test(line)) {
+        flushProse();
+        const m = line.match(/\(प्रश[\u094D\u200D]?न\)[^\s]*[-\s]*(.*)/);
+        pendingQuestion = m ? m[1].trim() : line.trim();
+      } else {
+        proseLines.push(line);
+      }
       i++;
     }
   }

@@ -1949,6 +1949,44 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: var(--accent);
   font-weight: 600;
 }
+.vns-qa-block {
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.vns-question .vns-qa-label {
+  display: block;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-size: .82em; font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em;
+  padding: 6px 14px 4px;
+  background: var(--bg-sidebar);
+}
+.vns-question .vns-qa-content {
+  font-family: var(--font-dev);
+  font-size: 1em; line-height: 1.8;
+  color: var(--text);
+  padding: 8px 14px 10px;
+  background: var(--bg-sidebar);
+}
+.vns-answer .vns-qa-label {
+  display: block;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-size: .82em; font-weight: 600;
+  color: var(--accent);
+  padding: 6px 14px 4px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-card);
+}
+.vns-answer .vns-qa-content {
+  font-family: var(--font-dev);
+  font-size: 1em; line-height: 1.8;
+  color: var(--text);
+  padding: 8px 14px 10px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-card);
+}
 .vns-section-img {
   display: block;
   max-width: 100%;
