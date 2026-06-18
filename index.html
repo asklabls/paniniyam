@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap">
   <link rel="icon" type="image/x-icon" href="img/favicon.ico">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/style.css?v=110">
+  <link rel="stylesheet" href="css/style.css?v=111">
   <script src="js/sanscript.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -37,6 +37,8 @@
         <a href="copyright.html" class="welcome-legal-link" data-legal="copyright">Copyright</a>
         <span class="welcome-footer-sep">·</span>
         <a href="contact.html" class="welcome-legal-link" data-legal="contact">Contact Us</a>
+        <span class="welcome-footer-sep">·</span>
+        <a href="https://ko-fi.com/paniniyam" class="welcome-legal-link" target="_blank" rel="noopener">Support us ♥</a>
       </div>
     </div>
 
@@ -78,6 +80,64 @@
     <!-- Varnochchaaran Shiksha panel -->
     <div id="panel-varnochchaaran" class="panel panel-varnochchaaran" style="display:none"></div>
 
+    <!-- Transliterator panel -->
+    <div id="panel-translit" class="panel" style="display:none">
+      <div class="panel-translit">
+        <h2 class="about-title">Transliterator</h2>
+        <p class="about-intro">Convert Sanskrit between scripts. Powered by <a href="https://github.com/sanskrit/sanscript" target="_blank" rel="noopener">Sanscript.js</a>.</p>
+
+        <div class="tl-box">
+          <div class="tl-scheme-row">
+            <div class="tl-scheme-group">
+              <span class="tl-scheme-label">Input:</span>
+              <select id="tl-from" class="tl-select"></select>
+            </div>
+            <button class="tl-swap-btn" id="tl-swap-btn">⇄ Swap</button>
+            <div class="tl-scheme-group tl-scheme-group-right">
+              <span class="tl-scheme-label">Output:</span>
+              <select id="tl-to" class="tl-select"></select>
+            </div>
+          </div>
+          <div class="tl-textarea-row">
+            <textarea id="tl-input" class="tl-input" placeholder="Enter text here…" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            <div class="tl-divider">⟹</div>
+            <textarea id="tl-output" class="tl-output" readonly placeholder="Output appears here…" spellcheck="false"></textarea>
+          </div>
+          <div class="tl-footer">
+            <div class="tl-footer-left">
+              <button class="tl-action" id="tl-reverse">↔ Reverse</button>
+              <button class="tl-action" id="tl-clear">✕ Clear</button>
+            </div>
+            <div class="tl-footer-right">
+              <span class="tl-copy-ok" id="tl-copy-ok"></span>
+              <button class="tl-action" id="tl-copy">⎘ Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-card-title" style="margin:20px 0 10px;">Transliteration map</div>
+        <div class="tl-map-controls">
+          <span class="tl-scheme-label">Compare with:</span>
+          <select id="tl-map-col" class="tl-select" style="flex:none;min-width:160px;">
+            <option value="iast">IAST</option>
+            <option value="itrans" selected>ITRANS</option>
+            <option value="hk">Harvard-Kyoto (HK)</option>
+            <option value="slp1">SLP1</option>
+            <option value="velthuis">Velthuis</option>
+            <option value="telugu">Telugu</option>
+            <option value="kannada">Kannada</option>
+            <option value="malayalam">Malayalam</option>
+            <option value="tamil">Tamil</option>
+            <option value="bengali">Bengali</option>
+            <option value="gujarati">Gujarati</option>
+            <option value="gurmukhi">Gurmukhi</option>
+            <option value="oriya">Odia</option>
+          </select>
+        </div>
+        <div id="tl-map-container" style="overflow-x:auto;margin-bottom:40px;"></div>
+      </div>
+    </div>
+
     <!-- About panel (full-width reading view) -->
     <div id="panel-about" class="panel panel-about" style="display:none">
       <div id="about-panel-nav" class="about-panel-tabs"></div>
@@ -102,6 +162,7 @@
       <button class="bar-btn bar-nav-btn" id="btn-next" title="Next sutra" disabled>▶</button>
     </div>
     <div class="bar-group bar-right">
+      <button class="bar-btn" id="btn-translit" title="Transliterator">⌨️</button>
       <div id="script-dropdown" class="script-dropdown">
         <button class="bar-btn script-dropdown-btn" id="btn-script" title="Choose script"></button>
         <div class="script-dropdown-menu" id="script-menu"></div>
@@ -110,7 +171,7 @@
         <button class="bar-btn theme-picker-btn" id="btn-theme" title="Choose theme">◑</button>
         <div class="theme-picker-menu" id="theme-menu"></div>
       </div>
-      <button class="bar-btn" id="btn-about" title="About">ℹ️</button>
+      <a class="bar-btn" href="https://ko-fi.com/paniniyam" target="_blank" rel="noopener" title="Support on Ko-fi" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">☕</a>
     </div>
   </nav>
 
@@ -156,6 +217,6 @@
   </div>
 
   <script src="js/shabda.js?v=3"></script>
-  <script src="js/app.js?v=199"></script>
+  <script src="js/app.js?v=201"></script>
 </body>
 </html>

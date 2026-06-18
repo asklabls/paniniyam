@@ -182,6 +182,7 @@ const PRIVATE_BASE = isLocal ? 'private' : 'https://pub-19119053fd624d308a49f918
 const SIDDHI_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/siddhi'   : null;
 const DIAGRAM_BASE  = PRIVATE_BASE ? PRIVATE_BASE + '/visuals' : null;
 const VIDYUT_BASE   = PRIVATE_BASE ? PRIVATE_BASE + '/vidyut'  : null;
+const MDV_BASE      = PRIVATE_BASE ? PRIVATE_BASE + '/dhv'     : null;
 const VIDYUT_GANA   = { '1':'Bhvadi','2':'Adadi','3':'Juhotyadi','4':'Divadi','5':'Svadi','6':'Tudadi','7':'Rudhadi','8':'Tanadi','9':'Kryadi','10':'Curadi' };
 const VIDYUT_LAKARA = { lat:'Lat',lot:'Lot',lang:'Lan',vidhiling:'VidhiLin',lit:'Lit',lut:'Lut',lrut:'Lrt',ashirling:'AshirLin',lung:'Lun',lrung:'Lrn' };
 const VIDYUT_PURUSH = ['Prathama','Madhyama','Uttama'];
@@ -346,6 +347,7 @@ const $panelVisuals           = document.getElementById('panel-visuals');
 const $panelBhattikavya       = document.getElementById('panel-bhattikavya');
 const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
+const $panelTranslit          = document.getElementById('panel-translit');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -570,6 +572,7 @@ function showPanel(name) {
   $panelBhattikavya.style.display       = name === 'bhattikavya'       ? '' : 'none';
   $panelNirukta.style.display           = name === 'nirukta'           ? '' : 'none';
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
+  $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
   $app.scrollTop = 0;
@@ -791,6 +794,46 @@ function renderReaderDhatu(d) {
     panelWrap.appendChild(panel);
   });
 
+  // माधवीया धातुवृत्तिः tab (lazy, hidden until data available)
+  if (MDV_BASE) {
+    const mdvPanel = document.createElement('div');
+    mdvPanel.className = 'detail-tab-panel';
+    mdvPanel.dataset.panel = 'mdv';
+    mdvPanel._loaded = false;
+    panels['mdv'] = mdvPanel;
+
+    const mdvTab = document.createElement('button');
+    mdvTab.className = 'detail-tab dev-text';
+    mdvTab._devText = 'माधवीया';
+    mdvTab.textContent = translit('माधवीया');
+    mdvTab.style.display = 'none'; // hidden until data confirmed
+
+    mdvTab.addEventListener('click', () => {
+      tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+      mdvTab.classList.add('active');
+      Object.values(panels).forEach(p => p.classList.remove('active'));
+      mdvPanel.classList.add('active');
+      if (!mdvPanel._loaded) {
+        mdvPanel._loaded = true;
+        loadAndRenderMdv(d.baseindex, mdvPanel);
+      }
+    });
+
+    tabBar.appendChild(mdvTab);
+    panelWrap.appendChild(mdvPanel);
+
+    // Prefetch to decide visibility — don't block render
+    fetch(`${MDV_BASE}/${d.baseindex}.json`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.vritti) {
+          mdvTab.style.display = '';
+          mdvPanel._mdvData = data;
+        }
+      })
+      .catch(() => {});
+  }
+
   // Activate and auto-load first tab
   tabBar.querySelectorAll('.detail-tab')[0].classList.add('active');
   const firstPanel = panelWrap.querySelectorAll('.detail-tab-panel')[0];
@@ -863,6 +906,27 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
   } catch (_) {
     panel.textContent = 'Could not load forms.';
   }
+}
+
+async function loadAndRenderMdv(baseindex, panel) {
+  // Data may already be prefetched and cached on the panel
+  let data = panel._mdvData;
+  if (!data) {
+    panel.textContent = '…';
+    try {
+      const res = await fetch(`${MDV_BASE}/${baseindex}.json`);
+      if (!res.ok) { panel.innerHTML = '<span class="no-data">n/a</span>'; return; }
+      data = await res.json();
+    } catch {
+      panel.innerHTML = '<span class="no-data">n/a</span>'; return;
+    }
+  }
+  panel.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'commentary-panel';
+  wrap._rawCommentary = data.vritti;
+  setCommentaryHTML(wrap, data.vritti);
+  panel.appendChild(wrap);
 }
 
 let _vidyutSidePanel = null;
@@ -4939,6 +5003,131 @@ function showAbout() {
   history.replaceState({}, '', '?about');
 }
 
+// ── Transliterator panel ──────────────────────────────────────────────────────
+const TL_SCHEMES = [
+  { id: 'devanagari', name: 'Devanagari' },
+  { id: 'bengali',    name: 'Bengali'    },
+  { id: 'gujarati',  name: 'Gujarati'   },
+  { id: 'gurmukhi',  name: 'Gurmukhi'   },
+  { id: 'kannada',   name: 'Kannada'    },
+  { id: 'malayalam', name: 'Malayalam'  },
+  { id: 'oriya',     name: 'Odia'       },
+  { id: 'tamil',     name: 'Tamil'      },
+  { id: 'telugu',    name: 'Telugu'     },
+  { id: 'iast',      name: 'IAST'       },
+  { id: 'itrans',    name: 'ITRANS'     },
+  { id: 'hk',        name: 'Harvard-Kyoto (HK)' },
+  { id: 'slp1',      name: 'SLP1'       },
+  { id: 'velthuis',  name: 'Velthuis'   },
+];
+const TL_ROMAN_IDS = new Set(['iast','itrans','hk','slp1','velthuis']);
+const TL_MAP_GROUPS = [
+  { label: 'Vowels',               chars: ['अ','आ','इ','ई','उ','ऊ','ऋ','ॠ','ऌ','ए','ऐ','ओ','औ'] },
+  { label: 'Anusvāra · Visarga',  chars: ['अं','अः'] },
+  { label: 'Velar — ka-varga',    chars: ['क्','ख्','ग्','घ्','ङ्'] },
+  { label: 'Palatal — ca-varga',  chars: ['च्','छ्','ज्','झ्','ञ्'] },
+  { label: 'Retroflex — ṭa-varga',chars: ['ट्','ठ्','ड्','ढ्','ण्'] },
+  { label: 'Dental — ta-varga',   chars: ['त्','थ्','द्','ध्','न्'] },
+  { label: 'Labial — pa-varga',   chars: ['प्','फ्','ब्','भ्','म्'] },
+  { label: 'Semivowels',          chars: ['य्','र्','ल्','व्'] },
+  { label: 'Sibilants',           chars: ['श्','ष्','स्'] },
+  { label: 'Aspirate',            chars: ['ह्'] },
+];
+
+let tlInited = false;
+function initTranslit() {
+  if (tlInited) return;
+  tlInited = true;
+
+  const fromSel  = document.getElementById('tl-from');
+  const toSel    = document.getElementById('tl-to');
+  const inputTA  = document.getElementById('tl-input');
+  const outputTA = document.getElementById('tl-output');
+
+  TL_SCHEMES.forEach(s => {
+    fromSel.appendChild(new Option(s.name, s.id));
+    toSel.appendChild(new Option(s.name, s.id));
+  });
+  fromSel.value = localStorage.getItem('pn-tl-from') || 'itrans';
+  toSel.value   = localStorage.getItem('pn-tl-to')   || 'devanagari';
+
+  function tlConvert() {
+    const text = inputTA.value;
+    if (!text) { outputTA.value = ''; return; }
+    try { outputTA.value = Sanscript.t(text, fromSel.value, toSel.value); }
+    catch(_) { outputTA.value = ''; }
+  }
+
+  inputTA.addEventListener('input', tlConvert);
+  fromSel.addEventListener('change', () => { localStorage.setItem('pn-tl-from', fromSel.value); tlConvert(); });
+  toSel.addEventListener('change',   () => { localStorage.setItem('pn-tl-to',   toSel.value);   tlConvert(); });
+
+  document.getElementById('tl-swap-btn').addEventListener('click', () => {
+    const tmp = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
+    localStorage.setItem('pn-tl-from', fromSel.value);
+    localStorage.setItem('pn-tl-to', toSel.value);
+    tlConvert();
+  });
+
+  document.getElementById('tl-reverse').addEventListener('click', () => {
+    const out = outputTA.value; if (!out) return;
+    const tmp = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
+    localStorage.setItem('pn-tl-from', fromSel.value);
+    localStorage.setItem('pn-tl-to', toSel.value);
+    inputTA.value = out; tlConvert();
+  });
+
+  document.getElementById('tl-clear').addEventListener('click', () => {
+    inputTA.value = ''; outputTA.value = ''; inputTA.focus();
+  });
+
+  document.getElementById('tl-copy').addEventListener('click', () => {
+    if (!outputTA.value) return;
+    navigator.clipboard.writeText(outputTA.value).then(() => {
+      const el = document.getElementById('tl-copy-ok');
+      el.textContent = 'Copied!';
+      setTimeout(() => { el.textContent = ''; }, 1500);
+    });
+  });
+
+  // Transliteration map
+  function tlXt(dev, scheme) {
+    try { return Sanscript.t(dev, 'devanagari', scheme); } catch(_) { return '—'; }
+  }
+  function buildTlMap(colScheme) {
+    const colName = TL_SCHEMES.find(s => s.id === colScheme)?.name || colScheme;
+    const colIsRoman = TL_ROMAN_IDS.has(colScheme);
+    let html = `<table class="tl-map-table"><thead><tr>
+      <th>Devanagari</th><th>IAST</th><th>${colName}</th>
+    </tr></thead><tbody>`;
+    for (const grp of TL_MAP_GROUPS) {
+      html += `<tr class="tl-map-sec"><td colspan="3">${grp.label}</td></tr>`;
+      for (const dev of grp.chars) {
+        const display = dev.endsWith('्') ? dev.slice(0, -1) : dev;
+        const iast    = tlXt(dev, 'iast');
+        const other   = colScheme === 'iast' ? iast : tlXt(dev, colScheme);
+        const colCls  = colIsRoman ? 'tl-td-mono' : 'tl-td-dev';
+        html += `<tr>
+          <td class="tl-td-dev">${display}</td>
+          <td class="tl-td-mono">${iast || '—'}</td>
+          <td class="${colCls}">${other || '—'}</td>
+        </tr>`;
+      }
+    }
+    html += '</tbody></table>';
+    document.getElementById('tl-map-container').innerHTML = html;
+  }
+  const mapColSel = document.getElementById('tl-map-col');
+  mapColSel.addEventListener('change', () => buildTlMap(mapColSel.value));
+  buildTlMap(mapColSel.value);
+}
+
+function showTranslit() {
+  initTranslit();
+  showPanel('translit');
+  closeDrawer();
+}
+
 function buildThemePreviewSection(section) {
   // Title + intro
   const h2 = document.createElement('h2');
@@ -6238,7 +6427,7 @@ document.getElementById('btn-search').addEventListener('click', () => {
   setTimeout(() => $searchInput.focus(), 280);
 });
 // btn-script click handled inside buildScriptDropdown (hover + click toggle)
-document.getElementById('btn-about').addEventListener('click', () => { closeDrawer(); showAbout(); });
+document.getElementById('btn-translit').addEventListener('click', () => { closeDrawer(); showTranslit(); });
 
 // Welcome footer legal links — open inline instead of navigating away
 document.querySelectorAll('.welcome-legal-link').forEach(a => {

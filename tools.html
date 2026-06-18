@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transliterate — Paniniyam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Noto+Sans+Devanagari:wght@400&family=Vesper+Libre:wght@400;700&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans', system-ui, sans-serif;
+      background: #fdf8f0;
+      color: #2c1d0e;
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1e2d3d;
+      color: #e8dcc8;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo { font-family: 'Vesper Libre', serif; font-size: 1.2em; font-weight: 700; }
+    header nav { display: flex; gap: 16px; margin-left: auto; }
+    header a { color: #e8dcc8; text-decoration: none; font-size: .88em; opacity: .7; }
+    header a:hover { opacity: 1; }
+
+    .wrap { max-width: 920px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    h1 {
+      font-family: 'Vesper Libre', serif;
+      font-size: 1.9em;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    h1 a { color: #2c1d0e; text-underline-offset: 3px; }
+    h1 a:hover { color: #62b2ba; }
+    .subtitle { font-size: .9em; color: #7a6a55; margin-bottom: 28px; }
+
+    /* ── Converter ── */
+    .converter-box {
+      background: #fff;
+      border: 1px solid #ddd3c0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+
+    .scheme-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #f3ede3;
+      border-bottom: 1px solid #ddd3c0;
+      flex-wrap: wrap;
+    }
+    .scheme-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 180px; }
+    .scheme-group.right { justify-content: flex-end; }
+    .scheme-row label { font-size: .88em; font-weight: 600; color: #4a3728; white-space: nowrap; }
+    .scheme-row select {
+      padding: 5px 8px;
+      border: 1px solid #ccc4b0;
+      border-radius: 4px;
+      background: #fff;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: .88em;
+      color: #2c1d0e;
+      cursor: pointer;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .swap-schemes-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border: 1px solid #ccc4b0;
+      border-radius: 4px;
+      background: #fff;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: .85em;
+      color: #2c1d0e;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .swap-schemes-btn:hover { background: #e8dcc8; }
+
+    .textarea-row {
+      display: flex;
+      min-height: 240px;
+    }
+
+    #input-text, #output-text {
+      flex: 1;
+      border: none;
+      resize: vertical;
+      padding: 14px 16px;
+      font-family: 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+      font-size: 1.1em;
+      line-height: 1.7;
+      color: #2c1d0e;
+      background: transparent;
+      outline: none;
+      min-height: 240px;
+    }
+    #input-text { border-right: 1px solid #ddd3c0; }
+    #output-text { background: #fdf8f0; cursor: default; }
+
+    .divider {
+      width: 52px;
+      flex-shrink: 0;
+      background: #62b2ba;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      user-select: none;
+    }
+    .divider-arrow { font-size: 1.6em; color: #fff; line-height: 1; }
+
+    .converter-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      border-top: 1px solid #ddd3c0;
+      background: #f3ede3;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-left { display: flex; align-items: center; gap: 8px; }
+    .footer-right { display: flex; align-items: center; gap: 10px; }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px;
+      border: 1px solid #ccc4b0;
+      border-radius: 4px;
+      background: #fff;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: .83em;
+      color: #2c1d0e;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .action-btn:hover { background: #e8dcc8; }
+    .copy-ok { font-size: .8em; color: #62b2ba; min-width: 52px; text-align: right; }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid #ddd3c0;
+      margin-bottom: 0;
+    }
+    .tab-btn {
+      padding: 9px 20px;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      cursor: pointer;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: .9em;
+      color: #7a6a55;
+      transition: color .15s;
+    }
+    .tab-btn:hover { color: #2c1d0e; }
+    .tab-btn.active { color: #1e2d3d; border-bottom-color: #62b2ba; font-weight: 600; }
+
+    .tab-panel { display: none; padding: 22px 2px; }
+    .tab-panel.active { display: block; }
+
+    /* Intro tab */
+    .intro-body p { font-size: .92em; margin-bottom: 10px; }
+    .intro-body a { color: #62b2ba; }
+    .scheme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .scheme-card {
+      background: #fff;
+      border: 1px solid #ddd3c0;
+      border-radius: 5px;
+      padding: 8px 12px;
+      font-size: .85em;
+    }
+    .scheme-card .sc-name { font-weight: 600; color: #1e2d3d; }
+    .scheme-card .sc-sample { color: #7a6a55; font-size: .95em; }
+
+    /* Map tab */
+    .map-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .map-controls label { font-size: .88em; font-weight: 600; color: #4a3728; }
+    .map-controls select {
+      padding: 5px 8px;
+      border: 1px solid #ccc4b0;
+      border-radius: 4px;
+      background: #fff;
+      font-size: .86em;
+      color: #2c1d0e;
+      cursor: pointer;
+    }
+
+    .map-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9em;
+    }
+    .map-table th {
+      background: #f3ede3;
+      padding: 7px 12px;
+      text-align: center;
+      font-size: .84em;
+      font-weight: 600;
+      color: #4a3728;
+      border: 1px solid #ddd3c0;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+    .map-table td {
+      padding: 5px 12px;
+      text-align: center;
+      border: 1px solid #eee7d8;
+      color: #2c1d0e;
+      line-height: 1.5;
+    }
+    .map-table tr:hover td { background: #fdf8f0; }
+    .map-table .sec-hd td {
+      background: #f3ede3;
+      text-align: left;
+      font-size: .78em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #7a6a55;
+      padding: 5px 12px;
+    }
+    .td-dev { font-family: 'Vesper Libre', serif; font-size: 1.15em; }
+    .td-mono { font-family: 'Courier New', monospace; font-size: .95em; color: #3a2d1a; }
+    .td-indic { font-family: 'Noto Sans Devanagari', sans-serif; font-size: 1.05em; }
+
+    footer {
+      margin-top: 48px;
+      font-size: .8em;
+      color: #7a6a55;
+      text-align: center;
+      border-top: 1px solid #ddd3c0;
+      padding-top: 24px;
+    }
+    footer a { color: #7a6a55; }
+    footer a:hover { color: #2c1d0e; }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .textarea-row { flex-direction: column; }
+      #input-text, #output-text { min-height: 160px; resize: none; border-right: none; }
+      #input-text { border-bottom: 1px solid #ddd3c0; }
+      .divider { display: none; }
+      .scheme-group.right { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Paniniyam</span>
+  <nav>
+    <a href="index.html">← Back to app</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <h1>
+    <a href="https://github.com/sanskrit/sanscript" target="_blank" rel="noopener">Sanscript</a>
+    Transliterator
+  </h1>
+  <p class="subtitle">Convert Sanskrit between scripts instantly</p>
+
+  <div class="converter-box">
+
+    <!-- Script selectors -->
+    <div class="scheme-row">
+      <div class="scheme-group">
+        <label for="from-scheme">Input:</label>
+        <select id="from-scheme"></select>
+      </div>
+      <button class="swap-schemes-btn" id="swap-schemes-btn" title="Swap the two scripts">⇄ Swap scripts</button>
+      <div class="scheme-group right">
+        <label for="to-scheme">Output:</label>
+        <select id="to-scheme"></select>
+      </div>
+    </div>
+
+    <!-- Text areas -->
+    <div class="textarea-row">
+      <textarea id="input-text"
+        placeholder="Enter your text here…"
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"></textarea>
+      <div class="divider">
+        <span class="divider-arrow">⟹</span>
+      </div>
+      <textarea id="output-text"
+        readonly
+        spellcheck="false"
+        placeholder="Output appears here…"></textarea>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="converter-footer">
+      <div class="footer-left">
+        <button class="action-btn" id="reverse-btn" title="Move output to input with scripts reversed">↔ Reverse</button>
+        <button class="action-btn" id="clear-btn">✕ Clear</button>
+      </div>
+      <div class="footer-right">
+        <span class="copy-ok" id="copy-ok"></span>
+        <button class="action-btn" id="copy-btn">⎘ Copy output</button>
+      </div>
+    </div>
+
+  </div><!-- /converter-box -->
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="intro">Introduction</button>
+    <button class="tab-btn" data-tab="map">Transliteration map</button>
+  </div>
+
+  <!-- Introduction -->
+  <div id="tab-intro" class="tab-panel active">
+    <div class="intro-body">
+      <p>This tool uses the <a href="https://github.com/sanskrit/sanscript" target="_blank" rel="noopener">Sanscript.js</a> library to convert Sanskrit text between scripts. Text converts automatically as you type. Supported schemes:</p>
+      <div class="scheme-grid" id="scheme-grid"></div>
+      <p style="margin-top:16px;">
+        <strong>Indic scripts</strong> (Devanagari, Telugu, Tamil, etc.) are writing systems native to South Asia.
+        <strong>Romanization schemes</strong> (IAST, ITRANS, HK, SLP1, Velthuis) use Latin letters — each with different conventions — to represent Sanskrit sounds in ASCII or Unicode.
+      </p>
+      <p>IAST is the scholarly standard for publications. ITRANS is common in online forums and Devanagari input. Harvard-Kyoto (HK) and SLP1 are used in computational linguistics. Velthuis is an older TeX convention.</p>
+    </div>
+  </div>
+
+  <!-- Transliteration map -->
+  <div id="tab-map" class="tab-panel">
+    <div class="map-controls">
+      <label for="map-col">Compare with:</label>
+      <select id="map-col">
+        <option value="iast">IAST</option>
+        <option value="itrans" selected>ITRANS</option>
+        <option value="hk">Harvard-Kyoto (HK)</option>
+        <option value="slp1">SLP1</option>
+        <option value="velthuis">Velthuis</option>
+        <option value="telugu">Telugu</option>
+        <option value="kannada">Kannada</option>
+        <option value="malayalam">Malayalam</option>
+        <option value="tamil">Tamil</option>
+        <option value="bengali">Bengali</option>
+        <option value="gujarati">Gujarati</option>
+        <option value="gurmukhi">Gurmukhi</option>
+        <option value="oriya">Odia</option>
+      </select>
+    </div>
+    <div id="map-container" style="overflow-x:auto;"></div>
+  </div>
+
+  <footer>
+    <p>
+      &copy; 2026 Paniniyam &nbsp;·&nbsp;
+      <a href="privacy_policy.html">Privacy Policy</a> &nbsp;·&nbsp;
+      <a href="terms.html">Terms of Use</a> &nbsp;·&nbsp;
+      <a href="copyright.html">Copyright</a> &nbsp;·&nbsp;
+      <a href="contact.html">Contact</a> &nbsp;·&nbsp;
+      <a href="index.html">Back to app</a>
+    </p>
+  </footer>
+
+</div><!-- /wrap -->
+
+<script src="js/sanscript.js"></script>
+<script>
+'use strict';
+
+// ── Scheme definitions ────────────────────────────────────────────────────────
+const SCHEMES = [
+  { id: 'devanagari', name: 'Devanagari',       sample: 'अ',  type: 'Indic' },
+  { id: 'bengali',    name: 'Bengali',           sample: 'অ',  type: 'Indic' },
+  { id: 'gujarati',  name: 'Gujarati',           sample: 'અ',  type: 'Indic' },
+  { id: 'gurmukhi',  name: 'Gurmukhi',           sample: 'ਅ',  type: 'Indic' },
+  { id: 'kannada',   name: 'Kannada',            sample: 'ಅ',  type: 'Indic' },
+  { id: 'malayalam', name: 'Malayalam',          sample: 'അ',  type: 'Indic' },
+  { id: 'oriya',     name: 'Odia',               sample: 'ଅ',  type: 'Indic' },
+  { id: 'tamil',     name: 'Tamil',              sample: 'அ',  type: 'Indic' },
+  { id: 'telugu',    name: 'Telugu',             sample: 'అ',  type: 'Indic' },
+  { id: 'iast',      name: 'IAST',               sample: 'a',  type: 'Roman' },
+  { id: 'itrans',    name: 'ITRANS',             sample: 'a',  type: 'Roman' },
+  { id: 'hk',        name: 'Harvard-Kyoto (HK)', sample: 'a',  type: 'Roman' },
+  { id: 'slp1',      name: 'SLP1',               sample: 'a',  type: 'Roman' },
+  { id: 'velthuis',  name: 'Velthuis',           sample: 'a',  type: 'Roman' },
+];
+
+const ROMAN_IDS = new Set(['iast','itrans','hk','slp1','velthuis']);
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const fromSel  = document.getElementById('from-scheme');
+const toSel    = document.getElementById('to-scheme');
+const inputTA  = document.getElementById('input-text');
+const outputTA = document.getElementById('output-text');
+
+// Populate selects
+SCHEMES.forEach(s => {
+  fromSel.appendChild(new Option(s.name, s.id));
+  toSel.appendChild(new Option(s.name, s.id));
+});
+fromSel.value = localStorage.getItem('pn-tools-from') || 'itrans';
+toSel.value   = localStorage.getItem('pn-tools-to')   || 'devanagari';
+
+// ── Conversion ────────────────────────────────────────────────────────────────
+function convert() {
+  const from = fromSel.value;
+  const to   = toSel.value;
+  const text = inputTA.value;
+  if (!text) { outputTA.value = ''; return; }
+  try {
+    outputTA.value = Sanscript.t(text, from, to);
+  } catch(e) {
+    outputTA.value = '';
+  }
+}
+
+inputTA.addEventListener('input', convert);
+fromSel.addEventListener('change', () => {
+  localStorage.setItem('pn-tools-from', fromSel.value);
+  convert();
+});
+toSel.addEventListener('change', () => {
+  localStorage.setItem('pn-tools-to', toSel.value);
+  convert();
+});
+
+// Swap scripts (keep content, re-convert from the new source)
+document.getElementById('swap-schemes-btn').addEventListener('click', () => {
+  const tmp = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = tmp;
+  localStorage.setItem('pn-tools-from', fromSel.value);
+  localStorage.setItem('pn-tools-to', toSel.value);
+  convert();
+});
+
+// Reverse: output becomes new input, scripts swap
+document.getElementById('reverse-btn').addEventListener('click', () => {
+  const out = outputTA.value;
+  if (!out) return;
+  const tmp = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = tmp;
+  localStorage.setItem('pn-tools-from', fromSel.value);
+  localStorage.setItem('pn-tools-to', toSel.value);
+  inputTA.value = out;
+  convert();
+});
+
+// Clear
+document.getElementById('clear-btn').addEventListener('click', () => {
+  inputTA.value = '';
+  outputTA.value = '';
+  inputTA.focus();
+});
+
+// Copy
+document.getElementById('copy-btn').addEventListener('click', () => {
+  if (!outputTA.value) return;
+  navigator.clipboard.writeText(outputTA.value).then(() => {
+    const el = document.getElementById('copy-ok');
+    el.textContent = 'Copied!';
+    setTimeout(() => { el.textContent = ''; }, 1500);
+  });
+});
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'map') renderMap();
+  });
+});
+
+// ── Scheme grid (intro tab) ───────────────────────────────────────────────────
+const grid = document.getElementById('scheme-grid');
+['Indic', 'Roman'].forEach(type => {
+  SCHEMES.filter(s => s.type === type).forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'scheme-card';
+    card.innerHTML = `<div class="sc-name">${s.name}</div><div class="sc-sample">${s.sample} — ${type}</div>`;
+    grid.appendChild(card);
+  });
+});
+
+// ── Transliteration map ───────────────────────────────────────────────────────
+// Characters stored as Devanagari; halant form (क्) for consonants so Roman = bare letter
+const MAP_GROUPS = [
+  { label: 'Vowels',                  chars: ['अ','आ','इ','ई','उ','ऊ','ऋ','ॠ','ऌ','ए','ऐ','ओ','औ'] },
+  { label: 'Anusvāra · Visarga',      chars: ['अं','अः'] },
+  { label: 'Velar  — ka-varga',       chars: ['क्','ख्','ग्','घ्','ङ्'] },
+  { label: 'Palatal — ca-varga',      chars: ['च्','छ्','ज्','झ्','ञ्'] },
+  { label: 'Retroflex — ṭa-varga',    chars: ['ट्','ठ्','ड्','ढ्','ण्'] },
+  { label: 'Dental — ta-varga',       chars: ['त्','थ्','द्','ध्','न्'] },
+  { label: 'Labial — pa-varga',       chars: ['प्','फ्','ब्','भ्','म्'] },
+  { label: 'Semivowels',              chars: ['य्','र्','ल्','व्'] },
+  { label: 'Sibilants',               chars: ['श्','ष्','स्'] },
+  { label: 'Aspirate',                chars: ['ह्'] },
+];
+
+function xt(dev, scheme) {
+  try { return Sanscript.t(dev, 'devanagari', scheme); } catch(e) { return '—'; }
+}
+
+// Display form: strip trailing virama (्) for Devanagari column display only
+function devDisplay(ch) {
+  return ch.endsWith('्') ? ch.slice(0, -1) : ch;
+}
+
+function buildMapTable(colScheme) {
+  const colInfo = SCHEMES.find(s => s.id === colScheme);
+  const colName = colInfo ? colInfo.name : colScheme;
+  const colIsRoman = ROMAN_IDS.has(colScheme);
+
+  let html = `<table class="map-table">
+<thead><tr>
+  <th>Devanagari</th>
+  <th>IAST</th>
+  <th>${colName}</th>
+</tr></thead><tbody>`;
+
+  for (const grp of MAP_GROUPS) {
+    html += `<tr class="sec-hd"><td colspan="3">${grp.label}</td></tr>`;
+    for (const dev of grp.chars) {
+      const iast  = xt(dev, 'iast');
+      const other = colScheme === 'iast' ? iast : xt(dev, colScheme);
+      const colClass = colIsRoman ? 'td-mono' : 'td-indic';
+      html += `<tr>
+  <td class="td-dev">${devDisplay(dev)}</td>
+  <td class="td-mono">${iast || '—'}</td>
+  <td class="${colClass}">${other || '—'}</td>
+</tr>`;
+    }
+  }
+
+  html += '</tbody></table>';
+  return html;
+}
+
+let mapReady = false;
+function renderMap() {
+  if (!mapReady) {
+    mapReady = true;
+    document.getElementById('map-col').addEventListener('change', () => {
+      document.getElementById('map-container').innerHTML =
+        buildMapTable(document.getElementById('map-col').value);
+    });
+  }
+  document.getElementById('map-container').innerHTML =
+    buildMapTable(document.getElementById('map-col').value);
+}
+</script>
+
+</body>
+</html>

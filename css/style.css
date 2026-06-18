@@ -979,6 +979,92 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 /* ── Gana words ───────────────────────────────────────────────── */
 .gana-words { font-size: .92em; color: var(--text); line-height: 2; word-spacing: 2px; }
 
+/* ── Transliterator panel ─────────────────────────────────────── */
+.panel-translit { max-width: 860px; padding-bottom: 60px; }
+
+.tl-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; margin-bottom: 28px;
+}
+.tl-scheme-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.tl-scheme-group { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 160px; }
+.tl-scheme-group-right { justify-content: flex-end; }
+.tl-scheme-label { font-size: .85em; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.tl-select {
+  padding: 4px 7px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--bg); color: var(--text);
+  font-family: 'Noto Sans', system-ui, sans-serif; font-size: .86em;
+  cursor: pointer; flex: 1; min-width: 120px;
+}
+.tl-swap-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--bg-card); color: var(--text); font-size: .82em;
+  cursor: pointer; white-space: nowrap; transition: background .12s;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+.tl-swap-btn:hover { background: var(--hover-bg); }
+
+.tl-textarea-row { display: flex; min-height: 220px; }
+.tl-input, .tl-output {
+  flex: 1; border: none; resize: none; padding: 13px 14px;
+  font-family: 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  font-size: 1.05em; line-height: 1.7; color: var(--text);
+  background: transparent; outline: none; min-height: 220px;
+}
+.tl-input { border-right: 1px solid var(--border); }
+.tl-output { background: var(--bg); cursor: default; }
+.tl-divider {
+  width: 48px; flex-shrink: 0; background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; user-select: none;
+  font-size: 1.5em; color: #fff;
+}
+
+.tl-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 12px; border-top: 1px solid var(--border);
+  background: var(--bg-sidebar); flex-wrap: wrap; gap: 6px;
+}
+.tl-footer-left, .tl-footer-right { display: flex; align-items: center; gap: 6px; }
+.tl-action {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--bg-card); color: var(--text);
+  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-size: .81em; cursor: pointer; transition: background .12s; white-space: nowrap;
+}
+.tl-action:hover { background: var(--hover-bg); }
+.tl-copy-ok { font-size: .8em; color: var(--accent); min-width: 48px; text-align: right; }
+
+.tl-map-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.tl-map-table { width: 100%; border-collapse: collapse; font-size: .88em; }
+.tl-map-table th {
+  background: var(--bg-sidebar); padding: 6px 10px; text-align: center;
+  font-size: .82em; font-weight: 600; color: var(--muted);
+  border: 1px solid var(--border); white-space: nowrap;
+}
+.tl-map-table td { padding: 5px 10px; text-align: center; border: 1px solid var(--border); color: var(--text); }
+.tl-map-table tr:hover td { background: var(--hover-bg); }
+.tl-map-table .tl-map-sec td {
+  background: var(--bg-sidebar); text-align: left;
+  font-size: .76em; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted);
+}
+.tl-td-dev { font-family: var(--font-dev); font-size: 1.1em; }
+.tl-td-mono { font-family: 'Courier New', monospace; font-size: .93em; }
+
+@media (max-width: 600px) {
+  .tl-textarea-row { flex-direction: column; }
+  .tl-input, .tl-output { min-height: 140px; border-right: none; }
+  .tl-input { border-bottom: 1px solid var(--border); }
+  .tl-divider { display: none; }
+}
+
 /* ── About panel (full-width main area) ───────────────────────── */
 .about-panel-tabs {
   display: flex; gap: 0;
