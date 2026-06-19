@@ -2543,7 +2543,6 @@ function renderSiddhiEntry(entry) {
 // Used by both renderReaderSutra() and createSutraCard().
 // inCard = true applies card-edge bleed margins to tab bars.
 function buildTabGroups(sutra, container, inCard) {
-  let firstGroupRendered = false;
 
   for (const group of TAB_GROUPS) {
 
@@ -2781,12 +2780,7 @@ function buildTabGroups(sutra, container, inCard) {
     if (activeTabEl)  activeTabEl.classList.add('active');
     if (activePanel) {
       activePanel.classList.add('active');
-      if (!firstGroupRendered) {
-        firstGroupRendered = true;
-        loadTabData(activeDef, activePanel, sutra);
-      } else if (savedDef && !activePanel._loaded) {
-        loadTabData(activeDef, activePanel, sutra);
-      }
+      if (!activePanel._loaded) loadTabData(activeDef, activePanel, sutra);
     }
 
     groupEl.appendChild(tabBar);
