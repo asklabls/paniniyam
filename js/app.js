@@ -2647,6 +2647,7 @@ function buildTabGroups(sutra, container, inCard) {
       pvBtn.classList.add('dev-text');
       pvBtn._devText = 'आ० चन्द्रदत्त-शर्मा';
       pvBtn.style.display = 'none';   // hidden until pvNotesData confirms entry
+      let mediaTabUserChosen = false;
       (async () => {
         await loadPvNotes();
         if (pvNotesData[sutra.i]) {
@@ -2655,8 +2656,8 @@ function buildTabGroups(sutra, container, inCard) {
           notesDiv.className = 'pv-notes commentary-panel';
           pvPanel.appendChild(notesDiv);
           setCommentaryHTML(notesDiv, pvNotesData[sutra.i]);
-          // Switch to PV tab on load if user hasn't manually chosen a tab
-          if (!activeTabByGroup['media']) activateMediaTab('pv');
+          // Switch to PV tab if user hasn't manually chosen a tab this session
+          if (!mediaTabUserChosen) activateMediaTab('pv');
         }
       })();
 
@@ -2691,11 +2692,11 @@ function buildTabGroups(sutra, container, inCard) {
         if (which === 'your')   renderNotesTab(yourPanel, sutra.i);
       }
 
-      diagBtn.addEventListener('click',      () => activateMediaTab('diagram'));
-      ytBtn.addEventListener('click',        () => activateMediaTab('youtube'));
-      pvBtn.addEventListener('click',        () => activateMediaTab('pv'));
-      authorTabBtn.addEventListener('click', () => activateMediaTab('author'));
-      yourTabBtn.addEventListener('click',   () => activateMediaTab('your'));
+      diagBtn.addEventListener('click',      () => { mediaTabUserChosen = true; activateMediaTab('diagram'); });
+      ytBtn.addEventListener('click',        () => { mediaTabUserChosen = true; activateMediaTab('youtube'); });
+      pvBtn.addEventListener('click',        () => { mediaTabUserChosen = true; activateMediaTab('pv'); });
+      authorTabBtn.addEventListener('click', () => { mediaTabUserChosen = true; activateMediaTab('author'); });
+      yourTabBtn.addEventListener('click',   () => { mediaTabUserChosen = true; activateMediaTab('your'); });
 
       // Restore last-used tab; default to Author's Notes
       activateMediaTab(activeTabByGroup['media'] || 'author');
@@ -4603,11 +4604,11 @@ function makeDhatuResultItem(d, q) {
   }
   item.appendChild(textWrap);
   item.addEventListener('click', async () => {
-    // Show all dhatus in the same gana, so the user has context
+    // Load gana so dhatuReaderList is set, then open the specific dhatu
     const data = await loadData('dhatupatha', 'dhatu/data.txt');
     const ganaItems = data.filter(x => x.gana === d.gana);
     renderDhatuList(ganaItems, GANA_NAMES_DEV[+d.gana] || d.gana);
-    closeDrawer();
+    gotoDhatu(d.baseindex);
   });
   return item;
 }
