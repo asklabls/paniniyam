@@ -11,9 +11,9 @@ paniniyam/
 ├── terms.html              # Terms of Use page
 ├── copyright.html          # Copyright page
 ├── contact.html            # Contact Us page
-├── css/style.css           # All styles (v95)
+├── css/style.css           # All styles (v110)
 ├── js/
-│   ├── app.js              # All app logic (~6000 lines, v167)
+│   ├── app.js              # All app logic (~6500 lines, v199)
 │   └── sanscript.js        # Transliteration library (do not edit)
 ├── forms/
 │   ├── pratyaya.txt        # Pratyaya reference table (pipe-delimited, see format below)
@@ -118,7 +118,7 @@ those from being incorrectly converted.
 | Group | Tabs | Data files |
 |---|---|---|
 | Primary | काशिका, वार्तिकम्, महाभाष्यम्, CS Vasu Eng | kashika.txt, vartika.txt, bhashya.txt, vasu_english.txt |
-| Notes | Our notes / Your notes | Phase 4 placeholder (Google Drive) |
+| Notes | Our notes / Your notes | Google Drive (Gmail login — live) |
 | Kaumudi | सिद्धान्तकौमुदी, लघुकौमुदी, बालमनोरमा | kaumudi.txt, laghukaumudi.txt, balamanorama.txt |
 | Tika | तत्त्वबोधिनी, न्यासः, पदमञ्जरी, प्रौढमनोरमा | tattvabodhini.txt, nyaas.txt, padamanjari.txt, praudhamanorama.txt |
 
@@ -170,8 +170,33 @@ and these are never bulk-searched (no existing search index to break).
 ### Commentary markup in Kashika/Kaumudi
 - `<<sutra text>>` — cited sutra; rendered as `.sutra-quote` span with `data-dev` attribute
 - `[[७.२.१]]` — sutra reference; rendered as `.sutra-link` anchor linking to that sutra
+- `[label](url)` — external link; rendered as `<a target="_blank">` (added to `renderInline` within `renderCommentaryHTML`); used by PrathamaVritti timestamp links
 - `renderCommentaryHTML(raw)` parses these, plain text is buffered and flushed through `translit()`
 - `panel._rawCommentary` stores raw text; `setCommentaryHTML()` re-renders on script change
+
+### PrathamaVritti notes (आ० चन्द्रदत्त-शर्मा)
+- `pvNotesData` global — `{sutraId: "note text"}` loaded once from `PRIVATE_BASE/paniniyam-author-notes.json`
+- `loadPvNotes()` — lazy loader; returns `{}` if PRIVATE_BASE is null or fetch fails
+- Tab button (`pvBtn`) hidden by default; shown only when `pvNotesData[sutra.i]` has content
+- Notes rendered via `setCommentaryHTML()` — each line `[MM:SS](url) note text` renders timestamp as clickable YouTube deep link
+- Miner: `paniniyam-private/scripts/mine_prathamavrutti.py` → `private/paniniyam-author-notes.json` (upload to R2)
+
+### Mādhavīya Dhātuvṛtti tab (माधवीया)
+- `MDV_BASE = PRIVATE_BASE + '/dhv'` — per-dhatu JSON, same pattern as siddhi
+- Tab added to dhatu reader: `माधवीया`, hidden until `MDV_BASE/{baseindex}.json` returns data
+- `loadAndRenderMdv(baseindex, panel)` — fetches JSON, renders `data.vritti` via `setCommentaryHTML()`
+- Retranslit: panel uses `.commentary-panel` + `_rawCommentary` → handled by global `retranslit()` sweep
+- Source: `_anant_vault/Books/madhaviya-dhatu-vritti/_madhaviya-dhatu-vritti_marked.md`
+  - Preprocessed with `paniniyam-private/scripts/preprocess_madhaviya_v2.py` (apply markup conventions)
+  - Mined with `paniniyam-private/scripts/mine_madhaviya_dhv.py` → `private/dhv/{baseindex}.json`
+- **Markup conventions** in marked file:
+  - `# GanaName` — gana section (bhvadigan, adadigan, etc.)
+  - `## N. dhatu artha` — dhatu entry header (first `## N.` per number wins; later ones are footnotes)
+  - `> footnote` — excluded from vritti
+  - `[[A.B.C]]` — sutra ref; `<<text>>` — sutra quote; `**bold**` — strong
+  - `<!-- page_NNN -->` — stripped by miner; `<!-- CONTENT_START -->` — marks actual gana content start
+- **Proofreading status**: best-guess markup applied; user reviewing — false positives (sub-items, footnotes marked as `##`) need manual cleanup
+- After proofreading: re-run miner → upload `private/dhv/` to R2 `dhv/`
 
 ### Inline markup: `appendInlineMarkup(container, raw)`
 Handles mixed wikilink/plain-text content in siddhi intros and commentary:
@@ -341,7 +366,9 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 - Data: `varnochchaaran-shiksha.json` — 11 sections: prakashakiya (hidden), bhumika, intro, prakarana-1..8
 - Served from `PRIVATE_BASE` (R2); local dev reads from `private/varnochchaaran-shiksha.json`
 - Two-row pill nav: row1 = भूमिका + अथ वर्णोच्चारण-शिक्षा; row2 = प्रकरणम् label + १–८ number pills
-- Content renderer (`renderVnsContent`): line-by-line parser — `## ` → sutra heading, `**` lines → own paragraph, `![filename]` → inline image
+- Content renderer (`renderVnsContent`): line-by-line parser — `## N-` → sutra-card, `## N- (उत्तर)` with pending question → Q&A card, `**(प्रश्न)-**` or plain `(प्रश्न)-` → sets `pendingQuestion`, `![filename]` → inline image
+- **Q&A cards**: collapsed sutra-cards where header shows `N- ( प्रश्न )- question text`; click to expand answer. Handles both `**N- (उत्तर)-**` (bold) and `## N- (उत्तर)-` (heading) answer formats. Embedded `![img/...]` in heading line is stripped and rendered after the card.
+- `pendingQuestion` state variable tracks the last seen question across lines; reset after each Q&A card is built
 - Inline images: place `![img/filename.jpg]` on its own line in section content; image served from `PRIVATE_BASE/img/`
 - Section-level images: add `"image": "img/filename.jpg"` field to section in JSON → appears at bottom of section
 - Retranslit: `.vns-content._vnsMarkdown` re-renders whole section on script change
@@ -434,7 +461,7 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 ### Cache busting
 - `index.html` loads `app.js?v=N` and `style.css?v=N`
 - Bump `N` in both tags on every push with user-visible changes
-- Current: `app.js?v=171`, `style.css?v=95`
+- Current: `app.js?v=199`, `style.css?v=110`
 
 ## Fonts
 - **Vesper Libre** — Sanskrit / Devanagari text (sutra text, commentary, meta block, nav labels)
@@ -488,14 +515,14 @@ cp -r visuals/prakaranas private/visuals/
 
 ---
 
-## What's Built (snapshot: 2026-06-11)
+## What's Built (snapshot: 2026-06-17)
 
 ### Core reference app
 - Ashtadhyayi reader: all 3976 sutras, prev/next navigation, padaccheda/anuvritta/adhikara meta
 - Commentary tabs: Kashika, Vartika (normalized from array format), Laghu Kaumudi; tab groups for Primary/Kaumudi/Tika traditions (most files still 404 pending data)
 - Audio pronunciation per sutra (lazy loaded, base64 MP3)
 - Leaf books: Shiva Sutras, Ganapatha, Unaadi Kosha, Linganushasanam, Shiksha, Fit Sutrani, **Paribhasha** (परिभाषाः)
-- **Varnochchaaran Shiksha panel**: Panini's phonetics text with Dayananda Saraswati's Hindi commentary; two-row pill nav, inline image support, full retransliteration
+- **Varnochchaaran Shiksha panel**: Panini's phonetics text with Dayananda Saraswati's Hindi commentary; two-row pill nav, inline image support, full retransliteration; Q&A sections rendered as collapsed sutra-cards (question in header, answer expandable on click)
 - Dhatupatha: 2259 entries across 10 ganas, dhatu reader with conjugation forms
 - **Pratyaya reference**: अदन्त / अनदन्त pages, सार्वधातुक / आर्धधातुक tabs, full tiṅ-pratyaya tables
 - **Pravachanam tab** (आ० सुदर्शनदेव): mined from Acharya Sudarshan Dev's Pravachanam — artha + hindi artha for ~3954 sutras; served from Cloudflare R2
@@ -505,6 +532,13 @@ cp -r visuals/prakaranas private/visuals/
 - **Sutra meta block**: samasa, udaharana from pravachanam.json; all fields transliterable
 - **Deep linking**: `?sutra=1.1.1` URL parameter — shareable links open directly to that sutra
 - **Bhattikavya panel**: 1323 shlokas across 20 sargas with Jayamaṅgalā commentary; sarga picker popup (3×7 grid, same style as pada/gana matrix); verse callouts for clean verses; `---` → footnote separator `<hr>`; sutra links in commentary; full retransliteration
+- **PrathamaVritti notes tab** (आ० चन्द्रदत्त-शर्मा): mined from Acharya Chandradutt Sharma's Prathamavritta-ACS vault notes; timestamp entries with YouTube deep links `[MM:SS](url)` per line; tab hidden when no notes exist for that sutra; served from R2 as `paniniyam-author-notes.json`
+- **Mādhavīya Dhātuvṛtti tab** (माधवीया): Sayana's commentary on Dhatupatha; `माधवीया` tab in dhatu reader, hidden when no data; fetches `MDV_BASE/{baseindex}.json`; rendered via `setCommentaryHTML()`; 1420 dhatus mined (proofreading in progress)
+- **Author's Notes tab**: shows "Coming soon." placeholder (owner's own English meanings — pending)
+- **CS Vasu English translation**: live in Primary tab group (`vasu_english.txt` from paniniyam-data fork)
+- **Additional commentaries**: Siddhanta Kaumudi, Nyasa, Padamanjari, Praudhamanorama all live from paniniyam-data fork; **known bug: first tab loads blank — clicking any other tab then back fixes it**
+- **Gmail login + Google Drive notes**: live at paniniyam.com — user notes saved to their own Drive
+- **Transliterator panel**: in-app panel (⌨️ nav button), 14 schemes, real-time conversion + transliteration map; standalone `tools.html` also available
 
 ### UI / UX
 - 11 scripts (**ITRANS default**): full retransliteration on every script change — Sanskrit, Hindi artha, siddhi prose retranslit; SVG diagrams retranslit to Indic scripts only (Roman schemes keep Devanagari — see rule above)
@@ -525,6 +559,8 @@ cp -r visuals/prakaranas private/visuals/
 - `paniniyam.md` webviewer: dataviewjs iframe that reads active file frontmatter (`adhyaya`, `pada`, `sutra_number`) → opens correct sutra in Paniniyam
 - All 3981 sutra notes updated: External line now reads `[[paniniyam]] । [ashtadhyayi.com](...)` — wikilink gives hover popup, external link opens browser
 - `Update_external_links.py`: idempotent script to prepend `[[paniniyam]] । ` before ashtadhyayi.com links; supports `--sutra A.P.N` (single file test) and `--dry-run`
+- **`insObsN_Link.md`** (CMD+L hotkey): select any text containing a sutra/dhatu ref → strips all non-digits → if 3 number groups → looks up SutraMap.v2.json → inserts `[[A.P.N| sutraText A.P.N]]।`; if 2 groups → looks up DhatuMap.json → inserts `[[basename| display G.N]]।`; if no selection or no match → prompts manually. Uses `adapter.read()` (not `cachedRead`) for JSON files. 3-part never falls through to dhatu.
+- **`ObsN_goto_sutra.md`**: opens sutra vault note in new tab (navigation only, no link insertion); different from insObsN_Link which inserts wikilinks at cursor
 
 ### Infrastructure
 - Fully static, no build step, no backend
@@ -532,6 +568,9 @@ cp -r visuals/prakaranas private/visuals/
 - Private repo: `paniniyam-private` (GitHub, private) — all pipeline scripts + SCRIPTS.md reference
 - `mine_pravachanam.py`: state-machine miner extracting 9 fields from Pravachanam_01–06.md → pravachanam.json
 - `mine_bhattikavya.py`: extracts per-sarga JSON from `Bhattikavya_combined.md` → `private/bhattikavya/sarga_NN.json`; handles skip zones (non-BK callouts), sarga/colophon disambiguation, verse/commentary boundary detection
+- `mine_prathamavrutti.py`: mines PrathamaVritti-ACS vault notes (503 .md files, one per video) → `private/paniniyam-author-notes.json`; extracts timestamp→sutra attribution via `[[A.B.C|]]` wikilinks; embeds YouTube deep links `[MM:SS](url?t=N)`; sorts ascending by seconds; strips Obsidian image embeds (`![[...]]`)
+- `preprocess_madhaviya_v2.py`: applies markup conventions to `_madhaviya-dhatu-vritti_combined.md` → `_marked.md`; suppresses TOC gana headers (before `<!-- page_048 -->`), handles OCR-noisy gana headers (trailing garbage, two-line split), adds `<!-- CONTENT_START -->` marker, marks all `N.` lines as `## N.`
+- `mine_madhaviya_dhv.py`: mines `_marked.md` → `private/dhv/{baseindex}.json` (1420 dhatus); deduplicates by baseindex (first `## N.` wins = actual dhatu, not footnote); supports `--sutra`, `--upload`; per-dhatu JSON has `{baseindex, header, vritti}`
 - `mine_varnochchaaran.py`: splits combined VNS markdown into 11 sections → varnochchaaran-shiksha.json
 - `mine_paribhasha.py`: extracts 157 paribhasha entries → private/paribhasha.json
 - `convert_visuals.py`: cleans Excalidraw SVGs (strips font, adds watermark, marks text), generates `concepts_index.json`; `--force` reconverts existing files; `--no-sutras` for concepts only
@@ -568,12 +607,17 @@ cp -r visuals/prakaranas private/visuals/
 | Visual Library panel | Browse diagrams by category | ✅ Live |
 | Concept popup hover | `[[concept]]` links → floating SVG popup | ✅ Live |
 | Bhattikavya + Jayamaṅgalā commentary | Mined from OCR vault (mine_bhattikavya.py) | ✅ Live |
-| English meanings per sutra | Owner's own writing | 🔜 Phase 2 |
-| Full Pravachanam fields (padavibhaga, anvaya, udaharana) | Already mined — needs UI | 🔜 Phase 2 |
-| Sutra SVG diagrams (per sutra) | Owner's Excalidraw vault (114 sutras so far) | 🔜 Phase 3 (UI pending) |
-| YouTube video embeds per sutra | Owner's YouTube channel | 🔜 Phase 3 |
-| User notes | Per-user via Gmail login → Google Drive | 🔜 Phase 4 |
-| Additional commentaries | Siddhanta Kaumudi, Nyasa, Padamanjari, Vasu English | 🔜 Phase 5 |
+| PrathamaVritti notes (आ० चन्द्रदत्त-शर्मा) | Mined from vault timestamps (mine_prathamavrutti.py) | ✅ Live |
+| Mādhavīya Dhātuvṛtti (Sayana) | Mined from OCR vault (mine_madhaviya_dhv.py) — proofreading in progress | ✅ Live (1420 dhatus) |
+| CS Vasu English translation | paniniyam-data fork (ashtadhyayi-data) | ✅ Live |
+| Additional commentaries (SK, Nyasa, Padamanjari, Praudhamanorama) | paniniyam-data fork | ✅ Live (⚠️ first tab blank bug) |
+| User notes via Gmail login → Google Drive | Client-side OAuth, user's own Drive | ✅ Live |
+| Transliterator (14 scripts) | Sanscript.js — in-app panel + tools.html | ✅ Live |
+| English meanings per sutra | Owner's own writing | 🔜 Pending |
+| Full Pravachanam fields (padavibhaga, anvaya) | Already mined — needs UI | 🔜 Pending |
+| Sutra SVG diagrams (per sutra) | Owner's Excalidraw vault (114 sutras so far) | 🔄 Content in progress (UI pending) |
+| YouTube video embeds per sutra | Owner's YouTube channel | 🔄 Content in progress |
+| Ramayanam audio player | 21,076 files on R2 across 6 kandas — no UI yet | 🔜 Pending |
 | OCR-digitized books | Kashika (owner's OCR), Pravachanam, Jingyasu Prathamavrutti | 🔜 Phase 6 |
 
 ### Excalidraw / Obsidian Integration (decided)
@@ -597,7 +641,7 @@ cp -r visuals/prakaranas private/visuals/
 - `_applySvgEl(el, devText, isDevType)` — applies text + font-size to one SVG text element
 - `applyConceptSvgRetranslit(wrap)` — retransliterates all data-dev/data-mixed elements in an inlined SVG
 
-### Gmail Login / Notes (planned — Phase 4)
+### Gmail Login / Notes (live)
 - Google OAuth — no password management needed
 - Notes saved to **user's own Google Drive** via Drive API — owner never stores user data
 - Privacy selling point: *"Your notes live in your Google Drive, not our servers"*
@@ -648,6 +692,51 @@ python3 /Users/au/Projects/paniniyam-private/scripts/upload_ramayanam.py --jobs 
 ```
 Set env vars first: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 
+### Animated Teaching Engine (Manim project)
+The Manim project at `/Users/au/Projects/Manim/` is building an animated version of the
+traditional gurukula teaching methodology. Full architecture:
+**`/Users/au/Projects/Manim/docs/TEACHING_ENGINE.md`**
+
+The engine consumes data from this paniniyam project:
+- `private/pravachanam.json` → 8-part sūtra teaching (pv, sm, an, av, a, ua)
+- `private/siddhi/*.json` → step-by-step derivation for each udāharaṇa
+
+8-part format: padaccheda → samāsa → anuvṛtti → anvaya (5-7-6-1 + भवति) → artha → udāharaṇa → siddhi
+10-step derivation: dhātu → svara attributes → pratyaya artha → lopa → clean forms → aṅga → aṅga kāryas → prātipadika → svādi → final form
+6 routes: Tiṅanta ✅ | Subanta 🔜 | Taddhitānta 🔜 | Samāsa ⚠️ | Sandhi ⚠️ | Svara 🔴
+
+---
+
+### Vidyut Prakriya Engine
+The Rust-based Pāṇinian derivation engine that generated the `forms/dhatu/*.json` conjugation
+files and drives the Siddhi animation pipeline in the Manim project.
+
+**Repo**: `/Users/au/Projects/paniniyam-vidyut` (forked)
+**Full spec + architecture + Mermaid diagrams**: `/Users/au/Projects/Manim/docs/VIDYUT_PRAKRIYA.md`
+
+**Derivation type coverage** (surveyed 2026-06-17):
+
+| Type | Status | Python API |
+|------|--------|------------|
+| Tiṅanta | ✅ Excellent — all 10 lakāras, sanādi, upasargas | `Pada.Tinanta(dhatu, prayoga, lakara, purusha, vacana)` |
+| Subanta | ✅ Substantial — all 7×3×3 cells | `Pada.Subanta(pratipadika, linga, vibhakti, vacana)` |
+| Taddhitānta | ✅ Partial — 11/12 sections, artha conditions approximate | `Pratipadika.taddhitanta(pratipadika, taddhita)` |
+| Sandhi (intra-word) | ✅ Auto-applied in every derivation | — |
+| Sandhi (inter-word) | ⚠️ Rust only (`derive_vakyas`), no Python binding | — |
+| Samāsa | ⚠️ Rust only — tatpuruṣa/bahuvrīhi/dvandva; Dvigu missing | no Python binding yet |
+| Svara | 🔴 Experimental — ~28 of hundreds of 6.1 rules | `Vyakarana(use_svaras=True)` |
+
+**Key architectural facts** (do not re-mine):
+- Rules are Rust code, not data. Apavāda/utsarga priority = order of `if` branches.
+- Derivation is a **fixed-sequence pipeline**, not a loop. Order of stages encodes grammar priority.
+- `PrakriyaStack` generates all variants by re-running with different forced optional-rule decisions.
+- `StepTerm` in Rust stores full `EnumSet<Tag>` (kit, Nit, adit, etc.) — currently only `text` and
+  `was_changed` are exposed to Python. Exposing `morph` field would eliminate need for `UPADESHA` dict.
+- IT-marker lopa (1.3.2–1.3.9) is in `it_samjna.rs`; full pipeline for भू → भवति: 1.3.1 → 3.2.123 →
+  3.4.78 → 3.1.68 (Śap) → 7.3.84 (guṇa) → 6.1.78 (sandhi) → Bavati.
+
+---
+
 ### Roadmap Phases
 ```
 Phase 1   ✅ Reader mode + top nav bar redesign + drawers + icon bar
@@ -657,9 +746,14 @@ Phase 1.7 ✅ Paribhasha panel (परिभाषाः) — आचार्य
 Phase 1.8 ✅ Ramayanam audio — all 6 kandas compressed + uploaded to R2 (21,076 files)
 Phase 1.9 ✅ Visual Library + concept popup (221 SVG diagrams, [[concept]] hover, siddhi concept links)
 Phase 2.0 ✅ Bhattikavya panel — 1323 shlokas, Jayamaṅgalā commentary, sarga matrix popup, Books nav group
-Phase 2   → Owner's English meanings; display remaining Pravachanam fields (padavibhaga, anvaya)
-Phase 3   → YouTube video embeds + sutra SVG diagrams in reader (114 exist, UI pending)
-Phase 4   → Gmail login + personal notes saved to Google Drive
-Phase 5   → Additional commentaries (Siddhanta Kaumudi, Nyasa, Padamanjari, Vasu English)
-Phase 6   → Owner's OCR books: Kashika Vritti, Pravachanam full text, Jingyasu Prathamavrutti
+Phase 2.1 ✅ PrathamaVritti notes tab (आ० चन्द्रदत्त-शर्मा); VNS Q&A cards; renderCommentaryHTML [label](url) links
+Phase 2.2 ✅ Mādhavīya Dhātuvṛtti tab — Sayana's dhatu commentary; माधवीया tab in dhatu reader; 1420 dhatus mined (proofreading ongoing)
+Phase 2.3 ✅ CS Vasu English + all additional commentaries live (SK, Nyasa, Padamanjari, Praudhamanorama) from paniniyam-data fork
+Phase 2.4 ✅ Gmail login + Google Drive personal notes — live at paniniyam.com
+Phase 2.5 ✅ Transliterator panel (⌨️) — 14 scripts, in-app + standalone tools.html; Ko-fi support link (☕)
+Phase 3   🔄 Sutra SVG diagrams in reader (114 exist, UI pending) + YouTube video embeds (content in progress)
+Phase 3.x ⚠️ Known bug: first commentary tab loads blank on sutra open — needs fix
+Phase 4   🔜 Owner's English meanings per sutra; Pravachanam padavibhaga/anvaya UI
+Phase 5   🔜 Ramayanam audio player UI (21,076 files already on R2)
+Phase 6   🔜 Owner's OCR books: Kashika Vritti, Pravachanam full text, Jingyasu Prathamavrutti
 ```

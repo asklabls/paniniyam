@@ -1978,11 +1978,11 @@ function createSutraCard(sutra) {
 
 async function loadTabData(tabDef, panel, sutra) {
   panel._loaded = true;
+  panel.textContent = '…';
   if (tabDef.type === 'pravachanam') {
     await renderPravachanamTab(panel, sutra.i);
     return;
   }
-  panel.textContent = '…';
   try {
     const data = await loadData(tabDef.id, tabDef.dataPath);
     const raw  = (data[sutra.i] || '').trim();
@@ -1999,6 +1999,7 @@ async function renderPravachanamTab(panel, sutraId) {
   panel.classList.add('pravachanam-panel');
   if (!PRIVATE_BASE) { panel.textContent = '—'; return; }
   const data = await loadArthaData();
+  panel.textContent = '';
   const entry = data?.[sutraId];
   if (!entry?.a && !entry?.h) { panel.textContent = '—'; return; }
   if (entry.a) {
@@ -2113,15 +2114,17 @@ function getArthaPopup() {
   return $arthaPopup;
 }
 
+let _arthaDataPromise = null;
 async function loadArthaData() {
   if (bookData['pravachanam']) return bookData['pravachanam'];
   if (!PRIVATE_BASE) return null;
-  try {
-    const res = await fetch(`${PRIVATE_BASE}/pravachanam.json`);
-    if (!res.ok) return null;
-    bookData['pravachanam'] = await res.json();
-    return bookData['pravachanam'];
-  } catch (_) { return null; }
+  if (!_arthaDataPromise) {
+    _arthaDataPromise = fetch(`${PRIVATE_BASE}/pravachanam.json`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { bookData['pravachanam'] = d; return d; })
+      .catch(() => null);
+  }
+  return _arthaDataPromise;
 }
 
 async function loadPvNotes() {
