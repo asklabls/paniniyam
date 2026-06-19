@@ -2655,6 +2655,8 @@ function buildTabGroups(sutra, container, inCard) {
           notesDiv.className = 'pv-notes commentary-panel';
           pvPanel.appendChild(notesDiv);
           setCommentaryHTML(notesDiv, pvNotesData[sutra.i]);
+          // Switch to PV tab on load if user hasn't manually chosen a tab
+          if (!activeTabByGroup['media']) activateMediaTab('pv');
         }
       })();
 
