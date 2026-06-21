@@ -875,18 +875,29 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
   try {
     const forms = await loadDhatuForms(d.baseindex);
     panel.innerHTML = '';
-    let hasAny = false;
-    for (const lakara of lakaras) {
-      const pKey = `p${lakara.key}`;
-      const aKey = `a${lakara.key}`;
-      const pForms = forms[pKey];
-      const aForms = forms[aKey];
-      if (!pForms && !aForms) continue;
-      hasAny = true;
 
-      const sec = document.createElement('div');
-      sec.className = 'dhatu-lakara-section';
-      sec.appendChild(devEl('div', 'dhatu-lakara-label dev-text', lakara.dev));
+    // Collect lakaras that have data
+    const available = lakaras.filter(lak => forms[`p${lak.key}`] || forms[`a${lak.key}`]);
+    if (!available.length) { panel.textContent = '—'; return; }
+
+    const pillBar = document.createElement('div');
+    pillBar.className = 'pratyaya-lak-pills';
+    const contentArea = document.createElement('div');
+    contentArea.className = 'pratyaya-lak-content';
+    const entries = [];
+
+    available.forEach((lakara, i) => {
+      const pForms = forms[`p${lakara.key}`];
+      const aForms = forms[`a${lakara.key}`];
+
+      const pill = document.createElement('button');
+      pill.className = 'pratyaya-lak-pill dev-text' + (i === 0 ? ' active' : '');
+      pill._devText = lakara.dev;
+      pill.textContent = translit(lakara.dev);
+      pillBar.appendChild(pill);
+
+      const lPanel = document.createElement('div');
+      lPanel.className = 'pratyaya-lak-panel' + (i === 0 ? ' active' : '');
 
       if (pForms && aForms) {
         const split = document.createElement('div');
@@ -896,13 +907,22 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
         divider.className = 'forms-divider';
         split.appendChild(divider);
         split.appendChild(renderFormsTable(aForms, 'आत्मनेपद', d, lakara.key));
-        sec.appendChild(split);
+        lPanel.appendChild(split);
       } else {
-        sec.appendChild(renderFormsTable(pForms || aForms, null, d, lakara.key));
+        lPanel.appendChild(renderFormsTable(pForms || aForms, null, d, lakara.key));
       }
-      panel.appendChild(sec);
-    }
-    if (!hasAny) panel.textContent = '—';
+      contentArea.appendChild(lPanel);
+      entries.push({ pill, panel: lPanel });
+
+      pill.addEventListener('click', () => {
+        entries.forEach(e => { e.pill.classList.remove('active'); e.panel.classList.remove('active'); });
+        pill.classList.add('active');
+        lPanel.classList.add('active');
+      });
+    });
+
+    panel.appendChild(pillBar);
+    panel.appendChild(contentArea);
   } catch (_) {
     panel.textContent = 'Could not load forms.';
   }
@@ -3012,10 +3032,27 @@ function renderPratyayaSections(lakaras, container) {
     container.appendChild(empty);
     return;
   }
-  for (const lak of lakaras) {
-    const sec = document.createElement('div');
-    sec.className = 'dhatu-lakara-section';
-    sec.appendChild(devEl('div', 'dhatu-lakara-label dev-text', lak.dev));
+
+  // Pill bar for lakara selection
+  const pillBar = document.createElement('div');
+  pillBar.className = 'pratyaya-lak-pills';
+
+  const contentArea = document.createElement('div');
+  contentArea.className = 'pratyaya-lak-content';
+
+  const panels = [];
+
+  lakaras.forEach((lak, i) => {
+    // Pill button
+    const pill = document.createElement('button');
+    pill.className = 'pratyaya-lak-pill dev-text' + (i === 0 ? ' active' : '');
+    pill._devText = lak.dev;
+    pill.textContent = translit(lak.dev);
+    pillBar.appendChild(pill);
+
+    // Content panel for this lakara
+    const panel = document.createElement('div');
+    panel.className = 'pratyaya-lak-panel' + (i === 0 ? ' active' : '');
 
     const split = document.createElement('div');
     split.className = 'forms-split';
@@ -3024,9 +3061,19 @@ function renderPratyayaSections(lakaras, container) {
     divider.className = 'forms-divider';
     split.appendChild(divider);
     split.appendChild(renderPratyayaTable(lak.atma, 'आत्मनेपद'));
-    sec.appendChild(split);
-    container.appendChild(sec);
-  }
+    panel.appendChild(split);
+    contentArea.appendChild(panel);
+    panels.push({ pill, panel });
+
+    pill.addEventListener('click', () => {
+      panels.forEach(p => { p.pill.classList.remove('active'); p.panel.classList.remove('active'); });
+      pill.classList.add('active');
+      panel.classList.add('active');
+    });
+  });
+
+  container.appendChild(pillBar);
+  container.appendChild(contentArea);
 }
 
 function renderPratyayaTable(rows, padaLabel) {

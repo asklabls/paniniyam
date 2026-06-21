@@ -1440,6 +1440,22 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: var(--muted);
   font-size: 1.2em;
 }
+.pratyaya-lak-pills {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin: 10px 0 14px;
+}
+.pratyaya-lak-pill {
+  border: 1px solid var(--border); background: var(--bg-card);
+  border-radius: 12px; padding: 4px 14px;
+  font-size: .88em; cursor: pointer; color: var(--muted);
+  font-family: var(--font-dev);
+  transition: background .12s, color .12s, border-color .12s;
+  white-space: nowrap;
+}
+.pratyaya-lak-pill:hover  { background: var(--hover-bg); border-color: var(--accent2); color: var(--text); }
+.pratyaya-lak-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.pratyaya-lak-panel { display: none; }
+.pratyaya-lak-panel.active { display: block; }
 
 /* ── Siddhi derivation panel ──────────────────────────────────── */
 .siddhi-group {
