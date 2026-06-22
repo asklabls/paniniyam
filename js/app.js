@@ -71,7 +71,8 @@ const BOOKS = [
       { id: 'contact',   engName: 'Contact Us' },
       { id: 'support',   engName: 'Support Us' },
       { id: 'copyright', engName: 'Copyright'  },
-      { id: 'themes',    engName: 'Themes'     },
+      { id: 'themes',       engName: 'Themes'        },
+      { id: 'testimonials', engName: 'Testimonials'  },
     ]
   },
 ];
@@ -884,6 +885,8 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
     pillBar.className = 'pratyaya-lak-pills';
     const contentArea = document.createElement('div');
     contentArea.className = 'pratyaya-lak-content';
+    const derivArea = document.createElement('div');
+    derivArea.className = 'dhatu-deriv-area';
     const entries = [];
 
     available.forEach((lakara, i) => {
@@ -902,14 +905,14 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
       if (pForms && aForms) {
         const split = document.createElement('div');
         split.className = 'forms-split';
-        split.appendChild(renderFormsTable(pForms, 'परस्मैपद', d, lakara.key));
+        split.appendChild(renderFormsTable(pForms, 'परस्मैपद', d, lakara.key, derivArea));
         const divider = document.createElement('div');
         divider.className = 'forms-divider';
         split.appendChild(divider);
-        split.appendChild(renderFormsTable(aForms, 'आत्मनेपद', d, lakara.key));
+        split.appendChild(renderFormsTable(aForms, 'आत्मनेपद', d, lakara.key, derivArea));
         lPanel.appendChild(split);
       } else {
-        lPanel.appendChild(renderFormsTable(pForms || aForms, null, d, lakara.key));
+        lPanel.appendChild(renderFormsTable(pForms || aForms, null, d, lakara.key, derivArea));
       }
       contentArea.appendChild(lPanel);
       entries.push({ pill, panel: lPanel });
@@ -923,6 +926,7 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
 
     panel.appendChild(pillBar);
     panel.appendChild(contentArea);
+    panel.appendChild(derivArea);
   } catch (_) {
     panel.textContent = 'Could not load forms.';
   }
@@ -1026,6 +1030,197 @@ async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
 // Strip Vidyut accent markers (\ = anudātta, ^ = udātta) before SLP1→Devanagari conversion
 function vslp1(s) { return (s || '').replace(/[\\^]/g, ''); }
 
+function renderVidyutSteps(container, results) {
+  const wrap = document.createElement('div');
+  wrap.className = 'vidyut-steps-wrap';
+  const table = document.createElement('table');
+  table.className = 'vidyut-steps-table';
+
+  results[0].history.forEach(step => {
+    const tr = document.createElement('tr');
+    tr.className = 'vidyut-step';
+
+    const formTd = document.createElement('td');
+    formTd.className = 'vidyut-step-form';
+    (step.result || []).forEach((term, ti) => {
+      if (ti > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'vidyut-sep';
+        sep.textContent = '+';
+        formTd.appendChild(sep);
+      }
+      const devText = Sanscript.t(vslp1(term.text), 'slp1', 'devanagari');
+      const sp = document.createElement('span');
+      sp.className = 'vidyut-term dev-text' + (term.wasChanged ? ' vidyut-changed' : '');
+      sp._devText = devText;
+      sp.textContent = translit(devText);
+      formTd.appendChild(sp);
+    });
+    tr.appendChild(formTd);
+
+    const sutraTd = document.createElement('td');
+    sutraTd.className = 'vidyut-step-sutra';
+    const rule = step.rule || {};
+    if (rule.code) {
+      const parts = rule.code.split('.');
+      if (parts.length === 3 && rule.source === 'ashtadhyayi') {
+        const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
+        const sutra = sutraIndex[sid];
+        if (sutra) {
+          const txt = document.createElement('span');
+          txt.className = 'vidyut-sutra-text dev-text';
+          txt._devText = sutra.s;
+          txt.textContent = translit(sutra.s);
+          sutraTd.appendChild(txt);
+        }
+        const ref = document.createElement('a');
+        ref.className = 'vidyut-sutra-ref sutra-link';
+        ref.href = `?sutra=${rule.code}`;
+        ref.dataset.id = sid;
+        ref.textContent = rule.code;
+        ref.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
+        sutraTd.appendChild(ref);
+      } else {
+        const vt = document.createElement('span');
+        vt.className = 'vidyut-vartika';
+        vt.textContent = `${rule.source || ''} ${rule.code}`.trim();
+        sutraTd.appendChild(vt);
+      }
+    }
+    tr.appendChild(sutraTd);
+    table.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+  container.appendChild(wrap);
+
+  const credit = document.createElement('div');
+  credit.className = 'vidyut-credit';
+  credit.innerHTML = 'Prakriyā: <a href="https://github.com/ambuda-org/vidyut" target="_blank" rel="noopener">Vidyut</a> (MIT)';
+  container.appendChild(credit);
+}
+
+async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, derivArea, cellTds) {
+  // Toggle off if same cell clicked again
+  if (td.classList.contains('forms-cell-active')) {
+    document.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+    derivArea.innerHTML = '';
+    return;
+  }
+
+  document.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+  td.classList.add('forms-cell-active');
+
+  derivArea.innerHTML = '';
+
+  // Pill bar: all 9 forms as pills (active = selected) + copy + close at far right
+  const pillBar = document.createElement('div');
+  pillBar.className = 'dhatu-deriv-pillbar';
+
+  (cellTds || [td]).forEach((cellTd, i) => {
+    const p = document.createElement('button');
+    p.className = 'dhatu-deriv-pill dev-text' + (i === cellIndex ? ' active' : '');
+    p._devText = cellTd._devText;
+    p.textContent = translit(cellTd._devText);
+    if (i !== cellIndex) {
+      p.addEventListener('click', () =>
+        showFormDerivInline(dhatu, lakaraKey, padaKey, i, cellTds[i], derivArea, cellTds));
+    }
+    pillBar.appendChild(p);
+  });
+
+  const actions = document.createElement('div');
+  actions.className = 'dhatu-deriv-actions';
+
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'dhatu-deriv-action';
+  copyBtn.title = 'Copy prakriyā as text';
+  copyBtn.textContent = '📋';
+  copyBtn.disabled = true;
+  actions.appendChild(copyBtn);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'dhatu-deriv-action';
+  closeBtn.title = 'Close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => {
+    document.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+    derivArea.innerHTML = '';
+  });
+  actions.appendChild(closeBtn);
+  pillBar.appendChild(actions);
+
+  derivArea.appendChild(pillBar);
+
+  const content = document.createElement('div');
+  content.innerHTML = '<div class="vidyut-loading">Computing prakriyā…</div>';
+  derivArea.appendChild(content);
+
+  try {
+    const v = await loadVidyut();
+    if (!v) { content.innerHTML = '<div class="vidyut-loading">Vidyut unavailable.</div>'; return; }
+
+    const aupadeshika = (v.tsvMap && v.tsvMap[dhatu.baseindex])
+                        || Sanscript.t(dhatu.aupadeshik || dhatu.dhatu, 'devanagari', 'slp1');
+    const gana    = VIDYUT_GANA[String(dhatu.gana)] || 'Bhvadi';
+    const lakara  = VIDYUT_LAKARA[lakaraKey];
+    const purusha = VIDYUT_PURUSH[Math.floor(cellIndex / 3)];
+    const vacana  = VIDYUT_VACANA[cellIndex % 3];
+
+    const results = v.wasm.deriveTinantas({
+      dhatu:         { aupadeshika, gana, antargana: null, sanadi: [], prefixes: [] },
+      lakara,
+      prayoga:       'Kartari',
+      purusha,
+      vacana,
+      skip_at_agama: false,
+      pada:          padaKey || null,
+    });
+
+    content.innerHTML = '';
+    if (!results || results.length === 0) {
+      content.innerHTML = '<div class="vidyut-loading">No derivation found.</div>';
+      return;
+    }
+
+    // Wire copy button now that results are available
+    copyBtn.disabled = false;
+    copyBtn.addEventListener('click', () => {
+      const devFormsFinal = results.map(r => Sanscript.t(vslp1(r.text), 'slp1', 'devanagari')).join(' / ');
+      const lines = [`${devFormsFinal} — tiṅanta prakriyā | paniniyam.com`, ''];
+      results[0].history.forEach(step => {
+        const formParts = (step.result || []).map(t => Sanscript.t(vslp1(t.text), 'slp1', 'devanagari'));
+        const rule = step.rule || {};
+        let sutraStr = '';
+        if (rule.code && rule.source === 'ashtadhyayi') {
+          const parts = rule.code.split('.');
+          if (parts.length === 3) {
+            const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
+            const sutra = sutraIndex[sid];
+            sutraStr = sutra ? `${rule.code}  ${sutra.s}` : rule.code;
+          }
+        } else if (rule.code) {
+          sutraStr = `${rule.source || ''} ${rule.code}`.trim();
+        }
+        const formStr = formParts.join(' + ');
+        lines.push(sutraStr ? `${formStr}\t→  ${sutraStr}` : formStr);
+      });
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        copyBtn.textContent = '✓';
+        setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+      }).catch(() => {
+        copyBtn.textContent = '✗';
+        setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+      });
+    });
+
+    renderVidyutSteps(content, results);
+  } catch (err) {
+    console.error('Vidyut error:', err);
+    content.innerHTML = `<div class="vidyut-loading">Error: ${err.message}</div>`;
+  }
+}
+
 function renderVidyutPanel(panel, results) {
   // Header: final form(s)
   const header = document.createElement('div');
@@ -1082,81 +1277,10 @@ function renderVidyutPanel(panel, results) {
   closeBtn.addEventListener('click', hideVidyutPanel);
   header.appendChild(closeBtn);
   panel.appendChild(header);
-
-  // Steps — two-column table: form result | sutra text + ref
-  const wrap = document.createElement('div');
-  wrap.className = 'vidyut-steps-wrap';
-  const table = document.createElement('table');
-  table.className = 'vidyut-steps-table';
-
-  results[0].history.forEach(step => {
-    const tr = document.createElement('tr');
-    tr.className = 'vidyut-step';
-
-    // Left col: morpheme result
-    const formTd = document.createElement('td');
-    formTd.className = 'vidyut-step-form';
-    (step.result || []).forEach((term, ti) => {
-      if (ti > 0) {
-        const sep = document.createElement('span');
-        sep.className = 'vidyut-sep';
-        sep.textContent = '+';
-        formTd.appendChild(sep);
-      }
-      const devText = Sanscript.t(vslp1(term.text), 'slp1', 'devanagari');
-      const sp = document.createElement('span');
-      sp.className = 'vidyut-term dev-text' + (term.wasChanged ? ' vidyut-changed' : '');
-      sp._devText = devText;
-      sp.textContent = translit(devText);
-      formTd.appendChild(sp);
-    });
-    tr.appendChild(formTd);
-
-    // Right col: sutra text (plain) + ref number (sutra-link → artha popup on hover)
-    const sutraTd = document.createElement('td');
-    sutraTd.className = 'vidyut-step-sutra';
-    const rule = step.rule || {};
-    if (rule.code) {
-      const parts = rule.code.split('.');
-      if (parts.length === 3 && rule.source === 'ashtadhyayi') {
-        const sid = parts[0] + parts[1] + parts[2].padStart(3, '0');
-        const sutra = sutraIndex[sid];
-        if (sutra) {
-          const txt = document.createElement('span');
-          txt.className = 'vidyut-sutra-text dev-text';
-          txt._devText = sutra.s;
-          txt.textContent = translit(sutra.s);
-          sutraTd.appendChild(txt);
-        }
-        // Ref number is the sutra-link — hover triggers artha popup, click navigates
-        const ref = document.createElement('a');
-        ref.className = 'vidyut-sutra-ref sutra-link';
-        ref.href = `?sutra=${rule.code}`;
-        ref.dataset.id = sid;
-        ref.textContent = rule.code;
-        ref.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
-        sutraTd.appendChild(ref);
-      } else {
-        const vt = document.createElement('span');
-        vt.className = 'vidyut-vartika';
-        vt.textContent = `${rule.source || ''} ${rule.code}`.trim();
-        sutraTd.appendChild(vt);
-      }
-    }
-    tr.appendChild(sutraTd);
-    table.appendChild(tr);
-  });
-
-  wrap.appendChild(table);
-  panel.appendChild(wrap);
-
-  const credit = document.createElement('div');
-  credit.className = 'vidyut-credit';
-  credit.innerHTML = 'Prakriyā: <a href="https://github.com/ambuda-org/vidyut" target="_blank" rel="noopener">Vidyut</a> (MIT)';
-  panel.appendChild(credit);
+  renderVidyutSteps(panel, results);
 }
 
-function renderFormsTable(formsStr, padaLabel, dhatu, lakaraKey) {
+function renderFormsTable(formsStr, padaLabel, dhatu, lakaraKey, derivArea) {
   const cells = String(formsStr || '').split(';').map(s => s.trim());
   while (cells.length < 9) cells.push('—');
 
@@ -1195,6 +1319,7 @@ function renderFormsTable(formsStr, padaLabel, dhatu, lakaraKey) {
 
   // Data rows: prathama, madhyama, uttama
   const tbody = document.createElement('tbody');
+  const cellTds = [];
   PURUSH_FORMS_DEV.forEach((purush, row) => {
     const tr = document.createElement('tr');
     const labelTd = document.createElement('td');
@@ -1208,19 +1333,22 @@ function renderFormsTable(formsStr, padaLabel, dhatu, lakaraKey) {
       td.className = 'forms-cell dev-text';
       td._devText = val;
       td.textContent = translit(val);
-      if (dhatu && lakaraKey && VIDYUT_BASE) {
-        const cellIndex = row * 3 + col;
-        const padaKey = VIDYUT_PADA[padaLabel] || null;
-        td.title = 'Click for prakriyā';
-        td.addEventListener('click', e => {
-          e.stopPropagation();
-          showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td);
-        });
-      }
+      cellTds.push(td);
       tr.appendChild(td);
     }
     tbody.appendChild(tr);
   });
+  // Wire click handlers after all cells are collected so cellTds is complete
+  if (dhatu && lakaraKey && VIDYUT_BASE && derivArea) {
+    const padaKey = VIDYUT_PADA[padaLabel] || null;
+    cellTds.forEach((ctd, cellIndex) => {
+      ctd.title = 'Click for prakriyā';
+      ctd.addEventListener('click', e => {
+        e.stopPropagation();
+        showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, ctd, derivArea, cellTds);
+      });
+    });
+  }
   table.appendChild(tbody);
   wrap.appendChild(table);
   return wrap;
@@ -5463,6 +5591,17 @@ function renderAboutSection(id) {
           </div>
         </div>`,
     },
+    testimonials: {
+      html: `
+        <div class="about-section">
+          <h2 class="about-title">What learners say</h2>
+          <p class="about-intro">Kind words from those who use Paniniyam in their study of Sanskrit grammar.</p>
+          <div class="about-card about-testimonial-card">
+            <blockquote class="about-testimonial-quote">"Hello! I am a new learner of Sanskrit and have just begun my journey of learning Sanskrit grammar. I am very grateful for this site that you have created as it has helped with my note taking throughout my learning experience. One thing that I feel would be helpful would be the general meaning of sutras to assist foreign learners who can't translate easily. Other than that this site is great and has been a great tool that I have been able to confidently share with others who are interested in learning this great, ancient language. I appreciate everything this site has given me. Thank you very much."</blockquote>
+            <div class="about-testimonial-attr">— Joe, 2026</div>
+          </div>
+        </div>`,
+    },
   };
 
   const page = CONTENT[id];
@@ -6935,10 +7074,10 @@ async function init() {
     const $introVideo = document.getElementById('welcome-intro-video');
     if ($introVideo) {
       $introVideo.innerHTML = `
-        <a class="welcome-intro-link" href="https://youtu.be/G8q2MUjX1bU"
+        <a class="welcome-intro-link" href="https://youtu.be/E1eAZQJ-3IA"
            target="_blank" rel="noopener" title="How to use this site">
           <div class="welcome-intro-thumb">
-            <img src="https://img.youtube.com/vi/G8q2MUjX1bU/mqdefault.jpg"
+            <img src="https://img.youtube.com/vi/E1eAZQJ-3IA/mqdefault.jpg"
                  alt="How to use site — intro video">
             <div class="welcome-intro-play">▶</div>
           </div>

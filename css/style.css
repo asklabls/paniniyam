@@ -1102,6 +1102,12 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .about-card a { color: var(--accent); text-decoration: none; }
 .about-card a:hover { text-decoration: underline; }
 .about-email { font-weight: 600; }
+.about-testimonial-card { border-left: 3px solid var(--accent); }
+.about-testimonial-quote {
+  font-style: italic; font-size: .92em; line-height: 1.8;
+  color: var(--text); margin-bottom: 10px;
+}
+.about-testimonial-attr { font-size: .85em; font-weight: 600; color: var(--muted); }
 
 /* Guru cards */
 .about-guru-name {
@@ -1397,6 +1403,67 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: var(--muted);
   text-align: center;
 }
+/* ── Inline dhatu derivation area (below forms table) ─────────── */
+.dhatu-deriv-area {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-y: auto;
+  max-height: 45vh;
+}
+.dhatu-deriv-pillbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--hover-bg);
+  border-bottom: 1px solid var(--border);
+}
+.dhatu-deriv-pill {
+  font-family: var(--font-dev);
+  font-size: .82em;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.dhatu-deriv-pill.active {
+  background: var(--bar-bg);
+  color: var(--bar-fg);
+  border-color: var(--bar-bg);
+  cursor: default;
+}
+.dhatu-deriv-pill:not(.active):hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.dhatu-deriv-actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+.dhatu-deriv-action {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1em;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  border-radius: 4px;
+}
+.dhatu-deriv-action:hover { color: var(--text); background: var(--hover-bg); }
+.dhatu-deriv-action:disabled { opacity: .4; cursor: default; }
+.dhatu-deriv-area .vidyut-steps-wrap { overflow: visible; }
+
 .vidyut-credit {
   padding: 6px 14px;
   font-size: .7em;
