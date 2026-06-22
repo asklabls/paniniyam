@@ -165,15 +165,23 @@ const DHATU_TABS = [
   { id: 'ardha', dev: 'आर्धधातुक',  lakaras: LAKARA_ARDHA },
 ];
 const KRDANTA_LIST = [
-  { krt: 'Satf',    dev: 'शतृ',     prayoga: 'Kartari', artha: 'कर्तरि, वर्तमान' },
-  { krt: 'SAnac',   dev: 'शानच्',   prayoga: 'Kartari', artha: 'आत्म., वर्तमान' },
-  { krt: 'kta',     dev: 'क्त',     prayoga: 'Karmani', artha: 'भूतकाल' },
+  { krt: 'lyuw',    dev: 'ल्युट्',  prayoga: 'Kartari', artha: 'कर्तृवाचक (-अन)' },
+  { krt: 'Rvul',    dev: 'ण्वुल्',  prayoga: 'Kartari', artha: 'कर्तृवाचक (-अक)' },
+  { krt: 'tfc',     dev: 'तृच्',    prayoga: 'Kartari', artha: 'कर्तृवाचक (-तृ)' },
+  { krt: 'Ryat',    dev: 'ण्यत्',   prayoga: 'Karmani', artha: 'विधि (-य)' },
+  { krt: 'tavya',   dev: 'तव्य',    prayoga: 'Karmani', artha: 'विधि (-तव्य)' },
+  { krt: 'anIyar',  dev: 'अनीयर्', prayoga: 'Karmani', artha: 'विधि (-अनीय)' },
+  { krt: 'kta',     dev: 'क्त',     prayoga: 'Karmani', artha: 'भूतकृदन्त' },
   { krt: 'ktavatu', dev: 'क्तवतु',  prayoga: 'Kartari', artha: 'कर्तरि भूत' },
-  { krt: 'anIyar',  dev: 'अनीयर्',  prayoga: 'Karmani', artha: 'विधि (-अनीय)' },
-  { krt: 'tavyat',  dev: 'तव्यत्',  prayoga: 'Karmani', artha: 'विधि (-तव्य)' },
-  { krt: 'yat',     dev: 'यत्',     prayoga: 'Karmani', artha: 'विधि (-य)' },
+  { krt: 'Satf',    dev: 'शतृ',     prayoga: 'Kartari', artha: 'वर्तमान कर्तृ' },
+  { krt: 'SAnac',   dev: 'शानच्',   prayoga: 'Kartari', artha: 'आत्म. वर्तमान' },
   { krt: 'ktvA',    dev: 'क्त्वा',  prayoga: 'Kartari', artha: 'अव्यय' },
+  { krt: 'lyap',    dev: 'ल्यप्',   prayoga: 'Kartari', artha: 'अव्यय (स-उपसर्ग)' },
   { krt: 'tumun',   dev: 'तुमुन्',  prayoga: 'Kartari', artha: 'तुमर्थ' },
+  { krt: 'Namul',   dev: 'णमुल्',   prayoga: 'Kartari', artha: 'अव्यय' },
+  { krt: 'GaY',     dev: 'घञ्',     prayoga: 'Kartari', artha: 'भाव/कर्म (-अ)' },
+  { krt: 'ktin',    dev: 'क्तिन्',  prayoga: 'Kartari', artha: 'भाव (-ति)' },
+  { krt: 'cAnaS',   dev: 'चानश्',   prayoga: 'Kartari', artha: 'परोक्ष कर्तृ' },
 ];
 const PURUSH_FORMS_DEV = ['प्रथम', 'मध्यम', 'उत्तम'];
 const VACANA_FORMS_DEV = ['एकवचन', 'द्विवचन', 'बहुवचन'];
