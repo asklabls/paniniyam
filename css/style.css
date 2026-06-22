@@ -1445,6 +1445,13 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: #fff;
   border-color: var(--accent);
 }
+/* Related-dhatu pills — dashed border signals "navigates to another dhatu" */
+.dhatu-deriv-pill--related {
+  border-style: dashed;
+}
+.dhatu-deriv-pill--related:hover {
+  border-style: dashed;
+}
 .dhatu-deriv-actions {
   display: flex;
   gap: 2px;

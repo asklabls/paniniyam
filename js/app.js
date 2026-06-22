@@ -283,6 +283,7 @@ let dhatuReaderList = [];
 let dhatuReaderIdx  = -1;
 let dhatuReaderItem = null;
 let readerType      = 'sutra'; // 'sutra' | 'dhatu'
+let _pendingFormClick = null;  // { lakaraKey, padaKey, cellIndex } — set when navigating to related dhatu
 
 // Google Drive notes state
 let googleToken      = null;
@@ -915,7 +916,7 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
         lPanel.appendChild(renderFormsTable(pForms || aForms, null, d, lakara.key, derivArea));
       }
       contentArea.appendChild(lPanel);
-      entries.push({ pill, panel: lPanel });
+      entries.push({ pill, panel: lPanel, lakaraKey: lakara.key });
 
       pill.addEventListener('click', () => {
         entries.forEach(e => { e.pill.classList.remove('active'); e.panel.classList.remove('active'); });
@@ -927,6 +928,22 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
     panel.appendChild(pillBar);
     panel.appendChild(contentArea);
     panel.appendChild(derivArea);
+
+    // If we navigated here from a related-dhatu pill, auto-select the same position
+    if (_pendingFormClick) {
+      const { lakaraKey: plk, padaKey: ppk, cellIndex: pci } = _pendingFormClick;
+      _pendingFormClick = null;
+      const match = entries.find(e => e.lakaraKey === plk);
+      if (match) {
+        entries.forEach(e => { e.pill.classList.remove('active'); e.panel.classList.remove('active'); });
+        match.pill.classList.add('active');
+        match.panel.classList.add('active');
+        const allCells = match.panel.querySelectorAll('.forms-cell');
+        const hasSplit = !!match.panel.querySelector('.forms-split');
+        const targetIdx = (hasSplit && ppk === 'Atmanepada') ? 9 + pci : pci;
+        allCells[targetIdx]?.click();
+      }
+    }
   } catch (_) {
     panel.textContent = 'Could not load forms.';
   }
@@ -1113,22 +1130,66 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
 
   derivArea.innerHTML = '';
 
-  // Pill bar: all 9 forms as pills (active = selected) + copy + close at far right
+  // ── Find same-gana neighboring dhatus and their form at the same position ──
+  const pKey = `p${lakaraKey}`;
+  const aKey = `a${lakaraKey}`;
+  const formsKey = padaKey === 'Atmanepada' ? aKey : padaKey === 'Parasmaipada' ? pKey : null;
+
+  let relatedEntries = [];
+  const currentListIdx = dhatuReaderList.findIndex(d => d.baseindex === dhatu.baseindex);
+  if (currentListIdx >= 0) {
+    // Collect up to 4 same-gana neighbors (alternating ±1, ±2, ±3…)
+    const candidates = [];
+    for (const offset of [-1, 1, -2, 2, -3, 3, -4, 4]) {
+      const i = currentListIdx + offset;
+      if (i >= 0 && i < dhatuReaderList.length &&
+          String(dhatuReaderList[i].gana) === String(dhatu.gana)) {
+        candidates.push({ dhatu: dhatuReaderList[i], listIdx: i });
+        if (candidates.length >= 4) break;
+      }
+    }
+    // Fetch their forms in parallel (±2 are likely already prefetched/cached)
+    const fetched = await Promise.all(
+      candidates.map(c => loadDhatuForms(c.dhatu.baseindex).catch(() => null))
+    );
+    candidates.forEach((c, i) => {
+      if (!fetched[i]) return;
+      const fStr = formsKey
+        ? (fetched[i][formsKey] || fetched[i][formsKey === pKey ? aKey : pKey])
+        : (fetched[i][pKey] || fetched[i][aKey]);
+      if (!fStr) return;
+      const form = String(fStr).split(';')[cellIndex]?.trim() || '—';
+      if (form && form !== '—') relatedEntries.push({ form, dhatu: c.dhatu, listIdx: c.listIdx });
+    });
+    relatedEntries = relatedEntries.slice(0, 3);
+  }
+
+  // ── Build pill bar ──────────────────────────────────────────────────────────
   const pillBar = document.createElement('div');
   pillBar.className = 'dhatu-deriv-pillbar';
 
-  (cellTds || [td]).forEach((cellTd, i) => {
+  // 1. Active pill — current dhatu, selected position
+  const activePill = document.createElement('button');
+  activePill.className = 'dhatu-deriv-pill dev-text active';
+  activePill._devText = td._devText;
+  activePill.textContent = translit(td._devText);
+  pillBar.appendChild(activePill);
+
+  // 2. Related dhatu pills — same position, different dhatu → navigate to it
+  relatedEntries.forEach(({ form, dhatu: relDhatu, listIdx }) => {
     const p = document.createElement('button');
-    p.className = 'dhatu-deriv-pill dev-text' + (i === cellIndex ? ' active' : '');
-    p._devText = cellTd._devText;
-    p.textContent = translit(cellTd._devText);
-    if (i !== cellIndex) {
-      p.addEventListener('click', () =>
-        showFormDerivInline(dhatu, lakaraKey, padaKey, i, cellTds[i], derivArea, cellTds));
-    }
+    p.className = 'dhatu-deriv-pill dhatu-deriv-pill--related dev-text';
+    p._devText = form;
+    p.textContent = translit(form);
+    p.title = translit(relDhatu.dhatu || '');
+    p.addEventListener('click', () => {
+      _pendingFormClick = { lakaraKey, padaKey, cellIndex };
+      showDhatuReader(relDhatu, listIdx);
+    });
     pillBar.appendChild(p);
   });
 
+  // 3. Copy + close at far right
   const actions = document.createElement('div');
   actions.className = 'dhatu-deriv-actions';
 
@@ -1152,6 +1213,7 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
 
   derivArea.appendChild(pillBar);
 
+  // ── Derivation content ──────────────────────────────────────────────────────
   const content = document.createElement('div');
   content.innerHTML = '<div class="vidyut-loading">Computing prakriyā…</div>';
   derivArea.appendChild(content);
@@ -1183,7 +1245,6 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
       return;
     }
 
-    // Wire copy button now that results are available
     copyBtn.disabled = false;
     copyBtn.addEventListener('click', () => {
       const devFormsFinal = results.map(r => Sanscript.t(vslp1(r.text), 'slp1', 'devanagari')).join(' / ');
@@ -1202,8 +1263,7 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
         } else if (rule.code) {
           sutraStr = `${rule.source || ''} ${rule.code}`.trim();
         }
-        const formStr = formParts.join(' + ');
-        lines.push(sutraStr ? `${formStr}\t→  ${sutraStr}` : formStr);
+        lines.push(sutraStr ? `${formParts.join(' + ')}\t→  ${sutraStr}` : formParts.join(' + '));
       });
       navigator.clipboard.writeText(lines.join('\n')).then(() => {
         copyBtn.textContent = '✓';
