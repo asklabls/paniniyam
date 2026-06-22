@@ -1471,6 +1471,55 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .dhatu-deriv-action:disabled { opacity: .4; cursor: default; }
 .dhatu-deriv-area .vidyut-steps-wrap { overflow: visible; }
 
+/* ── Kṛdanta pills ──────────────────────────────────────────────────────────── */
+.krdanta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 10px;
+}
+.krdanta-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 14px 7px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  min-width: 4em;
+}
+.krdanta-pill:hover:not(.krdanta-pill-empty) {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+.krdanta-pill.active {
+  background: var(--bar-bg);
+  color: var(--bar-fg);
+  border-color: var(--bar-bg);
+}
+.krdanta-pill-empty {
+  opacity: .4;
+  cursor: default;
+}
+.krdanta-pill-label {
+  font-size: .7em;
+  color: var(--muted);
+  line-height: 1;
+}
+.krdanta-pill.active .krdanta-pill-label {
+  color: var(--bar-fg);
+  opacity: .75;
+}
+.krdanta-pill-form {
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 .vidyut-credit {
   padding: 6px 14px;
   font-size: .7em;

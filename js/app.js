@@ -161,8 +161,19 @@ const LAKARA_ARDHA = [
   { key: 'lrung',     dev: 'लृङ्'      },
 ];
 const DHATU_TABS = [
-  { id: 'sarva', dev: 'सार्वधातुकम्', lakaras: LAKARA_SARVA },
-  { id: 'ardha', dev: 'आर्धधातुकम्',  lakaras: LAKARA_ARDHA },
+  { id: 'sarva', dev: 'सार्वधातुक', lakaras: LAKARA_SARVA },
+  { id: 'ardha', dev: 'आर्धधातुक',  lakaras: LAKARA_ARDHA },
+];
+const KRDANTA_LIST = [
+  { krt: 'Satf',    dev: 'शतृ',     prayoga: 'Kartari', artha: 'कर्तरि, वर्तमान' },
+  { krt: 'SAnac',   dev: 'शानच्',   prayoga: 'Kartari', artha: 'आत्म., वर्तमान' },
+  { krt: 'kta',     dev: 'क्त',     prayoga: 'Karmani', artha: 'भूतकाल' },
+  { krt: 'ktavatu', dev: 'क्तवतु',  prayoga: 'Kartari', artha: 'कर्तरि भूत' },
+  { krt: 'anIyar',  dev: 'अनीयर्',  prayoga: 'Karmani', artha: 'विधि (-अनीय)' },
+  { krt: 'tavyat',  dev: 'तव्यत्',  prayoga: 'Karmani', artha: 'विधि (-तव्य)' },
+  { krt: 'yat',     dev: 'यत्',     prayoga: 'Karmani', artha: 'विधि (-य)' },
+  { krt: 'ktvA',    dev: 'क्त्वा',  prayoga: 'Kartari', artha: 'अव्यय' },
+  { krt: 'tumun',   dev: 'तुमुन्',  prayoga: 'Kartari', artha: 'तुमर्थ' },
 ];
 const PURUSH_FORMS_DEV = ['प्रथम', 'मध्यम', 'उत्तम'];
 const VACANA_FORMS_DEV = ['एकवचन', 'द्विवचन', 'बहुवचन'];
@@ -836,6 +847,34 @@ function renderReaderDhatu(d) {
       .catch(() => {});
   }
 
+  // कृदन्त tab (Vidyut krdanta derivations)
+  if (VIDYUT_BASE) {
+    const krdPanel = document.createElement('div');
+    krdPanel.className = 'detail-tab-panel';
+    krdPanel.dataset.panel = 'krdanta';
+    krdPanel._loaded = false;
+    panels['krdanta'] = krdPanel;
+
+    const krdTab = document.createElement('button');
+    krdTab.className = 'detail-tab dev-text';
+    krdTab._devText = 'कृदन्त';
+    krdTab.textContent = translit('कृदन्त');
+
+    krdTab.addEventListener('click', () => {
+      tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+      krdTab.classList.add('active');
+      Object.values(panels).forEach(p => p.classList.remove('active'));
+      krdPanel.classList.add('active');
+      if (!krdPanel._loaded) {
+        krdPanel._loaded = true;
+        loadAndRenderKrdanta(d, krdPanel);
+      }
+    });
+
+    tabBar.appendChild(krdTab);
+    panelWrap.appendChild(krdPanel);
+  }
+
   // Activate and auto-load first tab
   tabBar.querySelectorAll('.detail-tab')[0].classList.add('active');
   const firstPanel = panelWrap.querySelectorAll('.detail-tab-panel')[0];
@@ -870,6 +909,100 @@ function prefetchDhatuForms(list, idx) {
         .catch(() => {});
     }
   }
+}
+
+async function loadAndRenderKrdanta(dhatu, panel) {
+  panel.innerHTML = '<div class="vidyut-loading">Computing kṛdantas…</div>';
+  const v = await loadVidyut();
+  if (!v) { panel.innerHTML = '<div class="vidyut-loading">Vidyut unavailable.</div>'; return; }
+
+  const aupadeshika = (v.tsvMap && v.tsvMap[dhatu.baseindex])
+                      || Sanscript.t(dhatu.aupadeshik || dhatu.dhatu, 'devanagari', 'slp1');
+  const gana = VIDYUT_GANA[String(dhatu.gana)] || 'Bhvadi';
+  const dhatuArgs = { aupadeshika, gana, antargana: null, sanadi: [], prefixes: [] };
+
+  panel.innerHTML = '';
+
+  const pillWrap = document.createElement('div');
+  pillWrap.className = 'krdanta-pills';
+
+  const derivArea = document.createElement('div');
+  derivArea.className = 'dhatu-deriv-area';
+
+  let activePillBtn = null;
+
+  for (const krt of KRDANTA_LIST) {
+    let results = null;
+    try {
+      results = v.wasm.deriveKrdantas({ dhatu: dhatuArgs, krt: krt.krt, prayoga: krt.prayoga });
+    } catch (_) {
+      try { results = v.wasm.deriveKrdantas({ dhatu: dhatuArgs, krt: krt.krt }); } catch (_2) {}
+    }
+    const form = results?.[0]?.text || '—';
+
+    const btn = document.createElement('button');
+    btn.className = 'krdanta-pill dev-text' + (form === '—' ? ' krdanta-pill-empty' : '');
+    btn.title = krt.artha;
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'krdanta-pill-label dev-text';
+    labelEl._devText = krt.dev;
+    labelEl.textContent = translit(krt.dev);
+
+    const formEl = document.createElement('span');
+    formEl.className = 'krdanta-pill-form dev-text';
+    formEl._devText = form;
+    formEl.textContent = translit(form);
+
+    btn.appendChild(labelEl);
+    btn.appendChild(formEl);
+
+    if (form !== '—' && results?.[0]) {
+      const rowResults = results;
+      btn.addEventListener('click', () => {
+        if (activePillBtn === btn) {
+          activePillBtn = null;
+          btn.classList.remove('active');
+          derivArea.innerHTML = '';
+          return;
+        }
+        if (activePillBtn) activePillBtn.classList.remove('active');
+        activePillBtn = btn;
+        btn.classList.add('active');
+
+        derivArea.innerHTML = '';
+        const pillBar = document.createElement('div');
+        pillBar.className = 'dhatu-deriv-pillbar';
+
+        const activePill = document.createElement('button');
+        activePill.className = 'dhatu-deriv-pill dev-text active';
+        activePill._devText = form;
+        activePill.textContent = translit(form);
+        pillBar.appendChild(activePill);
+
+        const actions = document.createElement('div');
+        actions.className = 'dhatu-deriv-actions';
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'dhatu-deriv-action';
+        closeBtn.title = 'Close';
+        closeBtn.textContent = '✕';
+        closeBtn.addEventListener('click', () => {
+          activePillBtn = null;
+          btn.classList.remove('active');
+          derivArea.innerHTML = '';
+        });
+        actions.appendChild(closeBtn);
+        pillBar.appendChild(actions);
+        derivArea.appendChild(pillBar);
+        renderVidyutSteps(derivArea, rowResults);
+      });
+    }
+
+    pillWrap.appendChild(btn);
+  }
+
+  panel.appendChild(pillWrap);
+  panel.appendChild(derivArea);
 }
 
 async function loadAndRenderDhatuForms(d, lakaras, panel) {
@@ -3182,8 +3315,8 @@ async function showPratyayaPage(pageId) {
   tabContent.className = 'detail-tab-panels';
 
   const tabs = [
-    { id: 'sarva', dev: 'सार्वधातुकम्', rows: data.sarva },
-    { id: 'ardha', dev: 'आर्धधातुकम्',  rows: data.ardha },
+    { id: 'sarva', dev: 'सार्वधातुक', rows: data.sarva },
+    { id: 'ardha', dev: 'आर्धधातुक',  rows: data.ardha },
   ];
 
   tabs.forEach((t, i) => {
