@@ -938,10 +938,12 @@ async function loadAndRenderKrdanta(dhatu, panel) {
     } catch (_) {
       try { results = v.wasm.deriveKrdantas({ dhatu: dhatuArgs, krt: krt.krt }); } catch (_2) {}
     }
-    const form = results?.[0]?.text || '—';
+    const devForm = results?.[0]?.text
+      ? Sanscript.t(vslp1(results[0].text), 'slp1', 'devanagari')
+      : '—';
 
     const btn = document.createElement('button');
-    btn.className = 'krdanta-pill dev-text' + (form === '—' ? ' krdanta-pill-empty' : '');
+    btn.className = 'krdanta-pill dev-text' + (devForm === '—' ? ' krdanta-pill-empty' : '');
     btn.title = krt.artha;
 
     const labelEl = document.createElement('span');
@@ -949,15 +951,9 @@ async function loadAndRenderKrdanta(dhatu, panel) {
     labelEl._devText = krt.dev;
     labelEl.textContent = translit(krt.dev);
 
-    const formEl = document.createElement('span');
-    formEl.className = 'krdanta-pill-form dev-text';
-    formEl._devText = form;
-    formEl.textContent = translit(form);
-
     btn.appendChild(labelEl);
-    btn.appendChild(formEl);
 
-    if (form !== '—' && results?.[0]) {
+    if (devForm !== '—' && results?.[0]) {
       const rowResults = results;
       btn.addEventListener('click', () => {
         if (activePillBtn === btn) {
@@ -976,8 +972,8 @@ async function loadAndRenderKrdanta(dhatu, panel) {
 
         const activePill = document.createElement('button');
         activePill.className = 'dhatu-deriv-pill dev-text active';
-        activePill._devText = form;
-        activePill.textContent = translit(form);
+        activePill._devText = devForm;
+        activePill.textContent = translit(devForm);
         pillBar.appendChild(activePill);
 
         const actions = document.createElement('div');
