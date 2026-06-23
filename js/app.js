@@ -52,6 +52,7 @@ const BOOKS = [
         ]
       },
       { id: 'shabda',     devName: 'शब्दरूपावली',   engName: 'Śabdarūpāvalī', type: 'shabda-browser' },
+      { id: 'namarupa',   devName: 'नामरूप',         engName: 'Nāmarūpa',       type: 'namarupa-page'  },
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
       { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
       { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
@@ -368,6 +369,7 @@ const $panelVisuals           = document.getElementById('panel-visuals');
 const $panelBhattikavya       = document.getElementById('panel-bhattikavya');
 const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
+const $panelNamarupa          = document.getElementById('panel-namarupa');
 const $panelTranslit          = document.getElementById('panel-translit');
 const $app               = document.getElementById('app');
 
@@ -593,6 +595,7 @@ function showPanel(name) {
   $panelBhattikavya.style.display       = name === 'bhattikavya'       ? '' : 'none';
   $panelNirukta.style.display           = name === 'nirukta'           ? '' : 'none';
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
+  $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
@@ -2087,6 +2090,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showYogaDarshanaPanel(); };
       } else if (page.type === 'shabda-browser') {
         clickFn = () => { closeDrawer(); showShabdaBrowser(); };
+      } else if (page.type === 'namarupa-page') {
+        clickFn = () => { closeDrawer(); showNamarupa(); };
       } else {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       }
@@ -4520,6 +4525,266 @@ function showShabdaEngine() {
   }
 
   input.addEventListener('input', render);
+}
+
+// ── Namarupa (Vidyut-powered noun declension) ─────────────────────────────────
+
+// Known word → valid linga(s), sourced from Shabda-Rūpāvalī (Yudhiṣṭhira Mīmāṃsaka).
+// First entry is the default. Words not in this list fall back to stem-ending heuristics.
+const NAMARUPA_WORDLIST = {
+  // a-kārānta पुंलिङ्ग (देव paradigm)
+  'देव':['Pum'], 'राम':['Pum'], 'शिव':['Pum'], 'ईश्वर':['Pum'],
+  'वत्स':['Pum'], 'बालक':['Pum'], 'पाठक':['Pum'], 'लेखक':['Pum'],
+  'न्याय':['Pum'], 'पुरुष':['Pum'], 'ग्रन्थ':['Pum'],
+  'कृष्ण':['Pum'], 'अर्जुन':['Pum'], 'पुत्र':['Pum'], 'मानव':['Pum'],
+  // a-kārānta नपुंसकलिङ्ग (धन paradigm)
+  'धन':['Napumsaka'], 'वन':['Napumsaka'], 'जल':['Napumsaka'],
+  'गृह':['Napumsaka'], 'वस्त्र':['Napumsaka'], 'शस्त्र':['Napumsaka'],
+  'अस्त्र':['Napumsaka'], 'पुष्प':['Napumsaka'], 'फल':['Napumsaka'],
+  'मित्र':['Napumsaka'], 'क्षेत्र':['Napumsaka'], 'सत्र':['Napumsaka'],
+  // ā-kārānta स्त्रीलिङ्ग (विद्या paradigm)
+  'विद्या':['Stri'], 'सीता':['Stri'], 'लता':['Stri'], 'रमा':['Stri'],
+  'गङ्गा':['Stri'], 'बालिका':['Stri'], 'प्रजा':['Stri'],
+  'छाया':['Stri'], 'कृपा':['Stri'], 'माला':['Stri'], 'सुधा':['Stri'],
+  'राधा':['Stri'], 'दुर्गा':['Stri'], 'सरस्वती':['Stri'],
+  // ī-kārānta स्त्रीलिङ्ग (नदी / लक्ष्मी paradigm)
+  'नदी':['Stri'], 'देवी':['Stri'], 'लक्ष्मी':['Stri'], 'पृथ्वी':['Stri'],
+  // i-kārānta पुंलिङ्ग (अग्नि paradigm)
+  'अग्नि':['Pum'], 'कवि':['Pum'], 'हरि':['Pum'], 'पति':['Pum'],
+  'सखि':['Pum'], 'मुनि':['Pum'], 'ऋषि':['Pum'], 'विधि':['Pum'],
+  // i-kārānta स्त्रीलिङ्ग (मति paradigm)
+  'मति':['Stri'], 'शक्ति':['Stri'], 'रुचि':['Stri'], 'गति':['Stri'],
+  'बुद्धि':['Stri'], 'सिद्धि':['Stri'], 'भक्ति':['Stri'], 'स्थिति':['Stri'],
+  // i-kārānta नपुंसकलिङ्ग (वारि paradigm)
+  'वारि':['Napumsaka'],
+  // u-kārānta पुंलिङ्ग (वायु paradigm)
+  'वायु':['Pum'], 'भानु':['Pum'], 'विष्णु':['Pum'], 'गुरु':['Pum'],
+  'बन्धु':['Pum'], 'शत्रु':['Pum'], 'तनु':['Pum'],
+  // u-kārānta स्त्रीलिङ्ग (धेनु paradigm)
+  'धेनु':['Stri'], 'रेणु':['Stri'],
+  // u-kārānta नपुंसकलिङ्ग (मधु paradigm)
+  'मधु':['Napumsaka'],
+  // ū-kārānta स्त्रीलिङ्ग (वधू / चमू paradigm)
+  'वधू':['Stri'], 'चमू':['Stri'], 'भू':['Stri'],
+  // ṛ-kārānta
+  'पितृ':['Pum'], 'भ्रातृ':['Pum'], 'कर्तृ':['Pum'],
+  'मातृ':['Stri'], 'स्वसृ':['Stri'],
+};
+
+const NAMARUPA_VIBHAKTI = [
+  { key: 'Prathama',   dev: 'प्रथमा'   },
+  { key: 'Sambodhana', dev: 'सम्बोधन',  prefix: 'हे ' },
+  { key: 'Dvitiya',    dev: 'द्वितीया'  },
+  { key: 'Trtiya',     dev: 'तृतीया'   },
+  { key: 'Caturthi',   dev: 'चतुर्थी'   },
+  { key: 'Panchami',   dev: 'पञ्चमी'   },
+  { key: 'Sasthi',     dev: 'षष्ठी'    },
+  { key: 'Saptami',    dev: 'सप्तमी'   },
+];
+
+const NAMARUPA_VACANA = [
+  { key: 'Eka',  dev: 'एकवचन'  },
+  { key: 'Dvi',  dev: 'द्विवचन' },
+  { key: 'Bahu', dev: 'बहुवचन' },
+];
+
+const NAMARUPA_LINGA = [
+  { key: 'Pum',       dev: 'पुंलिङ्ग'       },
+  { key: 'Stri',      dev: 'स्त्रीलिङ्ग'    },
+  { key: 'Napumsaka', dev: 'नपुंसकलिङ्ग'    },
+];
+
+function showNamarupa() {
+  showPanel('namarupa');
+  updateBookURL('namarupa');
+  const panel = $panelNamarupa;
+  panel.innerHTML = '';
+
+  // ── Disclaimer ──────────────────────────────────────────────────────────
+  const disclaimer = document.createElement('div');
+  disclaimer.className = 'shabda-disclaimer';
+  disclaimer.textContent = 'Vidyut Prakriyā engine. Enter the base form (प्रातिपदिक) in Devanagari.';
+  panel.appendChild(disclaimer);
+
+  // ── Input ───────────────────────────────────────────────────────────────
+  const wrap = document.createElement('div');
+  wrap.className = 'shabda-search-wrap';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'shabda-search';
+  input.placeholder = 'प्रातिपदिकम्… देव, राम, हरि, गुरु, नदी';
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  wrap.appendChild(input);
+  panel.appendChild(wrap);
+
+  // ── Linga selector ───────────────────────────────────────────────────────
+  let activeLinga = 'Pum';
+
+  // Auto-detect default linga and which lingas to dim, from SLP1 stem ending.
+  // Dimmed pills are still clickable (override), just visually de-emphasised.
+  function detectLinga(slp1Stem) {
+    if (!slp1Stem) return null;
+    const last = slp1Stem.slice(-1);
+    if (last === 'A' || last === 'I' || last === 'U') return 'Stri';
+    return 'Pum';
+  }
+
+  function getDimmedLingas(slp1Stem) {
+    if (!slp1Stem) return [];
+    const last = slp1Stem.slice(-1);
+    if (last === 'A' || last === 'I' || last === 'U') return ['Pum', 'Napumsaka'];
+    if (last === 'a') return ['Stri'];
+    if (last === 'i') return ['Napumsaka'];
+    return [];
+  }
+
+  function setActiveLinga(key) {
+    activeLinga = key;
+    lingaRow.querySelectorAll('.shabda-pill').forEach(b => b.classList.toggle('active', b._lingaKey === key));
+  }
+
+  function applyDimming(slp1Stem) {
+    const dimmed = getDimmedLingas(slp1Stem);
+    lingaRow.querySelectorAll('.shabda-pill').forEach(b => b.classList.toggle('dimmed', dimmed.includes(b._lingaKey)));
+  }
+
+  const lingaRow = document.createElement('div');
+  lingaRow.className = 'shabda-pills';
+  NAMARUPA_LINGA.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'shabda-pill dev-text' + (l.key === activeLinga ? ' active' : '');
+    btn._devText = l.dev;
+    btn._lingaKey = l.key;
+    btn.textContent = translit(l.dev);
+    btn.addEventListener('click', () => {
+      setActiveLinga(l.key);
+      render();
+    });
+    lingaRow.appendChild(btn);
+  });
+  panel.appendChild(lingaRow);
+
+  // ── Result area ──────────────────────────────────────────────────────────
+  const result = document.createElement('div');
+  result.className = 'shabda-table-area';
+  panel.appendChild(result);
+
+  async function render() {
+    const raw = input.value.trim();
+    result.innerHTML = '';
+    if (!raw) return;
+
+    // Convert Devanagari input → SLP1 for Vidyut
+    const slp1Stem = Sanscript.t(raw, 'devanagari', 'slp1');
+
+    result.innerHTML = '<div class="shabda-loading">…</div>';
+
+    const vidyut = await loadVidyut();
+    if (!vidyut) {
+      result.innerHTML = '<div class="shabda-empty">Vidyut engine is not available in this environment.</div>';
+      return;
+    }
+
+    // Derive all 21 forms (7 vibhakti × 3 vacana)
+    const grid = {};
+    for (const vib of NAMARUPA_VIBHAKTI) {
+      for (const vac of NAMARUPA_VACANA) {
+        try {
+          const r = vidyut.wasm.deriveSubantas({
+            pratipadika: { basic: slp1Stem },
+            linga: activeLinga,
+            vibhakti: vib.key,
+            vacana: vac.key,
+          });
+          grid[`${vib.key}-${vac.key}`] = (r && r.length > 0) ? r[0].text : '—';
+        } catch (_) {
+          grid[`${vib.key}-${vac.key}`] = '—';
+        }
+      }
+    }
+
+    result.innerHTML = '';
+
+    // ── Header ───────────────────────────────────────────────────────────
+    const header = document.createElement('div');
+    header.className = 'shabda-header';
+    const stemEl = document.createElement('span');
+    stemEl.className = 'shabda-stem dev-text';
+    stemEl._devText = raw;
+    stemEl.textContent = translit(raw);
+    header.appendChild(stemEl);
+    const lingaLabel = document.createElement('span');
+    lingaLabel.className = 'shabda-label dev-text';
+    const lingaDev = NAMARUPA_LINGA.find(l => l.key === activeLinga).dev;
+    lingaLabel._devText = lingaDev;
+    lingaLabel.textContent = translit(lingaDev);
+    header.appendChild(lingaLabel);
+    result.appendChild(header);
+
+    // ── Table ─────────────────────────────────────────────────────────────
+    const table = document.createElement('table');
+    table.className = 'shabda-table';
+
+    const thead = document.createElement('thead');
+    const hrow = document.createElement('tr');
+    hrow.appendChild(document.createElement('th'));
+    NAMARUPA_VACANA.forEach(vac => {
+      const th = document.createElement('th');
+      th.className = 'dev-text';
+      th._devText = vac.dev;
+      th.textContent = translit(vac.dev);
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (const vib of NAMARUPA_VIBHAKTI) {
+      const row = document.createElement('tr');
+      const label = document.createElement('td');
+      label.className = 'shabda-vib dev-text';
+      label._devText = vib.dev;
+      label.textContent = translit(vib.dev);
+      row.appendChild(label);
+      for (const vac of NAMARUPA_VACANA) {
+        const slp1Form = grid[`${vib.key}-${vac.key}`];
+        const bare = (slp1Form === '—') ? '—'
+                     : Sanscript.t(vslp1(slp1Form), 'slp1', 'devanagari');
+        const devForm = (bare === '—' || !vib.prefix) ? bare : vib.prefix + bare;
+        const td = document.createElement('td');
+        td.className = 'shabda-form dev-text';
+        td._devText = devForm;
+        td.textContent = translit(devForm);
+        row.appendChild(td);
+      }
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    result.appendChild(table);
+  }
+
+  input.addEventListener('input', () => {
+    const raw = input.value.trim();
+    if (raw) {
+      const known = NAMARUPA_WORDLIST[raw];
+      if (known) {
+        // Exact match in wordlist → set primary linga, dim everything else
+        if (known[0] !== activeLinga) setActiveLinga(known[0]);
+        lingaRow.querySelectorAll('.shabda-pill').forEach(b =>
+          b.classList.toggle('dimmed', !known.includes(b._lingaKey)));
+      } else {
+        // Fall back to stem-ending heuristic
+        const slp1 = Sanscript.t(raw, 'devanagari', 'slp1');
+        const detected = detectLinga(slp1);
+        if (detected && detected !== activeLinga) setActiveLinga(detected);
+        applyDimming(slp1);
+      }
+    } else {
+      lingaRow.querySelectorAll('.shabda-pill').forEach(b => b.classList.remove('dimmed'));
+    }
+    render();
+  });
 }
 
 // ── Shabda browser ────────────────────────────────────────────────────────────

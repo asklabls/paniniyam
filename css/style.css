@@ -1802,6 +1802,12 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   vertical-align: super;
 }
 
+/* ── Namarupa panel ───────────────────────────────────────────── */
+.panel-namarupa { padding: 0 0 80px; }
+
+/* ── Namarupa panel ───────────────────────────────────────────── */
+.panel-namarupa { padding: 0 0 80px; }
+
 /* ── Shabda browser ───────────────────────────────────────────── */
 .panel-shabda { padding: 0 0 80px; }
 
@@ -1848,6 +1854,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .shabda-pill:hover { border-color: var(--accent); color: var(--accent); }
 .shabda-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 .shabda-pill.suggested { border-color: var(--accent); color: var(--accent); }
+.shabda-pill.dimmed { opacity: 0.35; }
 
 .shabda-table-area { padding: 14px 16px 0; }
 .shabda-header {

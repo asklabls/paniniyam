@@ -472,7 +472,7 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 ## Deployment
 
 **Live site**: `https://asklabls.github.io/paniniyam/` (GitHub Pages, main branch root)
-**Custom domain**: `paniniyam.com` — registered via Cloudflare Registrar (2026-06-08); not yet pointed at GitHub Pages
+**Custom domain**: `paniniyam.com` — registered via Cloudflare Registrar (2026-06-08); pointed at GitHub Pages (live)
 
 **Files committed to repo** (data comes from CDN):
 ```
@@ -536,7 +536,7 @@ cp -r visuals/prakaranas private/visuals/
 - **Mādhavīya Dhātuvṛtti tab** (माधवीया): Sayana's commentary on Dhatupatha; `माधवीया` tab in dhatu reader, hidden when no data; fetches `MDV_BASE/{baseindex}.json`; rendered via `setCommentaryHTML()`; 1420 dhatus mined (proofreading in progress)
 - **Author's Notes tab**: shows "Coming soon." placeholder (owner's own English meanings — pending)
 - **CS Vasu English translation**: live in Primary tab group (`vasu_english.txt` from paniniyam-data fork)
-- **Additional commentaries**: Siddhanta Kaumudi, Nyasa, Padamanjari, Praudhamanorama all live from paniniyam-data fork; **known bug: first tab loads blank — clicking any other tab then back fixes it**
+- **Additional commentaries**: Siddhanta Kaumudi, Nyasa, Padamanjari, Praudhamanorama all live from paniniyam-data fork
 - **Gmail login + Google Drive notes**: live at paniniyam.com — user notes saved to their own Drive
 - **Transliterator panel**: in-app panel (⌨️ nav button), 14 schemes, real-time conversion + transliteration map; standalone `tools.html` also available
 
@@ -586,9 +586,8 @@ cp -r visuals/prakaranas private/visuals/
 ### Near term
 - **Pratyaya data review**: verify आर्धधातुक forms in `forms/pratyaya.txt` against reference
 - **sync_private.sh**: script to push owner-authored files to both paniniyam-private repo and R2 in one command
-- **More mined fields**: padavibhaga, anvaya from pravachanam.json not yet displayed — consider adding to tab
+- **More mined fields**: anvaya from pravachanam.json not yet displayed — consider adding to meta block
 - **VNS charts fix**: broken table/chart sections in varnochchaaran-shiksha_combined.md (lines 165–209, 219–228, 489–492) need fixing before final publication
-- **paniniyam.com**: point custom domain at GitHub Pages (Cloudflare DNS)
 - **concepts_index.json**: as more concept SVGs are standardised to 4×6 / 3×4 card format, re-run `--no-sutras --force --upload`
 
 ### Content layers
@@ -610,11 +609,12 @@ cp -r visuals/prakaranas private/visuals/
 | PrathamaVritti notes (आ० चन्द्रदत्त-शर्मा) | Mined from vault timestamps (mine_prathamavrutti.py) | ✅ Live |
 | Mādhavīya Dhātuvṛtti (Sayana) | Mined from OCR vault (mine_madhaviya_dhv.py) — proofreading in progress | ✅ Live (1420 dhatus) |
 | CS Vasu English translation | paniniyam-data fork (ashtadhyayi-data) | ✅ Live |
-| Additional commentaries (SK, Nyasa, Padamanjari, Praudhamanorama) | paniniyam-data fork | ✅ Live (⚠️ first tab blank bug) |
+| Additional commentaries (SK, Nyasa, Padamanjari, Praudhamanorama) | paniniyam-data fork | ✅ Live |
 | User notes via Gmail login → Google Drive | Client-side OAuth, user's own Drive | ✅ Live |
 | Transliterator (14 scripts) | Sanscript.js — in-app panel + tools.html | ✅ Live |
 | English meanings per sutra | Owner's own writing | 🔜 Pending |
-| Full Pravachanam fields (padavibhaga, anvaya) | Already mined — needs UI | 🔜 Pending |
+| Pravachanam padavibhaga (पदच्छेदः) | Already displayed in meta block — prefers pv field, falls back to sutra.pc | ✅ Live |
+| Pravachanam anvaya | Already mined — needs UI | 🔜 Pending |
 | Sutra SVG diagrams (per sutra) | Owner's Excalidraw vault (114 sutras so far) | 🔄 Content in progress (UI pending) |
 | YouTube video embeds per sutra | Owner's YouTube channel | 🔄 Content in progress |
 | Ramayanam audio player | 21,076 files on R2 across 6 kandas — no UI yet | 🔜 Pending |
@@ -752,8 +752,8 @@ Phase 2.3 ✅ CS Vasu English + all additional commentaries live (SK, Nyasa, Pad
 Phase 2.4 ✅ Gmail login + Google Drive personal notes — live at paniniyam.com
 Phase 2.5 ✅ Transliterator panel (⌨️) — 14 scripts, in-app + standalone tools.html; Ko-fi support link (☕)
 Phase 3   🔄 Sutra SVG diagrams in reader (114 exist, UI pending) + YouTube video embeds (content in progress)
-Phase 3.x ⚠️ Known bug: first commentary tab loads blank on sutra open — needs fix
-Phase 4   🔜 Owner's English meanings per sutra; Pravachanam padavibhaga/anvaya UI
+Phase 3.x ✅ First commentary tab blank bug fixed; PV tab default fixed; dhatu search navigation fixed
+Phase 4   🔜 Owner's English meanings per sutra; Pravachanam anvaya UI
 Phase 5   🔜 Ramayanam audio player UI (21,076 files already on R2)
 Phase 6   🔜 Owner's OCR books: Kashika Vritti, Pravachanam full text, Jingyasu Prathamavrutti
 ```
