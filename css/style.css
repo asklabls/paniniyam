@@ -2437,3 +2437,49 @@ hr.bk-fn-sep {
 .loading-inline {
   color: var(--muted); font-style: italic; padding: 24px; text-align: center;
 }
+
+/* ── Śabdarūpāvalī book panel ─────────────────────────────────────────── */
+.panel-shabdarupavali {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.srv-loading, .srv-empty {
+  color: var(--muted); font-style: italic; padding: 32px 16px; text-align: center;
+}
+
+/* Section pills */
+.srv-section-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 16px 10px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+}
+.srv-sec-pill {
+  font-family: var(--font-dev);
+  font-size: 1em;
+  padding: 4px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.srv-sec-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.srv-sec-pill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+/* Niyama card list */
+.srv-list {
+  flex: 1;
+  padding: 12px 16px;
+}
+
+/* Reference section note */
+.srv-ref-note { padding: 24px 0; }
+.srv-ref-intro { color: var(--muted); font-style: italic; }

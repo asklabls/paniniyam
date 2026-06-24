@@ -38,9 +38,10 @@ const BOOKS = [
   { id: 'visuals', devName: 'Visuals', engName: 'Visuals', type: 'visual-library', icon: 'Vis' },
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
-      { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',   engName: 'Bhaṭṭikāvya',    type: 'bhattikavya-panel'    },
-      { id: 'nirukta',        devName: 'निरुक्तम्',       engName: 'Nirukta',         type: 'nirukta-panel'        },
-      { id: 'yogadarshana',   devName: 'योगदर्शनम्',      engName: 'Yoga Darśana',    type: 'yogadarshana-panel'   },
+      { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',    engName: 'Bhaṭṭikāvya',       type: 'bhattikavya-panel'       },
+      { id: 'nirukta',        devName: 'निरुक्तम्',        engName: 'Nirukta',            type: 'nirukta-panel'           },
+      { id: 'yogadarshana',   devName: 'योगदर्शनम्',       engName: 'Yoga Darśana',       type: 'yogadarshana-panel'      },
+      { id: 'shabdarupavali', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabdarupavali-panel' },
     ]
   },
   { id: 'references', devName: 'References', engName: 'References', type: 'sub-tree', icon: 'Ref',
@@ -370,6 +371,7 @@ const $panelBhattikavya       = document.getElementById('panel-bhattikavya');
 const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelNamarupa          = document.getElementById('panel-namarupa');
+const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
 const $panelTranslit          = document.getElementById('panel-translit');
 const $app               = document.getElementById('app');
 
@@ -596,6 +598,7 @@ function showPanel(name) {
   $panelNirukta.style.display           = name === 'nirukta'           ? '' : 'none';
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
+  $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
@@ -2088,6 +2091,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showNiruktaPanel(); };
       } else if (page.type === 'yogadarshana-panel') {
         clickFn = () => { closeDrawer(); showYogaDarshanaPanel(); };
+      } else if (page.type === 'shabdarupavali-panel') {
+        clickFn = () => { closeDrawer(); showShabdarupavali(); };
       } else if (page.type === 'shabda-browser') {
         clickFn = () => { closeDrawer(); showShabdaBrowser(); };
       } else if (page.type === 'namarupa-page') {
@@ -4785,7 +4790,162 @@ function showNamarupa() {
     }
     render();
   });
+
+  // Pre-fill from shabdarupavali "रूप ▸" button
+  if (_namarupaInitWord) {
+    input.value = _namarupaInitWord;
+    setActiveLinga(_namarupaInitLinga || 'Pum');
+    _namarupaInitWord  = null;
+    _namarupaInitLinga = null;
+    render();
+  }
 }
+
+// ── Śabdarūpāvalī book panel (Yudhiṣṭhira Mīmāṃsaka) ────────────────────────
+
+const SRV_LINGA_LABEL = { Pum: 'पुं०', Stri: 'स्त्री०', Napumsaka: 'नपुं०' };
+
+async function showShabdarupavali() {
+  showPanel('shabdarupavali');
+  updateBookURL('shabdarupavali');
+  const panel = $panelShabdarupavali;
+
+  if (!bookData['shabdarupavali']) {
+    panel.innerHTML = '<div class="srv-loading">…</div>';
+    try {
+      if (!PRIVATE_BASE) throw new Error('no private base');
+      const res = await fetch(`${PRIVATE_BASE}/shabdarupavali.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      bookData['shabdarupavali'] = await res.json();
+    } catch (_) {
+      panel.innerHTML = '<div class="srv-empty">शब्दरूपावली-डेटा उपलब्ध नहीं।</div>';
+      return;
+    }
+  }
+
+  renderShabdarupavali(panel, bookData['shabdarupavali']);
+}
+
+const SRV_GROUPS = [
+  { id: 'intro',   label: 'Intro',    paaths: ['ref'] },
+  { id: 'halanta', label: 'हलन्त',   paaths: ['paath4','paath5','paath6','paath7'] },
+  { id: 'ajanta',  label: 'अजन्त',   paaths: ['paath8','paath9','paath10'] },
+  { id: 'shesha',  label: 'शेष',     paaths: ['paath11','paath12'] },
+];
+
+function renderShabdarupavali(panel, data) {
+  panel.innerHTML = '';
+
+  const sections = data.sections || [];
+  if (!sections.length) { panel.innerHTML = '<div class="srv-empty">—</div>'; return; }
+
+  // Build a lookup: sectionId → section
+  const secById = Object.fromEntries(sections.map(s => [s.id, s]));
+
+  let activeGroupId = 'halanta';
+
+  // ── Group pill bar (sticky) ─────────────────────────────────────────
+  const pillBar = document.createElement('div');
+  pillBar.className = 'srv-section-pills';
+
+  // ── Niyama card list ─────────────────────────────────────────────────
+  const listWrap = document.createElement('div');
+  listWrap.className = 'srv-list';
+
+  panel.appendChild(pillBar);
+  panel.appendChild(listWrap);
+
+  function renderGroup(groupId) {
+    activeGroupId = groupId;
+    pillBar.querySelectorAll('.srv-sec-pill').forEach(b =>
+      b.classList.toggle('active', b.dataset.id === groupId));
+    listWrap.innerHTML = '';
+
+    const group = SRV_GROUPS.find(g => g.id === groupId);
+    if (!group) return;
+
+    // Intro group — show bhoomika text from ref section
+    if (groupId === 'intro') {
+      const refSec = secById['ref'];
+      const introText = refSec && refSec.intro ? refSec.intro : '';
+      const wrap = document.createElement('div');
+      wrap.className = 'srv-ref-note';
+      if (introText) {
+        const p = document.createElement('p');
+        p.className = 'srv-ref-intro mixed-text';
+        p._mixedText = introText;
+        p.textContent = translitMixed(introText);
+        wrap.appendChild(p);
+      }
+      listWrap.appendChild(wrap);
+      return;
+    }
+
+    // Render each niyama as a sutra-card (click to expand inline)
+    const TRUNC = 160;
+    for (const paathId of group.paaths) {
+      const sec = secById[paathId];
+      if (!sec) continue;
+      for (const paradigm of (sec.paradigms || [])) {
+        for (const n of (paradigm.niyamas || [])) {
+          const fullText = n.body ? n.header + ' ' + n.body : n.header;
+          const displayText = fullText.length > TRUNC
+            ? fullText.slice(0, TRUNC).trimEnd() + '…'
+            : fullText;
+
+          const card = document.createElement('div');
+          card.className = 'sutra-card';
+
+          const row = document.createElement('div');
+          row.className = 'sutra-row';
+          const hdr = document.createElement('span');
+          hdr.className = 'mixed-text';
+          hdr._mixedText = displayText;
+          hdr.textContent = translitMixed(displayText);
+          row.appendChild(hdr);
+
+          const detail = document.createElement('div');
+          detail.className = 'sutra-detail';
+          if (n.body) {
+            const bodyEl = document.createElement('div');
+            bodyEl.className = 'mixed-text';
+            bodyEl._mixedText = n.body;
+            bodyEl.textContent = translitMixed(n.body);
+            detail.appendChild(bodyEl);
+          }
+
+          card.appendChild(row);
+          card.appendChild(detail);
+          card.addEventListener('click', () => toggleSimpleCard(card));
+          listWrap.appendChild(card);
+        }
+      }
+    }
+  }
+
+  // Build group pills
+  for (const grp of SRV_GROUPS) {
+    const btn = document.createElement('button');
+    btn.className = 'srv-sec-pill' + (grp.id === activeGroupId ? ' active' : '');
+    // Devanagari labels get dev-text; Latin stays as-is
+    if (/[\u0900-\u097F]/.test(grp.label)) {
+      btn.classList.add('dev-text');
+      btn._devText = grp.label;
+      btn.textContent = translit(grp.label);
+    } else {
+      btn.textContent = grp.label;
+    }
+    btn.dataset.id = grp.id;
+    btn.addEventListener('click', () => renderGroup(grp.id));
+    pillBar.appendChild(btn);
+  }
+
+  renderGroup(activeGroupId);
+}
+
+// Pending pre-fill for namarupa (set externally if needed in future)
+let _namarupaInitWord  = null;
+let _namarupaInitLinga = null;
 
 // ── Shabda browser ────────────────────────────────────────────────────────────
 
@@ -7592,6 +7752,8 @@ async function init() {
         showNiruktaPanel();
       } else if (urlBook === 'yogadarshana') {
         showYogaDarshanaPanel();
+      } else if (urlBook === 'shabdarupavali') {
+        await showShabdarupavali();
       } else {
         // Search top-level leaf books, then sub-tree children
         let book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
