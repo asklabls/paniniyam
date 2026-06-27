@@ -1762,6 +1762,21 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: #444;
   font-size: .87em;
 }
+.artha-viz-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #4ade80;
+  font-size: .8em;
+  padding: 0 0 0 6px;
+  opacity: .7;
+  transition: opacity .15s, transform .15s;
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 1;
+}
+.artha-viz-btn:hover { opacity: 1; transform: scale(1.3); }
 .siddhi-table tbody tr:last-child td { border-bottom: none; }
 .siddhi-table tbody tr:hover td { background: var(--hover-bg); }
 
@@ -2483,3 +2498,12 @@ hr.bk-fn-sep {
 /* Reference section note */
 .srv-ref-note { padding: 24px 0; }
 .srv-ref-intro { color: var(--muted); font-style: italic; }
+
+/* Paradigm intro prose */
+.srv-paradigm-intro {
+  font-family: var(--font-dev);
+  font-size: .95em;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 16px 0 8px;
+}

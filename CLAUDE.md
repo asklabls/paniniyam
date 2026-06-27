@@ -11,9 +11,9 @@ paniniyam/
 ├── terms.html              # Terms of Use page
 ├── copyright.html          # Copyright page
 ├── contact.html            # Contact Us page
-├── css/style.css           # All styles (v110)
+├── css/style.css           # All styles (v122)
 ├── js/
-│   ├── app.js              # All app logic (~6500 lines, v199)
+│   ├── app.js              # All app logic (~6500 lines, v223)
 │   └── sanscript.js        # Transliteration library (do not edit)
 ├── forms/
 │   ├── pratyaya.txt        # Pratyaya reference table (pipe-delimited, see format below)
@@ -45,13 +45,7 @@ admin/shabda-entry.html     # File System Access API tool for shabda data entry
 All pipeline scripts are in the **private repo** at `/Users/au/Projects/paniniyam-private/scripts/`.
 See `/Users/au/Projects/paniniyam-private/SCRIPTS.md` for full command reference.
 
-Vault OCR scripts (at /Users/au/Downloads/Python_Scripts/OCR/):
-```
-Combine_markdown_pages.py   # Globs page_*.md → single combined file with <!-- page_NNN --> markers
-Split_combinedpage_markdown.py  # Splits combined file back into individual page_*.md files
-Clean_ocr_artifacts.py      # Removes OCR noise: standalone numbers, repeated titles, stray punctuation
-Update_external_links.py    # Prepends [[paniniyam]] । before ashtadhyayi.com links in vault sutra notes
-```
+Vault OCR scripts (at /Users/au/Downloads/Python_Scripts/OCR/): `Combine_markdown_pages.py`, `Split_combinedpage_markdown.py`, `Clean_ocr_artifacts.py`, `Update_external_links.py`.
 
 ## Data
 
@@ -129,27 +123,6 @@ those from being incorrectly converted.
 
 ### Per-file splitting strategy (decided)
 
-**Dhatu forms** (`forms/dhatu/*.json`) — one file per dhatu. Works well because:
-- You navigate to one dhatu at a time; never need all 2229 simultaneously
-- Forms are not searched (search is on dhatu text, not conjugation forms)
-
-**Do NOT split open-source commentaries** (Kashika, Kaumudi, Vartika, etc.) into per-sutra files:
-- These come from `paniniyam-data` (ashtadhyayi.com fork) — not owner-authored, no need to edit
-- Splitting permanently decouples from upstream; upstream fixes can't be pulled without re-splitting
-- Bulk lazy-load (one 3.7MB file, cached for the session) is already fast enough
-- Per-sutra split would break future commentary search (would require 3976 HTTP requests or a separate index)
-
-**Do NOT split `sutraani/data.txt`** — needed at startup for nav tree + search; bulk is correct here.
-
-**DO use per-sutra files for owner-authored content** (Phase 2+):
-```
-forms/meanings/11001.json   ← owner's English meanings (Phase 2)
-forms/notes/11001.json      ← owner's commentary (Phase 2)
-```
-Per-sutra is right here because: owner edits one sutra at a time, CDN invalidates only changed files,
-and these are never bulk-searched (no existing search index to break).
-
-**Summary table:**
 | Data | Strategy | Reason |
 |------|----------|--------|
 | `sutraani/data.txt` | Bulk | Needed at startup for nav + search |
@@ -257,53 +230,15 @@ Each segment: `{t, v, ...}`
 ```
 
 ### normalize_svg.py (paniniyam-private/scripts)
-Scales Excalidraw SVGs so dominant font = 28px. Only needed for old diagrams drawn
-at low zoom (fonts 60–100px). New diagrams drawn with Large (28px) preset are a no-op.
-```bash
-python3 scripts/normalize_svg.py path/to/diagram.svg        # single file
-python3 scripts/normalize_svg.py path/to/folder/ --dry-run  # preview folder
-python3 scripts/normalize_svg.py path/to/folder/            # run folder
-```
-⚠️ Always --dry-run first on folders. Never run on full vault — complex annotated
-diagrams with intentional mixed font sizes will be distorted by uniform scaling.
+Scales old Excalidraw SVGs so dominant font = 28px. Only for old diagrams (60–100px fonts); new ones are a no-op. Always `--dry-run` first on folders; never run on full vault.
 
 ### Excalidraw diagram design standard (for paniniyam.com)
-All new concept/prakarana diagrams must follow this standard for correct multi-script rendering:
-
-**Setup**: run **Paniniyam Setup** script (`Excalidraw/Scripts/Paniniyam Setup.md`) on every
-new file — sets 200px grid and default font to 28px in one step.
-
-**Font sizes**:
-| Use | Excalidraw preset | SVG export |
-|---|---|---|
-| Primary letters/terms | Large (28px) | 28px |
-| Secondary labels/headers | Medium (20px) | 20px |
-| Never use | Extra Large (36px) for dense content | — |
-
-**Cell sizes** (on 20px minor grid):
-| Content | Cell size | Notes |
-|---|---|---|
-| Single letter (consonant, vowel) | **40 × 40px** | 5 cells = 200px = 1 major grid unit |
-| Short term (2–3 syllables) | **80 × 40px** or **100 × 40px** | width varies, height stays 40px |
-| Header / title | **120 × 40px** or wider | — |
-
-**Cell structure** (for auto-resize support):
-- Draw a **rectangle** (`R`) for each cell
-- Type the **text** (`T`) inside it
-- Select both → `Ctrl+G` to group
-- Rectangle stroke/fill can be anything — transparent/invisible is fine
-- This gives the browser a `<rect>` to resize when ITRANS/other scripts expand text width
-
-**Canvas sizes**:
-| Layout | Canvas |
-|---|---|
-| Standard concept card | 800 × 1200 (4×6 at 200px) |
-| Complex / double-tall | 800 × 2400 (4×12) |
-| Wide grid | 1200 × 800 (6×4) |
-
-**Why the old diagrams are a problem**: drawn at low zoom → fonts 60–100px, no grouped
-rect+text structure → font-scaling workaround (0.75 Indic, 0.42 ITRANS) is the fallback.
-New diagrams with the above standard will auto-resize cleanly across all scripts.
+- **Setup**: run **Paniniyam Setup** script (`Excalidraw/Scripts/Paniniyam Setup.md`) — sets 200px grid + 28px default font
+- **Fonts**: Primary = Large (28px), Secondary = Medium (20px). Never Extra Large for dense content.
+- **Cells**: rectangle (`R`) + text (`T`) grouped (`Ctrl+G`) — gives browser a `<rect>` to resize for wide scripts
+- **Cell sizes**: single letter 40×40px; short term 80–100×40px; header 120+×40px (on 20px minor grid)
+- **Canvas**: 800×1200 standard card; 800×2400 double-tall; 1200×800 wide grid
+- Old diagrams (60–100px fonts, no grouped rect+text) fall back to font-scaling (0.75 Indic, 0.42 ITRANS)
 
 ### Sutra card data fields (from `sutraani/data.txt`)
 | Field | Meaning | Example |
@@ -515,72 +450,6 @@ cp -r visuals/prakaranas private/visuals/
 
 ---
 
-## What's Built (snapshot: 2026-06-17)
-
-### Core reference app
-- Ashtadhyayi reader: all 3976 sutras, prev/next navigation, padaccheda/anuvritta/adhikara meta
-- Commentary tabs: Kashika, Vartika (normalized from array format), Laghu Kaumudi; tab groups for Primary/Kaumudi/Tika traditions (most files still 404 pending data)
-- Audio pronunciation per sutra (lazy loaded, base64 MP3)
-- Leaf books: Shiva Sutras, Ganapatha, Unaadi Kosha, Linganushasanam, Shiksha, Fit Sutrani, **Paribhasha** (परिभाषाः)
-- **Varnochchaaran Shiksha panel**: Panini's phonetics text with Dayananda Saraswati's Hindi commentary; two-row pill nav, inline image support, full retransliteration; Q&A sections rendered as collapsed sutra-cards (question in header, answer expandable on click)
-- Dhatupatha: 2259 entries across 10 ganas, dhatu reader with conjugation forms
-- **Pratyaya reference**: अदन्त / अनदन्त pages, सार्वधातुक / आर्धधातुक tabs, full tiṅ-pratyaya tables
-- **Pravachanam tab** (आ० सुदर्शनदेव): mined from Acharya Sudarshan Dev's Pravachanam — artha + hindi artha for ~3954 sutras; served from Cloudflare R2
-- **Siddhi panel**: per-sutra derivation tables from owner's Obsidian vault; sutra/dhatu/concept links in table cells; hover tooltip on sutra refs; served from R2
-- **Visual Library** (दृश्यग्रन्थागारम्): browse 221 concept + prakarana SVG diagrams by category (pratyahara, it-karyas, krt, sutra-type, general, prakarana); click-to-expand full view
-- **Concept popup**: `[[concept]]` wikilinks in siddhi and commentary render as hoverable links — hover shows floating SVG popup with the diagram; works in table cells, intro text, and commentary
-- **Sutra meta block**: samasa, udaharana from pravachanam.json; all fields transliterable
-- **Deep linking**: `?sutra=1.1.1` URL parameter — shareable links open directly to that sutra
-- **Bhattikavya panel**: 1323 shlokas across 20 sargas with Jayamaṅgalā commentary; sarga picker popup (3×7 grid, same style as pada/gana matrix); verse callouts for clean verses; `---` → footnote separator `<hr>`; sutra links in commentary; full retransliteration
-- **PrathamaVritti notes tab** (आ० चन्द्रदत्त-शर्मा): mined from Acharya Chandradutt Sharma's Prathamavritta-ACS vault notes; timestamp entries with YouTube deep links `[MM:SS](url)` per line; tab hidden when no notes exist for that sutra; served from R2 as `paniniyam-author-notes.json`
-- **Mādhavīya Dhātuvṛtti tab** (माधवीया): Sayana's commentary on Dhatupatha; `माधवीया` tab in dhatu reader, hidden when no data; fetches `MDV_BASE/{baseindex}.json`; rendered via `setCommentaryHTML()`; 1420 dhatus mined (proofreading in progress)
-- **Author's Notes tab**: shows "Coming soon." placeholder (owner's own English meanings — pending)
-- **CS Vasu English translation**: live in Primary tab group (`vasu_english.txt` from paniniyam-data fork)
-- **Additional commentaries**: Siddhanta Kaumudi, Nyasa, Padamanjari, Praudhamanorama all live from paniniyam-data fork
-- **Gmail login + Google Drive notes**: live at paniniyam.com — user notes saved to their own Drive
-- **Transliterator panel**: in-app panel (⌨️ nav button), 14 schemes, real-time conversion + transliteration map; standalone `tools.html` also available
-
-### UI / UX
-- 11 scripts (**ITRANS default**): full retransliteration on every script change — Sanskrit, Hindi artha, siddhi prose retranslit; SVG diagrams retranslit to Indic scripts only (Roman schemes keep Devanagari — see rule above)
-- Top nav bar + left icon bar + slide-in drawers (nav left, search right)
-- **Nav structure**: Books sub-tree (Bhattikavya; Ramayanam to come) + References sub-tree (Pratyayas, Śabdarūpāvalī, Avyayas, Pāribhāṣika, Fiṭ Sūtras)
-- **Pada matrix popup**: ⊞ button in left bar + अष्टाध्यायी nav entry → proper table (adhyaya rows × pada columns) with sutra counts; click cell to jump to that pada; closes on outside click / Escape
-- **Gana matrix popup**: धातुपाठः nav entry → 2×5 grid of 10 ganas with dhatu counts
-- **Sarga matrix popup**: भट्टिकाव्यम् nav entry → 3×7 grid of 21 sargas (sarga 15 disabled); same `.pm-row`/`.pm-cell` style as pada/gana matrix
-- **Copy link button**: 📋 icon in sutra reader (top-right group) copies `?sutra=A.P.N` URL; tooltip → "Copied!" for 1.5s
-- **Search**: 75 results per group; retains last search value; searches Ashtadhyayi (with Pravachanam artha/hindi), Dhatupatha, or all books
-- Script dropdown in top bar
-- Theme picker: 8 themes with live preview card in About panel
-- Feedback form (Google Apps Script endpoint) with optional email field
-- Mobile: icon bar hidden on portrait ≤480px
-- **Legal pages**: Privacy Policy · Terms of Use · Copyright · Contact Us (linked from welcome footer and cross-linked between pages)
-
-### Obsidian vault integration
-- `paniniyam.md` webviewer: dataviewjs iframe that reads active file frontmatter (`adhyaya`, `pada`, `sutra_number`) → opens correct sutra in Paniniyam
-- All 3981 sutra notes updated: External line now reads `[[paniniyam]] । [ashtadhyayi.com](...)` — wikilink gives hover popup, external link opens browser
-- `Update_external_links.py`: idempotent script to prepend `[[paniniyam]] । ` before ashtadhyayi.com links; supports `--sutra A.P.N` (single file test) and `--dry-run`
-- **`insObsN_Link.md`** (CMD+L hotkey): select any text containing a sutra/dhatu ref → strips all non-digits → if 3 number groups → looks up SutraMap.v2.json → inserts `[[A.P.N| sutraText A.P.N]]।`; if 2 groups → looks up DhatuMap.json → inserts `[[basename| display G.N]]।`; if no selection or no match → prompts manually. Uses `adapter.read()` (not `cachedRead`) for JSON files. 3-part never falls through to dhatu.
-- **`ObsN_goto_sutra.md`**: opens sutra vault note in new tab (navigation only, no link insertion); different from insObsN_Link which inserts wikilinks at cursor
-
-### Infrastructure
-- Fully static, no build step, no backend
-- Four CDN sources: paniniyam-data (open data), paniniyam repo (generated forms), Cloudflare R2 (owner-authored private data + SVGs)
-- Private repo: `paniniyam-private` (GitHub, private) — all pipeline scripts + SCRIPTS.md reference
-- `mine_pravachanam.py`: state-machine miner extracting 9 fields from Pravachanam_01–06.md → pravachanam.json
-- `mine_bhattikavya.py`: extracts per-sarga JSON from `Bhattikavya_combined.md` → `private/bhattikavya/sarga_NN.json`; handles skip zones (non-BK callouts), sarga/colophon disambiguation, verse/commentary boundary detection
-- `mine_prathamavrutti.py`: mines PrathamaVritti-ACS vault notes (503 .md files, one per video) → `private/paniniyam-author-notes.json`; extracts timestamp→sutra attribution via `[[A.B.C|]]` wikilinks; embeds YouTube deep links `[MM:SS](url?t=N)`; sorts ascending by seconds; strips Obsidian image embeds (`![[...]]`)
-- `preprocess_madhaviya_v2.py`: applies markup conventions to `_madhaviya-dhatu-vritti_combined.md` → `_marked.md`; suppresses TOC gana headers (before `<!-- page_048 -->`), handles OCR-noisy gana headers (trailing garbage, two-line split), adds `<!-- CONTENT_START -->` marker, marks all `N.` lines as `## N.`
-- `mine_madhaviya_dhv.py`: mines `_marked.md` → `private/dhv/{baseindex}.json` (1420 dhatus); deduplicates by baseindex (first `## N.` wins = actual dhatu, not footnote); supports `--sutra`, `--upload`; per-dhatu JSON has `{baseindex, header, vritti}`
-- `mine_varnochchaaran.py`: splits combined VNS markdown into 11 sections → varnochchaaran-shiksha.json
-- `mine_paribhasha.py`: extracts 157 paribhasha entries → private/paribhasha.json
-- `convert_visuals.py`: cleans Excalidraw SVGs (strips font, adds watermark, marks text), generates `concepts_index.json`; `--force` reconverts existing files; `--no-sutras` for concepts only
-- `extract_siddhi.py`: extracts vault siddhi notes → per-sutra JSON; `--sutra A.P.N`, `--upload`, `--force`; handles empty stub tables in vault notes
-- `split_dhatuforms.py`: splits 9MB source into 2229 per-dhatu JSONs
-- `admin/shabda-entry.html`: File System Access API tool for adding shabda entries locally
-- Vault OCR pipeline: Combine/Split/Clean markdown scripts + Update_external_links.py
-
----
-
 ## Roadmap & Future Work
 
 ### Near term
@@ -661,79 +530,13 @@ inserted during OCR post-processing. Each book = new entry in `SUTRA_TABS` + new
 
 ### Ramayanam Audio (on R2, 2026-06-08)
 
-All 6 kandas compressed and uploaded to `paniniyam-private` R2 bucket:
-
-| Kanda | R2 folder | Sargas | Files |
-|---|---|---|---|
-| Balakanda | `ramayanam_audio/01_balakanda/` | 77 | 2,398 |
-| AyodhyaKanda | `ramayanam_audio/02_ayodhyakanda/` | 119 | 4,540 |
-| AranyaKanda | `ramayanam_audio/03_aranyakanda/` | 76 | 2,558 |
-| KishkindhaKanda | `ramayanam_audio/04_kishkindhakanda/` | 67 | 2,595 |
-| SundaraKanda | `ramayanam_audio/05_sundarakanda/` | 68 | 2,998 |
-| YuddhaKanda | `ramayanam_audio/06_yuddhakanda/` | 128 | 5,987 |
-
-**File naming**: `sarga_001/000-start.mp3`, `001.mp3`, `024-iti.mp3` etc.
-- `000-start.mp3` — sarga intro (sorts to top)
-- `NNN.mp3` — shloka NNN (3-digit zero-padded)
-- `NNN-iti.mp3` — closing shloka
-
-**Compression**: ffmpeg `-map 0:a -ac 1 -ar 11025 -codec:a libmp3lame -qscale:a 9`
-- Mono, 11 kHz, VBR ~29 kbps — ~29KB per shloka (~8× compression from source)
-- `-map 0:a` strips embedded album art (YuddhaKanda sources had ~1MB PNG each)
-
-**Source files**: `/Users/au/Projects/_anant_vault/attachments/Audio/Ramayanam/`
-- Prefix map: `BK` → balakanda, `AyK` → ayodhyakanda, `ArK` → aranyakanda, `KK`/`KiK` → kishkindhakanda, `SK` → sundarakanda, `YK` → yuddhakanda
-- AranyaKanda has `Prakshipta` sarga (interpolated verses) in `ArK_Sarga_056_Prakshipta/` — treated as sarga 56
-
-**To add a new kanda**: add entry to `KANDAS` dict in `compress_ramayanam.py`, add prefix to `FILENAME_RE`, then run:
-```bash
-python3 /Users/au/Projects/paniniyam-private/scripts/compress_ramayanam.py --kanda <key> --jobs 8
-python3 /Users/au/Projects/paniniyam-private/scripts/upload_ramayanam.py --jobs 20
-```
-Set env vars first: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
+All 6 kandas (21,076 files) compressed (mono 11kHz VBR ~29kbps) and uploaded to `ramayanam_audio/` in `paniniyam-private` R2 bucket. File naming: `sarga_NNN/000-start.mp3`, `NNN.mp3`, `NNN-iti.mp3`. Scripts: `compress_ramayanam.py --kanda <key> --jobs 8`, then `upload_ramayanam.py --jobs 20`. Source: `_anant_vault/attachments/Audio/Ramayanam/`.
 
 ### Animated Teaching Engine (Manim project)
-The Manim project at `/Users/au/Projects/Manim/` is building an animated version of the
-traditional gurukula teaching methodology. Full architecture:
-**`/Users/au/Projects/Manim/docs/TEACHING_ENGINE.md`**
-
-The engine consumes data from this paniniyam project:
-- `private/pravachanam.json` → 8-part sūtra teaching (pv, sm, an, av, a, ua)
-- `private/siddhi/*.json` → step-by-step derivation for each udāharaṇa
-
-8-part format: padaccheda → samāsa → anuvṛtti → anvaya (5-7-6-1 + भवति) → artha → udāharaṇa → siddhi
-10-step derivation: dhātu → svara attributes → pratyaya artha → lopa → clean forms → aṅga → aṅga kāryas → prātipadika → svādi → final form
-6 routes: Tiṅanta ✅ | Subanta 🔜 | Taddhitānta 🔜 | Samāsa ⚠️ | Sandhi ⚠️ | Svara 🔴
-
----
+`/Users/au/Projects/Manim/` — animated gurukula teaching methodology consuming `pravachanam.json` + `siddhi/*.json`. Full spec: `/Users/au/Projects/Manim/docs/TEACHING_ENGINE.md`.
 
 ### Vidyut Prakriya Engine
-The Rust-based Pāṇinian derivation engine that generated the `forms/dhatu/*.json` conjugation
-files and drives the Siddhi animation pipeline in the Manim project.
-
-**Repo**: `/Users/au/Projects/paniniyam-vidyut` (forked)
-**Full spec + architecture + Mermaid diagrams**: `/Users/au/Projects/Manim/docs/VIDYUT_PRAKRIYA.md`
-
-**Derivation type coverage** (surveyed 2026-06-17):
-
-| Type | Status | Python API |
-|------|--------|------------|
-| Tiṅanta | ✅ Excellent — all 10 lakāras, sanādi, upasargas | `Pada.Tinanta(dhatu, prayoga, lakara, purusha, vacana)` |
-| Subanta | ✅ Substantial — all 7×3×3 cells | `Pada.Subanta(pratipadika, linga, vibhakti, vacana)` |
-| Taddhitānta | ✅ Partial — 11/12 sections, artha conditions approximate | `Pratipadika.taddhitanta(pratipadika, taddhita)` |
-| Sandhi (intra-word) | ✅ Auto-applied in every derivation | — |
-| Sandhi (inter-word) | ⚠️ Rust only (`derive_vakyas`), no Python binding | — |
-| Samāsa | ⚠️ Rust only — tatpuruṣa/bahuvrīhi/dvandva; Dvigu missing | no Python binding yet |
-| Svara | 🔴 Experimental — ~28 of hundreds of 6.1 rules | `Vyakarana(use_svaras=True)` |
-
-**Key architectural facts** (do not re-mine):
-- Rules are Rust code, not data. Apavāda/utsarga priority = order of `if` branches.
-- Derivation is a **fixed-sequence pipeline**, not a loop. Order of stages encodes grammar priority.
-- `PrakriyaStack` generates all variants by re-running with different forced optional-rule decisions.
-- `StepTerm` in Rust stores full `EnumSet<Tag>` (kit, Nit, adit, etc.) — currently only `text` and
-  `was_changed` are exposed to Python. Exposing `morph` field would eliminate need for `UPADESHA` dict.
-- IT-marker lopa (1.3.2–1.3.9) is in `it_samjna.rs`; full pipeline for भू → भवति: 1.3.1 → 3.2.123 →
-  3.4.78 → 3.1.68 (Śap) → 7.3.84 (guṇa) → 6.1.78 (sandhi) → Bavati.
+Rust-based Pāṇinian derivation engine. Repo: `/Users/au/Projects/paniniyam-vidyut` (forked). Full spec + Python API coverage: `/Users/au/Projects/Manim/docs/VIDYUT_PRAKRIYA.md`. Tiṅanta ✅ excellent | Subanta ✅ substantial | Taddhitānta ✅ partial | Samāsa/Sandhi(inter-word) ⚠️ Rust-only | Svara 🔴 experimental.
 
 ---
 

@@ -323,6 +323,8 @@ let authorNotesLoaded      = false;
 let youtubeData            = null;   // {sutraId: videoId} loaded from forms/youtube.json
 let conceptsIndex          = null;   // {term: {path, category}} loaded from forms/concepts_index.json
 const conceptSvgCache      = {};     // term → SVG text, cached after first fetch
+const sutraSvgCache        = {};     // sutraId → SVG text, cached after first fetch
+const sutraVisualExists    = {};     // sutraId → true|false, result of HEAD check
 let _saveAuthorTimer       = null;
 let _saveAuthorInProgress  = false;
 
@@ -2509,7 +2511,7 @@ async function showSiddhiTip(el, sutraId) {
   const popup = getArthaPopup();
   popup.innerHTML = '';
 
-  // Header: ref + sutra text
+  // Header: ref + sutra text + visual icon placeholder
   const head = document.createElement('div');
   head.className = 'artha-popup-head';
   const refSpan = document.createElement('span');
@@ -2519,8 +2521,14 @@ async function showSiddhiTip(el, sutraId) {
   sutText.className = 'artha-popup-sutra dev-text';
   sutText._devText = sutra.s;
   sutText.textContent = translit(sutra.s);
+  const vizBtn = document.createElement('button');
+  vizBtn.className = 'artha-viz-btn';
+  vizBtn.title = 'Visual diagram';
+  vizBtn.hidden = true;
+  vizBtn.textContent = '●';
   head.appendChild(refSpan);
   head.appendChild(sutText);
+  head.appendChild(vizBtn);
   popup.appendChild(head);
 
   // Body: artha rows (may load async)
@@ -2532,8 +2540,8 @@ async function showSiddhiTip(el, sutraId) {
   positionArthaPopup(el);
   popup.classList.add('visible');
 
-  // Fill content (may be instant from cache or async)
-  const arthaData = await loadArthaData();
+  // Fill content + check for sutra visual in parallel
+  const [arthaData, hasVisual] = await Promise.all([loadArthaData(), checkSutraVisual(sutraId)]);
   const entry = arthaData?.[sutraId];
 
   if (entry?.a) {
@@ -2563,6 +2571,13 @@ async function showSiddhiTip(el, sutraId) {
   }
   if (!entry?.a && !entry?.h) {
     body.textContent = '—';
+  }
+
+  // Reveal visual icon if SVG exists for this sutra
+  if (hasVisual) {
+    vizBtn.hidden = false;
+    vizBtn.addEventListener('mouseenter', () => showSutraVisualPopup(vizBtn, sutraId));
+    vizBtn.addEventListener('mouseleave', hideConceptPopup);
   }
 }
 
@@ -2741,6 +2756,63 @@ function hideConceptPopup() {
   conceptHideTimer = setTimeout(() => {
     if ($conceptPopup) $conceptPopup.classList.remove('visible');
   }, 120);
+}
+
+// ── Sutra visual popup (SVG diagram in concept-popup, triggered from artha-viz-btn) ──
+function _sutraVisualUrl(sutra) {
+  if (!DIAGRAM_BASE) return null;
+  const nnn = String(sutra.n).padStart(3, '0');
+  return `${DIAGRAM_BASE}/${sutra.a}/${sutra.a}.${sutra.p}.${nnn}.svg`;
+}
+
+async function checkSutraVisual(sutraId) {
+  if (!DIAGRAM_BASE) return false;
+  if (sutraId in sutraVisualExists) return sutraVisualExists[sutraId];
+  const sutra = sutraIndex[sutraId];
+  if (!sutra) return false;
+  try {
+    const r = await fetch(_sutraVisualUrl(sutra), { method: 'HEAD' });
+    sutraVisualExists[sutraId] = r.ok;
+    return r.ok;
+  } catch (_) { sutraVisualExists[sutraId] = false; return false; }
+}
+
+async function showSutraVisualPopup(el, sutraId) {
+  clearTimeout(conceptHideTimer);
+  const sutra = sutraIndex[sutraId];
+  if (!sutra) return;
+
+  const popup = getConceptPopup();
+  popup.innerHTML = '';
+
+  const lbl = document.createElement('div');
+  lbl.className = 'concept-popup-label';
+  lbl.textContent = idToRef(sutraId);
+  popup.appendChild(lbl);
+
+  const svgWrap = document.createElement('div');
+  svgWrap.className = 'concept-popup-svg';
+  popup.appendChild(svgWrap);
+
+  positionConceptPopup(el);
+  popup.classList.add('visible');
+
+  if (sutraSvgCache[sutraId]) {
+    svgWrap.innerHTML = sutraSvgCache[sutraId];
+    applyConceptSvgRetranslit(svgWrap);
+    return;
+  }
+  svgWrap.innerHTML = '<span class="concept-popup-loading">…</span>';
+  try {
+    const r = await fetch(_sutraVisualUrl(sutra));
+    if (!r.ok) { svgWrap.textContent = '—'; return; }
+    const svgText = await r.text();
+    sutraSvgCache[sutraId] = svgText;
+    if (popup.classList.contains('visible')) {
+      svgWrap.innerHTML = svgText;
+      applyConceptSvgRetranslit(svgWrap);
+    }
+  } catch (_) { svgWrap.textContent = '—'; }
 }
 
 // Render an array of segments [{t,v,id,...}] as inline DOM nodes into container.
@@ -4887,6 +4959,14 @@ function renderShabdarupavali(panel, data) {
       const sec = secById[paathId];
       if (!sec) continue;
       for (const paradigm of (sec.paradigms || [])) {
+        // Paradigm intro prose
+        if (paradigm.intro) {
+          const introEl = document.createElement('p');
+          introEl.className = 'srv-paradigm-intro mixed-text';
+          introEl._mixedText = paradigm.intro;
+          introEl.textContent = translitMixed(paradigm.intro);
+          listWrap.appendChild(introEl);
+        }
         for (const n of (paradigm.niyamas || [])) {
           const fullText = n.body ? n.header + ' ' + n.body : n.header;
           const displayText = fullText.length > TRUNC
@@ -5412,8 +5492,10 @@ function makeDhatuResultItem(d, q) {
 
 // Filter Ashtadhyayi sutras
 function searchSutras(q) {
-  // Dotted reference: 1.1.1
-  const idMatch = /^(\d)\.(\d)\.(\d+)$/.exec(q);
+  // Normalize Devanagari digits → ASCII, and treat dashes same as dots
+  const qn = devDigitsToAscii(q).replace(/-/g, '.');
+  // Dotted/dashed reference: 1.1.1 or 1-1-1
+  const idMatch = /^(\d)\.(\d)\.(\d+)$/.exec(qn);
   if (idMatch) {
     const id = String((+idMatch[1]) * 10000 + (+idMatch[2]) * 1000 + (+idMatch[3])).padStart(5, '0');
     return sutraList.filter(s => s.i === id);
@@ -5421,14 +5503,16 @@ function searchSutras(q) {
   // Digit-only reference: 111 = 1.1.1, 1145 = 1.1.45, 84116 = 8.4.116
   // First digit = adhyaya (1–8), second = pada (1–4), rest = sutra number
   // If query is all digits, only try reference matching — never fall through to text search
-  if (/^\d+$/.test(q)) {
-    const digitRef = /^([1-8])([1-4])(\d{1,3})$/.exec(q);
+  if (/^\d+$/.test(qn)) {
+    const digitRef = /^([1-8])([1-4])(\d{1,3})$/.exec(qn);
     if (digitRef) {
       const id = String((+digitRef[1]) * 10000 + (+digitRef[2]) * 1000 + (+digitRef[3])).padStart(5, '0');
       return sutraList.filter(s => s.i === id);
     }
     return [];
   }
+  // If original was all Devanagari digits (with separators), don't fall through to text search
+  if (/^[०-९][.०-९-]+$/.test(q)) return [];
   const dq       = normalizeToDevanagari(q);
   const lower    = q.toLowerCase();
   const pravaData = bookData['pravachanam'];
@@ -5446,6 +5530,15 @@ function searchSutras(q) {
 
 // Filter Dhatupatha entries
 function searchDhatus(data, q) {
+  // Gana-dhatu reference: 1.1 / 1-1 / 01.0001 → match baseindex
+  const qn = devDigitsToAscii(q).replace(/-/g, '.');
+  const ganaRef = /^(\d{1,2})\.(\d{1,4})$/.exec(qn);
+  if (ganaRef) {
+    const gana = String(+ganaRef[1]).padStart(2, '0');
+    const num  = String(+ganaRef[2]).padStart(4, '0');
+    const bi   = `${gana}.${num}`;
+    return data.filter(d => d.baseindex === bi);
+  }
   const dq    = normalizeToDevanagari(q);
   const lower = q.toLowerCase();
   return data.filter(d =>
