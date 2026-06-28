@@ -1713,7 +1713,7 @@ async function loadData(key, path) {
       for (const entry of d) {
         const [a, p, n] = entry.sutra.split('.');
         const id = a + p + String(n).padStart(3, '0');
-        dict[id] = entry.vartika;
+        (dict[id] = dict[id] || []).push(entry.vartika);
       }
       d = dict;
     }
@@ -2342,7 +2342,11 @@ async function loadTabData(tabDef, panel, sutra) {
   }
   try {
     const data = await loadData(tabDef.id, tabDef.dataPath);
-    const raw  = (data[sutra.i] || '').trim();
+    const val  = data[sutra.i];
+    const devanagariNums = ['', '१', '२', '३', '४', '५', '६', '७', '८', '९', '१०'];
+    const raw  = Array.isArray(val)
+      ? (val.length === 1 ? val[0] : val.map((v, i) => (devanagariNums[i + 1] || (i + 1) + '.') + ' ' + v).join('\n\n'))
+      : (val || '').trim();
     panel._rawCommentary = raw;
     panel.classList.add('commentary-text', 'commentary-panel');
     setCommentaryHTML(panel, raw);
