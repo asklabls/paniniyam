@@ -2243,7 +2243,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 /* ── Concept popup ─────────────────────────────────────────────────────────── */
 .concept-popup {
   position: fixed;
-  z-index: 9200;
+  z-index: 10001;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
