@@ -979,6 +979,31 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 /* ── Gana words ───────────────────────────────────────────────── */
 .gana-words { font-size: .92em; color: var(--text); line-height: 2; word-spacing: 2px; }
 
+/* ── Vartika list page ──────────────────────────────────────────── */
+.vartika-list-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.vartika-num {
+  font-family: var(--font-dev);
+  font-size: .82em;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  min-width: 1.4em;
+}
+.vartika-goto {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: .82em;
+  color: var(--accent);
+  text-decoration: none;
+  font-family: var(--font-dev);
+}
+.vartika-goto:hover { text-decoration: underline; }
+
 /* ── Transliterator panel ─────────────────────────────────────── */
 .panel-translit { max-width: 860px; padding-bottom: 60px; }
 

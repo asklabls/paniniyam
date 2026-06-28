@@ -27,6 +27,7 @@ const BOOKS = [
   { id: 'ashtadhyayi',     devName: 'अष्टाध्यायी',   engName: 'Ashtadhyayi',    type: 'pada-matrix-btn',                               icon: 'अष्ट०' },
   { id: 'dhatupatha',      devName: 'धातुपाठः',       engName: 'Dhatupatha',     type: 'gana-matrix-btn', dataPath: 'dhatu/data.txt',    icon: 'धातु'  },
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
+  { id: 'vartika-page',   devName: 'वार्तिकम्',      engName: 'Vārtika',         type: 'leaf', dataPath: 'sutraani/vartika.txt',        icon: 'वार्'  },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
   { id: 'shiksha-group', devName: 'शिक्षा', engName: 'Śikṣā', type: 'sub-tree', icon: 'शिक्षा',
@@ -57,6 +58,7 @@ const BOOKS = [
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
       { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
       { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
+      { id: 'vartika-page', devName: 'वार्तिकम्',   engName: 'Vārtika',       type: 'leaf', dataPath: 'sutraani/vartika.txt' },
     ]
   },
   { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
@@ -2253,6 +2255,8 @@ async function handleLeafClick(book, btn) {
     switch (book.id) {
       case 'shivasutra':      renderShivaSutra(data);    break;
       case 'ganapatha':       renderGanaList(data);      break;
+      case 'vartika-page':    renderVartikaList(data);   break;
+      case 'vartika-page':    renderVartikaList(data);   break;
       case 'unaadi': {
         let unaadiSanHin = null, unaadiSatyavrata = null;
         if (PRIVATE_BASE) {
@@ -5727,21 +5731,23 @@ async function runSearch(raw) {
 
   } else if (searchScope === 'sarva') {
     // Load all books in parallel
-    const [dhatu, gana, unaadi, shiva] = await Promise.all([
-      loadData('dhatupatha', 'dhatu/data.txt').catch(() => null),
-      loadData('ganapatha',  'ganapath/data.txt').catch(() => null),
-      loadData('unaadi',     'unaadi/data.txt').catch(() => null),
-      loadData('shivasutra', 'shivasutra/data.txt').catch(() => null),
+    const [dhatu, gana, unaadi, shiva, vartika] = await Promise.all([
+      loadData('dhatupatha',   'dhatu/data.txt').catch(() => null),
+      loadData('ganapatha',    'ganapath/data.txt').catch(() => null),
+      loadData('unaadi',       'unaadi/data.txt').catch(() => null),
+      loadData('shivasutra',   'shivasutra/data.txt').catch(() => null),
+      loadData('vartika-page', 'sutraani/vartika.txt').catch(() => null),
     ]);
 
-    const sutraResults = searchSutras(q);
-    const dhatuResults = dhatu  ? searchDhatus(dhatu, q) : [];
-    const ganaResults  = gana   ? searchGana(gana, q)    : [];
-    const unaadiResults= unaadi ? searchUnaadi(unaadi, q): [];
-    const shivaResults = shiva  ? shiva.filter(s => s.sutra && s.sutra.includes(q)) : [];
+    const sutraResults   = searchSutras(q);
+    const dhatuResults   = dhatu   ? searchDhatus(dhatu, q)   : [];
+    const ganaResults    = gana    ? searchGana(gana, q)       : [];
+    const unaadiResults  = unaadi  ? searchUnaadi(unaadi, q)   : [];
+    const shivaResults   = shiva   ? shiva.filter(s => s.sutra && s.sutra.includes(q)) : [];
+    const vartikaResults = vartika ? searchVartika(vartika, q) : [];
 
     const total = sutraResults.length + dhatuResults.length + ganaResults.length +
-                  unaadiResults.length + shivaResults.length;
+                  unaadiResults.length + shivaResults.length + vartikaResults.length;
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
     countEl.textContent = total
@@ -5775,7 +5781,36 @@ async function runSearch(raw) {
       renderGroup($searchDrawerBody, 'शिवसूत्राणि', shivaResults.slice(0, SEARCH_CAP),
         makeShiva, q, shivaResults.length);
     }
+    if (vartikaResults.length)
+      renderGroup($searchDrawerBody, 'वार्तिकम्', vartikaResults.slice(0, SEARCH_CAP),
+        makeVartikaResultItem, q, vartikaResults.length);
   }
+}
+
+function searchVartika(rawData, q) {
+  const dq = normalizeToDevanagari(q);
+  return rawData.filter(e =>
+    (e.vartika && e.vartika.includes(dq)) || (e.sutra && e.sutra.includes(q)));
+}
+
+function makeVartikaResultItem(entry, q) {
+  const item = document.createElement('div');
+  item.className = 'search-result-item';
+  const ref = document.createElement('span');
+  ref.className = 'sri-ref';
+  ref.textContent = entry.sutra || '';
+  item.appendChild(ref);
+  item.appendChild(highlightMatch(entry.vartika || '', q));
+  item.addEventListener('click', async () => {
+    const data = await loadData('vartika-page', 'sutraani/vartika.txt');
+    renderVartikaList(data);
+    closeDrawer();
+    const [a, p, n] = entry.sutra.split('.');
+    const id = a + p + String(n).padStart(3, '0');
+    const card = $sutraList.querySelector(`[data-id="${id}"]`);
+    if (card) { card.scrollIntoView({ block: 'center' }); toggleSimpleCard(card); }
+  });
+  return item;
 }
 
 $searchInput.addEventListener('input', e => runSearch(e.target.value));
@@ -6503,6 +6538,74 @@ function renderGanaList(data) {
     card.appendChild(row);
     card.appendChild(detail);
     card.dataset.id = g.ind;
+    card.addEventListener('click', () => toggleSimpleCard(card));
+    $sutraList.appendChild(card);
+  }
+  showPanel('list');
+}
+
+// ── Vartika list page ─────────────────────────────────────────────────────────
+function renderVartikaList(rawData) {
+  // rawData = [{sutra:"1.1.9", vartika:"..."}, ...] raw array (key !== 'vartika' so no normalization)
+  const groups = [];
+  const seen   = {};
+  for (const entry of rawData) {
+    const [a, p, n] = entry.sutra.split('.');
+    const id = a + p + String(n).padStart(3, '0');
+    if (!seen[id]) { seen[id] = { ref: entry.sutra, id, vartikas: [] }; groups.push(seen[id]); }
+    seen[id].vartikas.push(entry.vartika);
+  }
+  setListHeader('वार्तिकम्', `${rawData.length} vārtikas · ${groups.length} sūtras`);
+  $sutraList.innerHTML = '';
+  const devNums = ['', '१', '२', '३', '४', '५', '६', '७', '८', '९', '१०'];
+  for (const g of groups) {
+    const sutra = sutraIndex[g.id];
+    const card  = document.createElement('div');
+    card.className  = 'sutra-card';
+    card.dataset.id = g.id;
+    const row = document.createElement('div');
+    row.className = 'sutra-row';
+    const refBadge = document.createElement('span');
+    refBadge.className = 'sutra-id';
+    refBadge.textContent = g.ref;
+    row.appendChild(refBadge);
+    if (sutra) row.appendChild(devEl('span', 'sutra-text', sutra.s));
+    if (g.vartikas.length > 1) {
+      const cnt = document.createElement('span');
+      cnt.className = 'sutra-badge badge-V';
+      cnt.textContent = g.vartikas.length;
+      row.appendChild(cnt);
+    }
+    card.appendChild(row);
+    const detail = document.createElement('div');
+    detail.className = 'sutra-detail';
+    if (sutra) detail.appendChild(devEl('div', 'detail-sutra-full', sutra.s));
+    const vtSec = document.createElement('div');
+    vtSec.className = 'detail-section';
+    for (let i = 0; i < g.vartikas.length; i++) {
+      const vtRow = document.createElement('div');
+      vtRow.className = 'vartika-list-row';
+      if (g.vartikas.length > 1) {
+        const num = document.createElement('span');
+        num.className = 'vartika-num dev-text';
+        num._devText = devNums[i + 1] || String(i + 1);
+        num.textContent = translit(num._devText);
+        vtRow.appendChild(num);
+      }
+      vtRow.appendChild(devEl('span', 'detail-sanskrit', g.vartikas[i]));
+      vtSec.appendChild(vtRow);
+    }
+    detail.appendChild(vtSec);
+    if (sutra) {
+      const goLink = document.createElement('a');
+      goLink.className = 'vartika-goto dev-text';
+      goLink.href = '#';
+      goLink._devText = '→ सूत्रम्';
+      goLink.textContent = translit('→ सूत्रम्');
+      goLink.addEventListener('click', e => { e.stopPropagation(); gotoSutra(g.id); });
+      detail.appendChild(goLink);
+    }
+    card.appendChild(detail);
     card.addEventListener('click', () => toggleSimpleCard(card));
     $sutraList.appendChild(card);
   }
