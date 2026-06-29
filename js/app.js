@@ -39,6 +39,7 @@ const BOOKS = [
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
       { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',    engName: 'Bhaṭṭikāvya',       type: 'bhattikavya-panel'       },
+      { id: 'rupavatarah',   devName: 'रूपावतारः',        engName: 'Rūpāvatāraḥ',       type: 'rupavatarah-panel'       },
       { id: 'nirukta',        devName: 'निरुक्तम्',        engName: 'Nirukta',            type: 'nirukta-panel'           },
       { id: 'yogadarshana',   devName: 'योगदर्शनम्',       engName: 'Yoga Darśana',       type: 'yogadarshana-panel'      },
       { id: 'shabdarupavali', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabdarupavali-panel' },
@@ -285,6 +286,13 @@ let $nrMatrix = null;
 let _nrMatrixJustOpened = false;
 
 const BK_SARGAS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21]; // sarga 15 absent
+
+const RV_SECTIONS = [1,2,3,4,5,6,7,8,9];
+const RV_SECTION_NAMES_DEV = [
+  'संज्ञावतारः', 'संहितावतारः', 'विभक्त्यवतारः',
+  'अजन्त-स्त्री', 'हलन्त-पुंलिङ्ग', 'अव्ययावतारः',
+  'कारकावतारः', 'समासावतारः', 'तद्धितावतारः',
+];
 const BK_SARGA_NAMES_DEV = {
   1:'प्रथमः सर्गः', 2:'द्वितीयः सर्गः', 3:'तृतीयः सर्गः', 4:'चतुर्थः सर्गः',
   5:'पञ्चमः सर्गः', 6:'षष्ठः सर्गः', 7:'सप्तमः सर्गः', 8:'अष्टमः सर्गः',
@@ -295,6 +303,9 @@ const BK_SARGA_NAMES_DEV = {
 };
 let bkCurrentSarga = 0;   // 0 = matrix view
 const bkCache = {};
+
+let rvCurrentSection = 0;
+const rvCache = {};
 const BK_SARGA_COUNTS = {
   1:23, 2:48, 3:49, 4:30, 5:96, 6:123, 7:96, 8:115, 9:116, 10:67,
   11:42, 12:81, 13:47, 14:120, 16:36, 17:101, 18:39, 19:27, 20:33, 21:34,
@@ -371,6 +382,7 @@ const $panelAvyaya            = document.getElementById('panel-avyaya');
 const $panelVarnochchaaran    = document.getElementById('panel-varnochchaaran');
 const $panelVisuals           = document.getElementById('panel-visuals');
 const $panelBhattikavya       = document.getElementById('panel-bhattikavya');
+const $panelRupavatarah       = document.getElementById('panel-rupavatarah');
 const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelNamarupa          = document.getElementById('panel-namarupa');
@@ -598,6 +610,7 @@ function showPanel(name) {
   $panelVarnochchaaran.style.display    = name === 'varnochchaaran'    ? '' : 'none';
   $panelVisuals.style.display           = name === 'visuals'           ? '' : 'none';
   $panelBhattikavya.style.display       = name === 'bhattikavya'       ? '' : 'none';
+  $panelRupavatarah.style.display       = name === 'rupavatarah'       ? '' : 'none';
   $panelNirukta.style.display           = name === 'nirukta'           ? '' : 'none';
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
@@ -2090,6 +2103,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showPratyayaPage(page.id); };
       } else if (page.type === 'bhattikavya-panel') {
         clickFn = () => { closeDrawer(); openBkMatrix(); };
+      } else if (page.type === 'rupavatarah-panel') {
+        clickFn = () => { closeDrawer(); openRvMatrix(); };
       } else if (page.type === 'nirukta-panel') {
         clickFn = () => { closeDrawer(); showNiruktaPanel(); };
       } else if (page.type === 'yogadarshana-panel') {
@@ -3719,7 +3734,7 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('click', e => {
-  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened) return;
+  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened || _rvMatrixJustOpened) return;
   if ($padaMatrix?.classList.contains('open') &&
       !$padaMatrix.contains(e.target) &&
       e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
@@ -3736,6 +3751,10 @@ document.addEventListener('click', e => {
   if ($nrMatrix?.classList.contains('open') &&
       !$nrMatrix.contains(e.target)) {
     closeNrMatrix();
+  }
+  if ($rvMatrix?.classList.contains('open') &&
+      !$rvMatrix.contains(e.target)) {
+    closeRvMatrix();
   }
 });
 
@@ -7144,6 +7163,189 @@ function renderBkCard(shloka, sarga) {
   return card;
 }
 
+// ── Rūpāvatāraḥ ──────────────────────────────────────────────────────────────
+
+let $rvMatrix = null;
+let _rvMatrixJustOpened = false;
+
+function buildRvMatrix() {
+  const wrap = document.createElement('div');
+  wrap.id = 'rv-matrix';
+  wrap.className = 'bk-matrix';
+
+  const headerRow = document.createElement('div');
+  headerRow.className = 'pm-row pm-header';
+  const th = document.createElement('div');
+  th.className = 'pm-th dev-text';
+  th.style.cssText = 'min-width:0; flex:1; text-align:left;';
+  th._devText = 'रूपावतारः — अवताराः';
+  th.textContent = translit('रूपावतारः — अवताराः');
+  headerRow.appendChild(th);
+  wrap.appendChild(headerRow);
+
+  // 3 rows × 3 columns = sections 1–9
+  for (let row = 0; row < 3; row++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'pm-row';
+    for (let col = 0; col < 3; col++) {
+      const n = row * 3 + col + 1;
+      const cell = document.createElement('button');
+      cell.className = 'pm-cell rv-cell dev-text';
+      cell._devText = RV_SECTION_NAMES_DEV[n - 1];
+      cell.textContent = translit(RV_SECTION_NAMES_DEV[n - 1]);
+      cell.title = n;
+      cell.addEventListener('click', () => { closeRvMatrix(); showRupavatarah(n); });
+      rowEl.appendChild(cell);
+    }
+    wrap.appendChild(rowEl);
+  }
+  return wrap;
+}
+
+function openRvMatrix() {
+  if (!$rvMatrix) { $rvMatrix = buildRvMatrix(); document.body.appendChild($rvMatrix); }
+  $rvMatrix.classList.add('open');
+  _rvMatrixJustOpened = true;
+  setTimeout(() => { _rvMatrixJustOpened = false; }, 0);
+}
+
+function closeRvMatrix() { $rvMatrix?.classList.remove('open'); }
+
+async function showRupavatarah(secNum) {
+  if (!RV_SECTIONS.includes(secNum)) secNum = RV_SECTIONS[0];
+  rvCurrentSection = secNum;
+  history.replaceState({ book: 'rupavatarah' }, '', `?book=rupavatarah&section=${secNum}`);
+
+  const panel = $panelRupavatarah;
+  if (!rvCache[secNum]) {
+    panel.innerHTML = '<div class="loading-inline">Loading…</div>';
+    showPanel('rupavatarah');
+    if (!PRIVATE_BASE) { panel.innerHTML = '<div class="no-data">Rūpāvatāraḥ data not available.</div>'; return; }
+    try {
+      const num = String(secNum).padStart(2, '0');
+      const res = await fetch(`${PRIVATE_BASE}/rupavatarah/section_${num}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      rvCache[secNum] = await res.json();
+    } catch (e) {
+      panel.innerHTML = `<div class="no-data">Could not load section ${secNum}: ${e.message}</div>`;
+      return;
+    }
+  }
+
+  renderRvSection(rvCache[secNum]);
+  showPanel('rupavatarah');
+
+  // Background prefetch of adjacent sections
+  const idx = RV_SECTIONS.indexOf(secNum);
+  [RV_SECTIONS[idx - 1], RV_SECTIONS[idx + 1]].filter(Boolean).forEach(n => {
+    if (n && !rvCache[n]) {
+      const num = String(n).padStart(2, '0');
+      fetch(`${PRIVATE_BASE}/rupavatarah/section_${num}.json`)
+        .then(r => r.json()).then(d => { rvCache[n] = d; }).catch(() => {});
+    }
+  });
+}
+
+function renderRvSection(data) {
+  const panel = $panelRupavatarah;
+  panel.innerHTML = '';
+
+  const idx  = RV_SECTIONS.indexOf(data.section);
+  const prevN = idx > 0 ? RV_SECTIONS[idx - 1] : null;
+  const nextN = idx < RV_SECTIONS.length - 1 ? RV_SECTIONS[idx + 1] : null;
+
+  // ── Sticky nav ──
+  const nav = document.createElement('div');
+  nav.className = 'bk-nav';
+
+  const btnP = document.createElement('button');
+  btnP.className = 'bar-btn bk-nav-btn';
+  btnP.textContent = '◀';
+  btnP.disabled = !prevN;
+  if (prevN) btnP.addEventListener('click', () => showRupavatarah(prevN));
+  nav.appendChild(btnP);
+
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'bk-nav-title';
+  titleWrap.title = 'Back to section list';
+  titleWrap.addEventListener('click', () => openRvMatrix());
+  const nameEl = document.createElement('span');
+  nameEl.className = 'bk-sarga-name dev-text';
+  nameEl._devText = data.name;
+  nameEl.textContent = translit(data.name);
+  titleWrap.appendChild(nameEl);
+  const countEl = document.createElement('span');
+  countEl.className = 'bk-sarga-count';
+  countEl.textContent = `${data.total} items`;
+  titleWrap.appendChild(countEl);
+  nav.appendChild(titleWrap);
+
+  const btnN = document.createElement('button');
+  btnN.className = 'bar-btn bk-nav-btn';
+  btnN.textContent = '▶';
+  btnN.disabled = !nextN;
+  if (nextN) btnN.addEventListener('click', () => showRupavatarah(nextN));
+  nav.appendChild(btnN);
+
+  panel.appendChild(nav);
+
+  // ── Item cards ──
+  const list = document.createElement('div');
+  list.className = 'bk-list';
+  let lastSub = null;
+
+  for (const item of data.items) {
+    // Sub-section separator
+    if (item.subsection && item.subsection !== lastSub) {
+      const sep = document.createElement('div');
+      sep.className = 'rv-subsection dev-text';
+      sep._devText = item.subsection;
+      sep.textContent = translit(item.subsection);
+      list.appendChild(sep);
+      lastSub = item.subsection;
+    }
+    list.appendChild(renderRvCard(item, data.section));
+  }
+  panel.appendChild(list);
+}
+
+function renderRvCard(item, sectionN) {
+  const card = document.createElement('div');
+  card.className = 'sutra-card bk-card';
+
+  // Header row: section.item + verse (examples up to इति स्थिते;)
+  const row = document.createElement('div');
+  row.className = 'sutra-row';
+
+  const idEl = document.createElement('span');
+  idEl.className = 'sutra-id';
+  idEl.textContent = `${sectionN}.${item.n}`;
+  row.appendChild(idEl);
+
+  const verseEl = document.createElement('div');
+  verseEl.className = 'sutra-text bk-verse dev-text';
+  verseEl._devText = item.verse || '';
+  verseEl.textContent = translit(item.verse || '');
+  row.appendChild(verseEl);
+
+  card.appendChild(row);
+
+  // Commentary (derivation)
+  if (item.commentary) {
+    const detail = document.createElement('div');
+    detail.className = 'sutra-detail';
+    const cp = document.createElement('div');
+    cp.className = 'detail-tab-panel commentary-text commentary-panel detail-sanskrit active';
+    cp._rawCommentary = item.commentary;
+    setCommentaryHTML(cp, item.commentary);
+    detail.appendChild(cp);
+    card.appendChild(detail);
+  }
+
+  card.addEventListener('click', () => toggleSimpleCard(card));
+  return card;
+}
+
 // ── Skeleton placeholder helper ───────────────────────────────────────────────
 function buildPlaceholderPanel($panel, titleDev, subtitle, body, urlBookId) {
   $panel.innerHTML = '';
@@ -7946,6 +8148,9 @@ async function init() {
       } else if (urlBook === 'bhattikavya') {
         const sargaParam = parseInt(params.get('sarga')) || 1;
         await showBhattikavya(sargaParam);
+      } else if (urlBook === 'rupavatarah') {
+        const secParam = parseInt(params.get('section')) || 1;
+        await showRupavatarah(secParam);
       } else if (urlBook === 'nirukta') {
         showNiruktaPanel();
       } else if (urlBook === 'yogadarshana') {
