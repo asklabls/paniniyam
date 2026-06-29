@@ -27,7 +27,6 @@ const BOOKS = [
   { id: 'ashtadhyayi',     devName: 'अष्टाध्यायी',   engName: 'Ashtadhyayi',    type: 'pada-matrix-btn',                               icon: 'अष्ट०' },
   { id: 'dhatupatha',      devName: 'धातुपाठः',       engName: 'Dhatupatha',     type: 'gana-matrix-btn', dataPath: 'dhatu/data.txt',    icon: 'धातु'  },
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
-  { id: 'vartika-page',   devName: 'वार्तिकम्',      engName: 'Vārtika',         type: 'leaf', dataPath: 'sutraani/vartika.txt',        icon: 'वार्'  },
   { id: 'unaadi',          devName: 'उणादिकोशः',      engName: 'Uṇādi Kośa',     type: 'leaf', dataPath: 'unaadi/data.txt',             icon: 'उणा'  },
   { id: 'linganushasanam', devName: 'लिङ्गानुशासनम्', engName: 'Liṅgānuśāsanam', type: 'leaf', dataPath: 'linganushasanam/data.txt',    icon: 'लिङ्' },
   { id: 'shiksha-group', devName: 'शिक्षा', engName: 'Śikṣā', type: 'sub-tree', icon: 'शिक्षा',
@@ -58,7 +57,7 @@ const BOOKS = [
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
       { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
       { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
-      { id: 'vartika-page', devName: 'वार्तिकम्',   engName: 'Vārtika',       type: 'leaf', dataPath: 'sutraani/vartika.txt' },
+      { id: 'vartika',      devName: 'वार्तिकम्',   engName: 'Vārtika',       type: 'leaf', dataPath: 'sutraani/vartika.txt' },
     ]
   },
   { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
@@ -2255,8 +2254,7 @@ async function handleLeafClick(book, btn) {
     switch (book.id) {
       case 'shivasutra':      renderShivaSutra(data);    break;
       case 'ganapatha':       renderGanaList(data);      break;
-      case 'vartika-page':    renderVartikaList(data);   break;
-      case 'vartika-page':    renderVartikaList(data);   break;
+      case 'vartika':         renderVartikaList(await loadData('vartika-page', 'sutraani/vartika.txt')); break;
       case 'unaadi': {
         let unaadiSanHin = null, unaadiSatyavrata = null;
         if (PRIVATE_BASE) {
