@@ -5748,12 +5748,19 @@ async function runSearch(raw) {
 
   } else if (searchScope === 'sarva') {
     // Load all books in parallel
-    const [dhatu, gana, unaadi, shiva, vartika] = await Promise.all([
+    const paribhashaLoader = PRIVATE_BASE
+      ? (bookData['paribhasha-search']
+          ? Promise.resolve(bookData['paribhasha-search'])
+          : fetch(`${PRIVATE_BASE}/paribhasha.json`).then(r => r.json()).then(j => { bookData['paribhasha-search'] = j.sutras || []; return bookData['paribhasha-search']; }).catch(() => null))
+      : Promise.resolve(null);
+
+    const [dhatu, gana, unaadi, shiva, vartika, paribhasha] = await Promise.all([
       loadData('dhatupatha',   'dhatu/data.txt').catch(() => null),
       loadData('ganapatha',    'ganapath/data.txt').catch(() => null),
       loadData('unaadi',       'unaadi/data.txt').catch(() => null),
       loadData('shivasutra',   'shivasutra/data.txt').catch(() => null),
       loadData('vartika-page', 'sutraani/vartika.txt').catch(() => null),
+      paribhashaLoader,
     ]);
 
     const sutraResults   = searchSutras(q);
@@ -5761,10 +5768,12 @@ async function runSearch(raw) {
     const ganaResults    = gana    ? searchGana(gana, q)       : [];
     const unaadiResults  = unaadi  ? searchUnaadi(unaadi, q)   : [];
     const shivaResults   = shiva   ? shiva.filter(s => s.sutra && s.sutra.includes(q)) : [];
-    const vartikaResults = vartika ? searchVartika(vartika, q) : [];
+    const vartikaResults    = vartika    ? searchVartika(vartika, q)       : [];
+    const paribhashaResults = paribhasha ? searchParibhasha(paribhasha, q) : [];
 
     const total = sutraResults.length + dhatuResults.length + ganaResults.length +
-                  unaadiResults.length + shivaResults.length + vartikaResults.length;
+                  unaadiResults.length + shivaResults.length + vartikaResults.length +
+                  paribhashaResults.length;
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
     countEl.textContent = total
@@ -5801,6 +5810,9 @@ async function runSearch(raw) {
     if (vartikaResults.length)
       renderGroup($searchDrawerBody, 'वार्तिकम्', vartikaResults.slice(0, SEARCH_CAP),
         makeVartikaResultItem, q, vartikaResults.length);
+    if (paribhashaResults.length)
+      renderGroup($searchDrawerBody, 'पारिभाषिक', paribhashaResults.slice(0, SEARCH_CAP),
+        makeParibhashaResultItem, q, paribhashaResults.length);
   }
 }
 
@@ -5808,6 +5820,39 @@ function searchVartika(rawData, q) {
   const dq = normalizeToDevanagari(q);
   return rawData.filter(e =>
     (e.vartika && e.vartika.includes(dq)) || (e.sutra && e.sutra.includes(q)));
+}
+
+function searchParibhasha(sutras, q) {
+  const dq = normalizeToDevanagari(q);
+  return sutras.filter(e => e.id !== 0 && (
+    (e.sutra   && e.sutra.includes(dq)) ||
+    (e.vyakhya && e.vyakhya.includes(dq))
+  ));
+}
+
+function makeParibhashaResultItem(entry, q) {
+  const item = document.createElement('div');
+  item.className = 'search-result-item';
+  const ref = document.createElement('span');
+  ref.className = 'sri-ref';
+  ref.textContent = entry.id;
+  item.appendChild(ref);
+  item.appendChild(highlightMatch(entry.sutra || '', q));
+  item.addEventListener('click', async () => {
+    closeDrawer();
+    const paribhashaBook = (() => {
+      for (const b of BOOKS) {
+        const p = (b.pages || []).find(p => p.id === 'paribhasha');
+        if (p) return p;
+      }
+    })();
+    if (paribhashaBook) await handleLeafClick(paribhashaBook, null);
+    requestAnimationFrame(() => {
+      const card = document.getElementById(`paribhasha-${entry.id}`);
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+  return item;
 }
 
 function makeVartikaResultItem(entry, q) {
@@ -6877,6 +6922,7 @@ function renderParibhashaAll(sutras) {
   for (const e of allEntries) {
     const card = document.createElement('div');
     card.className = 'sutra-card';
+    card.id = `paribhasha-${e.id}`;
 
     const row = document.createElement('div');
     row.className = 'sutra-row';
