@@ -1689,9 +1689,13 @@ function retranslit() {
     el.textContent = translitMixed(el._mixedText);
   });
 
-  // Sambhashana IAST column — transliterate to chosen script, leave Expression column as Devanagari
+  // Sambhashana IAST column — show chosen script, but restore IAST when script is Devanagari or IAST
   document.querySelectorAll('.ss-translit[data-dev]').forEach(el => {
-    el.textContent = translit(el.dataset.dev);
+    if (currentScript === 'devanagari' || currentScript === 'iast') {
+      el.textContent = el.dataset.iast || el.textContent;
+    } else {
+      el.textContent = translit(el.dataset.dev);
+    }
   });
 
   // Sutra cards in list view
@@ -7607,7 +7611,11 @@ function renderSsModule(data) {
 
   // Apply current script to IAST columns immediately after render
   panel.querySelectorAll('.ss-translit[data-dev]').forEach(el => {
-    el.textContent = translit(el.dataset.dev);
+    if (currentScript === 'devanagari' || currentScript === 'iast') {
+      el.textContent = el.dataset.iast || el.textContent;
+    } else {
+      el.textContent = translit(el.dataset.dev);
+    }
   });
 }
 
