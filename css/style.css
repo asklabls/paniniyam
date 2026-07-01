@@ -2628,3 +2628,18 @@ hr.bk-fn-sep {
 .ss-section-body li { margin: 2px 0; }
 .ss-section-body li.ss-sub { margin-left: 12px; color: var(--muted); }
 .ss-sub-heading { font-size: .82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 14px 0 6px; }
+
+/* Kaumudi markup rendering */
+.km-sk-ref { font-size: .7em; color: var(--muted); font-style: normal; }
+.km-dhatu-ref { color: var(--accent); text-decoration: underline dotted; cursor: pointer; font-size: .88em; }
+.km-dhatu-hdr { display: inline-flex; align-items: baseline; gap: 6px; margin: 2px 4px; padding: 1px 8px; border-radius: 4px; background: var(--bg-sidebar); border: 1px solid var(--border); font-size: .88em; }
+.km-dhatu-hdr[data-baseindex] { cursor: pointer; }
+.km-dhatu-hdr[data-baseindex]:hover { border-color: var(--accent); }
+.km-dhatu-form { color: var(--accent); font-weight: 600; }
+.km-dhatu-meaning { color: var(--muted); font-size: .9em; }
+.km-dhatu-gana { color: var(--muted); font-size: .82em; font-variant-numeric: tabular-nums; opacity: .75; }
+/* Dhatu hover tooltip */
+.km-dhatu-tip { position: fixed; z-index: 2000; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; box-shadow: 0 4px 12px rgba(0,0,0,.15); font-size: .84em; display: flex; flex-direction: column; gap: 3px; pointer-events: none; max-width: 280px; }
+.km-tip-settva { font-weight: 700; color: var(--accent); font-size: .9em; }
+.km-tip-artha { color: var(--text); }
+.km-tip-eng { color: var(--muted); font-size: .92em; }

@@ -444,6 +444,31 @@ function sutraRefToId(ref) {
   return `${a}${p}${s.padStart(3, '0')}`;
 }
 
+// Lazy reverse map: SK sutra number → Ashtadhyayi sutra ID (built from sutraIndex.skn)
+let _skMapCache = null;
+function _skMap() {
+  if (_skMapCache) return _skMapCache;
+  _skMapCache = {};
+  for (const id in sutraIndex) {
+    const skn = sutraIndex[id].skn;
+    if (skn) _skMapCache[String(skn)] = id;
+  }
+  return _skMapCache;
+}
+
+// Lazy map: dhatupatha baseindex → dhatu entry (built from bookData['dhatupatha'])
+// Returns null if dhatupatha not yet loaded (tooltip will silently skip).
+let _dhatuMapCache = null;
+function _dhatuByBaseindex() {
+  if (_dhatuMapCache) return _dhatuMapCache;
+  const list = bookData['dhatupatha'];
+  if (!list || !Array.isArray(list)) return null;
+  _dhatuMapCache = {};
+  for (const d of list) _dhatuMapCache[d.baseindex] = d;
+  return _dhatuMapCache;
+}
+function _dhatuMapInvalidate() { _dhatuMapCache = null; }
+
 function renderCommentaryHTML(raw) {
   if (!raw) return '<span class="no-data">n/a</span>';
 
@@ -466,6 +491,66 @@ function renderCommentaryHTML(raw) {
     }
 
     while (i < text.length) {
+      // <{SK354}> — Siddhanta Kaumudi ref → resolve to Ashtadhyayi sutra link via skn map
+      // <{02.0027}> — Dhatupatha baseindex ref → clickable link to dhatu reader
+      if (text[i] === '<' && text[i+1] === '{') {
+        const end = text.indexOf('}>', i+2);
+        if (end !== -1) {
+          flush();
+          const inner = text.slice(i+2, end).trim();
+          if (inner.startsWith('SK')) {
+            const skNum = inner.slice(2);
+            const sid = _skMap()[skNum];
+            if (sid) {
+              const s = sutraIndex[sid];
+              html += `<a class="sutra-link" data-id="${sid}" href="#">${s.a}.${s.p}.${s.n}</a>`;
+            } else {
+              html += `<sup class="km-sk-ref">${inner}</sup>`;
+            }
+          } else if (/^\d{2}\.\d{4}$/.test(inner)) {
+            html += `<a class="km-dhatu-ref" data-baseindex="${inner}" href="#">${inner}</a>`;
+          } else {
+            html += translitMixed(inner);
+          }
+          i = end + 2; continue;
+        }
+      }
+
+      // {$ {! N dhatu !} meaning $} — Laghu Kaumudi dhatu section header
+      // optionally followed by (धातुपाठे <{XX.XXXX}>) which we consume here
+      if (text[i] === '{' && text[i+1] === '$') {
+        const end = text.indexOf('$}', i+2);
+        if (end !== -1) {
+          flush();
+          const inner = text.slice(i+2, end);
+          const m = inner.match(/\{!\s*\d+\s+(.+?)\s*!\}\s*(.+)/s);
+          let nextI = end + 2;
+          // Look ahead for (धातुपाठे <{XX.XXXX}>)
+          let baseindex = null;
+          const laMatch = text.slice(nextI).match(/^\s*\(धातुपाठे\s*<\{(\d{2}\.\d{4})\}>\)\s*/);
+          if (laMatch) {
+            baseindex = laMatch[1];
+            nextI += laMatch[0].length;
+          }
+          if (m) {
+            const form    = m[1].trim();
+            const meaning = m[2].trim();
+            const fEsc = form.replace(/"/g, '&quot;');
+            let ganaBadge = '';
+            if (baseindex) {
+              const gNum = parseInt(baseindex.slice(0, 2), 10);
+              const sNum = parseInt(baseindex.slice(3), 10);
+              ganaBadge = `<span class="km-dhatu-gana">${gNum}.${sNum}</span>`;
+            }
+            const biAttr = baseindex ? ` data-baseindex="${baseindex}"` : '';
+            html += `<span class="km-dhatu-hdr"${biAttr}><span class="km-dhatu-form dev-text" data-dev="${fEsc}">${translit(form)}</span><span class="km-dhatu-meaning">${translitMixed(meaning)}</span>${ganaBadge}</span>`;
+          } else {
+            html += translitMixed(inner);
+          }
+          i = nextI; continue;
+        }
+      }
+
       // <<sutra quote>>
       if (text[i] === '<' && text[i+1] === '<') {
         const end = text.indexOf('>>', i+2);
@@ -553,7 +638,11 @@ function setCommentaryHTML(panel, raw) {
     panel._hasClickListener = true;
     panel.addEventListener('click', e => {
       const link = e.target.closest('.sutra-link');
-      if (link) { e.preventDefault(); gotoSutra(link.dataset.id); }
+      if (link) { e.preventDefault(); gotoSutra(link.dataset.id); return; }
+      const dhatu = e.target.closest('.km-dhatu-ref');
+      if (dhatu) { e.preventDefault(); gotoDhatu(dhatu.dataset.baseindex); return; }
+      const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
+      if (hdr) { e.preventDefault(); gotoDhatu(hdr.dataset.baseindex); }
     });
   }
 }
@@ -8499,6 +8588,52 @@ document.addEventListener('click', e => {
   const link = e.target.closest('.concept-link');
   if (link) { e.preventDefault(); showConceptPopup(link, link.dataset.concept); }
 });
+
+// ── km-dhatu-hdr hover tooltip ────────────────────────────────────────────────
+(function() {
+  let tip = null;
+  const SETTVA = { S: 'सेट्', A: 'अनिट्', V: 'वेट्' };
+
+  function getTip() {
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'km-dhatu-tip';
+      tip.style.display = 'none';
+      document.body.appendChild(tip);
+    }
+    return tip;
+  }
+
+  document.addEventListener('mouseover', e => {
+    const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
+    if (!hdr) return;
+    const bi = hdr.dataset.baseindex;
+    const map = _dhatuByBaseindex();
+    if (!map) return;
+    const d = map[bi];
+    if (!d) return;
+    const settva = d.settva && SETTVA[d.settva] ? `<span class="km-tip-settva">${SETTVA[d.settva]}</span>` : '';
+    const eng = d.artha_english ? `<span class="km-tip-eng">${d.artha_english}</span>` : '';
+    const artha = d.artha ? `<span class="km-tip-artha dev-text">${translit(d.artha)}</span>` : '';
+    const t = getTip();
+    t.innerHTML = [settva, artha, eng].filter(Boolean).join('');
+    const rect = hdr.getBoundingClientRect();
+    t.style.visibility = 'hidden';
+    t.style.display = 'block';
+    const tRect = t.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - tRect.width / 2;
+    if (left < 8) left = 8;
+    if (left + tRect.width > window.innerWidth - 8) left = window.innerWidth - tRect.width - 8;
+    t.style.left = left + 'px';
+    t.style.top  = (rect.bottom + 6) + 'px';
+    t.style.visibility = '';
+  });
+
+  document.addEventListener('mouseout', e => {
+    const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
+    if (hdr) { const t = getTip(); t.style.display = 'none'; }
+  });
+})();
 
 window.gotoSutra = gotoSutra;
 init();
