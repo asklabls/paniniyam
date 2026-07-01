@@ -8592,6 +8592,7 @@ document.addEventListener('click', e => {
 // ── km-dhatu-hdr hover tooltip ────────────────────────────────────────────────
 (function() {
   let tip = null;
+  let currentHdr = null;
   const SETTVA = { S: 'सेट्', A: 'अनिट्', V: 'वेट्' };
 
   function getTip() {
@@ -8604,19 +8605,8 @@ document.addEventListener('click', e => {
     return tip;
   }
 
-  document.addEventListener('mouseover', e => {
-    const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
-    if (!hdr) return;
-    const bi = hdr.dataset.baseindex;
-    const map = _dhatuByBaseindex();
-    if (!map) return;
-    const d = map[bi];
-    if (!d) return;
-    const settva = d.settva && SETTVA[d.settva] ? `<span class="km-tip-settva">${SETTVA[d.settva]}</span>` : '';
-    const eng = d.artha_english ? `<span class="km-tip-eng">${d.artha_english}</span>` : '';
-    const artha = d.artha ? `<span class="km-tip-artha dev-text">${translit(d.artha)}</span>` : '';
+  function positionTip(hdr) {
     const t = getTip();
-    t.innerHTML = [settva, artha, eng].filter(Boolean).join('');
     const rect = hdr.getBoundingClientRect();
     t.style.visibility = 'hidden';
     t.style.display = 'block';
@@ -8627,11 +8617,47 @@ document.addEventListener('click', e => {
     t.style.left = left + 'px';
     t.style.top  = (rect.bottom + 6) + 'px';
     t.style.visibility = '';
+  }
+
+  function showTip(hdr, d) {
+    const aupadeshik = d.aupadeshik && d.aupadeshik !== d.dhatu ? d.aupadeshik : d.dhatu;
+    const dhForm = `<span class="km-tip-dhatu dev-text">${translit(aupadeshik || d.dhatu)}</span>`;
+    const settva = d.settva && SETTVA[d.settva] ? `<span class="km-tip-settva">${SETTVA[d.settva]}</span>` : '';
+    const artha = d.artha ? `<span class="km-tip-artha dev-text">${translit(d.artha)}</span>` : '';
+    const eng = d.artha_english ? `<span class="km-tip-eng">${d.artha_english}</span>` : '';
+    const t = getTip();
+    t.innerHTML = `<div class="km-tip-row1">${dhForm}${settva}</div>${artha}${eng}`;
+    positionTip(hdr);
+  }
+
+  document.addEventListener('mouseover', e => {
+    const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
+    if (!hdr) return;
+    currentHdr = hdr;
+    const bi = hdr.dataset.baseindex;
+
+    // Try immediate lookup first
+    const mapNow = _dhatuByBaseindex();
+    if (mapNow) {
+      const d = mapNow[bi];
+      if (d) showTip(hdr, d);
+      return;
+    }
+
+    // Dhatupatha not loaded yet — load it, then show
+    loadData('dhatupatha', 'dhatu/data.txt').then(() => {
+      if (currentHdr !== hdr) return; // user moved away
+      _dhatuMapInvalidate();           // rebuild index with fresh data
+      const map = _dhatuByBaseindex();
+      if (!map) return;
+      const d = map[bi];
+      if (d) showTip(hdr, d);
+    }).catch(() => {});
   });
 
   document.addEventListener('mouseout', e => {
     const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
-    if (hdr) { const t = getTip(); t.style.display = 'none'; }
+    if (hdr) { currentHdr = null; const t = getTip(); t.style.display = 'none'; }
   });
 })();
 
