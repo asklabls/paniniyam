@@ -7268,7 +7268,7 @@ async function showRupavatarah(secNum) {
     if (!PRIVATE_BASE) { panel.innerHTML = '<div class="no-data">Rūpāvatāraḥ data not available.</div>'; return; }
     try {
       const num = String(secNum).padStart(2, '0');
-      const res = await fetch(`${PRIVATE_BASE}/rupavatarah/section_${num}.json`);
+      const res = await fetch(`${PRIVATE_BASE}/rupavatarah-1/section_${num}.json`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       rvCache[secNum] = await res.json();
     } catch (e) {
@@ -7285,7 +7285,7 @@ async function showRupavatarah(secNum) {
   [RV_SECTIONS[idx - 1], RV_SECTIONS[idx + 1]].filter(Boolean).forEach(n => {
     if (n && !rvCache[n]) {
       const num = String(n).padStart(2, '0');
-      fetch(`${PRIVATE_BASE}/rupavatarah/section_${num}.json`)
+      fetch(`${PRIVATE_BASE}/rupavatarah-1/section_${num}.json`)
         .then(r => r.json()).then(d => { rvCache[n] = d; }).catch(() => {});
     }
   });
