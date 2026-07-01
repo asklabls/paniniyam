@@ -1698,6 +1698,16 @@ function retranslit() {
     }
   });
 
+  // Sambhashana blockquote italic lines (IAST sentences) — transliterate from IAST
+  document.querySelectorAll('.ss-iast[data-iast]').forEach(el => {
+    if (currentScript === 'devanagari' || currentScript === 'iast') {
+      el.textContent = el.dataset.iast;
+    } else {
+      try { el.textContent = Sanscript.t(el.dataset.iast, 'iast', currentScript); }
+      catch(e) { el.textContent = el.dataset.iast; }
+    }
+  });
+
   // Sutra cards in list view
   document.querySelectorAll('.sutra-card[data-id]').forEach(card => {
     const sutra = sutraIndex[card.dataset.id];
@@ -7609,12 +7619,20 @@ function renderSsModule(data) {
   }
   panel.appendChild(list);
 
-  // Apply current script to IAST columns immediately after render
+  // Apply current script to IAST columns and italic IAST sentences immediately after render
   panel.querySelectorAll('.ss-translit[data-dev]').forEach(el => {
     if (currentScript === 'devanagari' || currentScript === 'iast') {
       el.textContent = el.dataset.iast || el.textContent;
     } else {
       el.textContent = translit(el.dataset.dev);
+    }
+  });
+  panel.querySelectorAll('.ss-iast[data-iast]').forEach(el => {
+    if (currentScript === 'devanagari' || currentScript === 'iast') {
+      el.textContent = el.dataset.iast;
+    } else {
+      try { el.textContent = Sanscript.t(el.dataset.iast, 'iast', currentScript); }
+      catch(e) { el.textContent = el.dataset.iast; }
     }
   });
 }
