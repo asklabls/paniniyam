@@ -2544,3 +2544,86 @@ hr.bk-fn-sep {
   color: var(--muted);
   margin: 16px 0 8px;
 }
+
+/* ── Sambhāṣaṇā (Spoken Sanskrit) ────────────────────────────────────── */
+#ss-matrix { left: 8px; }
+.ss-mod-cell {
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  font-size: .9rem;
+  font-weight: 600;
+  padding: 0;
+  flex: none;
+  position: relative;
+}
+
+/* CSS tooltip on hover */
+.ss-mod-cell[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bar-bg);
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 400;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 2000;
+}
+
+/* Module nav number */
+.ss-mod-num {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-right: 6px;
+}
+
+/* Section cards */
+.ss-section-heading {
+  font-weight: 600;
+  font-size: .92rem;
+}
+.ss-section-body {
+  padding: 10px 14px;
+  font-size: .88rem;
+  line-height: 1.7;
+}
+
+/* Tables inside section content */
+.ss-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0;
+  font-size: .85rem;
+}
+.ss-table th, .ss-table td {
+  border: 1px solid var(--border);
+  padding: 5px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.ss-table thead tr {
+  background: var(--bg-sidebar);
+  font-weight: 600;
+}
+.ss-table tr:nth-child(even) td { background: var(--bg-sidebar); }
+
+/* Blockquotes inside section content */
+.ss-section-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 4px 10px;
+  margin: 6px 0;
+  color: var(--muted);
+  font-style: italic;
+  background: var(--bg-sidebar);
+}
+
+/* Lists inside section content */
+.ss-section-body ul { padding-left: 18px; margin: 6px 0; }
+.ss-section-body li { margin: 2px 0; }
+.ss-section-body li.ss-sub { margin-left: 12px; color: var(--muted); }

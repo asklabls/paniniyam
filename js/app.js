@@ -35,14 +35,15 @@ const BOOKS = [
       { id: 'varnochchaaran', devName: 'वर्णोच्चारण-शिक्षा', engName: 'Varṇoccāraṇa Śikṣā',  type: 'varnochchaaran-panel' },
     ]
   },
-  { id: 'visuals', devName: 'Visuals', engName: 'Visuals', type: 'visual-library', icon: 'Vis' },
+  { id: 'sambhashana', devName: 'संभाषणा',  engName: 'Spoken Sanskrit',  type: 'sambhashana-panel', icon: 'संभा' },
+  { id: 'visuals',     devName: 'Visuals',   engName: 'Visuals',          type: 'visual-library',    icon: 'Vis'  },
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
       { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',    engName: 'Bhaṭṭikāvya',       type: 'bhattikavya-panel'       },
-      { id: 'rupavatarah',   devName: 'रूपावतारः',        engName: 'Rūpāvatāraḥ',       type: 'rupavatarah-panel'       },
+      { id: 'rupavatarah',    devName: 'रूपावतारः',        engName: 'Rūpāvatāraḥ',       type: 'rupavatarah-panel'       },
       { id: 'nirukta',        devName: 'निरुक्तम्',        engName: 'Nirukta',            type: 'nirukta-panel'           },
       { id: 'yogadarshana',   devName: 'योगदर्शनम्',       engName: 'Yoga Darśana',       type: 'yogadarshana-panel'      },
-      { id: 'shabdarupavali', devName: 'शब्दरूपावली', engName: 'Śabdarūpāvalī', type: 'shabdarupavali-panel' },
+      { id: 'shabdarupavali', devName: 'शब्दरूपावली',      engName: 'Śabdarūpāvalī',      type: 'shabdarupavali-panel'    },
     ]
   },
   { id: 'references', devName: 'References', engName: 'References', type: 'sub-tree', icon: 'Ref',
@@ -305,6 +306,27 @@ const bkCache = {};
 
 let rvCurrentSection = 0;
 const rvCache = {};
+
+// Sambhashana (Spoken Sanskrit) constants
+const SS_BLOCKS = [
+  'Foundations', 'Present System', 'Passive & Participles',
+  'Future System', 'Past Systems', 'Remaining Lakāras',
+  'Numbers & Time', 'Vocabulary & Free Speech',
+];
+const SS_MODULE_BLOCKS = {
+  1:0, 2:0, 3:0, 4:0, 5:0,
+  6:1, 7:1, 8:1, 9:1,
+  10:2, 11:2, 12:2,
+  13:3, 14:3,
+  15:4, 16:4,
+  17:5,
+  18:6, 19:6,
+  20:7, 21:7, 22:7,
+};
+const SS_MODULES = Array.from({length: 22}, (_, i) => i + 1); // [1..22]
+let ssCurrentModule = 0;
+const ssCache = {};
+let ssIndexCache = null;
 const BK_SARGA_COUNTS = {
   1:23, 2:48, 3:49, 4:30, 5:96, 6:123, 7:96, 8:115, 9:116, 10:67,
   11:42, 12:81, 13:47, 14:120, 16:36, 17:101, 18:39, 19:27, 20:33, 21:34,
@@ -386,6 +408,7 @@ const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelNamarupa          = document.getElementById('panel-namarupa');
 const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
+const $panelSambhashana       = document.getElementById('panel-sambhashana');
 const $panelTranslit          = document.getElementById('panel-translit');
 const $app               = document.getElementById('app');
 
@@ -614,6 +637,7 @@ function showPanel(name) {
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
+  $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
@@ -2031,6 +2055,13 @@ function buildBookEntry(book, nested = false) {
     return wrap;
   }
 
+  if (book.type === 'sambhashana-panel') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); openSsMatrix(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
   if (book.type === 'bhattikavya-panel') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); openBkMatrix(); });
@@ -2104,6 +2135,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); openBkMatrix(); };
       } else if (page.type === 'rupavatarah-panel') {
         clickFn = () => { closeDrawer(); openRvMatrix(); };
+      } else if (page.type === 'sambhashana-panel') {
+        clickFn = () => { closeDrawer(); openSsMatrix(); };
       } else if (page.type === 'nirukta-panel') {
         clickFn = () => { closeDrawer(); showNiruktaPanel(); };
       } else if (page.type === 'yogadarshana-panel') {
@@ -3729,11 +3762,11 @@ function closeGanaMatrix() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closePadaMatrix(); closeGanaMatrix(); closeNrMatrix(); }
+  if (e.key === 'Escape') { closePadaMatrix(); closeGanaMatrix(); closeNrMatrix(); closeSsMatrix(); }
 });
 
 document.addEventListener('click', e => {
-  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened || _rvMatrixJustOpened) return;
+  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened || _rvMatrixJustOpened || _ssMatrixJustOpened) return;
   if ($padaMatrix?.classList.contains('open') &&
       !$padaMatrix.contains(e.target) &&
       e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
@@ -3754,6 +3787,10 @@ document.addEventListener('click', e => {
   if ($rvMatrix?.classList.contains('open') &&
       !$rvMatrix.contains(e.target)) {
     closeRvMatrix();
+  }
+  if ($ssMatrix?.classList.contains('open') &&
+      !$ssMatrix.contains(e.target)) {
+    closeSsMatrix();
   }
 });
 
@@ -7213,6 +7250,10 @@ function renderBkCard(shloka, sarga) {
 let $rvMatrix = null;
 let _rvMatrixJustOpened = false;
 
+// ── Sambhashana (Spoken Sanskrit) ─────────────────────────────────────────────
+let $ssMatrix = null;
+let _ssMatrixJustOpened = false;
+
 function buildRvMatrix() {
   const wrap = document.createElement('div');
   wrap.id = 'rv-matrix';
@@ -7389,6 +7430,175 @@ function renderRvCard(item, sectionN) {
 
   card.addEventListener('click', () => toggleSimpleCard(card));
   return card;
+}
+
+// ── Sambhashana (Spoken Sanskrit modules) ────────────────────────────────────
+
+function buildSsMatrix() {
+  const wrap = document.createElement('div');
+  wrap.id = 'ss-matrix';
+  wrap.className = 'bk-matrix';
+
+  // Header
+  const headerRow = document.createElement('div');
+  headerRow.className = 'pm-row pm-header';
+  const th = document.createElement('div');
+  th.className = 'pm-th';
+  th.style.cssText = 'min-width:0; flex:1; text-align:left;';
+  th.textContent = 'संभाषणा — Modules';
+  headerRow.appendChild(th);
+  wrap.appendChild(headerRow);
+
+  // 3 rows × 8 cols = 24 cells; modules 1–22 fill first 22, last 2 blank
+  for (let row = 0; row < 3; row++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'pm-row';
+    for (let col = 0; col < 8; col++) {
+      const n = row * 8 + col + 1;
+      const cell = document.createElement('button');
+      cell.className = 'pm-cell ss-mod-cell';
+      if (n > 22) {
+        cell.disabled = true;
+        cell.classList.add('bk-cell-absent');
+        cell.textContent = '';
+      } else {
+        cell.textContent = n;
+        const block = SS_BLOCKS[SS_MODULE_BLOCKS[n] ?? 0];
+        cell.dataset.tooltip = block;
+        cell.addEventListener('click', () => { closeSsMatrix(); showSambhashana(n); });
+      }
+      rowEl.appendChild(cell);
+    }
+    wrap.appendChild(rowEl);
+  }
+
+  return wrap;
+}
+
+function openSsMatrix() {
+  if (!$ssMatrix) { $ssMatrix = buildSsMatrix(); document.body.appendChild($ssMatrix); }
+  $ssMatrix.classList.add('open');
+  _ssMatrixJustOpened = true;
+  setTimeout(() => { _ssMatrixJustOpened = false; }, 0);
+}
+
+function closeSsMatrix() { $ssMatrix?.classList.remove('open'); }
+
+async function showSambhashana(moduleNum) {
+  if (!SS_MODULES.includes(moduleNum)) moduleNum = 1;
+  ssCurrentModule = moduleNum;
+  history.replaceState({ book: 'sambhashana' }, '', `?book=sambhashana&module=${moduleNum}`);
+
+  const panel = $panelSambhashana;
+  if (!ssCache[moduleNum]) {
+    panel.innerHTML = '<div class="loading-inline">Loading…</div>';
+    showPanel('sambhashana');
+    if (!PRIVATE_BASE) { panel.innerHTML = '<div class="no-data">Sambhāṣaṇā data not available.</div>'; return; }
+    try {
+      const num = String(moduleNum).padStart(2, '0');
+      const res = await fetch(`${PRIVATE_BASE}/sambhashana/module_${num}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      ssCache[moduleNum] = await res.json();
+    } catch (e) {
+      panel.innerHTML = `<div class="no-data">Could not load module ${moduleNum}: ${e.message}</div>`;
+      return;
+    }
+  }
+
+  renderSsModule(ssCache[moduleNum]);
+  showPanel('sambhashana');
+
+  // Background prefetch neighbours
+  const idx = SS_MODULES.indexOf(moduleNum);
+  [SS_MODULES[idx - 1], SS_MODULES[idx + 1]].filter(Boolean).forEach(n => {
+    if (n && !ssCache[n]) {
+      const num = String(n).padStart(2, '0');
+      fetch(`${PRIVATE_BASE}/sambhashana/module_${num}.json`)
+        .then(r => r.json()).then(d => { ssCache[n] = d; }).catch(() => {});
+    }
+  });
+}
+
+function renderSsModule(data) {
+  const panel = $panelSambhashana;
+  panel.innerHTML = '';
+
+  const idx   = SS_MODULES.indexOf(data.module);
+  const prevN = idx > 0 ? SS_MODULES[idx - 1] : null;
+  const nextN = idx < SS_MODULES.length - 1 ? SS_MODULES[idx + 1] : null;
+
+  // ── Sticky nav ──
+  const nav = document.createElement('div');
+  nav.className = 'bk-nav';
+
+  const btnP = document.createElement('button');
+  btnP.className = 'bar-btn bk-nav-btn';
+  btnP.textContent = '◀';
+  btnP.disabled = !prevN;
+  if (prevN) btnP.addEventListener('click', () => showSambhashana(prevN));
+  nav.appendChild(btnP);
+
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'bk-nav-title';
+  titleWrap.title = 'Back to module list';
+  titleWrap.addEventListener('click', () => openSsMatrix());
+
+  const numEl = document.createElement('span');
+  numEl.className = 'ss-mod-num';
+  numEl.textContent = `Module ${data.module}`;
+  titleWrap.appendChild(numEl);
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'bk-sarga-name';
+  nameEl.textContent = data.title;
+  titleWrap.appendChild(nameEl);
+
+  const blockEl = document.createElement('span');
+  blockEl.className = 'bk-sarga-count';
+  blockEl.textContent = `${data.block_name} · ${data.weeks}w`;
+  titleWrap.appendChild(blockEl);
+
+  nav.appendChild(titleWrap);
+
+  const btnN = document.createElement('button');
+  btnN.className = 'bar-btn bk-nav-btn';
+  btnN.textContent = '▶';
+  btnN.disabled = !nextN;
+  if (nextN) btnN.addEventListener('click', () => showSambhashana(nextN));
+  nav.appendChild(btnN);
+
+  panel.appendChild(nav);
+
+  // ── Sections ──
+  const list = document.createElement('div');
+  list.className = 'bk-list';
+
+  for (const sec of (data.sections || [])) {
+    const card = document.createElement('div');
+    card.className = 'sutra-card bk-card ss-section-card';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'sutra-row';
+    const hdrText = document.createElement('div');
+    hdrText.className = 'sutra-text ss-section-heading';
+    hdrText.textContent = sec.heading || '';
+    hdr.appendChild(hdrText);
+    card.appendChild(hdr);
+
+    if (sec.html) {
+      const detail = document.createElement('div');
+      detail.className = 'sutra-detail';
+      const body = document.createElement('div');
+      body.className = 'detail-tab-panel ss-section-body active';
+      body.innerHTML = sec.html;
+      detail.appendChild(body);
+      card.appendChild(detail);
+    }
+
+    card.addEventListener('click', () => toggleSimpleCard(card));
+    list.appendChild(card);
+  }
+  panel.appendChild(list);
 }
 
 // ── Skeleton placeholder helper ───────────────────────────────────────────────
@@ -8196,6 +8406,9 @@ async function init() {
       } else if (urlBook === 'rupavatarah') {
         const secParam = parseInt(params.get('section')) || 1;
         await showRupavatarah(secParam);
+      } else if (urlBook === 'sambhashana') {
+        const modParam = parseInt(params.get('module')) || 1;
+        await showSambhashana(modParam);
       } else if (urlBook === 'nirukta') {
         showNiruktaPanel();
       } else if (urlBook === 'yogadarshana') {
