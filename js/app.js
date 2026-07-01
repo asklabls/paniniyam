@@ -287,11 +287,10 @@ let _nrMatrixJustOpened = false;
 
 const BK_SARGAS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21]; // sarga 15 absent
 
-const RV_SECTIONS = [1,2,3,4,5,6,7,8,9];
+const RV_SECTIONS = [1,2,3,4,5,6,7,8];
 const RV_SECTION_NAMES_DEV = [
-  'संज्ञा', 'संहिता', 'विभक्ति',
-  'अजन्त-स्त्री', 'हलन्त-पुंलिङ्ग', 'अव्यय',
-  'कारक', 'समास', 'तद्धित',
+  'संज्ञा', 'संहिता', 'विभक्ति', 'अव्यय',
+  'स्त्रीप्रत्यय', 'कारक', 'समास', 'तद्धित',
 ];
 const BK_SARGA_NAMES_DEV = {
   1:'प्रथमः सर्गः', 2:'द्वितीयः सर्गः', 3:'तृतीयः सर्गः', 4:'चतुर्थः सर्गः',
@@ -7229,12 +7228,12 @@ function buildRvMatrix() {
   headerRow.appendChild(th);
   wrap.appendChild(headerRow);
 
-  // 3 rows × 3 columns = sections 1–9
-  for (let row = 0; row < 3; row++) {
+  // 2 rows × 4 columns = sections 1–8
+  for (let row = 0; row < 2; row++) {
     const rowEl = document.createElement('div');
     rowEl.className = 'pm-row';
-    for (let col = 0; col < 3; col++) {
-      const n = row * 3 + col + 1;
+    for (let col = 0; col < 4; col++) {
+      const n = row * 4 + col + 1;
       const cell = document.createElement('button');
       cell.className = 'pm-cell rv-cell dev-text';
       cell._devText = RV_SECTION_NAMES_DEV[n - 1];
