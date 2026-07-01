@@ -2627,3 +2627,4 @@ hr.bk-fn-sep {
 .ss-section-body ul { padding-left: 18px; margin: 6px 0; }
 .ss-section-body li { margin: 2px 0; }
 .ss-section-body li.ss-sub { margin-left: 12px; color: var(--muted); }
+.ss-sub-heading { font-size: .82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 14px 0 6px; }
