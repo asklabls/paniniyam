@@ -1689,6 +1689,11 @@ function retranslit() {
     el.textContent = translitMixed(el._mixedText);
   });
 
+  // Sambhashana IAST column — transliterate to chosen script, leave Expression column as Devanagari
+  document.querySelectorAll('.ss-translit[data-dev]').forEach(el => {
+    el.textContent = translit(el.dataset.dev);
+  });
+
   // Sutra cards in list view
   document.querySelectorAll('.sutra-card[data-id]').forEach(card => {
     const sutra = sutraIndex[card.dataset.id];
@@ -7599,6 +7604,11 @@ function renderSsModule(data) {
     list.appendChild(card);
   }
   panel.appendChild(list);
+
+  // Apply current script to IAST columns immediately after render
+  panel.querySelectorAll('.ss-translit[data-dev]').forEach(el => {
+    el.textContent = translit(el.dataset.dev);
+  });
 }
 
 // ── Skeleton placeholder helper ───────────────────────────────────────────────
