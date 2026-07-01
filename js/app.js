@@ -516,34 +516,39 @@ function renderCommentaryHTML(raw) {
         }
       }
 
-      // {$ {! N dhatu !} meaning $} — Laghu Kaumudi dhatu section header
-      // optionally followed by (धातुपाठे <{XX.XXXX}>) which we consume here
+      // {$ {!N dhatu!} meaning $}  — Kaumudi dhatu header pill(s)
+      // SK: {$ {!1290 ओलजी!} {!1291 ओलस्जी!} व्रीडायाम् $}   (multiple dhatus, no baseindex ref)
+      // LK: {$ {! 3 यु !} मिश्रणामिश्रणयोः $} (धातुपाठे <{02.0027}>)  (single dhatu, followed by ref)
       if (text[i] === '{' && text[i+1] === '$') {
         const end = text.indexOf('$}', i+2);
         if (end !== -1) {
           flush();
           const inner = text.slice(i+2, end);
-          const m = inner.match(/\{!\s*\d+\s+(.+?)\s*!\}\s*(.+)/s);
+          // Extract all {!N form!} occurrences
+          const dhForms = [...inner.matchAll(/\{!\s*\d+\s+(.+?)\s*!\}/g)].map(m => m[1].trim());
+          // Meaning = inner text after stripping all {!...!} tags
+          const meaning = inner.replace(/\{!\s*\d+\s+.+?\s*!\}/g, '').trim();
           let nextI = end + 2;
-          // Look ahead for (धातुपाठे <{XX.XXXX}>)
+          // LK only: look ahead for (धातुपाठे <{XX.XXXX}>) and consume it
           let baseindex = null;
           const laMatch = text.slice(nextI).match(/^\s*\(धातुपाठे\s*<\{(\d{2}\.\d{4})\}>\)\s*/);
           if (laMatch) {
             baseindex = laMatch[1];
             nextI += laMatch[0].length;
           }
-          if (m) {
-            const form    = m[1].trim();
-            const meaning = m[2].trim();
-            const fEsc = form.replace(/"/g, '&quot;');
-            let ganaBadge = '';
-            if (baseindex) {
-              const gNum = parseInt(baseindex.slice(0, 2), 10);
-              const sNum = parseInt(baseindex.slice(3), 10);
-              ganaBadge = `<span class="km-dhatu-gana">${gNum}.${sNum}</span>`;
+          if (dhForms.length) {
+            for (const form of dhForms) {
+              const fEsc = form.replace(/"/g, '&quot;');
+              // Gana badge — only available immediately for LK (has baseindex)
+              let ganaBadge = '';
+              if (baseindex && dhForms.length === 1) {
+                const gNum = parseInt(baseindex.slice(0, 2), 10);
+                const sNum = parseInt(baseindex.slice(3), 10);
+                ganaBadge = `<span class="km-dhatu-gana">${gNum}.${sNum}</span>`;
+              }
+              const biAttr = (baseindex && dhForms.length === 1) ? ` data-baseindex="${baseindex}"` : '';
+              html += `<span class="km-dhatu-hdr"${biAttr} data-dhatu-form="${fEsc}"><span class="km-dhatu-form dev-text" data-dev="${fEsc}">${translit(form)}</span><span class="km-dhatu-meaning">${translitMixed(meaning)}</span>${ganaBadge}</span>`;
             }
-            const biAttr = baseindex ? ` data-baseindex="${baseindex}"` : '';
-            html += `<span class="km-dhatu-hdr"${biAttr}><span class="km-dhatu-form dev-text" data-dev="${fEsc}">${translit(form)}</span><span class="km-dhatu-meaning">${translitMixed(meaning)}</span>${ganaBadge}</span>`;
           } else {
             html += translitMixed(inner);
           }
@@ -8593,6 +8598,7 @@ document.addEventListener('click', e => {
 (function() {
   let tip = null;
   let currentHdr = null;
+  let showTimer = null;
   const SETTVA = { S: 'सेट्', A: 'अनिट्', V: 'वेट्' };
 
   function getTip() {
@@ -8603,6 +8609,14 @@ document.addEventListener('click', e => {
       document.body.appendChild(tip);
     }
     return tip;
+  }
+
+  function hideTip() {
+    clearTimeout(showTimer);
+    showTimer = null;
+    currentHdr = null;
+    const t = getTip();
+    t.style.display = 'none';
   }
 
   function positionTip(hdr) {
@@ -8619,45 +8633,70 @@ document.addEventListener('click', e => {
     t.style.visibility = '';
   }
 
-  function showTip(hdr, d) {
-    const aupadeshik = d.aupadeshik && d.aupadeshik !== d.dhatu ? d.aupadeshik : d.dhatu;
+  function renderDEntry(d) {
+    const aupadeshik = (d.aupadeshik && d.aupadeshik !== d.dhatu) ? d.aupadeshik : d.dhatu;
+    const gNum = parseInt(d.baseindex.slice(0, 2), 10);
+    const sNum = parseInt(d.baseindex.slice(3), 10);
+    const ganaLabel = `<span class="km-tip-gana">${gNum}.${sNum}</span>`;
     const dhForm = `<span class="km-tip-dhatu dev-text">${translit(aupadeshik || d.dhatu)}</span>`;
     const settva = d.settva && SETTVA[d.settva] ? `<span class="km-tip-settva">${SETTVA[d.settva]}</span>` : '';
     const artha = d.artha ? `<span class="km-tip-artha dev-text">${translit(d.artha)}</span>` : '';
     const eng = d.artha_english ? `<span class="km-tip-eng">${d.artha_english}</span>` : '';
+    return `<div class="km-tip-entry"><div class="km-tip-row1">${dhForm}${ganaLabel}${settva}</div>${artha}${eng}</div>`;
+  }
+
+  function showTip(hdr, matches) {
+    if (currentHdr !== hdr) return;
     const t = getTip();
-    t.innerHTML = `<div class="km-tip-row1">${dhForm}${settva}</div>${artha}${eng}`;
+    t.innerHTML = matches.map(renderDEntry).join('<hr class="km-tip-sep">');
     positionTip(hdr);
   }
 
-  document.addEventListener('mouseover', e => {
-    const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
-    if (!hdr) return;
-    currentHdr = hdr;
-    const bi = hdr.dataset.baseindex;
+  // Find dhatus by form (dhatu or aupadeshik field, stripping trailing ँ)
+  function findByForm(list, form) {
+    const stripped = form.replace(/[ँँ]$/, '');
+    return list.filter(d =>
+      d.dhatu === form ||
+      d.dhatu === stripped ||
+      (d.aupadeshik && (d.aupadeshik === form || d.aupadeshik.replace(/[ँँ]$/, '') === form || d.aupadeshik === stripped))
+    );
+  }
 
-    // Try immediate lookup first
-    const mapNow = _dhatuByBaseindex();
-    if (mapNow) {
-      const d = mapNow[bi];
-      if (d) showTip(hdr, d);
+  function doShow(hdr, list) {
+    if (currentHdr !== hdr) return;
+    const bi = hdr.dataset.baseindex;
+    if (bi) {
+      const map = _dhatuByBaseindex();
+      const d = map && map[bi];
+      if (d) showTip(hdr, [d]);
       return;
     }
+    const form = hdr.dataset.dhatuForm;
+    if (form) {
+      const matches = findByForm(list, form);
+      if (matches.length) showTip(hdr, matches);
+    }
+  }
 
-    // Dhatupatha not loaded yet — load it, then show
-    loadData('dhatupatha', 'dhatu/data.txt').then(() => {
-      if (currentHdr !== hdr) return; // user moved away
-      _dhatuMapInvalidate();           // rebuild index with fresh data
-      const map = _dhatuByBaseindex();
-      if (!map) return;
-      const d = map[bi];
-      if (d) showTip(hdr, d);
-    }).catch(() => {});
+  document.addEventListener('mouseover', e => {
+    const hdr = e.target.closest('.km-dhatu-hdr');
+    if (!hdr || (!hdr.dataset.baseindex && !hdr.dataset.dhatuForm)) return;
+    if (hdr === currentHdr) return; // already pending or shown
+    clearTimeout(showTimer);
+    currentHdr = hdr;
+    showTimer = setTimeout(() => {
+      const list = bookData['dhatupatha'];
+      if (list) { doShow(hdr, list); return; }
+      loadData('dhatupatha', 'dhatu/data.txt').then(() => {
+        _dhatuMapInvalidate();
+        doShow(hdr, bookData['dhatupatha'] || []);
+      }).catch(() => {});
+    }, 250);
   });
 
   document.addEventListener('mouseout', e => {
-    const hdr = e.target.closest('.km-dhatu-hdr[data-baseindex]');
-    if (hdr) { currentHdr = null; const t = getTip(); t.style.display = 'none'; }
+    const hdr = e.target.closest('.km-dhatu-hdr');
+    if (hdr) hideTip();
   });
 })();
 
