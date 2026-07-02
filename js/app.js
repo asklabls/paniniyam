@@ -8652,14 +8652,18 @@ document.addEventListener('click', e => {
     positionTip(hdr);
   }
 
-  // Find dhatus by form (dhatu or aupadeshik field, stripping trailing ँ)
+  // Find dhatus by form (dhatu or aupadeshik field)
+  // Handles: missing virama (दंश→दंश्), anunasika anywhere (डुपचँष्→डुपचष्)
   function findByForm(list, form) {
-    const stripped = form.replace(/[ँँ]$/, '');
-    return list.filter(d =>
-      d.dhatu === form ||
-      d.dhatu === stripped ||
-      (d.aupadeshik && (d.aupadeshik === form || d.aupadeshik.replace(/[ँँ]$/, '') === form || d.aupadeshik === stripped))
-    );
+    const formV  = form + '्';                             // + virama: दंश → दंश्
+    function normA(s) { return (s||'').replace(/[ँँ]/g,''); }  // strip all anunasika
+    const normF  = normA(form);
+    const normFV = normA(formV);
+    return list.filter(d => {
+      if (d.dhatu === form || d.dhatu === formV) return true;
+      const a = normA(d.aupadeshik);
+      return a === normF || a === normFV;
+    });
   }
 
   function doShow(hdr, list) {
