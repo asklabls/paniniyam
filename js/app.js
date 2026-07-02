@@ -8653,16 +8653,20 @@ document.addEventListener('click', e => {
   }
 
   // Find dhatus by form (dhatu or aupadeshik field)
-  // Handles: missing virama (दंश→दंश्), anunasika anywhere (डुपचँष्→डुपचष्)
+  // Handles:
+  //   missing virama  — दंश  → दंश्  (form + '्' matches dhatu)
+  //   anunasika embed — डुपचँष् → डुपचष् (strip all ँ from aupadeshik)
+  //   vowel-ending ap — डुवपँ → डुवप् (normA(aupadeshik) + '्' = form)
   function findByForm(list, form) {
-    const formV  = form + '्';                             // + virama: दंश → दंश्
-    function normA(s) { return (s||'').replace(/[ँँ]/g,''); }  // strip all anunasika
-    const normF  = normA(form);
-    const normFV = normA(formV);
+    const VIRAMA = '्';
+    function normA(s) { return (s||'').replace(/[ँँ]/g, ''); }
+    const formV = form + VIRAMA;
+    const nF    = normA(form);
+    const nFV   = normA(formV);
     return list.filter(d => {
       if (d.dhatu === form || d.dhatu === formV) return true;
-      const a = normA(d.aupadeshik);
-      return a === normF || a === normFV;
+      const na = normA(d.aupadeshik);
+      return na === nF || na === nFV || na + VIRAMA === form;
     });
   }
 
