@@ -3089,7 +3089,12 @@ async function showSutraVisualPopup(el, sutraId) {
 // Render an array of segments [{t,v,id,...}] as inline DOM nodes into container.
 // 'sl' segments become clickable sutra links with hover tooltip.
 function renderSiddhiSegs(segs, container) {
-  segs.forEach(seg => {
+  segs.forEach((seg, idx) => {
+    // Auto-separate adjacent sutra links with a mid-dot when no text sits between them
+    if (idx > 0 && seg.t === 'sl' && segs[idx - 1].t === 'sl') {
+      const sep = document.createTextNode(' · ');
+      container.appendChild(sep);
+    }
     if (seg.t === 'sl') {
       const a = document.createElement('a');
       a.className = 'siddhi-sutra-link dev-text';
