@@ -1323,13 +1323,19 @@ async function showVidyutPrakriya(dhatu, lakaraKey, padaKey, cellIndex, td) {
 // Strip Vidyut accent markers (\ = anudātta, ^ = udātta) before SLP1→Devanagari conversion
 function vslp1(s) { return (s || '').replace(/[\\^]/g, ''); }
 
-function renderVidyutSteps(container, results) {
+function renderVidyutSteps(container, result) {
   const wrap = document.createElement('div');
   wrap.className = 'vidyut-steps-wrap';
   const table = document.createElement('table');
   table.className = 'vidyut-steps-table';
 
-  results[0].history.forEach(step => {
+  // Filter out post-derivation marker steps added by Vidyut engine:
+  // 8.4.68 "अ अ इति" — terminal tripāḍī marker
+  // 1.4.14 "सुप्तिङन्तं पदम्" — pada-saṃjñā, fires after derivation is complete
+  const VIDYUT_SKIP_RULES = new Set(['8.4.68', '1.4.14']);
+  const steps = result.history.filter(step => !VIDYUT_SKIP_RULES.has(step.rule?.code));
+
+  steps.forEach(step => {
     const tr = document.createElement('tr');
     tr.className = 'vidyut-step';
 
@@ -1383,6 +1389,25 @@ function renderVidyutSteps(container, results) {
     tr.appendChild(sutraTd);
     table.appendChild(tr);
   });
+
+  // Final row: completed form + इति सिद्धम् ॥
+  const finalDevText = Sanscript.t(vslp1(result.text), 'slp1', 'devanagari');
+  const finalTr = document.createElement('tr');
+  finalTr.className = 'vidyut-step vidyut-step-final';
+  const finalFormTd = document.createElement('td');
+  finalFormTd.className = 'vidyut-step-form';
+  const finalSp = document.createElement('span');
+  finalSp.className = 'vidyut-term vidyut-final-word dev-text';
+  finalSp._devText = finalDevText;
+  finalSp.textContent = translit(finalDevText);
+  finalFormTd.appendChild(finalSp);
+  finalTr.appendChild(finalFormTd);
+  const finalSutraTd = document.createElement('td');
+  finalSutraTd.className = 'vidyut-step-sutra vidyut-siddham dev-text';
+  finalSutraTd._devText = 'इति सिद्धम् ॥';
+  finalSutraTd.textContent = translit('इति सिद्धम् ॥');
+  finalTr.appendChild(finalSutraTd);
+  table.appendChild(finalTr);
 
   wrap.appendChild(table);
   container.appendChild(wrap);
@@ -1521,11 +1546,41 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
       return;
     }
 
+    let selectedResult = results[0];
+
+    // Form picker: shown when Vidyut returns multiple derivations
+    if (results.length > 1) {
+      const picker = document.createElement('div');
+      picker.className = 'vidyut-form-picker';
+      const stepsWrap = document.createElement('div');
+      const pills = results.map((r, i) => {
+        const devText = Sanscript.t(vslp1(r.text), 'slp1', 'devanagari');
+        const btn = document.createElement('button');
+        btn.className = 'vidyut-form-pill dev-text' + (i === 0 ? ' active' : '');
+        btn._devText = devText;
+        btn.textContent = translit(devText);
+        btn.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          selectedResult = r;
+          stepsWrap.innerHTML = '';
+          renderVidyutSteps(stepsWrap, r);
+        });
+        return btn;
+      });
+      pills.forEach(p => picker.appendChild(p));
+      content.appendChild(picker);
+      content.appendChild(stepsWrap);
+      renderVidyutSteps(stepsWrap, results[0]);
+    } else {
+      renderVidyutSteps(content, results[0]);
+    }
+
     copyBtn.disabled = false;
     copyBtn.addEventListener('click', () => {
-      const devFormsFinal = results.map(r => Sanscript.t(vslp1(r.text), 'slp1', 'devanagari')).join(' / ');
-      const lines = [`${devFormsFinal} — tiṅanta prakriyā | paniniyam.com`, ''];
-      results[0].history.forEach(step => {
+      const devForm = Sanscript.t(vslp1(selectedResult.text), 'slp1', 'devanagari');
+      const lines = [`${devForm} — tiṅanta prakriyā | paniniyam.com`, ''];
+      selectedResult.history.forEach(step => {
         const formParts = (step.result || []).map(t => Sanscript.t(vslp1(t.text), 'slp1', 'devanagari'));
         const rule = step.rule || {};
         let sutraStr = '';
@@ -1549,8 +1604,6 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
         setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
       });
     });
-
-    renderVidyutSteps(content, results);
   } catch (err) {
     console.error('Vidyut error:', err);
     content.innerHTML = `<div class="vidyut-loading">Error: ${err.message}</div>`;
@@ -1558,6 +1611,8 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
 }
 
 function renderVidyutPanel(panel, results) {
+  let selectedResult = results[0];
+
   // Header: final form(s)
   const header = document.createElement('div');
   header.className = 'vidyut-header';
@@ -1567,20 +1622,15 @@ function renderVidyutPanel(panel, results) {
   formSpan._devText = devForms.join(' / ');
   formSpan.textContent = translit(devForms.join(' / '));
   header.appendChild(formSpan);
-  if (results.length > 1) {
-    const note = document.createElement('span');
-    note.className = 'vidyut-alt-note';
-    note.textContent = `${results.length} alternatives`;
-    header.appendChild(note);
-  }
+
   const copyBtn = document.createElement('button');
   copyBtn.className = 'vidyut-copy';
   copyBtn.title = 'Copy prakriyā as text';
   copyBtn.textContent = '📋';
   copyBtn.addEventListener('click', () => {
-    const devFormsFinal = results.map(r => Sanscript.t(vslp1(r.text), 'slp1', 'devanagari')).join(' / ');
-    const lines = [`${devFormsFinal} — tiṅanta prakriyā | paniniyam.com`, ''];
-    results[0].history.forEach(step => {
+    const devForm = Sanscript.t(vslp1(selectedResult.text), 'slp1', 'devanagari');
+    const lines = [`${devForm} — tiṅanta prakriyā | paniniyam.com`, ''];
+    selectedResult.history.forEach(step => {
       const formParts = (step.result || []).map(t => Sanscript.t(vslp1(t.text), 'slp1', 'devanagari'));
       const formStr = formParts.join(' + ');
       const rule = step.rule || {};
@@ -1613,7 +1663,33 @@ function renderVidyutPanel(panel, results) {
   closeBtn.addEventListener('click', hideVidyutPanel);
   header.appendChild(closeBtn);
   panel.appendChild(header);
-  renderVidyutSteps(panel, results);
+
+  // Form picker: shown when Vidyut returns multiple derivations
+  if (results.length > 1) {
+    const picker = document.createElement('div');
+    picker.className = 'vidyut-form-picker';
+    const pills = results.map((r, i) => {
+      const devText = Sanscript.t(vslp1(r.text), 'slp1', 'devanagari');
+      const btn = document.createElement('button');
+      btn.className = 'vidyut-form-pill dev-text' + (i === 0 ? ' active' : '');
+      btn._devText = devText;
+      btn.textContent = translit(devText);
+      btn.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        selectedResult = r;
+        stepsWrap.innerHTML = '';
+        renderVidyutSteps(stepsWrap, r);
+      });
+      return btn;
+    });
+    pills.forEach(p => picker.appendChild(p));
+    panel.appendChild(picker);
+  }
+
+  const stepsWrap = document.createElement('div');
+  panel.appendChild(stepsWrap);
+  renderVidyutSteps(stepsWrap, results[0]);
 }
 
 function renderFormsTable(formsStr, padaLabel, dhatu, lakaraKey, derivArea) {

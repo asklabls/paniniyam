@@ -1356,9 +1356,31 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-weight: 700;
   flex: 1;
 }
-.vidyut-alt-note {
-  font-size: .78em;
-  color: rgba(255,255,255,.75);
+.vidyut-form-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-subtle, #f5f0e8);
+  border-bottom: 1px solid var(--border);
+}
+.vidyut-form-pill {
+  font-family: var(--font-dev);
+  font-size: .95em;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.vidyut-form-pill.active {
+  background: var(--accent);
+  color: #fff;
+}
+.vidyut-form-pill:not(.active):hover {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 .vidyut-copy, .vidyut-close {
   background: none;
@@ -1385,6 +1407,21 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
+.vidyut-step-final td {
+  border-bottom: none;
+  border-top: 2px solid var(--accent);
+  background: var(--bg-subtle, #f5f0e8);
+}
+.vidyut-final-word {
+  font-weight: 700;
+  color: var(--accent);
+}
+.vidyut-siddham {
+  font-family: var(--font-dev);
+  font-size: .88em;
+  color: var(--text-muted, #7a6a55);
+  font-style: italic;
+}
 .vidyut-step:last-child td { border-bottom: none; }
 .vidyut-step-form {
   font-family: var(--font-dev);
@@ -1408,14 +1445,14 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-family: var(--font-dev);
   font-size: .88em;
   color: var(--text);
-  display: block;
-  margin-bottom: 2px;
 }
 .vidyut-sutra-ref {
   font-size: .75em;
   color: var(--accent2);
   text-decoration: none;
   font-variant-numeric: tabular-nums;
+  margin-left: 5px;
+  white-space: nowrap;
 }
 .vidyut-sutra-ref:hover { text-decoration: underline; }
 .vidyut-vartika {
