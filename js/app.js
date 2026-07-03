@@ -620,18 +620,47 @@ function renderCommentaryHTML(raw) {
     if (trimmed === '---') { html += '<hr class="bk-fn-sep">'; continue; }
 
     let paraLines = '';
-    for (const line of trimmed.split('\n')) {
-      const t = line.trim();
-      if (!t) continue;
+    const rawLines = trimmed.split('\n');
+    let li = 0;
+    function flushPara() { if (paraLines) { html += `<p>${paraLines}</p>`; paraLines = ''; } }
+    while (li < rawLines.length) {
+      const t = rawLines[li].trim();
+      if (!t) { li++; continue; }
+      // Markdown pipe table: collect consecutive | lines
+      if (t.startsWith('|')) {
+        flushPara();
+        const tableLines = [];
+        while (li < rawLines.length && rawLines[li].trim().startsWith('|')) {
+          tableLines.push(rawLines[li].trim());
+          li++;
+        }
+        // Parse: first row = header, second row = separator (|---|), rest = data
+        const isSep = r => /^\|[\s|:-]+\|$/.test(r);
+        const parseRow = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+        let tHtml = '<table class="commentary-md-table"><thead><tr>';
+        const headerCells = parseRow(tableLines[0]);
+        for (const c of headerCells) tHtml += `<th>${renderInline(c)}</th>`;
+        tHtml += '</tr></thead><tbody>';
+        const dataStart = tableLines.length > 1 && isSep(tableLines[1]) ? 2 : 1;
+        for (let r = dataStart; r < tableLines.length; r++) {
+          tHtml += '<tr>';
+          for (const c of parseRow(tableLines[r])) tHtml += `<td>${renderInline(c)}</td>`;
+          tHtml += '</tr>';
+        }
+        tHtml += '</tbody></table>';
+        html += tHtml;
+        continue;
+      }
       if (t.startsWith('### ')) {
         // Flush accumulated paragraph lines before heading
-        if (paraLines) { html += `<p>${paraLines}</p>`; paraLines = ''; }
+        flushPara();
         html += `<div class="commentary-heading">${renderInline(t.slice(4))}</div>`;
       } else {
         paraLines += (paraLines ? '<br>' : '') + renderInline(t);
       }
+      li++;
     }
-    if (paraLines) html += `<p>${paraLines}</p>`;
+    flushPara();
   }
 
   return html || '<span class="no-data">n/a</span>';
@@ -2608,10 +2637,10 @@ async function renderPravachanamTab(panel, sutraId) {
     lbl.className = 'prav-lbl dev-text';
     lbl._devText = 'अर्थः';
     lbl.textContent = translit('अर्थः');
-    const val = document.createElement('span');
-    val.className = 'prav-val dev-text';
-    val._devText = entry.a;
-    val.textContent = translit(entry.a);
+    const val = document.createElement('div');
+    val.className = 'prav-val commentary-panel';
+    val._rawCommentary = entry.a;
+    setCommentaryHTML(val, entry.a);
     row.appendChild(lbl);
     row.appendChild(val);
     panel.appendChild(row);
