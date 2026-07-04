@@ -2797,6 +2797,7 @@ async function showSiddhiTip(el, sutraId) {
   clearTimeout(arthaHideTimer);
   const sutra = sutraIndex[sutraId];
   if (!sutra) return;
+  if ($arthaPopup && $arthaPopup.contains(el)) return; // don't nest popup inside itself
 
   const popup = getArthaPopup();
   popup.innerHTML = '';
