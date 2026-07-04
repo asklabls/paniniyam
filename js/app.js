@@ -3595,6 +3595,7 @@ function idToRef(idStr) {
 }
 
 function gotoSutra(idStr) {
+  if (!_rlCheck()) return;
   const sutra = sutraIndex[idStr];
   if (!sutra) return;
   closeDrawer();
@@ -9166,6 +9167,23 @@ init();
 
 // ── Content protection ────────────────────────────────────────────────────────
 document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Rate limiter — silently throttle rapid programmatic navigation.
+// Human users navigate at most 2-3 sutras/sec; scrapers hammer much faster.
+// After 8 navigations in 3 seconds the gate closes for 10 seconds.
+const _rl = { count: 0, blocked: false, timer: null };
+function _rlCheck() {
+  if (_rl.blocked) return false;
+  _rl.count++;
+  clearTimeout(_rl.timer);
+  _rl.timer = setTimeout(() => { _rl.count = 0; }, 3000);
+  if (_rl.count > 8) {
+    _rl.blocked = true;
+    setTimeout(() => { _rl.blocked = false; _rl.count = 0; }, 10000);
+    return false;
+  }
+  return true;
+}
 
 // ── Service worker registration (offline support) ─────────────────────────────
 if ('serviceWorker' in navigator) {
