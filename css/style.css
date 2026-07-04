@@ -718,7 +718,8 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .detail-tabs {
   display: flex;
   margin: 14px -16px 0;
-  padding: 0 16px;
+  padding: 4px 16px 0;
+  background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border);
 }
 .detail-tab {
@@ -782,7 +783,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 
 /* Reader tab bars: flush left, no bleed */
-#reader-content .detail-tabs { margin: 0; padding: 0; }
+#reader-content .detail-tabs { margin: 14px 0 0; padding: 4px 0 0; }
 
 /* ── Notes tab (Phase 4) ──────────────────────────────────────── */
 .notes-group { margin-top: 16px; border-top: 1px solid var(--border); }
