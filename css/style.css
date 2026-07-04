@@ -2008,7 +2008,8 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   gap: 8px;
   padding: 16px 0 10px;
 }
-.avyaya-letter-pills {
+.avyaya-letter-pills,
+.gana-letter-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;

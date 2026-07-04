@@ -6820,6 +6820,31 @@ function createDhatuCard(d) {
 function renderGanaList(data) {
   setListHeader('गणपाठः', `${data.length} gaṇas`);
   $sutraList.innerHTML = '';
+
+  // ── Letter-filter pill bar ──────────────────────────────────────────────────
+  const firstLetters = [...new Set(data.map(g => [...g.name][0]))].sort();
+  const pillBar = document.createElement('div');
+  pillBar.className = 'gana-letter-pills';
+
+  const allPill = document.createElement('button');
+  allPill.className = 'avyaya-pill active';
+  allPill.dataset.letter = '';
+  allPill._devText = 'सर्व';
+  allPill.textContent = translit('सर्व');
+  pillBar.appendChild(allPill);
+
+  for (const letter of firstLetters) {
+    const pill = document.createElement('button');
+    pill.className = 'avyaya-pill dev-text';
+    pill.dataset.letter = letter;
+    pill._devText = letter;
+    pill.textContent = translit(letter);
+    pillBar.appendChild(pill);
+  }
+  $sutraList.appendChild(pillBar);
+
+  // ── Cards ───────────────────────────────────────────────────────────────────
+  const cardList = [];
   for (const g of data) {
     const card = document.createElement('div');
     card.className = 'sutra-card';
@@ -6859,9 +6884,27 @@ function renderGanaList(data) {
     card.appendChild(row);
     card.appendChild(detail);
     card.dataset.id = g.ind;
+    card.dataset.letter = [...g.name][0];
     card.addEventListener('click', () => toggleSimpleCard(card));
     $sutraList.appendChild(card);
+    cardList.push(card);
   }
+
+  // ── Filter handler ──────────────────────────────────────────────────────────
+  pillBar.addEventListener('click', e => {
+    const pill = e.target.closest('.avyaya-pill');
+    if (!pill) return;
+    const active = pill.dataset.letter;
+    pillBar.querySelectorAll('.avyaya-pill').forEach(p => p.classList.toggle('active', p === pill));
+    let visible = 0;
+    for (const card of cardList) {
+      const show = !active || card.dataset.letter === active;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    }
+    setListHeader('गणपाठः', `${visible} gaṇas`);
+  });
+
   showPanel('list');
 }
 
