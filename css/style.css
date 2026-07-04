@@ -1629,6 +1629,106 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .pratyaya-lak-panel { display: none; }
 .pratyaya-lak-panel.active { display: block; }
 
+/* ── Pratyaya Sūchi panel ─────────────────────────────────────── */
+.panel-pratyaya-suchi {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+.ps-controls {
+  flex-shrink: 0;
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.ps-search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.ps-search {
+  font-family: var(--font-dev);
+  font-size: 14px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  flex: 1;
+  min-width: 150px;
+  max-width: 260px;
+}
+.ps-search:focus { border-color: var(--accent); }
+.ps-type-select {
+  font-family: var(--font-dev);
+  font-size: 13px;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+.ps-type-select:focus { border-color: var(--accent); }
+.ps-count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.ps-table-wrap { overflow: auto; flex: 1; }
+.ps-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ps-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-sidebar, var(--bg));
+  border-bottom: 2px solid var(--border);
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  user-select: none;
+}
+.ps-table thead th.dev-text {
+  font-family: var(--font-dev);
+  text-transform: none;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.ps-table tbody tr { border-bottom: 1px solid #ece5d8; transition: background .1s; }
+.ps-table tbody tr:hover { background: var(--hover-bg); }
+.ps-table tbody tr.ps-start { border-top: 2px solid var(--border); }
+.ps-table td { padding: 5px 10px; vertical-align: top; }
+.ps-no       { width: 32px; text-align: right; color: var(--muted); font-size: 12px; padding-right: 6px; white-space: nowrap; }
+.ps-pratyaya { font-family: var(--font-dev); font-size: 15px; font-weight: 700; color: #1a3a5c; white-space: nowrap; width: 80px; max-width: 80px; overflow: hidden; }
+.ps-rupa     { font-family: var(--font-dev); font-size: 13px; color: var(--accent2); white-space: nowrap; width: 60px; max-width: 60px; overflow: hidden; }
+.ps-type     { width: 68px; }
+.ps-badge    { display: inline-block; font-family: var(--font-dev); font-size: 11px; padding: 2px 7px; border-radius: 10px; color: #fff; white-space: nowrap; }
+.ps-sutra    { width: 200px; max-width: 200px; overflow: hidden; }
+.ps-sutra .sutra-link {
+  font-family: var(--font-dev);
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ps-sutra .sutra-link:hover { text-decoration: underline; color: var(--accent2); }
+.ps-examples { font-family: var(--font-dev); font-size: 13px; color: var(--muted); min-width: 100px; }
+
 /* ── Siddhi derivation panel ──────────────────────────────────── */
 .siddhi-group {
   margin-top: 12px;

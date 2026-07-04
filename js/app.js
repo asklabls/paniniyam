@@ -50,8 +50,9 @@ const BOOKS = [
     pages: [
       { id: 'pratyaya', devName: 'प्रत्ययाः', engName: 'Pratyayas', type: 'sub-tree',
         pages: [
-          { id: 'adanta',   devName: 'अदन्त-धातु',  engName: 'Adanta',  type: 'pratyaya-page' },
-          { id: 'anadanta', devName: 'अनदन्त-धातु', engName: 'Anadanta', type: 'pratyaya-page' },
+          { id: 'adanta',        devName: 'अदन्त-धातु',   engName: 'Adanta',       type: 'pratyaya-page'  },
+          { id: 'anadanta',     devName: 'अनदन्त-धातु',  engName: 'Anadanta',     type: 'pratyaya-page'  },
+          { id: 'pratyaya-suchi', devName: 'प्रत्यय-सूची', engName: 'Pratyaya Sūchi', type: 'pratyaya-suchi-panel' },
         ]
       },
       { id: 'shabda',     devName: 'शब्दरूपावली',   engName: 'Śabdarūpāvalī', type: 'shabda-browser' },
@@ -399,6 +400,7 @@ const $aboutPanelNav     = document.getElementById('about-panel-nav');
 const $aboutPanelContent = document.getElementById('about-panel-content');
 const $panelPratyaya     = document.getElementById('panel-pratyaya');
 const $panelShabda       = document.getElementById('panel-shabda');
+const $panelPratyayaSuchi     = document.getElementById('panel-pratyaya-suchi');
 const $panelAvyaya            = document.getElementById('panel-avyaya');
 const $panelVarnochchaaran    = document.getElementById('panel-varnochchaaran');
 const $panelVisuals           = document.getElementById('panel-visuals');
@@ -754,6 +756,7 @@ function showPanel(name) {
   $panelAbout.style.display    = name === 'about'    ? '' : 'none';
   $panelPratyaya.style.display = name === 'pratyaya' ? '' : 'none';
   $panelShabda.style.display   = name === 'shabda'   ? '' : 'none';
+  $panelPratyayaSuchi.style.display     = name === 'pratyaya-suchi'    ? '' : 'none';
   $panelAvyaya.style.display            = name === 'avyaya'            ? '' : 'none';
   $panelVarnochchaaran.style.display    = name === 'varnochchaaran'    ? '' : 'none';
   $panelVisuals.style.display           = name === 'visuals'           ? '' : 'none';
@@ -2364,6 +2367,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showVarnochchaaranPanel(); };
       } else if (page.type === 'legal-page') {
         clickFn = () => { closeDrawer(); showLegalPage(page.id); };
+      } else if (page.type === 'pratyaya-suchi-panel') {
+        clickFn = () => { closeDrawer(); showPratyayaSuchi(); };
       } else if (page.type === 'avyaya-panel') {
         clickFn = () => { closeDrawer(); showAvyayaPanel(); };
       } else if (page.type === 'pratyaya-page') {
@@ -3752,6 +3757,241 @@ async function showPratyayaPage(pageId) {
 
   panel.appendChild(tabBar);
   panel.appendChild(tabContent);
+}
+
+// ── Pratyaya Sūchi (index table of all pratyayas) ─────────────────────────────
+
+async function showPratyayaSuchi() {
+  showPanel('pratyaya-suchi');
+  const panel = $panelPratyayaSuchi;
+  panel.innerHTML = '<div class="pratyaya-loading">…</div>';
+
+  let rows;
+  try {
+    if (!bookData['pratyaya-suchi']) {
+      const res = await fetch(`${FORMS_BASE}/pratyaya_suchi.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      bookData['pratyaya-suchi'] = await res.json();
+    }
+    rows = bookData['pratyaya-suchi'];
+  } catch (_) {
+    panel.innerHTML = '<div class="pratyaya-empty">Could not load pratyaya data.</div>';
+    return;
+  }
+
+  panel.innerHTML = '';
+
+  // ── Sticky controls (pills + search + type filter) ──────────────────────────
+  const controls = document.createElement('div');
+  controls.className = 'ps-controls';
+
+  const searchRow = document.createElement('div');
+  searchRow.className = 'ps-search-row';
+
+  const searchInput = document.createElement('input');
+  searchInput.type = 'search';
+  searchInput.placeholder = 'प्रत्यय खोजें…';
+  searchInput.className = 'ps-search dev-text';
+  searchInput.autocomplete = 'off';
+  searchInput.spellcheck = false;
+
+  const typeSelect = document.createElement('select');
+  typeSelect.className = 'ps-type-select dev-text';
+  // "All types" option
+  const _optAll = document.createElement('option');
+  _optAll.value = ''; _optAll.textContent = translit('सब प्रकार');
+  typeSelect.appendChild(_optAll);
+  // Build remaining options dynamically from actual data to avoid Unicode mismatch
+  const PS_TYPE_SHORT = {
+    '\u0915\u0943\u0924\u094d\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0915\u0943\u0924\u094d',
+    '\u0935\u093f\u0915\u0930\u0923\u0903': '\u0935\u093f\u0915\u0930\u0923',
+    '\u0924\u0926\u094d\u0927\u093f\u0924\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0924\u0926\u094d\u0927\u093f\u0924\u094d',
+    '\u0938\u092e\u093e\u0938\u093e\u0928\u094d\u0924\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0938\u092e\u093e\u0938\u093e\u0928\u094d\u0924',
+    '\u0938\u0941\u092a\u094d\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0938\u0941\u092a\u094d',
+    '\u0924\u093f\u0919\u094d\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0924\u093f\u0919\u094d',
+    '\u0938\u094d\u0924\u094d\u0930\u0940\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0938\u094d\u0924\u094d\u0930\u0940',
+    '\u0909\u0923\u093e\u0926\u093f\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903': '\u0909\u0923\u093e\u0926\u093f',
+  };
+  const PS_TYPE_ORDER = [
+    '\u0915\u0943\u0924\u094d\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+    '\u0935\u093f\u0915\u0930\u0923\u0903',
+    '\u0924\u0926\u094d\u0927\u093f\u0924\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+    '\u0938\u092e\u093e\u0938\u093e\u0928\u094d\u0924\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+    '\u0938\u0941\u092a\u094d\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+    '\u0924\u093f\u0919\u094d\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+    '\u0938\u094d\u0924\u094d\u0930\u0940\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+    '\u0909\u0923\u093e\u0926\u093f\u092a\u094d\u0930\u0924\u094d\u092f\u092f\u0903',
+  ];
+  const _seenTypes = new Set(rows.map(r => r.type).filter(Boolean));
+  PS_TYPE_ORDER.filter(t => _seenTypes.has(t)).forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    const short = PS_TYPE_SHORT[t] || t;
+    opt.textContent = translit(short);
+    typeSelect.appendChild(opt);
+  });
+
+  const countSpan = document.createElement('span');
+  countSpan.className = 'ps-count';
+
+  searchRow.appendChild(searchInput);
+  searchRow.appendChild(typeSelect);
+  searchRow.appendChild(countSpan);
+  controls.appendChild(searchRow);
+
+  // Letter pills
+  const letters = [...new Set(rows.map(r => r.first).filter(Boolean))].sort((a, b) => a.codePointAt(0) - b.codePointAt(0));
+  const pillBar = document.createElement('div');
+  pillBar.className = 'gana-letter-pills';
+
+  const allPill = document.createElement('button');
+  allPill.className = 'avyaya-pill active';
+  allPill.dataset.letter = '';
+  allPill._devText = 'सर्व';
+  allPill.textContent = translit('सर्व');
+  pillBar.appendChild(allPill);
+
+  for (const l of letters) {
+    const pill = document.createElement('button');
+    pill.className = 'avyaya-pill dev-text';
+    pill.dataset.letter = l;
+    pill._devText = l;
+    pill.textContent = translit(l);
+    pillBar.appendChild(pill);
+  }
+  controls.appendChild(pillBar);
+  panel.appendChild(controls);
+
+  // ── Table ───────────────────────────────────────────────────────────────────
+  const wrap = document.createElement('div');
+  wrap.className = 'ps-table-wrap';
+
+  const table = document.createElement('table');
+  table.className = 'ps-table';
+
+  const thead = document.createElement('thead');
+  thead.innerHTML =
+    '<tr>' +
+    '<th>#</th>' +
+    '<th class="dev-text">प्रत्यय</th>' +
+    '<th class="dev-text">रूप</th>' +
+    '<th>अधिकार</th>' +
+    '<th class="dev-text">सूत्रम्</th>' +
+    '<th class="dev-text">उदाहरणम्</th>' +
+    '</tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  tbody.id = 'ps-tbody';
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  panel.appendChild(wrap);
+
+  // ── Render rows ─────────────────────────────────────────────────────────────
+  let state = { text: '', type: '', letter: '' };
+
+  function renderRows() {
+    tbody.innerHTML = '';
+    const ft = state.text.trim();
+    const tp = state.type;
+    const fl = state.letter;
+    let prevNo = null, shown = 0;
+
+    for (const r of rows) {
+      const matchL = !fl || r.first === fl;
+      const matchT = !tp || r.type === tp;
+      const matchS = !ft ||
+        r.pratyaya.includes(ft) ||
+        r.sutra_text.includes(ft) ||
+        r.sutra.includes(ft) ||
+        r.examples.join(' ').includes(ft);
+      if (!matchL || !matchT || !matchS) continue;
+      shown++;
+
+      const isCont = (r.no === prevNo);
+      prevNo = r.no;
+
+      const tr = document.createElement('tr');
+      tr.className = isCont ? 'ps-cont' : 'ps-start';
+
+      // # cell
+      const noTd = document.createElement('td');
+      noTd.className = 'ps-no';
+      noTd.textContent = isCont ? '' : r.no;
+      tr.appendChild(noTd);
+
+      // Pratyaya
+      const pratTd = document.createElement('td');
+      pratTd.className = 'ps-pratyaya dev-text';
+      pratTd._devText = isCont ? '' : r.pratyaya;
+      pratTd.textContent = isCont ? '' : translit(r.pratyaya);
+      tr.appendChild(pratTd);
+
+      // Rūpa (final form)
+      const rupaTd = document.createElement('td');
+      rupaTd.className = 'ps-rupa dev-text';
+      rupaTd._devText = isCont ? '' : r.final;
+      rupaTd.textContent = isCont ? '' : translit(r.final || '—');
+      tr.appendChild(rupaTd);
+
+      // Adhikāra (type badge)
+      const typeTd = document.createElement('td');
+      typeTd.className = 'ps-type';
+      if (!isCont) {
+        const badge = document.createElement('span');
+        badge.className = 'ps-badge';
+        badge.style.background = r.type_color;
+        badge._devText = r.type_short;
+        badge.textContent = translit(r.type_short);
+        typeTd.appendChild(badge);
+      }
+      tr.appendChild(typeTd);
+
+      // Sūtram (clickable sutra-link, hover → artha popup)
+      const sutraTd = document.createElement('td');
+      sutraTd.className = 'ps-sutra';
+      if (r.sutra_key) {
+        const a = document.createElement('a');
+        a.className = 'sutra-link dev-text';
+        a.href = `?sutra=${r.sutra}`;
+        a.dataset.id = r.sutra_key;
+        a._devText = `${r.sutra_text} ${r.sutra}`;
+        a.title = `${r.sutra_text} ${r.sutra}`;
+        a.textContent = `${translit(r.sutra_text)} ${r.sutra}`;
+        sutraTd.appendChild(a);
+      } else {
+        sutraTd.className += ' dev-text';
+        sutraTd._devText = r.sutra_text;
+        sutraTd.textContent = translit(r.sutra_text);
+      }
+      tr.appendChild(sutraTd);
+
+      // Examples
+      const exTd = document.createElement('td');
+      exTd.className = 'ps-examples dev-text';
+      const exText = r.examples.length ? r.examples.join(' · ') : '—';
+      exTd._devText = exText;
+      exTd.textContent = translit(exText);
+      tr.appendChild(exTd);
+
+      tbody.appendChild(tr);
+    }
+
+    countSpan.textContent = `${shown} / ${rows.length}`;
+  }
+
+  // ── Event listeners ─────────────────────────────────────────────────────────
+  searchInput.addEventListener('input', e => { state.text = e.target.value; renderRows(); });
+  typeSelect.addEventListener('change', e => { state.type = e.target.value; renderRows(); });
+  pillBar.addEventListener('click', e => {
+    const pill = e.target.closest('.avyaya-pill');
+    if (!pill) return;
+    state.letter = pill.dataset.letter;
+    pillBar.querySelectorAll('.avyaya-pill').forEach(p => p.classList.toggle('active', p === pill));
+    renderRows();
+  });
+
+  renderRows();
 }
 
 function renderPratyayaSections(lakaras, container) {
@@ -8769,6 +9009,14 @@ async function init() {
     document.querySelector('.loading-text').textContent = `Error: ${err.message}`;
   }
 }
+
+// ── Global sutra-link click (works in any panel) ─────────────────────────────
+document.addEventListener('click', e => {
+  const link = e.target.closest('.sutra-link');
+  if (!link || !link.dataset.id) return;
+  e.preventDefault();
+  gotoSutra(link.dataset.id);
+});
 
 // ── Global sutra-link hover (works in commentary, meta, everywhere) ───────────
 document.addEventListener('mouseover', e => {
