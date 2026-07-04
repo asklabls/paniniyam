@@ -721,6 +721,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   padding: 4px 16px 0;
   background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border);
+  position: relative;
 }
 .detail-tab {
   padding: 7px 10px;
@@ -896,7 +897,8 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   font-family: 'Noto Sans', system-ui, sans-serif;
 }
 .notes-owner-signin {
-  margin-left: auto;
+  position: absolute;
+  right: 4px; top: 50%; transform: translateY(-50%);
   background: none; border: none; cursor: pointer;
   font-size: .85em; color: var(--muted);
   opacity: .4; padding: 2px 4px;
