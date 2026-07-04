@@ -2102,7 +2102,7 @@ function buildSutraMeta(sutra) {
   // समासः — from pravachanam.json when available
   addRow('समासः', val => {
     const s = bookData['pravachanam']?.[sutra.i]?.sm;
-    if (s) val.appendChild(devEl('span', 'dev-text', s));
+    if (s) val.appendChild(devEl('span', 'dev-text', s.replace(/<\/?u>/g, '')));
     else addEmpty(val);
   });
 
@@ -2110,7 +2110,23 @@ function buildSutraMeta(sutra) {
   addRow('अनुवृत्तिः', val => {
     const anProse = bookData['pravachanam']?.[sutra.i]?.an;
     if (anProse) {
-      val.appendChild(devEl('span', 'dev-text', anProse));
+      // Linkify (A.B.C) sutra refs in prose
+      const REF_RE = /\((\d+\.\d+\.\d+)\)/g;
+      let last = 0, m;
+      while ((m = REF_RE.exec(anProse)) !== null) {
+        if (m.index > last) val.appendChild(devEl('span', '', anProse.slice(last, m.index)));
+        const [a2, p2, n2] = m[1].split('.');
+        const id2 = `${a2}${p2}${n2.padStart(3, '0')}`;
+        const a = document.createElement('a');
+        a.className = 'sutra-link';
+        a.href = '#';
+        a.dataset.id = id2;
+        a.textContent = `(${m[1]})`;
+        a.addEventListener('click', e => { e.preventDefault(); gotoSutra(id2); });
+        val.appendChild(a);
+        last = m.index + m[0].length;
+      }
+      if (last < anProse.length) val.appendChild(devEl('span', '', anProse.slice(last)));
       return;
     }
     const parts = sutra.an ? sutra.an.split('##').filter(Boolean) : [];
