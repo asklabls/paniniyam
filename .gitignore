@@ -7,6 +7,8 @@ visuals/
 forms/shabda_words.tsv
 forms/shabda_niyam.json
 forms/shabda_sample.json
+forms/shabda_words.tsv
 forms/varnochchaaran-shiksha.json
+forms/pratyaya_suchi.json
 google*.html
 .DS_Store
