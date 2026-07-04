@@ -472,6 +472,9 @@ function _dhatuMapInvalidate() { _dhatuMapCache = null; }
 function renderCommentaryHTML(raw) {
   if (!raw) return '<span class="no-data">n/a</span>';
 
+  // Linkify bare (text A.B.C) sutra refs → (text [[A.B.C]]) so [[]] handler picks them up
+  raw = raw.replace(/\(([^)\[]*?)(\d+\.\d+\.\d+)\)/g, (_, pre, ref) => `(${pre}[[${ref}]])`);
+
   // ── Inline renderer: handles <<>>, [[]], **bold**, plain text ─────────────
   function renderInline(text) {
     let html = '', buf = '', i = 0;
@@ -2668,10 +2671,10 @@ async function renderPravachanamTab(panel, sutraId) {
     lbl.className = 'prav-lbl dev-text';
     lbl._devText = 'हिन्दी';
     lbl.textContent = translit('हिन्दी');
-    const val = document.createElement('span');
-    val.className = 'prav-val dev-text';
-    val._devText = entry.h;
-    val.textContent = translit(entry.h);
+    const val = document.createElement('div');
+    val.className = 'prav-val commentary-panel';
+    val._rawCommentary = entry.h;
+    setCommentaryHTML(val, entry.h);
     row.appendChild(lbl);
     row.appendChild(val);
     panel.appendChild(row);
@@ -2838,10 +2841,10 @@ async function showSiddhiTip(el, sutraId) {
     lbl.className = 'artha-lbl dev-text';
     lbl.textContent = translit('अर्थः');
     lbl._devText = 'अर्थः';
-    const val = document.createElement('span');
-    val.className = 'artha-val dev-text';
-    val._devText = entry.a;
-    val.textContent = translit(entry.a);
+    const val = document.createElement('div');
+    val.className = 'artha-val commentary-panel';
+    val._rawCommentary = entry.a;
+    setCommentaryHTML(val, entry.a);
     row.appendChild(lbl);
     row.appendChild(val);
     body.appendChild(row);
@@ -2849,10 +2852,10 @@ async function showSiddhiTip(el, sutraId) {
   if (entry?.h) {
     const row = document.createElement('div');
     row.className = 'artha-row artha-hindi';
-    const val = document.createElement('span');
-    val.className = 'dev-text';
-    val._devText = entry.h;
-    val.textContent = translit(entry.h);
+    const val = document.createElement('div');
+    val.className = 'commentary-panel';
+    val._rawCommentary = entry.h;
+    setCommentaryHTML(val, entry.h);
     row.appendChild(val);
     body.appendChild(row);
   }

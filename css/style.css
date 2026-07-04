@@ -1817,6 +1817,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: #1a1a2e;
   font-size: .93em;
 }
+.artha-val p, .artha-hindi p { margin: 0; }
 .artha-hindi {
   border-top: 1px solid #eee;
   padding-top: 5px;
