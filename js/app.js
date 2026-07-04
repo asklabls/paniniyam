@@ -2747,6 +2747,8 @@ async function buildSiddhiPanel(sutraId, wrap, inCard) {
 
 let $arthaPopup = null;
 let arthaHideTimer = null;
+let $arthaPopup2 = null;
+let arthaHideTimer2 = null;
 
 function getArthaPopup() {
   if (!$arthaPopup) {
@@ -2754,11 +2756,29 @@ function getArthaPopup() {
     $arthaPopup.className = 'artha-popup';
     $arthaPopup.addEventListener('mouseenter', () => {
       clearTimeout(arthaHideTimer);
+      clearTimeout(arthaHideTimer2);
     });
     $arthaPopup.addEventListener('mouseleave', hideSiddhiTip);
     document.body.appendChild($arthaPopup);
   }
   return $arthaPopup;
+}
+
+function getArthaPopup2() {
+  if (!$arthaPopup2) {
+    $arthaPopup2 = document.createElement('div');
+    $arthaPopup2.className = 'artha-popup';
+    $arthaPopup2.addEventListener('mouseenter', () => {
+      clearTimeout(arthaHideTimer);
+      clearTimeout(arthaHideTimer2);
+    });
+    $arthaPopup2.addEventListener('mouseleave', () => {
+      hideSiddhiTip();
+      hideSiddhiTip2();
+    });
+    document.body.appendChild($arthaPopup2);
+  }
+  return $arthaPopup2;
 }
 
 let _arthaDataPromise = null;
@@ -2793,13 +2813,14 @@ async function loadConceptsIndex() {
   return conceptsIndex;
 }
 
-async function showSiddhiTip(el, sutraId) {
-  clearTimeout(arthaHideTimer);
+async function showSiddhiTip(el, sutraId, level = 1) {
+  const isL2 = level === 2;
+  if (isL2) clearTimeout(arthaHideTimer2);
+  else clearTimeout(arthaHideTimer);
   const sutra = sutraIndex[sutraId];
   if (!sutra) return;
-  if ($arthaPopup && $arthaPopup.contains(el)) return; // don't nest popup inside itself
 
-  const popup = getArthaPopup();
+  const popup = isL2 ? getArthaPopup2() : getArthaPopup();
   popup.innerHTML = '';
 
   // Header: ref + sutra text + visual icon placeholder
@@ -2828,7 +2849,7 @@ async function showSiddhiTip(el, sutraId) {
   popup.appendChild(body);
 
   // Position immediately so popup appears without delay
-  positionArthaPopup(el);
+  positionArthaPopup(popup, el);
   popup.classList.add('visible');
 
   // Fill content + check for sutra visual in parallel
@@ -2872,8 +2893,7 @@ async function showSiddhiTip(el, sutraId) {
   }
 }
 
-function positionArthaPopup(el) {
-  const popup = getArthaPopup();
+function positionArthaPopup(popup, el) {
   const r = el.getBoundingClientRect();
   const popW = 380;
   const margin = 8;
@@ -2895,6 +2915,13 @@ function positionArthaPopup(el) {
 function hideSiddhiTip() {
   arthaHideTimer = setTimeout(() => {
     if ($arthaPopup) $arthaPopup.classList.remove('visible');
+    hideSiddhiTip2(); // cascade: hide level-2 when level-1 hides
+  }, 120);
+}
+
+function hideSiddhiTip2() {
+  arthaHideTimer2 = setTimeout(() => {
+    if ($arthaPopup2) $arthaPopup2.classList.remove('visible');
   }, 120);
 }
 
@@ -8746,11 +8773,16 @@ async function init() {
 // ── Global sutra-link hover (works in commentary, meta, everywhere) ───────────
 document.addEventListener('mouseover', e => {
   const link = e.target.closest('.sutra-link');
-  if (link && link.dataset.id) showSiddhiTip(link, link.dataset.id);
+  if (!link || !link.dataset.id) return;
+  if ($arthaPopup2?.contains(link)) return;           // max 2 levels
+  const level = $arthaPopup?.contains(link) ? 2 : 1;
+  showSiddhiTip(link, link.dataset.id, level);
 });
 document.addEventListener('mouseout', e => {
   const link = e.target.closest('.sutra-link');
-  if (link) hideSiddhiTip();
+  if (!link) return;
+  if ($arthaPopup?.contains(link)) hideSiddhiTip2();  // leaving link in popup1 → hide popup2
+  else hideSiddhiTip();
 });
 
 // ── Global concept-link hover ─────────────────────────────────────────────────
