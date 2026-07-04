@@ -1745,7 +1745,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   text-overflow: ellipsis;
 }
 .ps-sutra .sutra-link:hover { text-decoration: underline; color: var(--accent2); }
-.ps-examples { font-family: var(--font-dev); font-size: 13px; color: var(--muted); min-width: 100px; }
+.ps-examples { font-family: var(--font-dev); font-size: 13px; color: var(--muted); min-width: 100px; white-space: pre-wrap; }
 
 /* ── Pratyaya sūchi — landscape mobile fix ───────────────────── */
 /* When height is tight (phone landscape), collapse controls to one scrollable row */

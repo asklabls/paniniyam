@@ -3967,12 +3967,12 @@ async function showPratyayaSuchi() {
       }
       tr.appendChild(sutraTd);
 
-      // Examples (full ua field)
+      // Examples (full ua field — each (word) group on its own line)
       const exTd = document.createElement('td');
       exTd.className = 'ps-examples dev-text';
-      const exText = r.ua || '—';
-      exTd._devText = exText;
-      exTd.textContent = translit(exText);
+      const exRaw = r.ua ? r.ua.replace(/\s*\((?=\S)/g, '\n(').trim() : '—';
+      exTd._devText = exRaw;
+      exTd.textContent = translit(exRaw);
       tr.appendChild(exTd);
 
       tbody.appendChild(tr);
