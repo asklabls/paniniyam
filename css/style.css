@@ -63,7 +63,9 @@
 
 html, body { height: 100%; overflow: hidden; }
 body { font-family: var(--font-dev);
-       background: var(--bg); color: var(--text); font-size: 15px; }
+       background: var(--bg); color: var(--text); font-size: 15px;
+       -webkit-user-select: none; user-select: none; }
+input, textarea, select { -webkit-user-select: text; user-select: text; }
 
 /* Sanskrit / Indic text — Tiro Devanagari Sanskrit */
 .sutra-text, .detail-sutra-full, .detail-split,

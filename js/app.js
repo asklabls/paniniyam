@@ -9164,6 +9164,9 @@ document.addEventListener('click', e => {
 window.gotoSutra = gotoSutra;
 init();
 
+// ── Content protection ────────────────────────────────────────────────────────
+document.addEventListener('contextmenu', e => e.preventDefault());
+
 // ── Service worker registration (offline support) ─────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
