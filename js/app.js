@@ -3905,7 +3905,7 @@ async function showPratyayaSuchi() {
         r.pratyaya.includes(ft) ||
         r.sutra_text.includes(ft) ||
         r.sutra.includes(ft) ||
-        r.examples.join(' ').includes(ft);
+        (r.ua || '').includes(ft);
       if (!matchL || !matchT || !matchS) continue;
       shown++;
 
@@ -3967,10 +3967,10 @@ async function showPratyayaSuchi() {
       }
       tr.appendChild(sutraTd);
 
-      // Examples
+      // Examples (full ua field)
       const exTd = document.createElement('td');
       exTd.className = 'ps-examples dev-text';
-      const exText = r.examples.length ? r.examples.join(' · ') : '—';
+      const exText = r.ua || '—';
       exTd._devText = exText;
       exTd.textContent = translit(exText);
       tr.appendChild(exTd);
