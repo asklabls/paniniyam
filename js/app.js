@@ -99,7 +99,6 @@ const TAB_GROUPS = [
       { id: 'kashika',  devLabel: 'काशिका',       dataPath: 'sutraani/kashika.txt'         },
       { id: 'vartika',  devLabel: 'वार्तिकम्',     dataPath: 'sutraani/vartika.txt'         },
       { id: 'bhashya',  devLabel: 'महाभाष्यम्',    dataPath: 'sutraani/bhashya.txt'         },
-      { id: 'vasu_eng', devLabel: 'CS Vasu Eng',   dataPath: 'sutraani/vasu_english.txt', latin: true },
     ],
   },
   {
@@ -112,6 +111,7 @@ const TAB_GROUPS = [
       { id: 'siddhanta', devLabel: 'सिद्धान्तकौमुदी', dataPath: 'sutraani/kaumudi.txt'          },
       { id: 'laghu',     devLabel: 'लघुकौमुदी',       dataPath: 'sutraani/laghukaumudi.txt'     },
       { id: 'balamano',  devLabel: 'बालमनोरमा',       dataPath: 'sutraani/balamanorama.txt'     },
+      { id: 'vasu_eng',  devLabel: 'CS Vasu Eng',      dataPath: 'sutraani/vasu_english.txt', latin: true },
     ],
   },
   {
