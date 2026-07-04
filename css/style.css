@@ -1747,6 +1747,26 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .ps-sutra .sutra-link:hover { text-decoration: underline; color: var(--accent2); }
 .ps-examples { font-family: var(--font-dev); font-size: 13px; color: var(--muted); min-width: 100px; }
 
+/* ── Pratyaya sūchi — landscape mobile fix ───────────────────── */
+/* When height is tight (phone landscape), collapse controls to one scrollable row */
+@media (max-height: 500px) {
+  .ps-controls { padding: 4px 10px; }
+  .ps-search-row { margin-bottom: 4px; }
+  .ps-controls .gana-letter-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 0 6px;
+    min-height: unset;
+    gap: 4px;
+  }
+  .ps-controls .avyaya-pill {
+    padding: 3px 10px;
+    font-size: .80em;
+    flex-shrink: 0;
+  }
+}
+
 /* ── Siddhi derivation panel ──────────────────────────────────── */
 .siddhi-group {
   margin-top: 12px;
