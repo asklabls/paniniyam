@@ -3769,7 +3769,7 @@ async function showPratyayaSuchi() {
   let rows;
   try {
     if (!bookData['pratyaya-suchi']) {
-      const res = await fetch(`${PRIVATE_BASE || FORMS_BASE}/pratyaya_suchi.json`);
+      const res = await fetch(`${PRIVATE_BASE}/pratyaya_suchi.json`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       bookData['pratyaya-suchi'] = await res.json();
     }
