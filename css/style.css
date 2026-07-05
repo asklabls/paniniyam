@@ -2842,3 +2842,35 @@ table.commentary-md-table thead tr {
 .km-tip-settva { font-size: .8em; color: var(--muted); border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; margin-left: auto; }
 .km-tip-artha { color: var(--text); font-size: .9em; }
 .km-tip-eng { color: var(--muted); font-size: .88em; }
+
+/* ── Pratyahara card (Shiva Sutra page) ─────────────────────────────────── */
+.ph-card .sutra-row { cursor: pointer; }
+.ph-detail {
+  display: block;
+  padding: 10px 12px 14px;
+  border-top: 1px solid var(--border);
+}
+.ph-pill-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 12px;
+}
+.ph-pill {
+  font-size: .88em;
+  padding: 4px 12px;
+}
+.ph-svg-area {
+  display: none;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+.ph-svg-area.ph-svg-visible {
+  display: block;
+}
+.ph-svg-area svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

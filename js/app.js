@@ -7034,6 +7034,99 @@ function wireFeedbackForm(form) {
 function renderShivaSutra(data) {
   setListHeader('शिवसूत्राणि', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
+
+  // ── Pratyahara card ───────────────────────────────────────────────────────
+  const PRATYAHARA_LIST = [
+    'अक्','अच्','अट्','अण्','अम्','अल्','अश्',
+    'इक्','इच्','इण्',
+    'उक्',
+    'एङ्','एच्','ऐच्',
+    'खय्','खर्',
+    'ङम्',
+    'चय्','चर्',
+    'छव्',
+    'जश्',
+    'झय्','झर्','झल्','झश्','झष्',
+    'बश्','भष्',
+    'मय्',
+    'यञ्','यण्','यम्','यय्','यर्',
+    'रल्',
+    'वर्','वल्','वश्',
+    'शर्','शल्',
+    'हल्','हश्',
+  ];
+
+  const phCard = document.createElement('div');
+  phCard.className = 'sutra-card ph-card';
+
+  const phRow = document.createElement('div');
+  phRow.className = 'sutra-row';
+  phRow.appendChild(devEl('span', 'sutra-text', 'प्रत्याहाराः'));
+  const phCount = document.createElement('span');
+  phCount.className = 'sutra-id';
+  phCount.textContent = `${PRATYAHARA_LIST.length}`;
+  phRow.appendChild(phCount);
+  phCard.appendChild(phRow);
+
+  const phBody = document.createElement('div');
+  phBody.className = 'sutra-detail ph-detail';
+
+  const pillBar = document.createElement('div');
+  pillBar.className = 'ph-pill-bar';
+
+  const svgArea = document.createElement('div');
+  svgArea.className = 'ph-svg-area';
+
+  let activePill = null;
+
+  for (const term of PRATYAHARA_LIST) {
+    const pill = document.createElement('button');
+    pill.className = 'avyaya-pill ph-pill dev-text';
+    pill._devText = term;
+    pill.textContent = translit(term);
+    pill.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (activePill === pill) {
+        pill.classList.remove('active');
+        svgArea.innerHTML = '';
+        svgArea.classList.remove('ph-svg-visible');
+        activePill = null;
+        return;
+      }
+      if (activePill) activePill.classList.remove('active');
+      activePill = pill;
+      pill.classList.add('active');
+      svgArea.innerHTML = '<span class="concept-popup-loading">…</span>';
+      svgArea.classList.add('ph-svg-visible');
+      if (!DIAGRAM_BASE) { svgArea.innerHTML = '—'; return; }
+      if (conceptSvgCache[term]) {
+        svgArea.innerHTML = conceptSvgCache[term];
+        applyConceptSvgRetranslit(svgArea);
+        return;
+      }
+      try {
+        const r = await fetch(`${DIAGRAM_BASE}/concepts/pratyahara/${encodeURIComponent(term)}.svg`);
+        if (!r.ok) { svgArea.innerHTML = '<span style="padding:16px;display:block">—</span>'; return; }
+        const svgText = await r.text();
+        conceptSvgCache[term] = svgText;
+        svgArea.innerHTML = svgText;
+        applyConceptSvgRetranslit(svgArea);
+      } catch (_) { svgArea.innerHTML = '<span style="padding:16px;display:block">—</span>'; }
+    });
+    pillBar.appendChild(pill);
+  }
+
+  phBody.appendChild(pillBar);
+  phBody.appendChild(svgArea);
+  phCard.appendChild(phBody);
+  // Clicking the card header row toggles the body open/closed
+  phRow.addEventListener('click', () => {
+    const open = phBody.style.display !== 'none';
+    phBody.style.display = open ? 'none' : '';
+  });
+  $sutraList.appendChild(phCard);
+
+  // ── 14 Shiva Sutras ───────────────────────────────────────────────────────
   for (const s of data) {
     const card = document.createElement('div');
     card.className = 'sutra-card';
