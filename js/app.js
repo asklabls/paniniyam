@@ -3939,9 +3939,12 @@ async function showPratyayaSuchi() {
       const typeTd = document.createElement('td');
       typeTd.className = 'ps-type';
       if (!isCont) {
+        const PS_TYPE_CLASS = {
+          'कृत्': 'KRT', 'तद्धित': 'TD', 'समासान्त': 'SM',
+          'विकरण': 'VK', 'सुप्': 'SUP', 'तिङ्': 'TIN', 'स्त्री': 'STR',
+        };
         const badge = document.createElement('span');
-        badge.className = 'ps-badge';
-        badge.style.background = r.type_color;
+        badge.className = `ps-badge badge-${PS_TYPE_CLASS[r.type_short] || 'AD'}`;
         badge._devText = r.type_short;
         badge.textContent = translit(r.type_short);
         typeTd.appendChild(badge);

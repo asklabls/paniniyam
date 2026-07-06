@@ -25,6 +25,14 @@
   --badge-V:    #2e7d32;
   --badge-AD:   #e8952a;
   --badge-AT:   #0f766e;
+  /* pratyaya-suchi type badge colours */
+  --badge-KRT:  #6abf70;
+  --badge-TD:   #e8952a;
+  --badge-SM:   #a875d5;
+  --badge-VK:   #4dadc8;
+  --badge-SUP:  #b8a888;
+  --badge-TIN:  #9ab8b4;
+  --badge-STR:  #e8a060;
   /* sutra ID / reference number colour — neutral, no colour cast */
   --num-color:  #9a8a7a;
 }
@@ -37,6 +45,8 @@
   --border: #c8d3e8; --text: #1e293b; --muted: #64748b; --hover-bg: #dde6f5;
   --badge-S: #1d4ed8; --badge-P: #7e22ce; --badge-V: #15803d;
   --badge-AD: #f97316; --badge-AT: #0e7490;
+  --badge-KRT: #4ade80; --badge-TD: #fb923c; --badge-SM: #c084fc;
+  --badge-VK: #38bdf8; --badge-SUP: #b8bec8; --badge-TIN: #94d5d0; --badge-STR: #fdba74;
   --num-color: #8a9aaa;
 }
 [data-theme="forest"] {
@@ -46,6 +56,8 @@
   --border: #b8d8b0; --text: #1a2e1a; --muted: #4a7050; --hover-bg: #d0ecc8;
   --badge-S: #166534; --badge-P: #6b21a8; --badge-V: #14532d;
   --badge-AD: #d97706; --badge-AT: #065f46;
+  --badge-KRT: #5aaa60; --badge-TD: #d97706; --badge-SM: #9060c0;
+  --badge-VK: #3a9ab8; --badge-SUP: #a8a890; --badge-TIN: #7aa8a4; --badge-STR: #d08840;
   --num-color: #8a9088;
 }
 [data-theme="saffron"] {
@@ -55,6 +67,8 @@
   --border: #fcd090; --text: #292524; --muted: #92400e; --hover-bg: #fde9b0;
   --badge-S: #b45309; --badge-P: #7e22ce; --badge-V: #15803d;
   --badge-AD: #ea580c; --badge-AT: #065f46;
+  --badge-KRT: #6abf70; --badge-TD: #ea7820; --badge-SM: #9868c8;
+  --badge-VK: #4898b8; --badge-SUP: #c0aa80; --badge-TIN: #90b8b0; --badge-STR: #e89048;
   --num-color: #9a8a70;
 }
 [data-theme="night"] {
@@ -64,6 +78,8 @@
   --border: #45475a; --text: #cdd6f4; --muted: #a6adc8; --hover-bg: #45475a;
   --badge-S: #89b4fa; --badge-P: #cba6f7; --badge-V: #a6e3a1;
   --badge-AD: #fbbf24; --badge-AT: #94e2d5;
+  --badge-KRT: #a6e3a1; --badge-TD: #fab387; --badge-SM: #cba6f7;
+  --badge-VK: #89dceb; --badge-SUP: #a6adc8; --badge-TIN: #94e2d5; --badge-STR: #f9e2af;
   --num-color: #7c8098;
 }
 
@@ -1736,22 +1752,26 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .ps-table td { padding: 5px 10px; vertical-align: top; }
 .ps-no       { width: 32px; text-align: right; color: var(--muted); font-size: 12px; padding-right: 6px; white-space: nowrap; }
 .ps-pratyaya { font-family: var(--font-dev); font-size: 15px; font-weight: 700; color: #1a3a5c; white-space: nowrap; width: 80px; max-width: 80px; overflow: hidden; }
-.ps-rupa     { font-family: var(--font-dev); font-size: 13px; color: var(--accent2); white-space: nowrap; width: 60px; max-width: 60px; overflow: hidden; }
+.ps-rupa     { font-family: var(--font-dev); font-size: 13px; color: var(--text); white-space: nowrap; width: 60px; max-width: 60px; overflow: hidden; }
 .ps-type     { width: 68px; }
 .ps-badge    { display: inline-block; font-family: var(--font-dev); font-size: 11px; padding: 2px 7px; border-radius: 10px; color: #1a0800; white-space: nowrap; }
+.badge-KRT { background: var(--badge-KRT); }
+.badge-TD  { background: var(--badge-TD);  }
+.badge-SM  { background: var(--badge-SM);  }
+.badge-VK  { background: var(--badge-VK);  }
+.badge-SUP { background: var(--badge-SUP); }
+.badge-TIN { background: var(--badge-TIN); }
+.badge-STR { background: var(--badge-STR); }
 .ps-sutra    { width: 200px; max-width: 200px; overflow: hidden; }
 .ps-sutra .sutra-link {
   font-family: var(--font-dev);
   font-size: 13px;
-  color: var(--accent);
-  text-decoration: none;
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.ps-sutra .sutra-link:hover { text-decoration: underline; color: var(--accent2); }
-.ps-examples { font-family: var(--font-dev); font-size: 13px; color: var(--muted); min-width: 100px; white-space: pre-wrap; }
+.ps-examples { font-family: var(--font-dev); font-size: 13px; color: var(--text); min-width: 100px; white-space: pre-wrap; }
 
 /* ── Pratyaya sūchi — landscape mobile fix ───────────────────── */
 /* When height is tight (phone landscape), collapse controls to one scrollable row */
