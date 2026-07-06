@@ -23,8 +23,10 @@
   --badge-S:    #1a6b8a;
   --badge-P:    #6b3a8a;
   --badge-V:    #2e7d32;
-  --badge-AD:   #b45309;
+  --badge-AD:   #e8952a;
   --badge-AT:   #0f766e;
+  /* sutra ID / reference number colour — neutral, no colour cast */
+  --num-color:  #9a8a7a;
 }
 
 /* ── Colour themes ─────────────────────────────────────────────── */
@@ -34,7 +36,8 @@
   --accent: #3b82f6; --accent2: #f97316;
   --border: #c8d3e8; --text: #1e293b; --muted: #64748b; --hover-bg: #dde6f5;
   --badge-S: #1d4ed8; --badge-P: #7e22ce; --badge-V: #15803d;
-  --badge-AD: #c2410c; --badge-AT: #0e7490;
+  --badge-AD: #f97316; --badge-AT: #0e7490;
+  --num-color: #8a9aaa;
 }
 [data-theme="forest"] {
   --bg: #f2f8f0; --bg-sidebar: #e4f0e0; --bg-card: #ffffff;
@@ -42,7 +45,8 @@
   --accent: #2d9c58; --accent2: #c89020;
   --border: #b8d8b0; --text: #1a2e1a; --muted: #4a7050; --hover-bg: #d0ecc8;
   --badge-S: #166534; --badge-P: #6b21a8; --badge-V: #14532d;
-  --badge-AD: #92400e; --badge-AT: #065f46;
+  --badge-AD: #d97706; --badge-AT: #065f46;
+  --num-color: #8a9088;
 }
 [data-theme="saffron"] {
   --bg: #fffbf0; --bg-sidebar: #fff4d8; --bg-card: #ffffff;
@@ -50,7 +54,8 @@
   --accent: #d97706; --accent2: #059669;
   --border: #fcd090; --text: #292524; --muted: #92400e; --hover-bg: #fde9b0;
   --badge-S: #b45309; --badge-P: #7e22ce; --badge-V: #15803d;
-  --badge-AD: #9a3412; --badge-AT: #065f46;
+  --badge-AD: #ea580c; --badge-AT: #065f46;
+  --num-color: #9a8a70;
 }
 [data-theme="night"] {
   --bg: #1e1e2e; --bg-sidebar: #181825; --bg-card: #313244;
@@ -58,7 +63,8 @@
   --accent: #89b4fa; --accent2: #cba6f7;
   --border: #45475a; --text: #cdd6f4; --muted: #a6adc8; --hover-bg: #45475a;
   --badge-S: #89b4fa; --badge-P: #cba6f7; --badge-V: #a6e3a1;
-  --badge-AD: #fab387; --badge-AT: #94e2d5;
+  --badge-AD: #fbbf24; --badge-AT: #94e2d5;
+  --num-color: #7c8098;
 }
 
 html, body { height: 100%; overflow: hidden; }
@@ -624,7 +630,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   padding: 13px 14px;
 }
 .sutra-id {
-  font-size: .78em; font-weight: 700; color: var(--muted);
+  font-size: .78em; font-weight: 700; color: var(--num-color);
   min-width: 42px; flex-shrink: 0; font-variant-numeric: tabular-nums;
 }
 .sutra-text { flex: 1; font-size: 1.1em; line-height: 1.4; color: var(--text); }
@@ -635,7 +641,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .badge-S  { background: var(--badge-S);  }
 .badge-P  { background: var(--badge-P);  }
 .badge-V  { background: var(--badge-V);  }
-.badge-AD { background: var(--badge-AD); }
+.badge-AD { background: var(--badge-AD); color: #1a0800; }
 .badge-AT { background: var(--badge-AT); }
 
 /* Audio button */
@@ -756,7 +762,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   margin-bottom: 10px;
 }
 .reader-ref {
-  font-size: .85em; color: var(--muted);
+  font-size: .85em; color: var(--num-color);
   letter-spacing: .08em; font-variant-numeric: tabular-nums;
   font-family: 'Noto Sans', monospace;
 }
