@@ -1738,7 +1738,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .ps-pratyaya { font-family: var(--font-dev); font-size: 15px; font-weight: 700; color: #1a3a5c; white-space: nowrap; width: 80px; max-width: 80px; overflow: hidden; }
 .ps-rupa     { font-family: var(--font-dev); font-size: 13px; color: var(--accent2); white-space: nowrap; width: 60px; max-width: 60px; overflow: hidden; }
 .ps-type     { width: 68px; }
-.ps-badge    { display: inline-block; font-family: var(--font-dev); font-size: 11px; padding: 2px 7px; border-radius: 10px; color: #fff; white-space: nowrap; }
+.ps-badge    { display: inline-block; font-family: var(--font-dev); font-size: 11px; padding: 2px 7px; border-radius: 10px; color: #1a0800; white-space: nowrap; }
 .ps-sutra    { width: 200px; max-width: 200px; overflow: hidden; }
 .ps-sutra .sutra-link {
   font-family: var(--font-dev);
