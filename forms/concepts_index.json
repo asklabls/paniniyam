@@ -167,9 +167,17 @@
     "path": "concepts/pratyahara/शल्.svg",
     "category": "pratyahara"
   },
+  "हल्": {
+    "path": "concepts/pratyahara/हल्.svg",
+    "category": "pratyahara"
+  },
   "हश्": {
     "path": "concepts/pratyahara/हश्.svg",
     "category": "pratyahara"
+  },
+  "कित्": {
+    "path": "concepts/it-karyas/कित्.svg",
+    "category": "it-karyas"
   },
   "खित्": {
     "path": "concepts/it-karyas/खित्.svg",
@@ -419,6 +427,10 @@
     "path": "prakaranas/अङ्गाधिकार.svg",
     "category": "prakarana"
   },
+  "अण्-अधिकार": {
+    "path": "prakaranas/अण्-अधिकार.svg",
+    "category": "prakarana"
+  },
   "अतिदेशप्रकरणम्": {
     "path": "prakaranas/अतिदेशप्रकरणम्.svg",
     "category": "prakarana"
@@ -459,12 +471,20 @@
     "path": "prakaranas/अपादानम्.svg",
     "category": "prakarana"
   },
+  "अभ्यास्त": {
+    "path": "prakaranas/अभ्यास्त.svg",
+    "category": "prakarana"
+  },
   "अमागम": {
     "path": "prakaranas/अमागम.svg",
     "category": "prakarana"
   },
   "अव्यय": {
     "path": "prakaranas/अव्यय.svg",
+    "category": "prakarana"
+  },
+  "असिद्धवदधिकार": {
+    "path": "prakaranas/असिद्धवदधिकार.svg",
     "category": "prakarana"
   },
   "आकारादेश": {
@@ -531,10 +551,6 @@
     "path": "prakaranas/काम्यच्.svg",
     "category": "prakarana"
   },
-  "कित्": {
-    "path": "prakaranas/कित्.svg",
-    "category": "prakarana"
-  },
   "क्र्यादि": {
     "path": "prakaranas/क्र्यादि.svg",
     "category": "prakarana"
@@ -565,6 +581,10 @@
   },
   "घु": {
     "path": "prakaranas/घु.svg",
+    "category": "prakarana"
+  },
+  "ङीष्-अधिकार": {
+    "path": "prakaranas/ङीष्-अधिकार.svg",
     "category": "prakarana"
   },
   "चकार": {
