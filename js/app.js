@@ -69,13 +69,15 @@ const BOOKS = [
       { id: 'terms',   devName: 'Terms of Use',   engName: 'Terms of Use',   type: 'legal-page' },
     ]
   },
+  { id: 'newsletter-nav', devName: 'Newsletter', engName: 'Newsletter', type: 'newsletter-leaf' },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
       { id: 'gurus',     engName: 'Gurus'      },
       { id: 'resources', engName: 'Resources'  },
       { id: 'credits',   engName: 'Credits'    },
       { id: 'contact',   engName: 'Contact Us' },
-      { id: 'support',   engName: 'Support Us' },
+      { id: 'support',     engName: 'Support Us' },
+      { id: 'newsletter',  engName: 'Newsletter' },
       { id: 'copyright', engName: 'Copyright'  },
       { id: 'themes',       engName: 'Themes'        },
       { id: 'testimonials', engName: 'Testimonials'  },
@@ -2256,6 +2258,13 @@ function buildBookEntry(book, nested = false) {
   if (book.type === 'leaf') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => handleLeafClick(book, btn));
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'newsletter-leaf') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showAbout(); setTimeout(() => renderAboutSection('newsletter'), 0); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -6932,6 +6941,16 @@ function renderAboutSection(id) {
           </div>
         </div>`,
     },
+    newsletter: {
+      html: `
+        <div class="about-section">
+          <h2 class="about-title">Stay Updated</h2>
+          <p class="about-intro">Subscribe to get notified when new content, diagrams, or features are added to Paniniyam.</p>
+          <div class="about-card">
+            <div id="kit-form-container"></div>
+          </div>
+        </div>`,
+    },
     copyright: {
       html: `
         <div class="about-section">
@@ -6980,6 +6999,16 @@ function renderAboutSection(id) {
   // Wire feedback form if present
   const form = document.getElementById('feedback-form');
   if (form) wireFeedbackForm(form);
+
+  // Inject Kit.com newsletter form if present
+  const kitContainer = document.getElementById('kit-form-container');
+  if (kitContainer) {
+    const s = document.createElement('script');
+    s.async = true;
+    s.setAttribute('data-uid', 'c965e87656');
+    s.src = 'https://paniniyam.kit.com/c965e87656/index.js';
+    kitContainer.appendChild(s);
+  }
 }
 
 function wireFeedbackForm(form) {
@@ -8558,6 +8587,12 @@ document.getElementById('btn-search').addEventListener('click', () => {
 });
 // btn-script click handled inside buildScriptDropdown (hover + click toggle)
 document.getElementById('btn-translit').addEventListener('click', () => { closeDrawer(); showTranslit(); });
+
+// Welcome newsletter button
+document.getElementById('btn-welcome-newsletter').addEventListener('click', () => {
+  showAbout();
+  setTimeout(() => renderAboutSection('newsletter'), 0);
+});
 
 // Welcome footer legal links — open inline instead of navigating away
 document.querySelectorAll('.welcome-legal-link').forEach(a => {
