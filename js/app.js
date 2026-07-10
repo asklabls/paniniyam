@@ -8088,9 +8088,9 @@ function renderRvCard(item, sectionN) {
   row.appendChild(idEl);
 
   const verseEl = document.createElement('div');
-  verseEl.className = 'sutra-text bk-verse dev-text';
-  verseEl._devText = item.verse || '';
-  verseEl.textContent = translit(item.verse || '');
+  verseEl.className = 'sutra-text bk-verse commentary-panel';
+  verseEl._rawCommentary = item.verse || '';
+  setCommentaryHTML(verseEl, item.verse || '');
   row.appendChild(verseEl);
 
   card.appendChild(row);
