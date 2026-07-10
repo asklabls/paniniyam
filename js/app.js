@@ -3072,6 +3072,11 @@ function applyConceptSvgRetranslit(wrap) {
   svgEl.removeAttribute('height');
   svgEl.style.width = '100%';
   svgEl.style.height = 'auto';
+  // Override font-family so SVG text matches the page font
+  // (SVG files specify 'Vesper Libre' which is not loaded; page uses Tiro Devanagari Sanskrit)
+  for (const el of svgEl.querySelectorAll('text')) {
+    el.setAttribute('font-family', "'Tiro Devanagari Sanskrit', 'Noto Sans Devanagari', serif");
+  }
   for (const el of svgEl.querySelectorAll('text[data-dev]')) {
     el._devText = el.textContent;
     el.classList.add('dev-text');
