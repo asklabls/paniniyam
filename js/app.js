@@ -9456,6 +9456,13 @@ async function init() {
     const urlBook   = params.get('book');
     const urlAbout  = params.has('about');
 
+    // ?script=X — apply script from URL (e.g. links from Substack standalone page)
+    const urlScript = params.get('script');
+    if (urlScript && urlScript !== currentScript) {
+      const valid = SCRIPTS.find(s => s.id === urlScript);
+      if (valid) setScript(urlScript);
+    }
+
     if (urlSutra) {
       const linkedId    = sutraRefToId(urlSutra);
       const linkedSutra = linkedId ? sutraIndex[linkedId] : null;

@@ -67,7 +67,7 @@
 </head>
 <body>
 <div class="bar">
-  <a href="https://paniniyam.com/?book=articles&id=ashtadhyayi-artha" class="back">← paniniyam.com</a>
+  <a href="https://paniniyam.com/?book=articles&id=ashtadhyayi-artha" class="back" id="backLink">← paniniyam.com</a>
   <div class="divider"></div>
   <div class="scripts" id="S">
     <button data-s="devanagari">देव</button>
@@ -318,7 +318,17 @@
   document.querySelectorAll('#S button').forEach(function(b){
     b.addEventListener('click',function(){apply(b.dataset.s);});
   });
-  apply(new URLSearchParams(location.search).get('script')||'devanagari');
+  var initScript = new URLSearchParams(location.search).get('script')||'devanagari';
+  apply(initScript);
+  // Keep back link in sync with current script
+  function updateBackLink(s) {
+    var base = 'https://paniniyam.com/?book=articles&id=ashtadhyayi-artha';
+    document.getElementById('backLink').href = s === 'devanagari' ? base : base + '&script=' + s;
+  }
+  updateBackLink(initScript);
+  document.querySelectorAll('#S button').forEach(function(b) {
+    b.addEventListener('click', function() { updateBackLink(b.dataset.s); });
+  });
 </script>
 </body>
 </html>
