@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Derive the Meaning of Ashtadhyayi Sutras — paniniyam.com</title>
+  <meta name="description" content="Read on paniniyam.com with full script switching — IAST, Telugu, Kannada and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vesper+Libre:wght@400;700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent:#7c6244;--bg:#faf8f5;--surface:#fff;--border:#e5ddd3;
+      --text:#2c2418;--muted:#7a6e62;--bq-bg:#f5f0e8;
+      --btn-active-bg:#7c6244;--btn-active-fg:#fff;--bar-h:48px;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--accent:#c4a97a;--bg:#1a1714;--surface:#232018;--border:#3a342a;
+             --text:#f0e8d8;--muted:#9a8e7e;--bq-bg:#2a251e;
+             --btn-active-bg:#c4a97a;--btn-active-fg:#1a1714;}
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--text);
+          line-height:1.75;font-size:17px}
+    /* Top bar */
+    .bar{position:sticky;top:0;z-index:100;height:var(--bar-h);background:var(--surface);
+          border-bottom:1px solid var(--border);display:flex;align-items:center;
+          gap:10px;padding:0 16px}
+    .back{font-size:13px;color:var(--accent);text-decoration:none;white-space:nowrap;flex-shrink:0}
+    .back:hover{text-decoration:underline}
+    .divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
+    .scripts{display:flex;gap:4px;flex-wrap:wrap;overflow-x:auto}
+    .scripts button{font-size:12px;padding:3px 9px;border:1px solid var(--border);
+                     border-radius:99px;background:transparent;color:var(--muted);
+                     cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+    .scripts button:hover{border-color:var(--accent);color:var(--accent)}
+    .scripts button.active{background:var(--btn-active-bg);color:var(--btn-active-fg);
+                            border-color:var(--btn-active-bg)}
+    .spa-link{margin-left:auto;font-size:12px;color:var(--muted);text-decoration:none;
+               white-space:nowrap;flex-shrink:0}
+    .spa-link:hover{color:var(--accent)}
+    /* Article */
+    .wrap{max-width:720px;margin:0 auto;padding:40px 20px 80px}
+    h1{font-family:'Vesper Libre','Noto Sans Devanagari',serif;font-size:1.9rem;
+        line-height:1.3;margin-bottom:.3em}
+    h2{font-size:1.15rem;font-weight:700;margin:2.2em 0 .5em;padding-bottom:5px;
+        border-bottom:1px solid var(--border)}
+    h3{font-size:1rem;font-weight:600;margin:1.7em 0 .4em}
+    p{margin:.8em 0}hr{border:none;border-top:1px solid var(--border);margin:1.8em 0}
+    em{font-style:italic}strong{font-weight:600}
+    [data-dev]{font-family:'Vesper Libre','Noto Sans Devanagari',serif}
+    blockquote{background:var(--bq-bg);border-left:3px solid var(--accent);
+                padding:13px 17px;margin:1.1em 0;border-radius:0 6px 6px 0}
+    blockquote p{margin:.3em 0}
+    ul,ol{padding-left:1.5em;margin:.7em 0}li{margin:.25em 0}
+    table{width:100%;border-collapse:collapse;font-size:.9em;margin:1em 0}
+    th{padding:7px 11px;border:1px solid var(--border);background:var(--bq-bg);
+        font-weight:600;text-align:left}
+    td{padding:6px 11px;border:1px solid var(--border)}
+    .footer{margin-top:3em;padding-top:1.5em;border-top:1px solid var(--border);
+             font-size:14px;color:var(--muted);text-align:center}
+    .footer a{color:var(--accent);text-decoration:none}
+    .footer a:hover{text-decoration:underline}
+    @media(max-width:600px){body{font-size:16px}h1{font-size:1.5rem}
+      .wrap{padding:24px 16px 60px}}
+  </style>
+</head>
+<body>
+<div class="bar">
+  <a href="https://paniniyam.com" class="back">← paniniyam.com</a>
+  <div class="divider"></div>
+  <div class="scripts" id="S">
+    <button data-s="devanagari">देव</button>
+    <button data-s="iast">IAST</button>
+    <button data-s="hk">HK</button>
+    <button data-s="telugu">తెలు</button>
+    <button data-s="kannada">ಕನ್ನ</button>
+    <button data-s="tamil">தமிழ்</button>
+    <button data-s="bengali">বাং</button>
+    <button data-s="gujarati">ગુજ</button>
+    <button data-s="malayalam">മലയ</button>
+  </div>
+  <a href="https://paniniyam.com/?book=articles" class="spa-link">Browse all articles ↗</a>
+</div>
+<div class="wrap">
+  <article>
+<h1 id="how-to-derive-the-meaning-of-ashtadhyayi-sutras">How to Derive the Meaning of Ashtadhyayi Sutras</h1>
+<p><em>A guide to reading Panini's grammar the way Panini intended</em></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-the-method-building-the-vritti">The Method: Building the Vritti</a></li>
+<li>2.1 <a href="#21-deriving-the-vritti-using-adhikara-governing-sutras">Deriving the Vritti Using Adhikara Sutras</a></li>
+<li>2.2 <a href="#22-deriving-the-vritti-using-Anuvritti-carried-over-words">Deriving the Vritti Using Anuvritti</a></li>
+<li><a href="#3-the-rule-governing-Anuvritti">The Rule Governing Anuvritti</a></li>
+<li>3.1 <a href="#31-rule-1--no-same-vibhakti-carry-over">Rule 1 — No same-vibhakti carry-over</a></li>
+<li>3.2 <a href="#32-rule-2--the-sixth-case-and-sthāne">Rule 2 — The Sixth Case and <em>sthāne</em></a></li>
+<li><a href="#4-implicit-words-that-arrive-automatically">Implicit Words That Arrive Automatically</a></li>
+<li>4.1 <a href="#41-when-guṇa-or-vṛddhi-appears">When <em>guṇa</em> or <em>vṛddhi</em> appears</a></li>
+<li>4.2 <a href="#42-when-hrasva-dīrgha-or-pluta-appears">When <em>hrasva</em>, <em>dīrgha</em>, or <em>pluta</em> appears</a></li>
+<li><a href="#5-the-anta-and-ādi-conventions">The <em>anta</em> and <em>ādi</em> Conventions</a></li>
+<li><a href="#6-priority-rules-para-nitya-antaraṅga-apavāda">Priority Rules: <em>para</em>, <em>nitya</em>, <em>antaraṅga</em>, <em>apavāda</em></a></li>
+<li><a href="#7-the-rule-pūrvatrāsiddham-821">The Rule <em>pūrvatrāsiddham</em> (8.2.1)</a></li>
+<li><a href="#8-closing-words">Closing Words</a></li>
+</ol>
+<hr/>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>The Ashtadhyayi is not a text you read passively — it is a text you unfold, sutra by sutra, each one carrying forward into the next. A prior sutra reveals the meaning of later sutras in a way that, once seen, is never forgotten for a lifetime.</p>
+<p>Students who learn to derive the meaning (<em>vritti</em>) of each sutra on their own, never forget in lifetime — this is Panini's method of teaching. The lifeless, rote approach — memorizing meanings without understanding the mechanism — drains the joy and the life out of the subject and must be set aside.</p>
+<p>Once you can work through the <em>sutrartha</em> (meaning of the sutras) this way, you will be able to read texts like the Bhattikavya and other <em>shastras</em> independently, discovering the meaning through your own understanding. This is the science of the Ashtadhyayi.</p>
+<hr/>
+<h2 id="2-the-method-building-the-vritti">2. The Method: Building the <em>Vritti</em></h2>
+<p>A <em>vritti</em> is a full syntactic expansion of a sutra — gathering all the necessary words that belong to it (from the sutra itself, from governing <em>adhikara</em> sutras, and from words that carry over from above) and arranging them into a coherent sentence.</p>
+<p>There are two main techniques:</p>
+<hr/>
+<h3 id="21-deriving-the-vritti-using-adhikara-governing-sutras">2.1 Deriving the <em>Vritti</em> Using <em>Adhikara</em> (Governing) Sutras</h3>
+<p>Consider <strong><span data-dev="वर्तमाने">वर्तमाने</span> <span data-dev="लट्">लट्</span> (3.2.123)</strong>.</p>
+<p><em>Padaccheda</em> (word-analysis): <span data-dev="वर्तमाने">वर्तमाने</span><sup> ७/१</sup>, <span data-dev="लट्">लट्</span><sup> १/१</sup> — a two-word sutra. Into it come two <em>adhikara</em> (governing) sutras from above:</p>
+<ul>
+<li><span data-dev="प्रत्ययः">प्रत्ययः</span> (3.1.1) — <em>a suffix</em></li>
+<li><span data-dev="परश्च">परश्च</span> (3.1.2) — <em>and it comes after</em> (governing up to chapter 5)</li>
+<li><span data-dev="धातोः">धातोः</span> (3.1.91) — <em>after the verbal root</em> (governing up to chapter 3)</li>
+</ul>
+<p>Arranging all words in connected order (<em>anvaya</em>) produces the <em>vritti</em>:</p>
+<blockquote>
+<p><strong><span data-dev="वर्तमाने">वर्तमाने</span> <span data-dev="धातोः">धातोः</span> <span data-dev="परः">परः</span> <span data-dev="लट्">लट्</span> <span data-dev="प्रत्ययः">प्रत्ययः</span> (<span data-dev="भवति">भवति</span>)</strong>
+<em>"In the present tense, the suffix</em> <span data-dev="लट्">लट्</span> <em>comes after the verbal root."</em></p>
+</blockquote>
+<hr/>
+<h3 id="22-deriving-the-vritti-using-anuvritti-carried-over-words">2.2 Deriving the <em>Vritti</em> Using <em>Anuvritti</em> (Carried-Over Words)</h3>
+<p>Consider <strong><span data-dev="हलन्त्यम्">हलन्त्यम्</span> (1.3.3)</strong>.</p>
+<p><em>Padaccheda</em>: <span data-dev="हल्">हल्</span> १/१, <span data-dev="अन्त्यम्">अन्त्यम्</span> १/१ — a two-word sutra. From the sutra above it, <span data-dev="उपदेशेऽजनुनासिक">उपदेशेऽजनुनासिक</span> <span data-dev="इत्">इत्</span> (1.3.2), two words carry over (<em>Anuvritti</em>): '<span data-dev="उपदेशे">उपदेशे</span>' and '<span data-dev="इत्">इत्</span>'. The <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="उपदेशे">उपदेशे</span> <span data-dev="अन्त्यं">अन्त्यं</span> <span data-dev="हल्">हल्</span> <span data-dev="इत्">इत्</span> (<span data-dev="भवति">भवति</span>)</strong></p>
+<p><em>"In the context of</em> upadesha <em>(the original enunciation of a grammatical form), the final consonant is designated</em> it <em>(a marker)."</em></p>
+</blockquote>
+<p><strong><span data-dev="आद्योच्चारणम्">आद्योच्चारणम्</span></strong> (original enunciation) - 
+1. <span data-dev="अष्टाध्यायी">अष्टाध्यायी</span> <span data-dev="सूत्रपाठ">सूत्रपाठ</span> 
+2. <span data-dev="धातुपाठ">धातुपाठ</span>
+3. <span data-dev="गणपाठ">गणपाठ</span>
+4. <span data-dev="उणादिकोष">उणादिकोष</span>
+5. <span data-dev="लिङ्गानुशासनम्">लिङ्गानुशासनम्</span> 
+6. <span data-dev="शिक्षा">शिक्षा</span> (Sometimes stated explicitly)</p>
+<p>Similarly for <strong><span data-dev="न">न</span> <span data-dev="विभक्तौ">विभक्तौ</span> <span data-dev="तुस्माः">तुस्माः</span> (1.3.4)</strong>.
+<em>Padaccheda</em>: <span data-dev="न">न</span> — an indeclinable (<em>avyaya</em>); <span data-dev="विभक्तौ">विभक्तौ</span> ७/१; <span data-dev="तुस्माः">तुस्माः</span> १/३. Only one word carries over from 1.3.2 — namely '<span data-dev="इत्">इत्</span>'. See the economy of words, he did not bring <span data-dev="अन्त्यं">अन्त्यं</span> <span data-dev="हल्">हल्</span> from 1.3.3, just <span data-dev="न">न</span> clearly stated it is negating rule directly above. The <em>vritti</em> becomes: </p>
+<blockquote>
+<p><strong><span data-dev="विभक्तौ">विभक्तौ</span> <span data-dev="तुस्माः">तुस्माः</span> <span data-dev="इत्">इत्</span> <span data-dev="न">न</span> (<span data-dev="भवन्ति">भवन्ति</span>)</strong></p>
+<p><em>"In a</em> vibhakti <em>(case or personal ending), the members of the</em> tu<em>-class (<span data-dev="त">त</span>-series),</em> <span data-dev="स्">स्</span> <em>and</em> <span data-dev="म्">म्</span> <em>are not designated</em> it."*</p>
+</blockquote>
+<p>In this way, a student can derive the meaning of every sutra — with a smile.</p>
+<hr/>
+<h2 id="3-the-rule-governing-anuvritti">3. The Rule Governing <em>Anuvritti</em></h2>
+<p><em>Anuvritti</em> (the carry-over of words from prior sutras into later ones) follows a precise principle:</p>
+<blockquote>
+<p><strong>A word standing in a particular <em>vibhakti</em> (grammatical case) in the current sutra will not be carried over from a prior sutra in that same <em>vibhakti</em>.</strong></p>
+<p>However, an adjective (<em>visheShaNa</em>) or predicate in the same <em>vibhakti</em> may still come.</p>
+</blockquote>
+<p><strong>Example:</strong> In <span data-dev="हलन्त्यम्">हलन्त्यम्</span> (1.3.3), both '<span data-dev="हल्">हल्</span>' (noun) and '<span data-dev="अन्त्यम्">अन्त्यम्</span>' (adjective) are in the first case (<em>prathama</em>). Therefore, from <span data-dev="उपदेशेऽजनुनासिक">उपदेशेऽजनुनासिक</span> <span data-dev="इत्">इत्</span> (1.3.2), the subject-adjective pair '<span data-dev="अच्">अच्</span> <span data-dev="अनुनासिकः">अनुनासिकः</span>' — also first case — does <em>not</em> carry over. But '<span data-dev="उपदेशे">उपदेशे</span>' (seventh case) and '<span data-dev="इत्">इत्</span>' (predicate) both do.</p>
+<p>In <span data-dev="न">न</span> <span data-dev="विभक्तौ">विभक्तौ</span> <span data-dev="तुस्माः">तुस्माः</span> (1.3.4), '<span data-dev="विभक्तौ">विभक्तौ</span>' is already in the seventh case, so '<span data-dev="उपदेशे">उपदेशे</span>' (also seventh case) cannot come. And '<span data-dev="तुस्माः">तुस्माः</span>' is the first-case subject, so no first-case subject from the sutra above can carry over either.</p>
+<p><strong>The key principle: the syntactic need (<em>ākāṅkṣā</em>) of the later sutra is the principal factor governing which words of prior sutras carry forward.</strong></p>
+<p><em>(Students who grasp this will not only be able to derive the</em> sutrartha <em>on their own, but will develop keen analytical intelligence — a gift that Panini built into the very structure of his grammar.)</em></p>
+<hr/>
+<h3 id="31-rule-1-no-same-vibhakti-carry-over">3.1 Rule 1 — No Same-<em>Vibhakti</em> Carry-Over</h3>
+<p>A word in a given <em>vibhakti</em> within a sutra does not carry over from the sutra above in that same <em>vibhakti</em>.</p>
+<p><strong>Example:</strong> <span data-dev="ग्क्ङिति">ग्क्ङिति</span> <span data-dev="च">च</span> (1.1.5) contains the seventh-case word '<span data-dev="ङिति">ङिति</span>'. Therefore, from <span data-dev="न">न</span> <span data-dev="धातुलोप">धातुलोप</span> <span data-dev="आर्धधातुके">आर्धधातुके</span> (1.1.4), only '<span data-dev="न">न</span>' carries over, and the entire sutra <span data-dev="इको">इको</span> <span data-dev="गुणवृद्धी">गुणवृद्धी</span> (1.1.3) also comes in. The <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="ङिति">ङिति</span> <span data-dev="च">च</span> <span data-dev="न">न</span> <span data-dev="इको">इको</span> <span data-dev="गुणवृद्धी">गुणवृद्धी</span> (<span data-dev="भवतः">भवतः</span>)</strong></p>
+</blockquote>
+<p><em>Note:</em> Wherever no explicit verb is present, '<span data-dev="अस्ति">अस्ति</span>' or '<span data-dev="भवति">भवति</span>' is simply supplied — this is universally understood.</p>
+<hr/>
+<h3 id="32-rule-2-the-sixth-case-and-sthane">3.2 Rule 2 — The Sixth Case and <em>sthāne</em></h3>
+<p>Wherever a sixth-case (<em>ṣaṣṭhī</em>) word appears without a specific relational sense, the word <strong>'<span data-dev="स्थाने">स्थाने</span>'</strong> ("in the place of") is added after it to construct the <em>vritti</em>. Panini himself wrote the <em>paribhasha</em> <span data-dev="षष्ठी">षष्ठी</span> <span data-dev="स्थानेयोगा">स्थानेयोगा</span> (1.1.49) to codify this.</p>
+<p><strong>Example:</strong> In <span data-dev="इको">इको</span> <span data-dev="यर्णाचि">यर्णाचि</span> (6.1.77), the word '<span data-dev="इकः">इकः</span>' is in the sixth case without specific relational meaning. We add '<span data-dev="स्थाने">स्थाने</span>': <em>'<span data-dev="इकः">इकः</span> <span data-dev="स्थाने">स्थाने</span>'</em>. With the <em>adhikara</em> from <span data-dev="संहितायाम्">संहितायाम्</span> (6.1.72) carrying forward:</p>
+<blockquote>
+<p><strong><span data-dev="इकः">इकः</span> <span data-dev="स्थाने">स्थाने</span> <span data-dev="यण्">यण्</span> <span data-dev="भवति">भवति</span> <span data-dev="अचि">अचि</span> <span data-dev="परे">परे</span> <span data-dev="संहितायाम्">संहितायाम्</span></strong></p>
+<p><em>"In</em> saṃhitā<em>, in the place of</em> ik<em>, the substitute</em> yaṇ <em>occurs when a vowel follows."</em></p>
+</blockquote>
+<p>The very next sutra, <span data-dev="एचोऽयवायावः">एचोऽयवायावः</span> (6.1.78), has its own sixth-case and first-case words, so '<span data-dev="इकः">इकः</span>' and '<span data-dev="यण्">यण्</span>' do not carry over. Only '<span data-dev="अचि">अचि</span>' (seventh case) carries forward. For '<span data-dev="एचः">एचः</span>' (sixth case here), '<span data-dev="स्थाने">स्थाने</span>' is added. The <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="एचः">एचः</span> <span data-dev="स्थाने">स्थाने</span> <span data-dev="अयवायावः">अयवायावः</span> <span data-dev="भवन्ति">भवन्ति</span> <span data-dev="अचि">अचि</span> <span data-dev="संहितायाम्">संहितायाम्</span></strong></p>
+<p><em>"In</em> saṃhitā<em>, in the place of</em> ec<em>, the substitutes</em> ay<em>,</em> av<em>,</em> āy<em>,</em> āv <em>occur when a vowel follows."</em></p>
+</blockquote>
+<p>In this way, the <em>vritti</em> of such sutras constructs itself naturally.</p>
+<hr/>
+<h2 id="4-implicit-words-that-arrive-automatically">4. Implicit Words That Arrive Automatically</h2>
+<p>Certain technical words in the Ashtadhyayi, when they appear in or are carried into a sutra, automatically bring additional sixth-case words with them. Knowing these conventions makes <em>vritti</em>-construction effortless.</p>
+<hr/>
+<h3 id="41-when-guna-or-vrddhi-appears">4.1 When <em>guṇa</em> or <em>vṛddhi</em> Appears</h3>
+<p>Wherever '<span data-dev="गुणः">गुणः</span>' or '<span data-dev="वृद्धिः">वृद्धिः</span>' appears — in the sutra itself or carried over from above — the sixth-case word <strong>'<span data-dev="इकः">इकः</span>'</strong> arrives automatically, governed by <span data-dev="इको">इको</span> <span data-dev="गुणवृद्धी">गुणवृद्धी</span> (1.1.3).</p>
+<p><strong>Example:</strong> In <span data-dev="सार्वधातुकार्द्धधातुकयोः">सार्वधातुकार्द्धधातुकयोः</span> (7.3.84), the <em>adhikara</em> <span data-dev="अङ्गस्य">अङ्गस्य</span> (6.4.1) is in force, and '<span data-dev="गुणः">गुणः</span>' comes from <span data-dev="मिदेर्गुणः">मिदेर्गुणः</span> (7.3.82). When '<span data-dev="गुणः">गुणः</span>' arrives, '<span data-dev="इकः">इकः</span>' is automatically supplied. Then, by <span data-dev="येन">येन</span> <span data-dev="विधिस्तदन्तस्य">विधिस्तदन्तस्य</span> (1.1.72), '<span data-dev="अन्त">अन्त</span>' is appended to the adjective '<span data-dev="इकः">इकः</span>', giving '<span data-dev="इगन्तस्य">इगन्तस्य</span>'. The <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="इगन्तस्य">इगन्तस्य</span> <span data-dev="अङ्गस्य">अङ्गस्य</span> <span data-dev="गुणः">गुणः</span> <span data-dev="भवति">भवति</span> <span data-dev="सार्वधातुकार्द्धधातुकयोः">सार्वधातुकार्द्धधातुकयोः</span> <span data-dev="परयोः">परयोः</span></strong></p>
+</blockquote>
+<hr/>
+<h3 id="42-when-hrasva-dirgha-or-pluta-appears">4.2 When <em>hrasva</em>, <em>dīrgha</em>, or <em>pluta</em> Appears</h3>
+<p>Wherever '<span data-dev="ह्रस्व">ह्रस्व</span>' (short), '<span data-dev="दीर्घ">दीर्घ</span>' (long), or '<span data-dev="प्लुत">प्लुत</span>' (protracted) appears — whether in the sutra or carried over — the sixth-case word <strong>'<span data-dev="अचः">अचः</span>'</strong> is automatically supplied, governed by <span data-dev="ऊकालोऽज्झस्वदीर्घप्लुतः">ऊकालोऽज्झस्वदीर्घप्लुतः</span> (1.2.27).</p>
+<p><strong>Example:</strong> <span data-dev="ह्रस्वः">ह्रस्वः</span> (7.4.59) prescribes shortening. From the sutra above, <span data-dev="अत्र">अत्र</span> <span data-dev="लोपोऽभ्यासस्य">लोपोऽभ्यासस्य</span> (7.4.58), '<span data-dev="अभ्यासस्य">अभ्यासस्य</span>' carries over. Because of the word '<span data-dev="ह्रस्व">ह्रस्व</span>', '<span data-dev="अचः">अचः</span>' is automatically supplied. The <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="अभ्यासस्य">अभ्यासस्य</span> <span data-dev="अचः">अचः</span> <span data-dev="ह्रस्वः">ह्रस्वः</span> <span data-dev="भवति">भवति</span></strong></p>
+<p><em>"The vowel of the</em> abhyāsa <em>(reduplication syllable) becomes short."</em></p>
+</blockquote>
+<hr/>
+<h2 id="5-the-anta-and-adi-conventions">5. The <em>anta</em> and <em>ādi</em> Conventions</h2>
+<p>Two further conventions help expand adjectives in the <em>vritti</em>:</p>
+<ul>
+<li><strong>For adjectives in cases other than the seventh</strong> (e.g. fifth, sixth): append <strong>'<span data-dev="अन्त">अन्त</span>'</strong> and keep the same <em>vibhakti</em>. Governed by <span data-dev="येन">येन</span> <span data-dev="विधिस्तदन्तस्य">विधिस्तदन्तस्य</span> (1.1.72).</li>
+<li><strong>For seventh-case adjectives</strong>: append <strong>'<span data-dev="आदि">आदि</span>'</strong> and retain the seventh-case form. Governed by <span data-dev="यस्मिन्">यस्मिन्</span> <span data-dev="विधिस्तदादावल्ग्रहणे">विधिस्तदादावल्ग्रहणे</span> (paribhasha).</li>
+</ul>
+<p><strong>Example:</strong> In <span data-dev="सुपि">सुपि</span> (7.3.102), with the <em>adhikara</em> <span data-dev="अङ्गस्य">अङ्गस्य</span> (6.4.1) and the carried-over sutra <span data-dev="अतो">अतो</span> <span data-dev="दीर्घो">दीर्घो</span> <span data-dev="यञि">यञि</span> (7.3.101), we have '<span data-dev="अतः">अतः</span>' (sixth-case adjective) and '<span data-dev="यञि">यञि</span>' (seventh-case). Applying the conventions:</p>
+<ul>
+<li>'<span data-dev="अत्">अत्</span>' + <span data-dev="अन्त">अन्त</span> → <strong>'<span data-dev="अदन्तस्य">अदन्तस्य</span>'</strong> (sixth case retained)</li>
+<li>'<span data-dev="यञ्">यञ्</span>' + <span data-dev="आदि">आदि</span> → <strong>'<span data-dev="यञादौ">यञादौ</span>'</strong> (seventh case retained)</li>
+</ul>
+<p>The <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="अदन्तस्य">अदन्तस्य</span> <span data-dev="अङ्गस्य">अङ्गस्य</span> <span data-dev="यञादौ">यञादौ</span> <span data-dev="सुपि">सुपि</span> <span data-dev="दीर्घः">दीर्घः</span> (<span data-dev="भवति">भवति</span>)</strong></p>
+<p><em>"The</em> aṅga <em>ending in</em> a <em>takes a long vowel before a</em> sup<em>-suffix beginning with</em> yaṇ."*</p>
+</blockquote>
+<p>Similarly, in <span data-dev="नामि">नामि</span> (6.4.3), '<span data-dev="दीर्घः">दीर्घः</span>' appears, automatically supplying '<span data-dev="अचः">अचः</span>'. With the <em>adhikara</em> <span data-dev="अङ्गस्य">अङ्गस्य</span> (6.4.1) in force and '<span data-dev="अन्त">अन्त</span>' appended, the <em>vritti</em> becomes:</p>
+<blockquote>
+<p><strong><span data-dev="अजन्तस्य">अजन्तस्य</span> <span data-dev="अङ्गस्य">अङ्गस्य</span> <span data-dev="दीर्घः">दीर्घः</span> <span data-dev="भवति">भवति</span> <span data-dev="नामि">नामि</span> <span data-dev="परे">परे</span></strong></p>
+<p><em>"The</em> aṅga <em>ending in a vowel takes a long vowel when</em> nāmin <em>follows."</em></p>
+</blockquote>
+<hr/>
+<h2 id="6-priority-rules-para-nitya-antaranga-apavada">6. Priority Rules: <em>para</em>, <em>nitya</em>, <em>antaraṅga</em>, <em>apavāda</em></h2>
+<p>When two rules could both apply at the same point in a derivation, the Ashtadhyayi has a hierarchy to determine which wins. Knowledge of this hierarchy is essential.</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Rule type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1st (weakest)</td>
+<td><em>para</em></td>
+<td>The later sutra (by order in the text)</td>
+</tr>
+<tr>
+<td>2nd</td>
+<td><em>nitya</em></td>
+<td>An obligatory rule — applies whether or not a prior operation took place</td>
+</tr>
+<tr>
+<td>3rd</td>
+<td><em>antaraṅga</em></td>
+<td>An internally motivated rule — requires fewer external conditions</td>
+</tr>
+<tr>
+<td>4th (strongest)</td>
+<td><em>apavāda</em></td>
+<td>An exception — has no scope of its own except to override the general rule</td>
+</tr>
+</tbody>
+</table>
+<p>The governing sutra is <strong><span data-dev="विप्रतिषेधे">विप्रतिषेधे</span> <span data-dev="परं">परं</span> <span data-dev="कार्यम्">कार्यम्</span> (1.4.2)</strong> — when two rules conflict, the later one applies. But this is the weakest of the four: <em>nitya</em> beats <em>para</em>, <em>antaraṅga</em> beats <em>nitya</em>, and <em>apavāda</em> beats all three.</p>
+<blockquote>
+<p><strong><span data-dev="परनित्यान्तरङ्गापवादानामुत्तरोत्तरं">परनित्यान्तरङ्गापवादानामुत्तरोत्तरं</span> <span data-dev="बलीयः">बलीयः</span></strong></p>
+<p><em>"Of para, nitya, antaraṅga, and apavāda — each successive one is stronger than the last."</em></p>
+</blockquote>
+<hr/>
+<h2 id="7-the-rule-purvatrasiddham-821">7. The Rule <em>pūrvatrāsiddham</em> (8.2.1)</h2>
+<p><strong><span data-dev="पूर्वत्रासिद्धम्">पूर्वत्रासिद्धम्</span> (8.2.1)</strong> opens the second <em>pada</em> of the eighth chapter. It declares:</p>
+<blockquote>
+<p>The sutras of the <em>tripāḍī</em> (the last three <em>pādas</em> of the Ashtadhyayi — 8.2, 8.3, 8.4) are treated as <strong>non-existent (<em>asiddha</em>, suspended)</strong> with respect to all preceding sutras (chapters 1–8.1).</p>
+</blockquote>
+<p>This means: when a <em>tripāḍī</em> rule has already applied in a derivation, earlier rules cannot "see" its effect — they must operate as if it had not happened.</p>
+<p>When <span data-dev="पूर्वत्रासिद्धम्">पूर्वत्रासिद्धम्</span> itself becomes an <em>adhikara</em> rule, it also governs within the <em>tripāḍī</em>: later sutras within 8.2–8.4 are <em>asiddha</em> with respect to earlier ones there too.</p>
+<h3 id="example-1">Example 1: <span data-dev="हरे">हरे</span> + <span data-dev="इह">इह</span></h3>
+<ol>
+<li><span data-dev="एचोऽयवायावः">एचोऽयवायावः</span> (6.1.78): '<span data-dev="ए">ए</span>' → '<span data-dev="अय्">अय्</span>' → <strong><span data-dev="हय्">हय्</span> + <span data-dev="इह">इह</span></strong></li>
+<li><span data-dev="लोपः">लोपः</span> <span data-dev="शाकल्यस्य">शाकल्यस्य</span> (8.3.19): '<span data-dev="य्">य्</span>' deleted → <strong><span data-dev="हर">हर</span> + <span data-dev="इह">इह</span></strong></li>
+<li><span data-dev="आद्">आद्</span> <span data-dev="गुणः">गुणः</span> (6.1.87) would now seem to apply (<span data-dev="अ">अ</span> + <span data-dev="इ">इ</span> → <span data-dev="ए">ए</span>).</li>
+<li>But <span data-dev="पूर्वत्रासिद्धम्">पूर्वत्रासिद्धम्</span> (8.2.1): <span data-dev="लोपः">लोपः</span> <span data-dev="शाकल्यस्य">शाकल्यस्य</span> (8.3.19) is <em>asiddha</em> from the perspective of <span data-dev="आद्">आद्</span> <span data-dev="गुणः">गुणः</span> (6.1.87). The deletion never happened — '<span data-dev="य्">य्</span>' is still present. The sequence is <strong><span data-dev="अ">अ</span> + <span data-dev="यि">यि</span></strong>, not <strong><span data-dev="अ">अ</span> + <span data-dev="इ">इ</span></strong>.</li>
+<li>Therefore <span data-dev="आद्">आद्</span> <span data-dev="गुणः">गुणः</span> (6.1.87) does not apply, and the correct form is preserved.</li>
+</ol>
+<h3 id="example-2">Example 2: <span data-dev="सत्">सत्</span> + <span data-dev="चित्">चित्</span></h3>
+<ol>
+<li><span data-dev="झलां">झलां</span> <span data-dev="जशोऽन्ते">जशोऽन्ते</span> (8.2.19) renders <span data-dev="स्तोः">स्तोः</span> <span data-dev="शचुना">शचुना</span> <span data-dev="श्चुः">श्चुः</span> (8.4.40) <em>asiddha</em> and changes '<span data-dev="त्">त्</span>' → '<span data-dev="द्">द्</span>'</li>
+<li><span data-dev="स्तोः">स्तोः</span> <span data-dev="शचुना">शचुना</span> <span data-dev="श्चुः">श्चुः</span> (8.4.40): '<span data-dev="त्">त्</span>' → '<span data-dev="च्">च्</span>'</li>
+<li><span data-dev="खरि">खरि</span> <span data-dev="च">च</span> (8.4.55): '<span data-dev="च्">च्</span>' → '<span data-dev="क्">क्</span>'</li>
+<li>Result: <strong><span data-dev="सच्चित्">सच्चित्</span></strong></li>
+</ol>
+<hr/>
+<h2 id="8-closing-words">8. Closing Words</h2>
+<p>All of the above is knowledge that every student of Paninian grammar must acquire. Most essential of all is <strong>reading the sutras in order</strong>. In sequential reading alone lie simplicity, sharpening of the intellect, and countless other benefits that cannot be put into words.</p>
+<p>This, indeed, is the science of the Ashtadhyayi.</p>
+<hr/>
+<p><em>Explore the Ashtadhyayi sutra by sutra at </em><em>paniniyam.com</em>**</p>
+<hr/>
+<blockquote>
+<p><strong>Footnote on the priority definitions:</strong></p>
+<p><span data-dev="कृताकृतप्रसङ्ग">कृताकृतप्रसङ्ग</span> <span data-dev="विधिनित्यः">विधिनित्यः</span> <span data-dev="।">।</span> <span data-dev="अल्पापेक्षकमन्तरङ्गम्">अल्पापेक्षकमन्तरङ्गम्</span> <span data-dev="।">।</span> <span data-dev="बह्वपेक्षकं">बह्वपेक्षकं</span> <span data-dev="बहिरङ्गम्">बहिरङ्गम्</span> <span data-dev="।">।</span> <span data-dev="निरवकाशो">निरवकाशो</span> <span data-dev="विधिरपवादः">विधिरपवादः</span> <span data-dev="।">।</span> <span data-dev="प्राप्तौ">प्राप्तौ</span> <span data-dev="सत्यां">सत्यां</span> <span data-dev="विधिर्नियमः">विधिर्नियमः</span> <span data-dev="स्यात्">स्यात्</span> <span data-dev="।">।</span></p>
+<p><em>A rule that applies whether or not a prior operation has taken place is</em> nitya <em>(obligatory). A rule requiring fewer auxiliary conditions is</em> antaraṅga <em>(internally motivated); one requiring more is</em> bahiraṅga <em>(externally motivated). A rule that has no scope of its own is an</em> apavāda <em>(exception). A rule that applies only when the result is already otherwise obtainable is a</em> niyama <em>(restrictive rule).</em></p>
+</blockquote>
+  </article>
+  <div class="footer">
+    <p>Explore the Ashtadhyayi sutra by sutra at <a href="https://paniniyam.com">paniniyam.com</a></p>
+  </div>
+</div>
+<script src="../js/sanscript.js"></script>
+<script>
+  var cur='devanagari';
+  function apply(s){
+    cur=s;
+    document.querySelectorAll('[data-dev]').forEach(function(el){
+      var d=el.getAttribute('data-dev');
+      el.textContent=s==='devanagari'?d:Sanscript.t(d,'devanagari',s);
+    });
+    document.querySelectorAll('#S button').forEach(function(b){
+      b.classList.toggle('active',b.dataset.s===s);
+    });
+    var u=new URL(location.href);u.searchParams.set('script',s);
+    history.replaceState(null,'',u.toString());
+  }
+  document.querySelectorAll('#S button').forEach(function(b){
+    b.addEventListener('click',function(){apply(b.dataset.s);});
+  });
+  apply(new URLSearchParams(location.search).get('script')||'devanagari');
+</script>
+</body>
+</html>

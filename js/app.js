@@ -63,6 +63,7 @@ const BOOKS = [
       { id: 'vartika',      devName: 'वार्तिकम्',   engName: 'Vārtika',       type: 'leaf', dataPath: 'sutraani/vartika.txt' },
     ]
   },
+  { id: 'articles', devName: 'Articles', engName: 'Articles', type: 'articles-panel', icon: 'Art' },
   { id: 'legal', devName: 'Legal', engName: 'Legal', type: 'sub-tree', icon: 'Legal',
     pages: [
       { id: 'privacy', devName: 'Privacy Policy', engName: 'Privacy Policy', type: 'legal-page' },
@@ -414,6 +415,7 @@ const $panelNamarupa          = document.getElementById('panel-namarupa');
 const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
 const $panelSambhashana       = document.getElementById('panel-sambhashana');
 const $panelTranslit          = document.getElementById('panel-translit');
+const $panelArticles          = document.getElementById('panel-articles');
 const $app               = document.getElementById('app');
 
 // ── Transliteration ───────────────────────────────────────────────────────────
@@ -770,6 +772,7 @@ function showPanel(name) {
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
+  $panelArticles.style.display          = name === 'articles'          ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
   document.body.classList.toggle('vlib-active', name === 'visuals');
   $app.scrollTop = 0;
@@ -1896,6 +1899,11 @@ function retranslit() {
     el.textContent = translitMixed(el._mixedText);
   });
 
+  // Articles panel — data-dev spans from standalone article HTML
+  document.querySelectorAll('.art-content [data-dev]').forEach(el => {
+    el.textContent = translit(el.getAttribute('data-dev'));
+  });
+
   // Sambhashana IAST column — show chosen script, but restore IAST when script is Devanagari or IAST
   document.querySelectorAll('.ss-translit[data-dev]').forEach(el => {
     if (currentScript === 'devanagari' || currentScript === 'iast') {
@@ -2300,6 +2308,13 @@ function buildBookEntry(book, nested = false) {
   if (book.type === 'visual-library') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showVisualLibrary(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'articles-panel') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showArticlesPanel(); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -3774,6 +3789,171 @@ async function showPratyayaPage(pageId) {
   panel.appendChild(tabContent);
 }
 
+// ── Pratyaya IT-lopa popup helpers ────────────────────────────────────────────
+
+const _PP_HALANT   = '\u094D';
+const _PP_AADI_IT  = new Set([...'ञटठडढण']);  // आदिर्ञिटुडवः (1.3.5)
+
+/**
+ * Split pratyaya into IT/body segments for animation.
+ * Returns array of {text, isIT, sutra_num, sutra_txt} or null if undecidable.
+ * Handles: final consonant+halant (1.3.3) and initial ञिटुडव+halant (1.3.5).
+ */
+function splitPratyayaSegs(pratyaya, final) {
+  if (!final || pratyaya === final) return null;
+  const segs = [];
+  let s = pratyaya;
+
+  // Initial IT by 1.3.5 — ञ् ट् ठ् ड् ढ् ण् at start (with halant)
+  if (s.length >= 2 && s[1] === _PP_HALANT && _PP_AADI_IT.has(s[0])) {
+    segs.push({ text: s.slice(0, 2), isIT: true, sutra_num: '1.3.5', sutra_txt: 'आदिर्ञिटुडवः' });
+    s = s.slice(2);
+  }
+
+  // Final IT by 1.3.3 — any consonant+halant at end
+  if (s.length >= 2 && s[s.length - 1] === _PP_HALANT) {
+    const body = s.slice(0, -2);
+    const it   = s.slice(-2);
+    if (body) segs.push({ text: body, isIT: false });
+    segs.push({ text: it, isIT: true, sutra_num: '1.3.3', sutra_txt: 'हलन्त्यम्' });
+  } else {
+    segs.push({ text: s, isIT: false });
+  }
+
+  // Validate: body reconstruction must match final
+  const reconstructed = segs.filter(sg => !sg.isIT).map(sg => sg.text).join('');
+  return reconstructed === final ? segs : null;
+}
+
+/** Build the hover popup DOM element for a pratyaya cell. */
+function buildPratyayaPopup(r) {
+  const popup = document.createElement('div');
+  popup.className = 'pp-popup';
+  popup.setAttribute('role', 'tooltip');
+  popup.setAttribute('aria-hidden', 'true');
+
+  const segs = (r.pratyaya !== r.final) ? splitPratyayaSegs(r.pratyaya, r.final) : null;
+
+  if (segs) {
+    // Full segment animation ─────────────────────────────────────
+    const stage = document.createElement('div');
+    stage.className = 'pp-stage';
+
+    segs.forEach(seg => {
+      if (!seg.isIT) {
+        const sp = document.createElement('span');
+        sp.className = 'pp-body dev-text';
+        sp._devText = seg.text;
+        sp.textContent = translit(seg.text);
+        stage.appendChild(sp);
+      } else {
+        const wrap = document.createElement('span');
+        wrap.className = 'pp-it-wrap';
+        const sp = document.createElement('span');
+        sp.className = 'pp-it dev-text';
+        sp._devText = seg.text;
+        sp.textContent = translit(seg.text);
+        wrap.appendChild(sp);
+        stage.appendChild(wrap);
+      }
+    });
+    popup.appendChild(stage);
+
+    const sutraRows = document.createElement('div');
+    sutraRows.className = 'pp-sutra-rows';
+    segs.filter(sg => sg.isIT).forEach(seg => {
+      const blk = document.createElement('div');
+      blk.className = 'pp-sutra-block';
+
+      const num = document.createElement('span');
+      num.className = 'pp-sutra-num';
+      num.textContent = seg.sutra_num;
+
+      const txt = document.createElement('span');
+      txt.className = 'pp-sutra-txt dev-text';
+      txt._devText = seg.sutra_txt;
+      txt.textContent = translit(seg.sutra_txt);
+
+      blk.appendChild(num);
+      blk.appendChild(txt);
+      sutraRows.appendChild(blk);
+    });
+    popup.appendChild(sutraRows);
+
+  } else if (r.pratyaya !== r.final && r.final) {
+    // Simplified fallback: struck pratyaya → final form ──────────
+    popup.classList.add('pp-simple');
+
+    const prat = document.createElement('span');
+    prat.className = 'pp-full-prat dev-text';
+    prat._devText = r.pratyaya;
+    prat.textContent = translit(r.pratyaya);
+
+    const arrow = document.createElement('span');
+    arrow.className = 'pp-arrow';
+    arrow.textContent = '→';
+
+    const fin = document.createElement('span');
+    fin.className = 'pp-final dev-text';
+    fin._devText = r.final;
+    fin.textContent = translit(r.final);
+
+    popup.appendChild(prat);
+    popup.appendChild(arrow);
+    popup.appendChild(fin);
+  } else {
+    return null;  // no IT-lopa — no popup needed
+  }
+
+  return popup;
+}
+
+/** Wire up positioning + animation for any pratyaya popup cell. */
+function initPratyayaPopup(cell) {
+  const popup = cell.querySelector('.pp-popup');
+  if (!popup) return;
+
+  const isSimple  = popup.classList.contains('pp-simple');
+  const stage     = isSimple ? null : popup.querySelector('.pp-stage');
+  const sutraBlks = isSimple ? [] : [...popup.querySelectorAll('.pp-sutra-block')];
+  let timers = [];
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  function reset() {
+    if (stage) {
+      stage.classList.remove('pp-anim-x', 'pp-anim-gone');
+      sutraBlks.forEach(b => b.classList.remove('pp-visible'));
+    }
+  }
+
+  function show() {
+    const rect = cell.getBoundingClientRect();
+    popup.style.top  = (rect.bottom + 8) + 'px';
+    popup.style.left = rect.left + 'px';
+    popup.classList.add('pp-show');
+  }
+
+  function runAnim() {
+    reset();
+    timers.push(setTimeout(() => stage.classList.add('pp-anim-x'),                       400));
+    timers.push(setTimeout(() => sutraBlks.forEach(b => b.classList.add('pp-visible')), 1000));
+    timers.push(setTimeout(() => stage.classList.add('pp-anim-gone'),                   1700));
+  }
+
+  cell.addEventListener('mouseenter', () => {
+    clearTimers();
+    show();
+    if (!isSimple) runAnim();
+  });
+
+  cell.addEventListener('mouseleave', () => {
+    clearTimers();
+    popup.classList.remove('pp-show');
+    timers.push(setTimeout(reset, 150));
+  });
+}
+
 // ── Pratyaya Sūchi (index table of all pratyayas) ─────────────────────────────
 
 async function showPratyayaSuchi() {
@@ -3935,11 +4115,23 @@ async function showPratyayaSuchi() {
       noTd.textContent = isCont ? '' : r.no;
       tr.appendChild(noTd);
 
-      // Pratyaya
+      // Pratyaya (with IT-lopa hover popup)
       const pratTd = document.createElement('td');
-      pratTd.className = 'ps-pratyaya dev-text';
-      pratTd._devText = isCont ? '' : r.pratyaya;
-      pratTd.textContent = isCont ? '' : translit(r.pratyaya);
+      if (!isCont) {
+        pratTd.className = 'ps-pratyaya pp-cell';
+        const pratSpan = document.createElement('span');
+        pratSpan.className = 'dev-text';
+        pratSpan._devText = r.pratyaya;
+        pratSpan.textContent = translit(r.pratyaya);
+        pratTd.appendChild(pratSpan);
+        const popup = buildPratyayaPopup(r);
+        if (popup) {
+          pratTd.appendChild(popup);
+          initPratyayaPopup(pratTd);
+        }
+      } else {
+        pratTd.className = 'ps-pratyaya';
+      }
       tr.appendChild(pratTd);
 
       // Rūpa (final form)
@@ -5031,6 +5223,192 @@ async function showVisualLibrary() {
     tab.addEventListener('click', () => showLibCategory(cat.id));
     tabRow.appendChild(tab);
     if (firstCat) { firstCat = false; showLibCategory(cat.id); }
+  }
+}
+
+// ── Articles panel ────────────────────────────────────────────────────────────
+
+const ARTICLE_CATEGORIES = [
+  { id: 'all',            label: 'All'             },
+  { id: 'grammar-method', label: 'Grammar & Method' },
+  { id: 'phonetics',      label: 'Phonetics'        },
+  { id: 'derivations',    label: 'Derivations'      },
+  { id: 'history',        label: 'History'          },
+];
+
+const ARTICLES_INDEX = [
+  {
+    id:          'ashtadhyayi-artha',
+    title:       'How to Derive the Meaning of Ashtadhyayi Sutras',
+    description: 'A guide to reading Panini\'s grammar the way Panini intended — vritti, anuvritta, and adhikara.',
+    category:    'grammar-method',
+    date:        '2026-07-17',
+    url:         'articles/ashtadhyayi-artha.html',
+  },
+];
+
+async function showArticlesPanel(articleId) {
+  showPanel('articles');
+  const panel = $panelArticles;
+
+  if (!panel._built) {
+    panel._built = true;
+
+    // ── Index view ──────────────────────────────────────────────────
+    const indexEl = document.createElement('div');
+    indexEl.className = 'art-index';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'art-header';
+    const ttl = document.createElement('div');
+    ttl.className = 'art-title';
+    ttl.textContent = 'Articles';
+    hdr.appendChild(ttl);
+
+    // Category filter pills
+    const filters = document.createElement('div');
+    filters.className = 'art-filters';
+    let activeFilter = 'all';
+
+    function renderGrid(catId) {
+      activeFilter = catId;
+      filters.querySelectorAll('.art-filter-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.cat === catId));
+      grid.innerHTML = '';
+      const items = catId === 'all'
+        ? ARTICLES_INDEX
+        : ARTICLES_INDEX.filter(a => a.category === catId);
+      if (!items.length) {
+        const empty = document.createElement('p');
+        empty.className = 'art-empty';
+        empty.textContent = 'No articles yet in this category.';
+        grid.appendChild(empty);
+        return;
+      }
+      for (const art of items) {
+        const card = document.createElement('div');
+        card.className = 'art-card';
+
+        const cat = ARTICLE_CATEGORIES.find(c => c.id === art.category);
+        const badge = document.createElement('span');
+        badge.className = 'art-card-cat';
+        badge.textContent = cat ? cat.label : art.category;
+        card.appendChild(badge);
+
+        const cardTitle = document.createElement('div');
+        cardTitle.className = 'art-card-title';
+        cardTitle.textContent = art.title;
+        card.appendChild(cardTitle);
+
+        const desc = document.createElement('div');
+        desc.className = 'art-card-desc';
+        desc.textContent = art.description;
+        card.appendChild(desc);
+
+        const dateEl = document.createElement('div');
+        dateEl.className = 'art-card-date';
+        dateEl.textContent = art.date;
+        card.appendChild(dateEl);
+
+        card.addEventListener('click', () => showArticleDetail(art.id, panel));
+        grid.appendChild(card);
+      }
+    }
+
+    for (const cat of ARTICLE_CATEGORIES) {
+      const count = cat.id === 'all'
+        ? ARTICLES_INDEX.length
+        : ARTICLES_INDEX.filter(a => a.category === cat.id).length;
+      if (cat.id !== 'all' && count === 0) continue;
+      const btn = document.createElement('button');
+      btn.className = 'art-filter-btn';
+      btn.dataset.cat = cat.id;
+      btn.textContent = cat.label;
+      btn.addEventListener('click', () => renderGrid(cat.id));
+      filters.appendChild(btn);
+    }
+    hdr.appendChild(filters);
+    indexEl.appendChild(hdr);
+
+    const grid = document.createElement('div');
+    grid.className = 'art-grid';
+    indexEl.appendChild(grid);
+    panel.appendChild(indexEl);
+
+    // ── Detail view (hidden until an article is selected) ───────────
+    const detailEl = document.createElement('div');
+    detailEl.className = 'art-detail';
+    detailEl.style.display = 'none';
+    panel.appendChild(detailEl);
+
+    renderGrid('all');
+  }
+
+  if (articleId) {
+    await showArticleDetail(articleId, panel);
+  } else {
+    updateBookURL('articles');
+    panel.querySelector('.art-index').style.display = '';
+    const det = panel.querySelector('.art-detail');
+    if (det) det.style.display = 'none';
+  }
+}
+
+async function showArticleDetail(articleId, panel) {
+  if (!panel) panel = $panelArticles;
+  if (!panel._built) { await showArticlesPanel(articleId); return; }
+
+  const art = ARTICLES_INDEX.find(a => a.id === articleId);
+  if (!art) return;
+
+  const indexEl = panel.querySelector('.art-index');
+  const detailEl = panel.querySelector('.art-detail');
+  indexEl.style.display = 'none';
+  detailEl.style.display = '';
+  detailEl.innerHTML = '';
+
+  // Update URL
+  const u = new URL(location.href);
+  u.searchParams.set('book', 'articles');
+  u.searchParams.set('id', articleId);
+  history.replaceState(null, '', u.toString());
+
+  // Back button
+  const back = document.createElement('button');
+  back.className = 'art-back-btn';
+  back.textContent = '← Articles';
+  back.addEventListener('click', () => {
+    updateBookURL('articles');
+    indexEl.style.display = '';
+    detailEl.style.display = 'none';
+  });
+  detailEl.appendChild(back);
+
+  // Loading indicator
+  const loading = document.createElement('div');
+  loading.className = 'art-loading';
+  loading.textContent = 'Loading…';
+  detailEl.appendChild(loading);
+
+  try {
+    const r = await fetch(art.url);
+    if (!r.ok) throw new Error(r.status);
+    const html = await r.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const articleBody = doc.querySelector('article');
+    loading.remove();
+    if (articleBody) {
+      const content = document.createElement('div');
+      content.className = 'art-content';
+      content.innerHTML = articleBody.innerHTML;
+      // Apply current script to data-dev spans
+      content.querySelectorAll('[data-dev]').forEach(el => {
+        el.textContent = translit(el.getAttribute('data-dev'));
+      });
+      detailEl.appendChild(content);
+    }
+  } catch(e) {
+    loading.textContent = 'Failed to load article.';
   }
 }
 
@@ -9105,6 +9483,9 @@ async function init() {
         await showVarnochchaaranPanel();
       } else if (urlBook === 'shabda') {
         showShabdaEngine();
+      } else if (urlBook === 'articles') {
+        const articleId = params.get('id') || null;
+        await showArticlesPanel(articleId);
       } else if (urlBook === 'visuals') {
         await showVisualLibrary();
       } else if (urlBook === 'bhattikavya') {
