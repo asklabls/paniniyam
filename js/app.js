@@ -70,7 +70,7 @@ const BOOKS = [
       { id: 'terms',   devName: 'Terms of Use',   engName: 'Terms of Use',   type: 'legal-page' },
     ]
   },
-  { id: 'newsletter-nav', devName: 'Newsletter', engName: 'Newsletter', type: 'newsletter-leaf' },
+  { id: 'newsletter-nav', devName: 'Substack', engName: 'Substack', type: 'substack-link' },
   { id: 'about', devName: 'About', engName: 'About', type: 'about-menu', icon: 'About',
     sections: [
       { id: 'gurus',     engName: 'Gurus'      },
@@ -2270,9 +2270,9 @@ function buildBookEntry(book, nested = false) {
     return wrap;
   }
 
-  if (book.type === 'newsletter-leaf') {
+  if (book.type === 'substack-link') {
     btn.classList.add('nav-book-leaf');
-    btn.addEventListener('click', () => { closeDrawer(); showAbout(); setTimeout(() => renderAboutSection('newsletter'), 0); });
+    btn.addEventListener('click', () => { closeDrawer(); window.open('https://paniniyam.substack.com', '_blank'); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -7328,9 +7328,9 @@ function renderAboutSection(id) {
       html: `
         <div class="about-section">
           <h2 class="about-title">Stay Updated</h2>
-          <p class="about-intro">Subscribe to get notified when new content, diagrams, or features are added to Paniniyam.</p>
-          <div class="about-card">
-            <div id="kit-form-container"></div>
+          <p class="about-intro">Subscribe on Substack to get new articles, diagrams, and updates from Paniniyam delivered to your inbox.</p>
+          <div class="about-card" style="text-align:center;padding:24px 16px">
+            <a href="https://paniniyam.substack.com" target="_blank" class="substack-subscribe-btn">Subscribe on Substack ↗</a>
           </div>
         </div>`,
     },
@@ -7383,15 +7383,7 @@ function renderAboutSection(id) {
   const form = document.getElementById('feedback-form');
   if (form) wireFeedbackForm(form);
 
-  // Inject Kit.com newsletter form if present
-  const kitContainer = document.getElementById('kit-form-container');
-  if (kitContainer) {
-    const s = document.createElement('script');
-    s.async = true;
-    s.setAttribute('data-uid', 'c965e87656');
-    s.src = 'https://paniniyam.kit.com/c965e87656/index.js';
-    kitContainer.appendChild(s);
-  }
+  // Newsletter: handled by Substack link in the newsletter section (no script injection needed)
 }
 
 function wireFeedbackForm(form) {
@@ -8971,11 +8963,6 @@ document.getElementById('btn-search').addEventListener('click', () => {
 // btn-script click handled inside buildScriptDropdown (hover + click toggle)
 document.getElementById('btn-translit').addEventListener('click', () => { closeDrawer(); showTranslit(); });
 
-// Welcome newsletter button
-document.getElementById('btn-welcome-newsletter').addEventListener('click', () => {
-  showAbout();
-  setTimeout(() => renderAboutSection('newsletter'), 0);
-});
 
 // Welcome footer legal links — open inline instead of navigating away
 document.querySelectorAll('.welcome-legal-link').forEach(a => {
