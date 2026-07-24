@@ -1936,6 +1936,8 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   color: var(--muted);
   font-style: italic;
 }
+a.siddhi-dhatu-ref { text-decoration: none; }
+a.siddhi-dhatu-ref:hover { color: var(--bar); }
 /* Hover tooltip showing the 1-line sutra text */
 /* Artha popup card — appears on hover over siddhi sutra links */
 .artha-popup {

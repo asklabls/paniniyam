@@ -2754,11 +2754,19 @@ async function buildSiddhiPanel(sutraId, wrap, inCard) {
   body.appendChild(tabBar);
   body.appendChild(contentArea);
 
+  const wordCount = {};
+  entries.forEach(e => { const w = e.word || ''; wordCount[w] = (wordCount[w] || 0) + 1; });
+  const wordSeen = {};
   entries.forEach((entry, i) => {
     const pill = document.createElement('button');
     pill.className = 'siddhi-pill dev-text' + (i === 0 ? ' active' : '');
-    pill.textContent = translit(entry.word || `${i + 1}`);
-    pill._devText = entry.word || `${i + 1}`;
+    const rawWord = entry.word || `${i + 1}`;
+    wordSeen[rawWord] = (wordSeen[rawWord] || 0) + 1;
+    const label = (wordCount[rawWord] > 1)
+      ? rawWord + ' (' + wordSeen[rawWord] + ')'
+      : rawWord;
+    pill.textContent = translit(label);
+    pill._devText = label;
     pill.addEventListener('click', () => {
       tabBar.querySelectorAll('.siddhi-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
@@ -3188,11 +3196,28 @@ function renderSiddhiSegs(segs, container) {
       a.addEventListener('touchstart', () => showSiddhiTip(a, seg.id), { passive: true });
       container.appendChild(a);
     } else if (seg.t === 'dl') {
-      const span = document.createElement('span');
-      span.className = 'siddhi-dhatu-ref dev-text';
-      span._devText = seg.v;
-      span.textContent = translit(seg.v);
-      container.appendChild(span);
+      // Use ref to derive a fallback display if v looks like "dhatupatha XX.XXXX"
+      let dlDisplay = seg.v;
+      if (/^dhatupatha\s+\d{2}\.\d{4}/i.test(dlDisplay.trim()) && seg.ref) {
+        const refParts = seg.ref.split('__');
+        if (refParts.length > 1) dlDisplay = refParts[1].replace(/_/g, ' ');
+      }
+      const baseindex = seg.ref ? seg.ref.split('__')[0] : null;
+      if (baseindex) {
+        const a = document.createElement('a');
+        a.className = 'siddhi-dhatu-ref dev-text';
+        a.href = '#';
+        a._devText = dlDisplay;
+        a.textContent = translit(dlDisplay);
+        a.addEventListener('click', e => { e.preventDefault(); gotoDhatu(baseindex); });
+        container.appendChild(a);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'siddhi-dhatu-ref dev-text';
+        span._devText = dlDisplay;
+        span.textContent = translit(dlDisplay);
+        container.appendChild(span);
+      }
     } else if (seg.t === 'cl') {
       const a = document.createElement('a');
       a.className = 'concept-link dev-text';
