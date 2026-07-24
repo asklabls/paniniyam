@@ -1534,7 +1534,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow-y: auto;
-  max-height: 90vh;
+  max-height: 300vh;
 }
 .dhatu-deriv-pillbar {
   position: sticky;

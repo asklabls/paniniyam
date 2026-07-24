@@ -55,7 +55,7 @@ const BOOKS = [
           { id: 'pratyaya-suchi', devName: 'प्रत्यय-सूची', engName: 'Pratyaya Sūchi', type: 'pratyaya-suchi-panel' },
         ]
       },
-      { id: 'shabda',     devName: 'शब्दरूपावली',   engName: 'Śabdarūpāvalī', type: 'shabda-browser' },
+      { id: 'shabda',     devName: 'शब्दरूप',        engName: 'Śabdarūpa',     type: 'shabda-browser' },
       { id: 'namarupa',   devName: 'नामरूप',         engName: 'Nāmarūpa',       type: 'namarupa-page'  },
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
       { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
@@ -3741,6 +3741,7 @@ function parsePratyayaTxt(text) {
 
 async function showPratyayaPage(pageId) {
   showPanel('pratyaya');
+  updateBookURL(pageId);
   const panel = $panelPratyaya;
   panel.innerHTML = '<div class="pratyaya-loading">…</div>';
 
@@ -3983,6 +3984,7 @@ function initPratyayaPopup(cell) {
 
 async function showPratyayaSuchi() {
   showPanel('pratyaya-suchi');
+  updateBookURL('pratyaya-suchi');
   const panel = $panelPratyayaSuchi;
   panel.innerHTML = '<div class="pratyaya-loading">…</div>';
 
@@ -5437,6 +5439,305 @@ async function showArticleDetail(articleId, panel) {
   }
 }
 
+// ── Subanta prakriya (Vidyut-powered, inline below shabda table) ─────────────
+
+async function showSubantaDeriv(stem, lingaId, vib, vac, formDev, td, derivArea,
+    VIB_MAP, VAC_MAP, LINGA_MAP) {
+  // Toggle off if same cell clicked again
+  if (td.classList.contains('forms-cell-active')) {
+    td.classList.remove('forms-cell-active');
+    derivArea.innerHTML = '';
+    return;
+  }
+
+  // Clear previous active cell
+  const parent = td.closest('.shabda-table-area');
+  if (parent) parent.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+  td.classList.add('forms-cell-active');
+  derivArea.innerHTML = '';
+
+  // ── Pill bar ────────────────────────────────────────────────────────────
+  const pillBar = document.createElement('div');
+  pillBar.className = 'dhatu-deriv-pillbar';
+
+  // Active pill — the clicked form
+  const activePill = document.createElement('button');
+  activePill.className = 'dhatu-deriv-pill dev-text active';
+  activePill._devText = formDev;
+  activePill.textContent = translit(formDev);
+  pillBar.appendChild(activePill);
+
+  // Related word pills — same vibhakti+vacana for other stems in NAMARUPA_WORDLIST
+  const vidyutLinga = LINGA_MAP[lingaId];
+  const relatedStems = Object.entries(NAMARUPA_WORDLIST)
+    .filter(([w, lingas]) => w !== stem && lingas.includes(vidyutLinga))
+    .slice(0, 3);
+
+  if (relatedStems.length > 0) {
+    const relForms = Shabda.CLASSES ? relatedStems.map(([w]) => {
+      const ending = Shabda.stemEnding(w);
+      const clsId = Object.keys(Shabda.CLASSES).find(id => {
+        const cls = Shabda.CLASSES[id];
+        return cls.linga === lingaId && (!cls.matchEnding || cls.matchEnding === ending);
+      });
+      if (!clsId) return null;
+      const pos = vib * 10 + vac;
+      const allForms = Shabda.derive(w, clsId);
+      const f = allForms.find(r => r.pos === pos);
+      return f ? { stem: w, form: f.form } : null;
+    }).filter(Boolean) : [];
+
+    relForms.forEach(({ stem: relStem, form: relForm }) => {
+      const p = document.createElement('button');
+      p.className = 'dhatu-deriv-pill dhatu-deriv-pill--related dev-text';
+      p._devText = relForm;
+      p.textContent = translit(relForm);
+      p.title = translit(relStem);
+      p.addEventListener('click', () => {
+        // Fill the input with this stem and re-render
+        const inp = document.querySelector('.shabda-search');
+        if (inp) { inp.value = relStem; inp.dispatchEvent(new Event('input')); }
+      });
+      pillBar.appendChild(p);
+    });
+  }
+
+  // Close button
+  const actions = document.createElement('div');
+  actions.className = 'dhatu-deriv-actions';
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'dhatu-deriv-action';
+  copyBtn.title = 'Copy prakriyā as text';
+  copyBtn.textContent = '📋';
+  copyBtn.disabled = true;
+  actions.appendChild(copyBtn);
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'dhatu-deriv-action';
+  closeBtn.title = 'Close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => {
+    if (parent) parent.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+    derivArea.innerHTML = '';
+  });
+  actions.appendChild(closeBtn);
+  pillBar.appendChild(actions);
+  derivArea.appendChild(pillBar);
+
+  // ── Derivation content ──────────────────────────────────────────────────
+  const content = document.createElement('div');
+  content.innerHTML = '<div class="vidyut-loading">Computing prakriyā…</div>';
+  derivArea.appendChild(content);
+
+  try {
+    const v = await loadVidyut();
+    if (!v) {
+      content.innerHTML = '<div class="vidyut-loading">Vidyut unavailable.</div>';
+      return;
+    }
+
+    const slp1Stem = Sanscript.t(stem, 'devanagari', 'slp1');
+    const results = v.wasm.deriveSubantas({
+      pratipadika: { basic: slp1Stem },
+      linga: vidyutLinga,
+      vibhakti: VIB_MAP[vib],
+      vacana: VAC_MAP[vac],
+    });
+
+    content.innerHTML = '';
+    if (!results || results.length === 0) {
+      content.innerHTML = '<div class="vidyut-loading">No derivation found.</div>';
+      return;
+    }
+
+    let selectedResult = results[0];
+
+    // Form picker when multiple derivations exist
+    if (results.length > 1) {
+      const picker = document.createElement('div');
+      picker.className = 'vidyut-form-picker';
+      const stepsWrap = document.createElement('div');
+      const pills = results.map((r, i) => {
+        const devText = Sanscript.t(vslp1(r.text), 'slp1', 'devanagari');
+        const btn = document.createElement('button');
+        btn.className = 'vidyut-form-pill dev-text' + (i === 0 ? ' active' : '');
+        btn._devText = devText;
+        btn.textContent = translit(devText);
+        btn.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          selectedResult = r;
+          stepsWrap.innerHTML = '';
+          renderVidyutSteps(stepsWrap, r);
+        });
+        return btn;
+      });
+      pills.forEach(p => picker.appendChild(p));
+      content.appendChild(picker);
+      content.appendChild(stepsWrap);
+      renderVidyutSteps(stepsWrap, results[0]);
+    } else {
+      renderVidyutSteps(content, results[0]);
+    }
+
+    copyBtn.disabled = false;
+    copyBtn.addEventListener('click', () => {
+      const lines = (selectedResult.history || []).map(step => {
+        const form = (step.result || []).map(t => Sanscript.t(vslp1(t.text), 'slp1', 'devanagari')).join(' + ');
+        const rule = step.rule ? step.rule.code || '' : '';
+        return form + (rule ? '  (' + rule + ')' : '');
+      });
+      const finalDev = Sanscript.t(vslp1(selectedResult.text), 'slp1', 'devanagari');
+      lines.push(finalDev + '  इति सिद्धम् ॥');
+      navigator.clipboard.writeText(lines.join('\n')).then(() => { copyBtn.textContent = '✓'; setTimeout(() => { copyBtn.textContent = '📋'; }, 1500); });
+    });
+  } catch (err) {
+    content.innerHTML = '<div class="vidyut-loading">Error: ' + err.message + '</div>';
+  }
+}
+
+// ── Subanta prakriya for shabda browser (Vidyut-powered) ─────────────────────
+
+async function showSubantaDerivBrowser(stem, lingaDev, vibIdx, vacIdx, formDev, td, derivArea,
+    VIB_MAP, VAC_MAP, LINGA_MAP, paradigm, paradigms, searchInput, renderTable) {
+  // Toggle off if same cell clicked again
+  if (td.classList.contains('forms-cell-active')) {
+    td.classList.remove('forms-cell-active');
+    derivArea.innerHTML = '';
+    return;
+  }
+
+  // Clear previous active cell
+  const parent = td.closest('.shabda-table-area');
+  if (parent) parent.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+  td.classList.add('forms-cell-active');
+  derivArea.innerHTML = '';
+
+  // ── Pill bar ────────────────────────────────────────────────────────────
+  const pillBar = document.createElement('div');
+  pillBar.className = 'dhatu-deriv-pillbar';
+
+  // Active pill — the clicked form
+  const activePill = document.createElement('button');
+  activePill.className = 'dhatu-deriv-pill dev-text active';
+  activePill._devText = formDev;
+  activePill.textContent = translit(formDev);
+  pillBar.appendChild(activePill);
+
+  // Related word pills — same vibhakti+vacana for similar words
+  if (paradigm.similar && paradigm.similar.length) {
+    const cellIdx = vibIdx * 3 + vacIdx;
+    paradigm.similar.filter(w => w !== stem).slice(0, 5).forEach(w => {
+      const relForms = generateShabdaForms(w, paradigm);
+      const relForm = relForms[cellIdx];
+      if (relForm && relForm !== '—') {
+        const p = document.createElement('button');
+        p.className = 'dhatu-deriv-pill dhatu-deriv-pill--related dev-text';
+        p._devText = w;
+        p.textContent = translit(w);
+        p.title = translit(relForm);
+        p.addEventListener('click', () => {
+          searchInput.value = w;
+          renderTable(paradigm.id, w);
+        });
+        pillBar.appendChild(p);
+      }
+    });
+  }
+
+  // Close button
+  const actions = document.createElement('div');
+  actions.className = 'dhatu-deriv-actions';
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'dhatu-deriv-action';
+  copyBtn.title = 'Copy prakriyā as text';
+  copyBtn.textContent = '📋';
+  copyBtn.disabled = true;
+  actions.appendChild(copyBtn);
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'dhatu-deriv-action';
+  closeBtn.title = 'Close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => {
+    if (parent) parent.querySelectorAll('.forms-cell-active').forEach(c => c.classList.remove('forms-cell-active'));
+    derivArea.innerHTML = '';
+  });
+  actions.appendChild(closeBtn);
+  pillBar.appendChild(actions);
+  derivArea.appendChild(pillBar);
+
+  // ── Derivation content ──────────────────────────────────────────────────
+  const content = document.createElement('div');
+  content.innerHTML = '<div class="vidyut-loading">Computing prakriyā…</div>';
+  derivArea.appendChild(content);
+
+  try {
+    const v = await loadVidyut();
+    if (!v) {
+      content.innerHTML = '<div class="vidyut-loading">Vidyut unavailable.</div>';
+      return;
+    }
+
+    const slp1Stem = Sanscript.t(stem, 'devanagari', 'slp1');
+    const vidyutLinga = LINGA_MAP[lingaDev] || 'Pum';
+    const results = v.wasm.deriveSubantas({
+      pratipadika: { basic: slp1Stem },
+      linga: vidyutLinga,
+      vibhakti: VIB_MAP[vibIdx],
+      vacana: VAC_MAP[vacIdx],
+    });
+
+    content.innerHTML = '';
+    if (!results || results.length === 0) {
+      content.innerHTML = '<div class="vidyut-loading">No derivation found.</div>';
+      return;
+    }
+
+    let selectedResult = results[0];
+
+    // Form picker when multiple derivations exist
+    if (results.length > 1) {
+      const picker = document.createElement('div');
+      picker.className = 'vidyut-form-picker';
+      const stepsWrap = document.createElement('div');
+      const pills = results.map((r, i) => {
+        const devText = Sanscript.t(vslp1(r.text), 'slp1', 'devanagari');
+        const btn = document.createElement('button');
+        btn.className = 'vidyut-form-pill dev-text' + (i === 0 ? ' active' : '');
+        btn._devText = devText;
+        btn.textContent = translit(devText);
+        btn.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          selectedResult = r;
+          stepsWrap.innerHTML = '';
+          renderVidyutSteps(stepsWrap, r);
+        });
+        return btn;
+      });
+      pills.forEach(p => picker.appendChild(p));
+      content.appendChild(picker);
+      content.appendChild(stepsWrap);
+      renderVidyutSteps(stepsWrap, results[0]);
+    } else {
+      renderVidyutSteps(content, results[0]);
+    }
+
+    copyBtn.disabled = false;
+    copyBtn.addEventListener('click', () => {
+      const lines = (selectedResult.history || []).map(step => {
+        const form = (step.result || []).map(t => Sanscript.t(vslp1(t.text), 'slp1', 'devanagari')).join(' + ');
+        const rule = step.rule ? step.rule.code || '' : '';
+        return form + (rule ? '  (' + rule + ')' : '');
+      });
+      const finalDev = Sanscript.t(vslp1(selectedResult.text), 'slp1', 'devanagari');
+      lines.push(finalDev + '  इति सिद्धम् ॥');
+      navigator.clipboard.writeText(lines.join('\n')).then(() => { copyBtn.textContent = '✓'; setTimeout(() => { copyBtn.textContent = '📋'; }, 1500); });
+    });
+  } catch (err) {
+    content.innerHTML = '<div class="vidyut-loading">Error: ' + err.message + '</div>';
+  }
+}
+
 // ── Shabda engine (fires shabda.js) ──────────────────────────────────────────
 // showShabdaEngine() is wired to the शब्दरूपावली nav click.
 // shabda.js is loaded separately — this function calls Shabda.* APIs only.
@@ -5543,6 +5844,14 @@ function showShabdaEngine() {
     // ── Derive and show table ────────────────────────────────────────────
     const forms = Shabda.derive(stem, matchId);
 
+    // Vidyut mappings for click-to-derive
+    const SHABDA_VIB_TO_VIDYUT = {
+      1:'Prathama', 2:'Dvitiya', 3:'Trtiya', 4:'Caturthi',
+      5:'Panchami', 6:'Sasthi', 7:'Saptami', 8:'Sambodhana'
+    };
+    const SHABDA_VAC_TO_VIDYUT = { 1:'Eka', 2:'Dvi', 3:'Bahu' };
+    const SHABDA_LINGA_TO_VIDYUT = { pum:'Pum', napum:'Napumsaka', stri:'Stri' };
+
     const header = document.createElement('div');
     header.className = 'shabda-header';
     const stemEl = document.createElement('span');
@@ -5569,6 +5878,10 @@ function showShabdaEngine() {
     thead.appendChild(hrow);
     table.appendChild(thead);
 
+    // Derivation area below table
+    const derivArea = document.createElement('div');
+    derivArea.className = 'dhatu-deriv-area';
+
     const tbody = document.createElement('tbody');
     for (let vib = 1; vib <= 8; vib++) {
       const row = document.createElement('tr');
@@ -5585,12 +5898,21 @@ function showShabdaEngine() {
         const fdev = f ? f.form : '—';
         td._devText = fdev; td.textContent = translit(fdev);
         if (f && !f.stub) td.title = f.sandhi + (f.ref ? '  (' + f.ref + ')' : '');
+        // Click to show Vidyut prakriya
+        if (fdev !== '—') {
+          td.style.cursor = 'pointer';
+          td.addEventListener('click', () => {
+            showSubantaDeriv(stem, activeLinga, vib, vac, fdev, td, derivArea,
+              SHABDA_VIB_TO_VIDYUT, SHABDA_VAC_TO_VIDYUT, SHABDA_LINGA_TO_VIDYUT);
+          });
+        }
         row.appendChild(td);
       });
       tbody.appendChild(row);
     }
     table.appendChild(tbody);
     result.appendChild(table);
+    result.appendChild(derivArea);
   }
 
   input.addEventListener('input', render);
@@ -6059,6 +6381,7 @@ function generateShabdaForms(stem, paradigm) {
 
 async function showShabdaBrowser(paradigmId, searchWord) {
   showPanel('shabda');
+  updateBookURL('shabda');
   const panel = $panelShabda;
   panel.innerHTML = '<div class="shabda-loading">…</div>';
 
@@ -6176,6 +6499,15 @@ async function showShabdaBrowser(paradigmId, searchWord) {
     thead.appendChild(hrow);
     table.appendChild(thead);
 
+    // Vidyut mappings for click-to-derive
+    const SB_VIB_TO_VIDYUT = ['Prathama','Dvitiya','Trtiya','Caturthi','Panchami','Sasthi','Saptami','Sambodhana'];
+    const SB_VAC_TO_VIDYUT = ['Eka','Dvi','Bahu'];
+    const SB_LINGA_TO_VIDYUT = { 'पुंलिङ्ग':'Pum', 'स्त्रीलिङ्ग':'Stri', 'नपुंसकलिङ्ग':'Napumsaka' };
+
+    // Derivation area below table
+    const derivArea = document.createElement('div');
+    derivArea.className = 'dhatu-deriv-area';
+
     const tbody = document.createElement('tbody');
     for (let i = 0; i < 8; i++) {
       const row = document.createElement('tr');
@@ -6190,37 +6522,23 @@ async function showShabdaBrowser(paradigmId, searchWord) {
         const form = forms[i * 3 + j];
         td._devText = form;
         td.textContent = translit(form || '—');
+        if (form && form !== '—') {
+          td.style.cursor = 'pointer';
+          ((vibIdx, vacIdx, formDev) => {
+            td.addEventListener('click', () => {
+              showSubantaDerivBrowser(displayStem, p.linga, vibIdx, vacIdx, formDev, td, derivArea,
+                SB_VIB_TO_VIDYUT, SB_VAC_TO_VIDYUT, SB_LINGA_TO_VIDYUT, p, paradigms, searchInput, renderTable);
+            });
+          })(i, j, form);
+        }
         row.appendChild(td);
       }
       tbody.appendChild(row);
     }
     table.appendChild(tbody);
     tableArea.appendChild(table);
+    tableArea.appendChild(derivArea);
 
-    // Similar words
-    if (p.similar && p.similar.length) {
-      const simWrap = document.createElement('div');
-      simWrap.className = 'shabda-similar';
-      const simLabel = document.createElement('span');
-      simLabel.className = 'shabda-similar-label dev-text';
-      simLabel._devText = 'समान शब्द';
-      simLabel.textContent = translit('समान शब्द') + ' →';
-      simWrap.appendChild(simLabel);
-      p.similar.forEach(w => {
-        const pill = document.createElement('button');
-        pill.className = 'shabda-sim-pill dev-text';
-        pill._devText = w;
-        pill.textContent = translit(w);
-        pill.addEventListener('click', () => {
-          searchInput.value = w;
-          suggestedIds = [pid];
-          updatePillHints();
-          renderTable(pid, w);
-        });
-        simWrap.appendChild(pill);
-      });
-      tableArea.appendChild(simWrap);
-    }
 
     updatePillHints();
   }
