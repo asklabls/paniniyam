@@ -5733,22 +5733,41 @@ async function showSubantaDerivBrowser(stem, lingaDev, vibIdx, vacIdx, formDev, 
   }
 }
 
-// ── नामरूप engine (fires shabda.js) ─────────────────────────────────────────
-// showShabdaEngine() is wired to the नामरूप nav click.
-// shabda.js is loaded separately — this function calls Shabda.* APIs only.
-// Accepts input in any script; auto-detects all valid lingas for the stem.
+// ── नामरूप panel (shabdapatha data2.txt + Vidyut prakriya) ───────────────────
+// Primary: 9007-word shabdapatha database with pre-computed forms.
+// Fallback: shabda.js engine for words not in the database.
+// Vidyut: prakriya (derivation steps) on cell click.
+// TODO: when shabda.js engine is complete, remove loadShabdapatha + data lookup,
+//       keep only the shabda.js fallback path, and delete this comment block.
+
+const SHABDAPATHA_LINGA_DEV = { P: 'पुंलिङ्ग', S: 'स्त्रीलिङ्ग', N: 'नपुंसकलिङ्ग', A: '' };
+const SHABDAPATHA_LINGA_TO_VIDYUT = { P: 'Pum', S: 'Stri', N: 'Napumsaka' };
+const SP_VIB_TO_VIDYUT = {
+  0:'Prathama', 1:'Dvitiya', 2:'Trtiya', 3:'Caturthi',
+  4:'Panchami', 5:'Sasthi', 6:'Saptami', 7:'Sambodhana'
+};
+const SP_VAC_TO_VIDYUT = { 0:'Eka', 1:'Dvi', 2:'Bahu' };
+
+let _shabdapathaIndex = null;  // word → [entry, …]
+
+async function loadShabdapatha() {
+  if (_shabdapathaIndex) return _shabdapathaIndex;
+  const res = await fetch(`${DATA_BASE}/shabda/data2.txt`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  const index = {};
+  for (const entry of json.data) {
+    (index[entry.word] || (index[entry.word] = [])).push(entry);
+  }
+  _shabdapathaIndex = index;
+  return index;
+}
 
 function showShabdaEngine() {
   showPanel('shabda');
   updateBookURL('shabda');
   const panel = $panelShabda;
   panel.innerHTML = '';
-
-  // ── Disclaimer ──────────────────────────────────────────────────────────
-  const disclaimer = document.createElement('div');
-  disclaimer.className = 'shabda-disclaimer';
-  disclaimer.textContent = 'Note: The declension algorithm is still under development. Some forms may be incorrect.';
-  panel.appendChild(disclaimer);
 
   // ── Pratipada input (accepts any script) ────────────────────────────────
   const wrap = document.createElement('div');
@@ -5767,10 +5786,135 @@ function showShabdaEngine() {
   result.className = 'shabda-table-area';
   panel.appendChild(result);
 
+  // ── Render one entry from shabdapatha ─────────────────────────────────
+  function renderShabdapathaEntry(entry, stem) {
+    const lingaDev = SHABDAPATHA_LINGA_DEV[entry.linga] || '';
+    const formsList = entry.forms.split(';');  // 24 values: 8 vibhakti × 3 vacana
+
+    // Header: word + linga + artha
+    const header = document.createElement('div');
+    header.className = 'shabda-header';
+    const stemEl = document.createElement('span');
+    stemEl.className = 'shabda-stem dev-text';
+    stemEl._devText = stem;
+    stemEl.textContent = translit(stem);
+    header.appendChild(stemEl);
+    if (lingaDev) {
+      const lingaEl = document.createElement('span');
+      lingaEl.className = 'shabda-label dev-text';
+      lingaEl._devText = lingaDev;
+      lingaEl.textContent = translit(lingaDev);
+      header.appendChild(lingaEl);
+    }
+    result.appendChild(header);
+
+    // Artha line
+    const arthaText = entry.artha || entry.artha_hin || '';
+    if (arthaText) {
+      const arthaEl = document.createElement('div');
+      arthaEl.className = 'shabda-pattern-note dev-text';
+      arthaEl._devText = arthaText;
+      arthaEl.textContent = translit(arthaText);
+      result.appendChild(arthaEl);
+    }
+
+    // Declension table
+    const table = document.createElement('table');
+    table.className = 'shabda-table';
+    const thead = document.createElement('thead');
+    const hrow = document.createElement('tr');
+    hrow.appendChild(document.createElement('th'));
+    VACANA_NAMES.forEach(v => {
+      const th = document.createElement('th');
+      th.className = 'dev-text'; th._devText = v; th.textContent = translit(v);
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const derivArea = document.createElement('div');
+    derivArea.className = 'dhatu-deriv-area';
+
+    const vidyutLinga = SHABDAPATHA_LINGA_TO_VIDYUT[entry.linga] || 'Pum';
+
+    const tbody = document.createElement('tbody');
+    for (let vib = 0; vib < 8; vib++) {
+      const row = document.createElement('tr');
+      const label = document.createElement('td');
+      label.className = 'shabda-vib dev-text';
+      label._devText = VIBHAKTI_NAMES[vib];
+      label.textContent = translit(VIBHAKTI_NAMES[vib]);
+      row.appendChild(label);
+      for (let vac = 0; vac < 3; vac++) {
+        const formRaw = formsList[vib * 3 + vac] || '—';
+        const td = document.createElement('td');
+        td.className = 'shabda-form dev-text';
+        td._devText = formRaw;
+        td.textContent = translit(formRaw);
+        if (formRaw !== '—') {
+          td.style.cursor = 'pointer';
+          ((v, vc, fd) => {
+            td.addEventListener('click', () => {
+              showSubantaDeriv(stem, vidyutLinga, v + 1, vc + 1, fd, td, derivArea,
+                { 1:'Prathama', 2:'Dvitiya', 3:'Trtiya', 4:'Caturthi',
+                  5:'Panchami', 6:'Sasthi', 7:'Saptami', 8:'Sambodhana' },
+                { 1:'Eka', 2:'Dvi', 3:'Bahu' },
+                { [vidyutLinga]: vidyutLinga });
+            });
+          })(vib, vac, formRaw);
+        }
+        row.appendChild(td);
+      }
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    result.appendChild(table);
+    result.appendChild(derivArea);
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────
+  let debounceTimer = null;
+
+  function render() {
+    const raw = input.value.trim();
+    result.innerHTML = '';
+    if (!raw) return;
+
+    const stem = normalizeToDevanagari(raw);
+    result.innerHTML = '<div class="shabda-loading">…</div>';
+
+    loadShabdapatha().then(index => {
+      result.innerHTML = '';
+      const entries = index[stem];
+      if (entries && entries.length > 0) {
+        entries.forEach(e => renderShabdapathaEntry(e, stem));
+        return;
+      }
+      // Fallback: shabda.js engine
+      renderShabdaJsFallback(stem, result);
+    }).catch(() => {
+      result.innerHTML = '';
+      renderShabdaJsFallback(stem, result);
+    });
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(render, 200);
+  });
+}
+
+// ── shabda.js fallback (for words not in shabdapatha) ─────────────────────────
+// TODO: remove when shabda.js engine covers all paradigms
+
+function renderShabdaJsFallback(stem, result) {
+  if (typeof Shabda === 'undefined') {
+    result.innerHTML = '<div class="shabda-empty">शब्द not found.</div>';
+    return;
+  }
+
   const LINGA_ORDER = ['pum', 'napum', 'stri'];
   const LINGA_DEV   = { pum: 'पुंलिङ्ग', napum: 'नपुंसकलिङ्ग', stri: 'स्त्रीलिङ्ग' };
-
-  // Vidyut mappings for click-to-derive
   const SHABDA_VIB_TO_VIDYUT = {
     1:'Prathama', 2:'Dvitiya', 3:'Trtiya', 4:'Caturthi',
     5:'Panchami', 6:'Sasthi', 7:'Saptami', 8:'Sambodhana'
@@ -5778,7 +5922,33 @@ function showShabdaEngine() {
   const SHABDA_VAC_TO_VIDYUT = { 1:'Eka', 2:'Dvi', 3:'Bahu' };
   const SHABDA_LINGA_TO_VIDYUT = { pum:'Pum', napum:'Napumsaka', stri:'Stri' };
 
-  function renderLingaTable(stem, lingaId, matchId) {
+  const stemEnd = Shabda.stemEnding(stem);
+  const matches = [];
+  for (const lingaId of LINGA_ORDER) {
+    const valid = Shabda.endingValid(stem, lingaId);
+    if (valid === 0 || valid === null) continue;
+    const matchId = Object.keys(Shabda.CLASSES).find(id => {
+      const cls = Shabda.CLASSES[id];
+      if (cls.linga !== lingaId) return false;
+      if (!cls.matchEnding) return true;
+      return cls.matchEnding === stemEnd;
+    });
+    if (matchId) matches.push({ lingaId, matchId });
+  }
+
+  if (matches.length === 0) {
+    result.innerHTML = '<div class="shabda-empty">शब्द not found.</div>';
+    return;
+  }
+
+  // For fallback, limit to most likely linga
+  const VIDYUT_TO_SHABDA = { Pum: 'pum', Stri: 'stri', Napumsaka: 'napum' };
+  const known = NAMARUPA_WORDLIST[stem];
+  const allowed = known ? known.map(k => VIDYUT_TO_SHABDA[k]).filter(Boolean) : null;
+  const filtered = allowed ? matches.filter(m => allowed.includes(m.lingaId)) : matches;
+  const toRender = filtered.length > 0 ? filtered : matches.slice(0, 1);
+
+  toRender.forEach(({ lingaId, matchId }) => {
     const forms = Shabda.derive(stem, matchId);
 
     const header = document.createElement('div');
@@ -5795,6 +5965,11 @@ function showShabdaEngine() {
     clsLabel.textContent = translit(ld);
     header.appendChild(clsLabel);
     result.appendChild(header);
+
+    const note = document.createElement('div');
+    note.className = 'shabda-pattern-note';
+    note.textContent = 'Generated by shabda.js engine (experimental)';
+    result.appendChild(note);
 
     const table = document.createElement('table');
     table.className = 'shabda-table';
@@ -5844,59 +6019,7 @@ function showShabdaEngine() {
     table.appendChild(tbody);
     result.appendChild(table);
     result.appendChild(derivArea);
-  }
-
-  function render() {
-    const raw = input.value.trim();
-    result.innerHTML = '';
-    if (!raw) return;
-
-    // Normalize any-script input → Devanagari
-    const stem = normalizeToDevanagari(raw);
-
-    // Check wordlist for known linga(s); map Vidyut keys → shabda engine keys
-    const VIDYUT_TO_SHABDA = { Pum: 'pum', Stri: 'stri', Napumsaka: 'napum' };
-    const known = NAMARUPA_WORDLIST[stem];
-    let allowedLingas;
-    if (known) {
-      allowedLingas = known.map(k => VIDYUT_TO_SHABDA[k]).filter(Boolean);
-    } else {
-      // Heuristic: ā-kārānta → stri; ī-kārānta → stri; a-kārānta → pum only
-      const last = stem.slice(-1);
-      const lastTwo = stem.slice(-2);
-      if (last === 'ा' || lastTwo === 'या') allowedLingas = ['stri'];
-      else if (last === 'ी') allowedLingas = ['stri'];
-      else if (last === 'ू') allowedLingas = ['stri'];
-      else allowedLingas = ['pum'];
-    }
-
-    // Find all lingas that have a matching class for this stem
-    const stemEnd = Shabda.stemEnding(stem);
-    const matches = [];
-    for (const lingaId of allowedLingas) {
-      const valid = Shabda.endingValid(stem, lingaId);
-      if (valid === 0 || valid === null) continue;
-      const matchId = Object.keys(Shabda.CLASSES).find(id => {
-        const cls = Shabda.CLASSES[id];
-        if (cls.linga !== lingaId) return false;
-        if (!cls.matchEnding) return true;
-        return cls.matchEnding === stemEnd;
-      });
-      if (matchId) matches.push({ lingaId, matchId });
-    }
-
-    if (matches.length === 0) {
-      const msg = document.createElement('div');
-      msg.className = 'shabda-pattern-note';
-      msg.textContent = '"' + stemEnd + '" के लिए नियम अभी परिभाषित नहीं।';
-      result.appendChild(msg);
-      return;
-    }
-
-    matches.forEach(m => renderLingaTable(stem, m.lingaId, m.matchId));
-  }
-
-  input.addEventListener('input', render);
+  });
 }
 
 // Known word → valid linga(s), sourced from Shabda-Rūpāvalī (Yudhiṣṭhira Mīmāṃsaka).
