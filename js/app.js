@@ -3496,11 +3496,11 @@ function buildTabGroups(sutra, container, inCard) {
         if (which === 'your')   renderNotesTab(yourPanel, sutra.i);
       }
 
-      diagBtn.addEventListener('click',      () => { mediaTabUserChosen = true; activateMediaTab('diagram'); });
-      ytBtn.addEventListener('click',        () => { mediaTabUserChosen = true; activateMediaTab('youtube'); });
-      pvBtn.addEventListener('click',        () => { mediaTabUserChosen = true; activateMediaTab('pv'); });
-      authorTabBtn.addEventListener('click', () => { mediaTabUserChosen = true; activateMediaTab('author'); });
-      yourTabBtn.addEventListener('click',   () => { mediaTabUserChosen = true; activateMediaTab('your'); });
+      diagBtn.addEventListener('click',      (e) => { e.stopPropagation(); mediaTabUserChosen = true; activateMediaTab('diagram'); });
+      ytBtn.addEventListener('click',        (e) => { e.stopPropagation(); mediaTabUserChosen = true; activateMediaTab('youtube'); });
+      pvBtn.addEventListener('click',        (e) => { e.stopPropagation(); mediaTabUserChosen = true; activateMediaTab('pv'); });
+      authorTabBtn.addEventListener('click', (e) => { e.stopPropagation(); mediaTabUserChosen = true; activateMediaTab('author'); });
+      yourTabBtn.addEventListener('click',   (e) => { e.stopPropagation(); mediaTabUserChosen = true; activateMediaTab('your'); });
 
       // Restore last-used tab; default to Author's Notes
       activateMediaTab(activeTabByGroup['media'] || 'author');
@@ -3561,7 +3561,8 @@ function buildTabGroups(sutra, container, inCard) {
         tab.textContent = translit(def.devLabel);
       }
 
-      tab.addEventListener('click', async () => {
+      tab.addEventListener('click', async (e) => {
+        e.stopPropagation();
         tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
         tab.classList.add('active');
         Object.values(panels).forEach(p => p.classList.remove('active'));
