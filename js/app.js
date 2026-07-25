@@ -4414,6 +4414,13 @@ $barRef.addEventListener('click', () => {
   closePadaMatrix();
   if (currentPanel === 'reader') {
     showPanel('list');
+    if (readerType === 'sutra' && readerSutra) {
+      const sid = readerSutra.a + readerSutra.p + String(readerSutra.n).padStart(3, '0');
+      requestAnimationFrame(() => {
+        const card = $sutraList.querySelector(`[data-id="${sid}"]`);
+        if (card) card.scrollIntoView({ block: 'center' });
+      });
+    }
   } else if (currentPanel === 'list' && (readerType === 'dhatu' ? dhatuReaderList.length : readerList.length)) {
     showPanel('reader');
   }
