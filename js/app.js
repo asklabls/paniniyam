@@ -9106,27 +9106,48 @@ function renderShikshaAll(data) {
   for (const sh of data) {
     const card = document.createElement('div');
     card.className = 'sutra-card';
-    const firstLine = (sh.text || '').split('\n')[0];
+
     const row = document.createElement('div');
     row.className = 'sutra-row';
     const idEl = document.createElement('span');
     idEl.className = 'sutra-id';
     idEl.textContent = sh.id;
     row.appendChild(idEl);
-    row.appendChild(devEl('span', 'sutra-text', firstLine));
+    row.appendChild(devEl('span', 'sutra-text', sh.text || ''));
+
     const detail = document.createElement('div');
     detail.className = 'sutra-detail';
     detail.appendChild(devEl('div', 'detail-sutra-full', sh.text || ''));
+
     if (sh.pc) {
       const sec = document.createElement('div');
       sec.className = 'detail-section';
-      const lbl = document.createElement('div');
-      lbl.className = 'detail-label';
-      lbl.textContent = 'Padaccheda';
-      sec.appendChild(lbl);
+      sec.appendChild(devEl('div', 'detail-label', 'पदच्छेदः'));
       sec.appendChild(devEl('div', 'detail-split', sh.pc));
       detail.appendChild(sec);
     }
+    if (sh.anvaya) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      sec.appendChild(devEl('div', 'detail-label', 'अन्वयः'));
+      sec.appendChild(devEl('div', 'shiksha-prose', sh.anvaya));
+      detail.appendChild(sec);
+    }
+    if (sh.artha) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      sec.appendChild(devEl('div', 'detail-label', 'अर्थः'));
+      sec.appendChild(devEl('div', 'shiksha-prose', sh.artha));
+      detail.appendChild(sec);
+    }
+    if (sh.tatparya) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      sec.appendChild(devEl('div', 'detail-label', 'तात्पर्यम्'));
+      sec.appendChild(devEl('div', 'shiksha-prose', sh.tatparya));
+      detail.appendChild(sec);
+    }
+
     card.appendChild(row);
     card.appendChild(detail);
     card.addEventListener('click', () => toggleSimpleCard(card));

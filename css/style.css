@@ -717,6 +717,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
   text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
 }
 .detail-row { margin-bottom: 6px; }
+.shiksha-prose { font-size: .9em; line-height: 1.75; white-space: pre-wrap; margin-bottom: 4px; }
 .detail-sublabel {
   font-size: .7em; font-weight: 600; color: var(--muted); margin-bottom: 2px;
 }
