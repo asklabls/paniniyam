@@ -1,6 +1,6 @@
 // Paniniyam Service Worker — offline cache
 // Bump CACHE_VERSION whenever static assets change significantly
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `paniniyam-${CACHE_VERSION}`;
 
 const CDN_DATA  = 'https://cdn.jsdelivr.net/gh/asklabls/paniniyam-data@master';
@@ -34,8 +34,8 @@ const PRECACHE = [
   `${CDN_DATA}/shiksha/data.txt`,
   `${CDN_DATA}/sutraani/vartika.txt`,
   // Forms
-  `${CDN_FORMS}/forms/pratyaya.txt`,
-  `${CDN_FORMS}/forms/concepts_index.json`,
+  `${CDN_FORMS}/pratyaya.txt`,
+  `${CDN_FORMS}/concepts_index.json`,
 ];
 
 // ── Install: precache static shell + core data ─────────────────────────────────
