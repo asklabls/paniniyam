@@ -367,6 +367,10 @@
     "path": "concepts/sutra-type/संज्ञा.svg",
     "category": "sutra-type"
   },
+  "000_रेफविज्ञान": {
+    "path": "concepts/general/000_रेफविज्ञान.svg",
+    "category": "general"
+  },
   "अ": {
     "path": "concepts/general/अ.svg",
     "category": "general"
@@ -395,6 +399,10 @@
     "path": "concepts/general/सूत्र.svg",
     "category": "general"
   },
+  "3-1-032 सनाद्यन्ता धातवः": {
+    "path": "concepts/general/3-1-032 सनाद्यन्ता धातवः.svg",
+    "category": "general"
+  },
   "कुटादि": {
     "path": "concepts/general/कुटादि.svg",
     "category": "general"
@@ -406,18 +414,6 @@
   "रुत्व-विसर्ग": {
     "path": "concepts/general/रुत्व-विसर्ग.svg",
     "category": "general"
-  },
-  "2026-02-22": {
-    "path": "prakaranas/2026-02-22.svg",
-    "category": "prakarana"
-  },
-  "3.1": {
-    "path": "prakaranas/3.1.svg",
-    "category": "prakarana"
-  },
-  "Abbreviations": {
-    "path": "prakaranas/Abbreviations.svg",
-    "category": "prakarana"
   },
   "guru": {
     "path": "prakaranas/guru.svg",
@@ -905,10 +901,6 @@
   },
   "स्त्रियाः-पुंवद्भाव": {
     "path": "prakaranas/स्त्रियाः-पुंवद्भाव.svg",
-    "category": "prakarana"
-  },
-  "स्वरित-विधि": {
-    "path": "prakaranas/स्वरित-विधि.svg",
     "category": "prakarana"
   },
   "स्वादि की उत्पत्ति": {
