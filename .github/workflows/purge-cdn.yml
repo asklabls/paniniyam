@@ -1,0 +1,28 @@
+name: Purge jsDelivr CDN
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'forms/**'
+      - 'js/app.js'
+      - 'css/style.css'
+      - 'sw.js'
+      - 'index.html'
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Purge changed files on jsDelivr
+        run: |
+          BASE="https://purge.jsdelivr.net/gh/asklabls/paniniyam@main"
+          git diff --name-only HEAD~1 HEAD | while read file; do
+            url="$BASE/$file"
+            echo "Purging $url"
+            curl -s "$url" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('status','?'))"
+          done
