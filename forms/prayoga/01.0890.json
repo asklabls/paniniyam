@@ -1,0 +1,34 @@
+{
+  "id": "01.0890",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "नट": [
+      {
+        "src": "bhagwatam",
+        "ref": "1279",
+        "text": "लगते॥ १०॥ परीक्षित्‌! उस समय नट जैसे अपने"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1610",
+        "text": "नट रंगमंचपर यद्धका अभिनय कर रहे हों॥ ३५॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1722",
+        "text": "पालनेवाले नट हँ। उनका जीवन व्यर्थ हे॥ २९॥"
+      }
+    ]
+  }
+}

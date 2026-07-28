@@ -1,0 +1,29 @@
+{
+  "id": "01.0350",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सट": [
+      {
+        "src": "mahabharata",
+        "ref": "1981",
+        "text": "सट गये ।। २१ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1701",
+        "text": "सट गये हैं। इन सबको बुलाकर पूछो ।। ३ ।।"
+      }
+    ]
+  }
+}

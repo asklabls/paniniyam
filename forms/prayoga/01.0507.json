@@ -1,0 +1,31 @@
+{
+  "id": "01.0507",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "पणस्व": [
+      {
+        "src": "mahabharata",
+        "ref": "2129",
+        "text": "अस्ति ते वै प्रिया राजन् ग्लह एकोऽपराजितः । पणस्व कृष्णां पाञ्चालीं तयाऽऽत्मानं पुनर्जय ।। ३२ ।।"
+      }
+    ],
+    "पणे": [
+      {
+        "src": "mahabharata",
+        "ref": "2132",
+        "text": "न हि दासीत्वमापन्ना कृष्णा भवितुमर्हति । अनीशेन हि राज्ञैषा पणे न्यस्तेति मे मतिः ।। ४ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "01.0618",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "क्ष्वेलन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "2982",
+        "text": "विनर्दन्ति च पञ्चालाः क्ष्वेलन्ति च हसन्ति च । धमन्ति शङ्खान् शतशो हृष्टा घ्नन्ति च दुन्दुभीन् ।। ६२ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "10.0472",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दण्डयेद्": [
+      {
+        "src": "mahabharata",
+        "ref": "1221",
+        "text": "गर्ह्यान् विगर्हयेदेव पूज्यान् सम्पूजयेत् तथा । दण्ड्यांश्च दण्डयेद् देवि नात्र कार्या विचारणा ।।"
+      }
+    ],
+    "दण्डयति": [
+      {
+        "src": "mahabharata",
+        "ref": "1292",
+        "text": "कथं मृतास्ते गच्छन्ति प्राणिनो यमसादनम् । कीदृशं भवनं तस्य कथं दण्डयति प्रजाः ।।"
+      }
+    ]
+  }
+}

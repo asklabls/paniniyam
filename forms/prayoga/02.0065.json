@@ -1,0 +1,29 @@
+{
+  "id": "02.0065",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अन्याः": [
+      {
+        "src": "ramayanam",
+        "ref": "2.89.11",
+        "text": "अन्याः स्वस्तिकविज्ञेया महाघण्टाधरावराः ।\nशोभमानाः पताकिन्यो युक्तवाहाः सुसंहताः ॥"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "2.91.15",
+        "text": "अन्याः स्त्रवन्तु मैरेयं सुरामन्याः सुनिष्ठिताम् ।\nअपराश्रोदकं शीतमिक्षुकाण्डरसोपमम् ॥"
+      }
+    ]
+  }
+}

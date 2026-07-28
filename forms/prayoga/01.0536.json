@@ -1,0 +1,43 @@
+{
+  "id": "01.0536",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "आमः": [
+      {
+        "src": "mahabharata",
+        "ref": "1025",
+        "text": "सुपुष्पितः स्यादफलः फलवान् स्याद् दुरारुहः । आमः स्यात् पक्वसंकाशो न च जीर्येत कर्हिचित् ।। ६८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "933",
+        "text": "सुपुष्पितः स्यादफलः फलवान् स्याद् दुरारुहः । आमः स्यात् पक्वसंकाशो न च शीर्येत कस्यचित् ।। ३१ ।।"
+      }
+    ],
+    "आम": [
+      {
+        "src": "bhagwatam",
+        "ref": "431",
+        "text": "ही सुहावना जान पड़ता है॥ १४॥ आम, कदम्ब,"
+      }
+    ],
+    "अमत": [
+      {
+        "src": "bhagwatam",
+        "ref": "875",
+        "text": "अमत पी गये॥ ६२॥"
+      }
+    ]
+  }
+}

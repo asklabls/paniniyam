@@ -1,0 +1,31 @@
+{
+  "id": "08.0004",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "क्षिणु": [
+      {
+        "src": "mahabharata",
+        "ref": "2118",
+        "text": "स्वस्ति क्षत्तर्मा तितिक्षून् क्षिणु त्वम् ।। ७ ।"
+      }
+    ],
+    "क्षिण्वन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "358",
+        "text": "क्षिण्वन्ति हृदयं मेऽद्य घोराः पावकतेजसः । तमाचार्योऽब्रवीत् कर्णं शनकैः प्रहसन्निव ।। २६ ।।"
+      }
+    ]
+  }
+}

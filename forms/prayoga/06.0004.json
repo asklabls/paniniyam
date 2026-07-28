@@ -1,0 +1,24 @@
+{
+  "id": "06.0004",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "भ्रष्टा": [
+      {
+        "src": "ramayanam",
+        "ref": "5.51.7",
+        "text": "तस्य भार्या जनस्थाने भ्रष्टा सीतेति विश्रुता ।\nवैदेहस्य सुता राज्ञो जनकस्य महात्मनः"
+      }
+    ]
+  }
+}

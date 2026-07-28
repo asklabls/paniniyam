@@ -1,0 +1,49 @@
+{
+  "id": "06.0107",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "जुट": [
+      {
+        "src": "mahabharata",
+        "ref": "1841",
+        "text": "आदिके संग्रहके कामपर जुट जायँ ।। ३० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "962",
+        "text": "कारण जुट गया है और उनका मृत्युकाल भी आ पहुँचा है ।। २० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1737",
+        "text": "उस महासमरमें दुर्योधनके प्रिय कार्यमें जुट गये ।। ३७-३८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "769",
+        "text": "बहुत-से योद्धाओं का समूह जुट गया है ।। १ ।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "528",
+        "text": "उनकी सेवामें जुट गये ।। ९ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "531",
+        "text": "बायीं ओरका बोझ ढोनेके लिये रानीको लगाकर स्वयं वे दाहिनी ओर जुट गये ।। ३२ ।।"
+      }
+    ]
+  }
+}

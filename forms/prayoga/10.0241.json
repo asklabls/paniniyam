@@ -1,0 +1,34 @@
+{
+  "id": "10.0241",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "जम्भ": [
+      {
+        "src": "mahabharata",
+        "ref": "2112",
+        "text": "जम्भ दैत्यको त्याग करनेके समय समस्त बड़े-बड़े असुरोंसे यह कथा सुनायी थी ।। १२ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "731",
+        "text": "असुरश्च महेष्वासो जम्भ इत्यभिविश्रुतः । यज्ञक्षोभकरः क्रूरस्त्वयैव विनिपातितः ॥ २४ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2643",
+        "text": "रणक्षेत्रमें जम्भ और इन्द्रका जैसा युद्ध हुआ था, वैसा ही उन दोनोंका भी हुआ ।। २५ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "06.0022",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अर्चिता": [
+      {
+        "src": "mahabharata",
+        "ref": "961",
+        "text": "एषा वैहायसैर्नित्यं बालखिल्यैर्महात्मभिः । अर्चिता चोपयाता च गन्धर्वैश्च महात्मभिः ।। ५ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1115",
+        "text": "तासु ते पूजिता राज्ञा निषण्णा द्विजसत्तमाः । तिलदर्भोदकेनाथ अर्चिता विधिवद् द्विजाः ।। १४ ।।"
+      }
+    ]
+  }
+}

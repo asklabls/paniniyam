@@ -1,0 +1,34 @@
+{
+  "id": "06.0027",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अरिहः": [
+      {
+        "src": "mahabharata",
+        "ref": "701",
+        "text": "अवाचीनोऽपि वैदर्भीमपरामेवोपयेमे मर्यादां नाम । तस्यामस्य जज्ञे अरिहः ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "701",
+        "text": "अरिहः खल्वाङ्गीमुपयेमे । तस्यामस्य जज्ञे महाभौमः ।। १९ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "702",
+        "text": "अरिहः खल्वाङ्गेयीमुपयेमे सुदेवां नाम । तस्यां पुत्रमजीजनदृक्षम् ।। २४ ॥"
+      }
+    ]
+  }
+}

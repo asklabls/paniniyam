@@ -1,0 +1,24 @@
+{
+  "id": "10.0424",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वातय": [
+      {
+        "src": "mahabharata",
+        "ref": "2228",
+        "text": "२. भद्रं नो अपि वातय मनो दक्षमुत क्रतुम् । अध ते सख्ये अन्धसो विवो मदे रणान्गावो न यवसे विवक्षसे ।। (ऋ०"
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "01.0612",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तेल": [
+      {
+        "src": "mahabharata",
+        "ref": "1127",
+        "text": "कर्णपर आती हुई शक्तिको तेल पीनेवाले बाणसे काट डाला ।। ३० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1215",
+        "text": "जड़े हुए थे। उन मशालोंपर सुगन्धित तेल डाला जाता था ।। ३ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "303",
+        "text": "ऐसा ही हो' यों कहकर वह दिव्य तेल और स्नानोपयोगी वस्त्र ले आयी ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2515",
+        "text": "हैं। चारों ओर लोहेके कलशोंमें तेल खौलाया जा रहा है ।। २४ ।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "76",
+        "text": "भोजन करना चाहिये॥ ४५॥ दाल, मधु, तेल, गरिष्ठ"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1957",
+        "text": "चक्रमे पड़नेका कारण है॥ ६॥ जबतक तेल, तेल"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "380",
+        "text": "धीरे ध्येय वस्तुसे हटा लेता हे॥ ३४॥ जैसे तेल"
+      }
+    ]
+  }
+}

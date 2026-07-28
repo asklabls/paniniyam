@@ -1,0 +1,24 @@
+{
+  "id": "10.0228",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वर्षयामास": [
+      {
+        "src": "mahabharata",
+        "ref": "773",
+        "text": "तपसो यः प्रभावेण वर्षयामास वासवम् । अनावृष्ट्यां भयाद् यस्य ववर्ष बलवृत्रहा ॥ २४ ॥"
+      }
+    ]
+  }
+}

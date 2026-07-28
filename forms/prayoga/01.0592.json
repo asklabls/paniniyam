@@ -1,0 +1,24 @@
+{
+  "id": "01.0592",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "हर्याः": [
+      {
+        "src": "mahabharata",
+        "ref": "472",
+        "text": "हर्याश्च हरयोऽपत्यं वानराश्च तरस्विनः । गोलांगूलांश्च भद्रं ते हर्याः पुत्रान् प्रचक्षते ।। ६४ ।।"
+      }
+    ]
+  }
+}

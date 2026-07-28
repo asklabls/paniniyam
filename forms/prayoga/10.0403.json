@@ -1,0 +1,29 @@
+{
+  "id": "10.0403",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "रचयिता": [
+      {
+        "src": "mahabharata",
+        "ref": "1284",
+        "text": "और उनके रचयिता हैं। ये पवित्र, अचिन्त्य एवं महान् आश्चर्यमय तत्त्व कहे जाते हैं ।। १७"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "306",
+        "text": "रचयिता ओर समस्त लोकपालोके मुकुटमणि हैं। आप छोटे बडे सभी जीवोंका भाव जानते हैं॥ ४॥"
+      }
+    ]
+  }
+}

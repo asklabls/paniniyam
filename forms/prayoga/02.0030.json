@@ -1,0 +1,34 @@
+{
+  "id": "02.0030",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "नवानि": [
+      {
+        "src": "ramayanam",
+        "ref": "4.28.42",
+        "text": "नवाम्बुधाराहतकेसराणि\nद्रुतं परित्यज्य सरोरुहाणि ।\nकदम्बपुष्पाणि सकेसराणि\nनवानि हृष्टा भ्रमराः पिबन्ति ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1139",
+        "text": "दिव्यानि चैव माल्यानि सुगन्धीनि नवानि च । शैशिरस्य गिरेः पादे प्रादुरासन् समीपतः ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2557",
+        "text": "उत्तरा तु महार्हाणि विविधानि नवानि च । प्रतिगृह्याभवत् प्रीता तानि वासांसि भामिनी ।। १७ ।।"
+      }
+    ]
+  }
+}

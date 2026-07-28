@@ -1,0 +1,29 @@
+{
+  "id": "04.0066",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "खिद्यते": [
+      {
+        "src": "ramayanam",
+        "ref": "2.39.7",
+        "text": "एकस्याः खलु कैकेय्याः कृतेऽयं खिद्यते जनः ।\nस्वार्थे प्रयतमानायाः संश्रित्य निकृतिं त्विमाम् ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2414",
+        "text": "किन्नु मे स्याच्छुभं कृत्वा किं कृतं किं परायणम् । इत्येवं खिद्यते नित्यं न च याति विनिश्चयम् ।। ७ ।।"
+      }
+    ]
+  }
+}

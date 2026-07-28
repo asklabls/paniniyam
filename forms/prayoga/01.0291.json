@@ -1,0 +1,24 @@
+{
+  "id": "01.0291",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "लोष्टे": [
+      {
+        "src": "mahabharata",
+        "ref": "1454",
+        "text": "अक्रुध्यन्तमहृष्यन्तमप्रियेषु प्रियेषु च । काञ्चने वाथ लोष्टे वा उभयोः समदर्शनम् ।। ६ ।।"
+      }
+    ]
+  }
+}

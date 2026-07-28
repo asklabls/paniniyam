@@ -1,0 +1,24 @@
+{
+  "id": "10.0041",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "शाठ्यात्": [
+      {
+        "src": "ramayanam",
+        "ref": "2.23.9",
+        "text": "तयोः सुचरितं स्वार्थं शाठ्यात् परिजिहीर्षतोः ।\nयदि नैवं व्यवसितं स्याद्धि प्रागेव राघव ।\nतयोः प्रागेव दत्तश्च स्याद् वरः प्रकृतश्च सः ॥"
+      }
+    ]
+  }
+}

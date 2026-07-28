@@ -1,0 +1,29 @@
+{
+  "id": "10.0075",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "चण्ड": [
+      {
+        "src": "mahabharata",
+        "ref": "2200",
+        "text": "ब्रह्मा च गार्हपत्योऽग्निस्तस्मिन्नेव हि सोऽभवत् । दक्षिणाग्निस्त्वयं रुद्रः क्रोधात्मा चण्ड एव सः ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1905",
+        "text": "पूजा करे॥ २७॥ नन्द, सुनन्द, प्रचण्ड, चण्ड, महाबल,"
+      }
+    ]
+  }
+}

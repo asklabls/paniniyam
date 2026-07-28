@@ -1,0 +1,59 @@
+{
+  "id": "01.0632",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "खोल": [
+      {
+        "src": "mahabharata",
+        "ref": "828",
+        "text": "करनेके बाद इन कुण्डोंका ढक्कन खोल देना चाहिये' ।। २३ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1366",
+        "text": "धुरेका बोझ ढोनेवाला अश्व खोल करके दे दिया ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "663",
+        "text": "खोल दिया ।। १-२ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "664",
+        "text": "अर्जुन और श्रीकृष्णने उस भयंकर संग्राममें भी घोड़ोंको रथसे खोल दिया ।। १० ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1222",
+        "text": "उन्होने रस्सीकौ गाँठ खोल दी*॥६॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1986",
+        "text": "उदय हो जानेसे उन्होंने अपनी समाधि खोल दी॥ १३॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "833",
+        "text": "उनकी पोल खोल देता है॥ २७॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "952",
+        "text": "उसकी पोल खोल दी॥ २४॥"
+      }
+    ]
+  }
+}

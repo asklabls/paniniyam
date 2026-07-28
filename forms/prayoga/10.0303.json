@@ -1,0 +1,24 @@
+{
+  "id": "10.0303",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "धूपयेत्": [
+      {
+        "src": "mahabharata",
+        "ref": "1387",
+        "text": "यस्तु गुग्गुलपिण्डेन केवलेनापि धूपयेत् । तस्य रुक्मप्रदानस्य यत् फलं तस्य तद् भवेत् ।।"
+      }
+    ]
+  }
+}

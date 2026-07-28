@@ -1,0 +1,29 @@
+{
+  "id": "01.0535",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सन": [
+      {
+        "src": "bhagwatam",
+        "ref": "1047",
+        "text": "सन प्रकारकी आसक्तियोंका परित्याग कर दिया॥ २६॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "744",
+        "text": "और प्रा्णोको सन प्रकारकी आपत्तियोंसे बचायें॥ ३०॥"
+      }
+    ]
+  }
+}

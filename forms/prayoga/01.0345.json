@@ -1,0 +1,29 @@
+{
+  "id": "01.0345",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तट": [
+      {
+        "src": "mahabharata",
+        "ref": "184",
+        "text": "अपनी तट - भूमिसे आगे नहीं बढ़ता, उसी प्रकार वे मौतको लाँघ नहीं पाते हैं ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "540",
+        "text": "ही क्षणमें वह वन, वे अप्सराओंके समुदाय, गन्धर्व और वृक्ष सब-के-सब अदृश्य हो गये। नरेश्वर! गंगाका वह तट पुनः शब्द-रहित हो गया ।। २२-२३ ।।"
+      }
+    ]
+  }
+}

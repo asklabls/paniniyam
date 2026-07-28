@@ -1,0 +1,29 @@
+{
+  "id": "10.0412",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सूचयन्ति": [
+      {
+        "src": "ramayanam",
+        "ref": "4.11.81",
+        "text": "कामं राघव ते वाणी प्रमाणं धैर्यमाकृतिः ।\nसूचयन्ति परं तेजो भस्मच्छन्नमिवानलम् ॥"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "4.10.81",
+        "text": "कामं राघव ते वाणी प्रमाणं धैर्यमाकृतिः ।\nसूचयन्ति परं तेजो भस्मच्छन्नमिवानलम्"
+      }
+    ]
+  }
+}

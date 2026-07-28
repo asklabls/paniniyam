@@ -1,0 +1,31 @@
+{
+  "id": "01.0519",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "व्रण": [
+      {
+        "src": "ramayanam",
+        "ref": "6.22.38",
+        "text": "स बभूव तदा कूपो व्रण इत्येव विश्रुतः ।\nसततं चोत्थितं तोयं समुद्रस्येव दृश्यते ॥"
+      }
+    ],
+    "व्रणानि": [
+      {
+        "src": "ramayanam",
+        "ref": "7.7.15",
+        "text": "व्रणानि परगात्रेभ्यो विष्णुचक्रकृतानि हि ।\nअसृक् क्षरन्ति धाराभिः स्वर्णधारा इवाचलाः ॥"
+      }
+    ]
+  }
+}

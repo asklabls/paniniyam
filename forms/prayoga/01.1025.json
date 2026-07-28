@@ -1,0 +1,29 @@
+{
+  "id": "01.1025",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दाश": [
+      {
+        "src": "mahabharata",
+        "ref": "742",
+        "text": "श्रुत्वा तव वरं दाश व्यवस्येयमहं तव । दातव्यं चेत् प्रदास्यामि न त्वदेयं कथंचन ।। ५५ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "750",
+        "text": "अद्यप्रभृति मे दाश ब्रह्मचर्यं भविष्यति । अपुत्रस्यापि मे लोका भविष्यन्त्यक्षया दिवि ।। ९६ ।।"
+      }
+    ]
+  }
+}

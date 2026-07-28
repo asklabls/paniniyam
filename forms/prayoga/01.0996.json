@@ -1,0 +1,43 @@
+{
+  "id": "01.0996",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कस्याः": [
+      {
+        "src": "ramayanam",
+        "ref": "1.38.10",
+        "text": "एकः कस्याः सुतो ब्रह्मन् का बहूञ्जनयिष्यति ।\nश्रोतुमिच्छावहे ब्रह्मन् सत्यमस्तु वचस्तव ॥"
+      }
+    ],
+    "चकास": [
+      {
+        "src": "ramayanam",
+        "ref": "5.27.13",
+        "text": "आरूढः शैलसंकाशं चकास सहलक्ष्मणः ।\nततस्तु सूर्यसंकाशौ दीप्यमानौ स्वतेजसा"
+      }
+    ],
+    "कस": [
+      {
+        "src": "mahabharata",
+        "ref": "1520",
+        "text": "दोनों भुजाओंमें कस लिया ।। ४० ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "454",
+        "text": "लेंगे ओर भुजाओंमें कस लेंगे॥ ३॥ वे हाथ जोड़े"
+      }
+    ]
+  }
+}

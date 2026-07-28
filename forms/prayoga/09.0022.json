@@ -1,0 +1,36 @@
+{
+  "id": "09.0022",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "परीतास्मि": [
+      {
+        "src": "mahabharata",
+        "ref": "1084",
+        "text": "माता सती पाण्डवानां पञ्चानां मध्यतः स्थिता । तृष्णया हि परीतास्मि पुत्रान् भृशमथाब्रवीत् ।। १३ ।।"
+      }
+    ],
+    "परीता": [
+      {
+        "src": "mahabharata",
+        "ref": "541",
+        "text": "ततः स्वोरसि विन्यस्य वक्त्रं तस्य शुभानना । परीता तेन दुःखेन निःशश्वासायतेक्षणा ।। ४५ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "272",
+        "text": "सेयं बुद्धिः परीता ते पुत्राणां भरतर्षभ । पाण्डवानां विरोधेन न चैनानवबुध्यसे ।। ८३ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "01.1051",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ग्लायति": [
+      {
+        "src": "mahabharata",
+        "ref": "1580",
+        "text": "एवं सेन्द्रं जगत् सर्वं श्वेतपर्वतसंस्थितम् । प्रहृष्टं प्रेक्षते स्कन्दं न च ग्लायति दर्शनात् ।। २७ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2168",
+        "text": "प्रताम्यति ग्लायति वा नापैति च तथाऽऽतपात् । तेषां तु द्वारपालानामेकः शोकसमन्वितः ।। २७ ।।"
+      }
+    ]
+  }
+}

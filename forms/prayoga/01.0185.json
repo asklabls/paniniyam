@@ -1,0 +1,24 @@
+{
+  "id": "01.0185",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मजामि": [
+      {
+        "src": "bhagwatam",
+        "ref": "1071",
+        "text": "मजामि तदघं कत्र राजंस्तत्र विचिन्त्यताम्‌।॥ ५"
+      }
+    ]
+  }
+}

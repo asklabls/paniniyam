@@ -1,0 +1,29 @@
+{
+  "id": "01.0044",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ममन्थ": [
+      {
+        "src": "ramayanam",
+        "ref": "1.45.31",
+        "text": "देवानां मध्यतः स्थित्वा ममन्थ पुरुषोत्तमः ।\nअथ वर्षसहस्त्रेण आयुर्वेदमयः पुमान् ॥"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "6.66.12",
+        "text": "सोऽपि सैन्यानि संक्रुद्धौ वानराणां महौजसाम् ।\nममन्थ परमायत्तो वनान्यग्निरिवोत्थितः ॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "01.0975",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "पोल": [
+      {
+        "src": "bhagwatam",
+        "ref": "833",
+        "text": "उनकी पोल खोल देता है॥ २७॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "952",
+        "text": "उसकी पोल खोल दी॥ २४॥"
+      }
+    ]
+  }
+}

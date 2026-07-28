@@ -1,0 +1,31 @@
+{
+  "id": "01.0027",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ह्लादते": [
+      {
+        "src": "mahabharata",
+        "ref": "546",
+        "text": "एवं आचार आदि आते हैं। भार्यायां जनितं पुत्रमादर्शेष्विव चाननम् । ह्लादते जनिता प्रेक्ष्य स्वर्गं प्राप्येव पुण्यकृत् ।। ४९ ।।"
+      }
+    ],
+    "ह्लादन्ते": [
+      {
+        "src": "mahabharata",
+        "ref": "546",
+        "text": "दह्यमाना मनोदुःखैर्व्याधिभिश्चातुरा नराः । ह्लादन्ते स्वेषु दारेषु घर्मार्ताः सलिलेष्विव ।। ५० ।।"
+      }
+    ]
+  }
+}

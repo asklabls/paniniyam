@@ -1,0 +1,31 @@
+{
+  "id": "10.0371",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "जोषयेत्": [
+      {
+        "src": "mahabharata",
+        "ref": "1399",
+        "text": "न बुद्धिभेदं जनयेदज्ञानां कर्मसङ्गिनाम् । जोषयेत् सर्वकर्माणि विद्वान् युक्तः समाचरन् ।। २६ ।।"
+      }
+    ],
+    "जोषयेत": [
+      {
+        "src": "mahabharata",
+        "ref": "1800",
+        "text": "अपापमशठं वृत्तमजिह्मं नित्यमाचरेत् । जोषयेत सदा भोज्यं ग्रासमागतमस्पृहः ।। ३१ ।।"
+      }
+    ]
+  }
+}

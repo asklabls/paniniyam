@@ -1,0 +1,24 @@
+{
+  "id": "04.0132",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "समिता": [
+      {
+        "src": "mahabharata",
+        "ref": "659",
+        "text": "सत्ये धर्मे च निरतस्तस्य शक्र फलं शृणु । गोसहस्रेण समिता तस्य धेनुर्भवत्युत ।। २३ ॥"
+      }
+    ]
+  }
+}

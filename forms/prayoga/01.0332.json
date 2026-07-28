@@ -1,0 +1,29 @@
+{
+  "id": "01.0332",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अटन्ति": [
+      {
+        "src": "ramayanam",
+        "ref": "2.67.20",
+        "text": "नाराजके जनपदे बद्धघण्टा विषाणिनः ।\nअटन्ति राजमार्गेषु कुञ्जराः षष्टिहायनाः ॥"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "5.43.21",
+        "text": "बलिनां वानरेन्द्राणां सुग्रीववशवर्तिनाम् ।\nअटन्ति वसुधां कृत्स्नां वयमन्ये च वानराः"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "10.0108",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मार्गयिष्यामि": [
+      {
+        "src": "mahabharata",
+        "ref": "1751",
+        "text": "यत्र गत्वा न शोचन्ति न व्यथन्ति चलन्ति वा । तदहं स्थानमत्यन्तं मार्गयिष्यामि केवलम् ।। ४४ ।।"
+      }
+    ],
+    "मार्गय": [
+      {
+        "src": "mahabharata",
+        "ref": "997",
+        "text": "अपि धिक्क्रियमाणोऽपि त्यज्यमानोऽप्यनेकधा । आत्मनो दर्शनाद् विप्रान्न हन्तास्मीति मार्गय । घटमानः स्वकार्येषु कुरु निःश्रेयसं परम् ।। २० ।।"
+      }
+    ]
+  }
+}

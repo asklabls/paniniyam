@@ -1,0 +1,36 @@
+{
+  "id": "01.0243",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "उञ्छन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "1172",
+        "text": "उञ्छन्ति सततं ये ते ब्राह्मयं फेनोत्करं शुभम् । अमृतं ब्रह्मणा पीतमध्वरे प्रसृतं दिवि ।। ९७ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1173",
+        "text": "सोमपानां च देवानामूष्मपाणां तथैव च । उञ्छन्ति ये समीपस्थाः सदारा नियतेन्द्रियाः ।। १०५ ।।"
+      }
+    ],
+    "उञ्छ": [
+      {
+        "src": "mahabharata",
+        "ref": "2041",
+        "text": "लोग उञ्छ लानेके लिये चले ।। २९ ।।"
+      }
+    ]
+  }
+}

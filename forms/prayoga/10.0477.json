@@ -1,0 +1,31 @@
+{
+  "id": "10.0477",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "रस्याः": [
+      {
+        "src": "mahabharata",
+        "ref": "1626",
+        "text": "आयुःसत्त्वबलारोग्यसुखप्रीतिविवर्धनाः । रस्याः स्निग्धाः स्थिरा हृद्या आहाराः सात्त्विकप्रियाः ।। ८ ॥"
+      }
+    ],
+    "रसयिता": [
+      {
+        "src": "mahabharata",
+        "ref": "159",
+        "text": "वक्ता मन्ता रसयिता घ्राता द्रष्टा प्रदर्शकः । बोद्धा बोद्धयिता चाहं गन्ता श्रोता चिदात्मकः ।।"
+      }
+    ]
+  }
+}

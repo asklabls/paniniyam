@@ -1,0 +1,34 @@
+{
+  "id": "06.0079",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मिषतः": [
+      {
+        "src": "mahabharata",
+        "ref": "1411",
+        "text": "मिषतः सर्वलोकस्य स्थास्यते त्वयि तद् ध्रुवम् । अतोऽन्यथा चेद् विहितं यतमानो न लप्स्यसे ॥ २४ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1984",
+        "text": "दारयोर्यस्य चान्येन मिषतः प्राज्ञमानिनः । तव जातान्यपत्यानि सज्जनाचरिते पथि ॥ २४ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1158",
+        "text": "ततो युधिष्ठिरः क्रुद्धस्तवानीकमशातयत् । मिषतः कुम्भयोनेस्तु पुत्राणां तव चानघ ॥ २७ ॥"
+      }
+    ]
+  }
+}

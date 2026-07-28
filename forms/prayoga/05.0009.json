@@ -1,0 +1,31 @@
+{
+  "id": "05.0009",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दुधुवे": [
+      {
+        "src": "ramayanam",
+        "ref": "5.1.32",
+        "text": "दुधुवे च स रोमाणि चकम्पे चानलोपमः ।\nननाद च महानादं सुमहानिव तोयदः"
+      }
+    ],
+    "धुनुते": [
+      {
+        "src": "mahabharata",
+        "ref": "348",
+        "text": "कामानुसारी पुरुषः कामाननु विनश्यति । कामान् व्युदस्य धुनुते यत् किंचित् पुरुषो रजः ।। १३ ।।"
+      }
+    ]
+  }
+}

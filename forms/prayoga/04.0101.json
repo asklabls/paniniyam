@@ -1,0 +1,24 @@
+{
+  "id": "04.0101",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "श्राम्यति": [
+      {
+        "src": "mahabharata",
+        "ref": "85",
+        "text": "अकृत्वा मानुषं कर्म यो दैवमनुवर्तते । वृथा श्राम्यति सम्प्राप्य पतिं क्लीबमिवाङ्गना ।। २० ।।"
+      }
+    ]
+  }
+}

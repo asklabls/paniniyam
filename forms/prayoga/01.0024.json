@@ -1,0 +1,24 @@
+{
+  "id": "01.0024",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "गोदसे": [
+      {
+        "src": "bhagwatam",
+        "ref": "290",
+        "text": "थे॥ २२॥ इनमें नारदजी प्रजापति ब्रह्माजीकी गोदसे,"
+      }
+    ]
+  }
+}

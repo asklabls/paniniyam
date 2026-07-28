@@ -1,0 +1,36 @@
+{
+  "id": "09.0066",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मुष्णाति": [
+      {
+        "src": "mahabharata",
+        "ref": "2090",
+        "text": "दैवं हि प्रज्ञां मुष्णाति चक्षुस्तेज इवापतत् । धातुश्च वशमन्वेति पाशैरिव नरः सितः । १८ ॥"
+      }
+    ],
+    "मुष्णन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "1516",
+        "text": "चितोऽग्निरुद्वहन् यज्ञं पक्षाभ्यां तान् प्रबाधते । मन्त्रैः प्रशमिता ह्येते नेष्टं मुष्णन्ति यज्ञियम् ॥ १७ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1036",
+        "text": "धर्मवैतंसिकाः क्षुद्रा मुष्णन्ति ध्वजिनो जगत् ।। १८ ।।"
+      }
+    ]
+  }
+}

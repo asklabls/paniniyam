@@ -1,0 +1,24 @@
+{
+  "id": "01.0288",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वेष्टन्ते": [
+      {
+        "src": "ramayanam",
+        "ref": "5.53.6",
+        "text": "तस्य तद् वचनं श्रुत्वा राक्षसाः कोपकर्कशाः ।\nवेष्टन्ते तस्य लाङ्गूलं जीर्णैः कार्पासिकैः पटैः"
+      }
+    ]
+  }
+}

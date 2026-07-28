@@ -1,0 +1,31 @@
+{
+  "id": "10.0076",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मण्डयिष्यन्ति": [
+      {
+        "src": "ramayanam",
+        "ref": "6.95.16",
+        "text": "सशरैरद्य वदनैः संख्ये वानरयूथपाः ।\nमण्डयिष्यन्ति वसुधां सनालैरिव पङ्कजैः ॥"
+      }
+    ],
+    "मण्डयाञ्चक्रिरे": [
+      {
+        "src": "mahabharata",
+        "ref": "1427",
+        "text": "(पाण्डवानागताञ्छ्रुत्वा नागरास्तु कुतूहलात् । मण्डयाञ्चक्रिरे तत्र नगरं नागसाह्वयम् ।।"
+      }
+    ]
+  }
+}

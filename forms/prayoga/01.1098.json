@@ -1,0 +1,24 @@
+{
+  "id": "01.1098",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अजरः": [
+      {
+        "src": "mahabharata",
+        "ref": "1365",
+        "text": "अजरः सोऽमरश्चैव व्यक्ताव्यक्तोपदेशवान् । व्यापकः सगुणः सूक्ष्मः सर्वभूतगुणाश्रयः ।। ३८ ।।"
+      }
+    ]
+  }
+}

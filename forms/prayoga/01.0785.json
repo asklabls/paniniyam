@@ -1,0 +1,24 @@
+{
+  "id": "01.0785",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "झष": [
+      {
+        "src": "mahabharata",
+        "ref": "748",
+        "text": "द्रोणानीकं विशाम्येष क्रुद्धो झष इवार्णवम् । तत्र यास्यामि यत्रासौ राजन् राजा जयद्रथः ।। १० ।।"
+      }
+    ]
+  }
+}

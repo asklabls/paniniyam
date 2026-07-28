@@ -1,0 +1,31 @@
+{
+  "id": "01.0858",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ध्वंससे": [
+      {
+        "src": "ramayanam",
+        "ref": "7.11.39",
+        "text": "स क्रोधेन मया चोक्तो ध्वंससे च पुनः पुनः ।\nश्रेयोऽभियुक्तं धर्म्यं च शृणु पुत्र वचो मम ॥"
+      }
+    ],
+    "दध्वंसिरे": [
+      {
+        "src": "mahabharata",
+        "ref": "1086",
+        "text": "एतच्छ्रुत्वा तु भीष्मस्य राज्ञां दध्वंसिरे तदा । काञ्चनाङ्गदिनः पीना भुजाश्चन्दनरूषिताः ।। २७ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "06.0008",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "जुषस्व": [
+      {
+        "src": "mahabharata",
+        "ref": "2034",
+        "text": "अहं तु तद् विजानामि विजेतुं येन शक्यते । युधिष्ठिरं स्वयं राजंस्तन्निबोध जुषस्व च ॥ १७ ॥"
+      }
+    ],
+    "जुषन्ते": [
+      {
+        "src": "mahabharata",
+        "ref": "1080",
+        "text": "अब्भक्षा वायुभक्षाश्च प्लवमाना विहायसा । जुषन्ते पर्वतश्रेष्ठमृषयः पर्वसंधिषु ।। १६ ।।"
+      }
+    ]
+  }
+}

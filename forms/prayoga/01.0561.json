@@ -1,0 +1,24 @@
+{
+  "id": "01.0561",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "प्यायिता": [
+      {
+        "src": "mahabharata",
+        "ref": "299",
+        "text": "तन्तवः प्यायिता नित्यं तनवो बहुलाः समाः । बहून् बहुत्वादायासान् सहन्तीत्युपमा सताम् ।। ५९ ।।"
+      }
+    ]
+  }
+}

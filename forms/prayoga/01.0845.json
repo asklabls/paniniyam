@@ -1,0 +1,24 @@
+{
+  "id": "01.0845",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सिष्विदे": [
+      {
+        "src": "mahabharata",
+        "ref": "237",
+        "text": "तदा मोहमनुप्राप्तः सिष्विदे हि जनार्दनः । ततस्तान् प्रायशः पार्थो ब्रह्मास्त्रेण निजघ्निवान् ।। २० ।।"
+      }
+    ]
+  }
+}

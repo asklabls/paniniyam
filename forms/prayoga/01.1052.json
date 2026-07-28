@@ -1,0 +1,29 @@
+{
+  "id": "01.1052",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "म्लायन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "1747",
+        "text": "न म्लायन्ति स्रजस्तेषां दिव्यगन्धा मनोरमाः । संयुज्यन्ते विमानैश्च ब्रह्मन्नेवंविधैश्च ते ।। १५ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1250",
+        "text": "न म्लायन्ति स्रजश्चैव ते तरन्ति रणोदधिम् ।। ७० ।।"
+      }
+    ]
+  }
+}

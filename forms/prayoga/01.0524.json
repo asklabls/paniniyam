@@ -1,0 +1,29 @@
+{
+  "id": "01.0524",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "शोण": [
+      {
+        "src": "mahabharata",
+        "ref": "1665",
+        "text": "तृतीया, ज्येष्ठिला, महानद शोण, चर्मण्वती, पर्णाशा, महानदी, ।। २१ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1527",
+        "text": "भारती सुप्रयोगा च कावेरी मुर्मुरा तथा । तुङ्गवेणा कृष्णवेणा कपिला शोण एव च ॥ २५ ॥"
+      }
+    ]
+  }
+}

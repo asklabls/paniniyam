@@ -1,0 +1,36 @@
+{
+  "id": "01.0692",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दक्षे": [
+      {
+        "src": "mahabharata",
+        "ref": "1132",
+        "text": "सुखं दुःखान्तमालस्यं दुःखं दाक्ष्यं सुखोदयम् । भूतिस्त्वेवं श्रिया सार्धं दक्षे वसति नालसे ॥ ३८ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1389",
+        "text": "दक्षे शमदमोपेते निर्ममे धर्मचारिणि । पृच्छामि त्वां वरारोहे पृष्टा वद ममेप्सितम् ॥ ३ ॥"
+      }
+    ],
+    "दक्षसे": [
+      {
+        "src": "mahabharata",
+        "ref": "1876",
+        "text": "भी बहुत प्रसन्न होकर दक्षसे कहा- ।। १८१ ।।"
+      }
+    ]
+  }
+}

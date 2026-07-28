@@ -1,0 +1,24 @@
+{
+  "id": "10.0210",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "लालयामास": [
+      {
+        "src": "mahabharata",
+        "ref": "227",
+        "text": "गात्राभ्यन्तरगो भूत्वा करेणाताडयन्मुहुः । लालयामास तं नागं वधाकाङ्क्षिणमव्ययम् ।। २४ ।।"
+      }
+    ]
+  }
+}

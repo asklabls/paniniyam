@@ -1,0 +1,36 @@
+{
+  "id": "01.1099",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "स्मयसे": [
+      {
+        "src": "mahabharata",
+        "ref": "454",
+        "text": "इदं जितमिदं लब्धमिति श्रुत्वा पराजितान् । द्यूतकाले महाराज स्मयसे स्म कुमारवत् ।। ५॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "455",
+        "text": "कुमारवच्च स्मयसे द्यूते विनिकृतेषु यत् । पाण्डवेषु वने राजन् प्रव्रजत्सु पुनः पुनः ।। १० ।।"
+      }
+    ],
+    "स्मयते": [
+      {
+        "src": "mahabharata",
+        "ref": "2177",
+        "text": "अनागतानि कार्याणि कर्तुं गणयते मनः । शारीरकं समुद्दिश्य स्मयते नूनमन्तकः ।।"
+      }
+    ]
+  }
+}

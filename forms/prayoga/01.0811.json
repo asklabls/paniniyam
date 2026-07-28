@@ -1,0 +1,24 @@
+{
+  "id": "01.0811",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अलसः": [
+      {
+        "src": "mahabharata",
+        "ref": "799",
+        "text": "नैतस्येह यथास्माकं शश्वच्छास्त्रं जरद्गवः । अलसः क्षुत्परो मूर्खस्तेन पीवाञ्छुना सह ।। ६३ ।।"
+      }
+    ]
+  }
+}

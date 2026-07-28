@@ -1,0 +1,31 @@
+{
+  "id": "01.0610",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "फुल्ल": [
+      {
+        "src": "ramayanam",
+        "ref": "6.103.7",
+        "text": "स शोणितसमादिग्धः समरे लक्ष्मणाग्रजः ।\nदृष्टः फुल्ल इवारण्ये सुमहान् किंशुकद्रुमः ॥"
+      }
+    ],
+    "फुल्लानि": [
+      {
+        "src": "ramayanam",
+        "ref": "5.9.38",
+        "text": "इमानि मुखपद्मानि नियतं मत्तषट्पदाः ।\nअम्बुजानीव फुल्लानि प्रार्थयन्ति पुनः पुनः"
+      }
+    ]
+  }
+}

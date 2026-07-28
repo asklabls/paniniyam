@@ -1,0 +1,39 @@
+{
+  "id": "01.0124",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तक": [
+      {
+        "src": "mahabharata",
+        "ref": "456",
+        "text": "उनका बाल बाँका तक नहीं कर पाते थे ।। ५-६ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1392",
+        "text": "किया जाता है, वह एक लाख कल्पों तक नष्ट नहीं होता ।। १२१ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "301",
+        "text": "गयी हो तो पुत्र-पौत्रों तक स्थिर रहती है ।। ७१ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "507",
+        "text": "हुए बारह वर्षों तक जलके भीतर रहे ।। ४ ।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "10.0362",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ग्रन्थ": [
+      {
+        "src": "mahabharata",
+        "ref": "29",
+        "text": "इसमें प्रयुक्त हुए हैं; अतः यह ग्रन्थ विद्वानोंको बहुत ही प्रिय है ।। २८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "79",
+        "text": "ग्रन्थ महत्त्व, गौरव अथवा गम्भीरतामें वेदोंसे भी अधिक सिद्ध हुआ है ।। २६९"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2021",
+        "text": "धार्यते हि त्वया ग्रन्थ उभयोर्वेदशास्त्रयोः । न च ग्रन्थस्य तत्त्वज्ञो यथातत्त्वं नरेश्वर ।। १२ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2250",
+        "text": "अर्थशास्त्र एवं उत्तम रहस्यमय ग्रन्थ है ।। ४९ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2552",
+        "text": "ग्रन्थ मौजूद है, विजय उसके हाथमें है ।। ८९ ।।"
+      }
+    ]
+  }
+}

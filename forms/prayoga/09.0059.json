@@ -1,0 +1,24 @@
+{
+  "id": "09.0059",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अशिष्यामि": [
+      {
+        "src": "ramayanam",
+        "ref": "3.57.22",
+        "text": "तवाज्ञया च देवेन्द्र पयोभूतमिदं हविः ।\nअशिष्यामि त्वया दत्तं रघूणां कुलवर्धनम् ॥"
+      }
+    ]
+  }
+}

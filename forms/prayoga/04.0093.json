@@ -1,0 +1,24 @@
+{
+  "id": "04.0093",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दर्पिता": [
+      {
+        "src": "mahabharata",
+        "ref": "997",
+        "text": "तथान्ये दर्पिता नागाः करेणुशरपीडिताः । सिंहव्याघ्राश्च संक्रुद्धा भीमसेनमथाद्रवन् ।। ४५ ।।"
+      }
+    ]
+  }
+}

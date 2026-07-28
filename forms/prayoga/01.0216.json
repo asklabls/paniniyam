@@ -1,0 +1,29 @@
+{
+  "id": "01.0216",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वञ्चिता": [
+      {
+        "src": "mahabharata",
+        "ref": "888",
+        "text": "तमुवाच पृथा राजन् रहस्युक्ता तदा सती । उक्ता सकृद् द्वन्द्वमेषा लेभे तेनास्मि वञ्चिता ।। २६ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "808",
+        "text": "विपरीतेन ते सुभ्रुर्मात्रा चैवासि वञ्चिता । ब्राह्मणः क्षत्रवृत्तिर्वै तव पुत्रो भविष्यति ।। ४० ।।"
+      }
+    ]
+  }
+}

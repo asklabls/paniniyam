@@ -1,0 +1,44 @@
+{
+  "id": "01.0684",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "आविष्ट": [
+      {
+        "src": "mahabharata",
+        "ref": "51",
+        "text": "आविष्ट किया ।। ५-६ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1699",
+        "text": "जिनसे आविष्ट होकर वे लोग दयाको त्यागकर आपके शत्रुओंके साथ युद्ध करेंगे ।। ११ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2085",
+        "text": "बैठा। इधर राक्षसराज घटोत्कच अत्यन्त क्रोधसे आविष्ट हो रथपर बैठा रहा ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2512",
+        "text": "आविष्ट इव मद्रेशो मन्युना पौरुषेण च । प्राच्छादयदरीन् संख्ये कालसृष्ट इवान्तकः ।। २७ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "437",
+        "text": "मोहसे आविष्ट हो सदा ही स्त्रियोंमें आसक्त होते हैं ।। १ ।।"
+      }
+    ]
+  }
+}

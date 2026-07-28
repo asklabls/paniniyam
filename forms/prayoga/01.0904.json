@@ -1,0 +1,46 @@
+{
+  "id": "01.0904",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "रेणुः": [
+      {
+        "src": "mahabharata",
+        "ref": "972",
+        "text": "ततो रेणुः समुद्भूतः सपत्रबहुलो महान् । पृथिवीं चान्तरिक्षं च द्यां चैव सहसाऽऽवृणोत् ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1932",
+        "text": "एष रेणुः समुद्भूतो दिवमावृत्य तिष्ठति ।। ४३ ।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2020",
+        "text": "ततो रेणुः समुद्भूतो विबभौ तस्य वाजिनः ॥ १७ ॥"
+      }
+    ],
+    "रण": [
+      {
+        "src": "mahabharata",
+        "ref": "2264",
+        "text": "अपने उन मामाओंको रण - सामग्रीसे सजे-सजाये रथोंद्वारा बचाया ।। २३ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2181",
+        "text": "रण नहीं उत्पन्न होता है ।। ४८ ।।"
+      }
+    ]
+  }
+}

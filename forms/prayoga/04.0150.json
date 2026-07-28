@@ -1,0 +1,24 @@
+{
+  "id": "04.0150",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "लुप्येत": [
+      {
+        "src": "mahabharata",
+        "ref": "2077",
+        "text": "तस्य गत्वा पदं राजन्नासाद्य च महामृगम् । अग्निहोत्रं न लुप्येत तदानयत पाण्डवाः ।। १४ ।।"
+      }
+    ]
+  }
+}

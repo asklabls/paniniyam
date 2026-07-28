@@ -1,0 +1,29 @@
+{
+  "id": "09.0032",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ऋणानि": [
+      {
+        "src": "ramayanam",
+        "ref": "2.105.28",
+        "text": "ऋणानि त्रीण्यपाकुर्वन् दुर्हृदः साधु निर्दहन् ।\nसुहृदस्तर्पयन् कामैस्त्वमेवात्रानुशाधि माम् ॥"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "2.106.28",
+        "text": "ऋणानि त्रीण्यपाकुर्वन् दुर्हृदः साधु निर्दहन् ।\nसुहृदस्तर्पयन् कामैस्त्वमेवात्रानुशाधि माम्"
+      }
+    ]
+  }
+}

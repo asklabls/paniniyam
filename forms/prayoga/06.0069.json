@@ -1,0 +1,24 @@
+{
+  "id": "06.0069",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मुर": [
+      {
+        "src": "bhagwatam",
+        "ref": "1531",
+        "text": "उतार लिये॥ १०॥ सिर कटते ही मुर दैत्यके प्राण-"
+      }
+    ]
+  }
+}

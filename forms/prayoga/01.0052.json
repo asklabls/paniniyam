@@ -1,0 +1,24 @@
+{
+  "id": "01.0052",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "चखाद": [
+      {
+        "src": "ramayanam",
+        "ref": "6.67.94",
+        "text": "बुभुक्षितः शोणितमांसगृध्नुः\nप्रविश्य तद् वानरसैन्यमुग्रम् ।\nचखाद रक्षांसि हरीन् पिशाचा-\nनृक्षांश्च मोहाद् युधि कुम्भकर्णः ।\nयथैव मृत्युर्हरते युगान्ते\nस भक्षयामास हरींश्च मुख्यान् ॥"
+      }
+    ]
+  }
+}

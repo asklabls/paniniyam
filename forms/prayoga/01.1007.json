@@ -1,0 +1,43 @@
+{
+  "id": "01.1007",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मेदसे": [
+      {
+        "src": "mahabharata",
+        "ref": "1543",
+        "text": "हैं। विभावसो! उन्हींके मेदसे तृप्त होकर तुम स्वस्थ हो सकोगे ।। ७५-७६ ।।"
+      }
+    ],
+    "मेदे": [
+      {
+        "src": "mahabharata",
+        "ref": "1847",
+        "text": "मेदे फेनके समान जान पड़ते थे ।। १२४ ।।"
+      }
+    ],
+    "मेद": [
+      {
+        "src": "mahabharata",
+        "ref": "2515",
+        "text": "और मेद लिपटे हुए थे। वह देखनेमें यमराजकी जिह्वाके समान भयंकर थी ।। ५१-५२ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2183",
+        "text": "मेद, अस्थि और मज्जाकी उत्पत्ति नाना प्रकारके अन्नसे ही होती है ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "07.0024",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वर्जिता": [
+      {
+        "src": "mahabharata",
+        "ref": "215",
+        "text": "सर्वभूतानि चाप्यस्य न नमन्ति कदाचन । तस्मान्नित्यं क्षमा तात पण्डितैरपि वर्जिता ॥ ८ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "3168",
+        "text": "संतानमावयोस्तात वृद्धयोर्हतराज्ययोः । कथमन्धद्वयस्यास्य यष्टिरेका न वर्जिता ।। २२ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1008",
+        "text": "प्राप्तुकामैर्नरैर्हिसा वर्जिता वै महात्मभिः ।। ६ ॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "10.0158",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कुम्भ": [
+      {
+        "src": "ramayanam",
+        "ref": "6.59.20",
+        "text": "असौ च जीमूतनिकाशरूपः\nकुम्भ : पृथुव्यूढसुजातवक्षाः ।\nसमाहितः पन्नगराजकेतु-\nविस्फारयन् याति धनुर्विधुन्वन् ॥"
+      }
+    ]
+  }
+}

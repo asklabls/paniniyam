@@ -1,0 +1,24 @@
+{
+  "id": "10.0434",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ग्राम्याः": [
+      {
+        "src": "mahabharata",
+        "ref": "1256",
+        "text": "एते ग्राम्याः समाख्याताः पशवः सप्त साधुभिः । एते वै पशवो राजन् ग्राम्यारण्याश्चतुर्दश ।। १९ ।।"
+      }
+    ]
+  }
+}

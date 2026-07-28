@@ -1,0 +1,31 @@
+{
+  "id": "10.0066",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "खण्डयामास": [
+      {
+        "src": "mahabharata",
+        "ref": "2004",
+        "text": "ततोऽस्य विमलं द्रौणिः शतचन्द्रं मनोरमम् । चर्माच्छिनदसिं चास्य खण्डयामास संयुगे ॥ ३४ ॥"
+      }
+    ],
+    "खण्ड": [
+      {
+        "src": "mahabharata",
+        "ref": "1241",
+        "text": "भी दो खण्ड कर डाले ।। ४६ ।।"
+      }
+    ]
+  }
+}

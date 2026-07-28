@@ -1,0 +1,34 @@
+{
+  "id": "04.0088",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "शुध्यति": [
+      {
+        "src": "mahabharata",
+        "ref": "2048",
+        "text": "देवलोकं तथा तिर्यङ्मनुष्यमपि चानुते । यदि शुध्यति कालेन तस्मादज्ञानसागरात् ।। ४९ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1119",
+        "text": "मृतकस्य तृतीयाहे ब्राह्मणो योऽन्नमश्नुते । स त्रिवेलं समुन्मज्ज्य द्वादशाहेन शुध्यति ॥ १५ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1342",
+        "text": "तिलानवकिरेत् तत्र नानावर्णान् समन्ततः । अशुद्धमपवित्रं च तिलैः शुध्यति शोभने ।।"
+      }
+    ]
+  }
+}

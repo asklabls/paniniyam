@@ -1,0 +1,24 @@
+{
+  "id": "07.0015",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "पिपेष": [
+      {
+        "src": "ramayanam",
+        "ref": "6.67.87",
+        "text": "स कुम्भकर्णो हृतकर्णनासो\nविदारितस्तेन रदैर्नखैश्च ।\nरोषाभिभूतः क्षतजार्द्रगात्रः\nसुग्रीवमाविध्य पिपेष भूमौ ॥"
+      }
+    ]
+  }
+}

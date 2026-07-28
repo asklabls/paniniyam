@@ -1,0 +1,34 @@
+{
+  "id": "01.0826",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "शव": [
+      {
+        "src": "mahabharata",
+        "ref": "2391",
+        "text": "पवित्र ही रहोगे। डरो मत, ये केवल धनुष हैं; इनमें कोई शव नहीं है ।। ४ ॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "197",
+        "text": "लेता हुआ भी शवासरहित शव हे॥ २३॥ सूतजी! वह"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "635",
+        "text": "वेद शव इवापविद्धः॥ २०॥"
+      }
+    ]
+  }
+}

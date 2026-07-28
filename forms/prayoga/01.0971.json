@@ -1,0 +1,34 @@
+{
+  "id": "01.0971",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "हल": [
+      {
+        "src": "mahabharata",
+        "ref": "1718",
+        "text": "सुवर्णसे आप एक हल तैयार करवाइये ।। १६-१७ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1720",
+        "text": "पहुँचा है और सोनेका बहुमूल्य हल भी पूर्णरूपसे बन गया है' ।। २ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "112",
+        "text": "वनमाला और हल धारण करनेवाले वीर बलराम कैलास शिखरके समान गौरवर्ण हैं। उनमें दस हजार हाथियोंका बल है। वे भी उसी पक्षमें रहेंगे, जहाँ श्रीकृष्ण हैं ।। ३१ ।।"
+      }
+    ]
+  }
+}

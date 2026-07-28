@@ -1,0 +1,31 @@
+{
+  "id": "01.0976",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कोल": [
+      {
+        "src": "mahabharata",
+        "ref": "2212",
+        "text": "रहित जंगली कोल भीलोंके चर्ममय वस्त्रके समान ही प्रतीत होते हैं ।। ९ ।।"
+      }
+    ],
+    "कुल्याः": [
+      {
+        "src": "mahabharata",
+        "ref": "443",
+        "text": "कुल्याः कुशलवाहिन्यो रसानामभवंस्तदा । वस्त्राभरणगन्धानां राशयश्च पृथग्विधाः ।। १९ ।।"
+      }
+    ]
+  }
+}

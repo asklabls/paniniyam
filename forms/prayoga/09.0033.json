@@ -1,0 +1,36 @@
+{
+  "id": "09.0033",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "गृणन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "303",
+        "text": "यं वाकेष्वनुवाकेषु निषत्सूपनिषत्सु च । गृणन्ति सत्यकर्माणं सत्यं सत्येषु सामसु ।। २६ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "157",
+        "text": "यानि तान्यग्निहोत्राणि ये च चन्द्रांशुराशयः । गृणन्ति वेद सततं तेष्वग्निषु विहङ्गम ।।"
+      }
+    ],
+    "गृणाति": [
+      {
+        "src": "bhagwatam",
+        "ref": "660",
+        "text": "गृणाति॥ १०॥"
+      }
+    ]
+  }
+}

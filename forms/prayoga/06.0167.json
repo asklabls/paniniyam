@@ -1,0 +1,31 @@
+{
+  "id": "06.0167",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "लुम्पेद्": [
+      {
+        "src": "mahabharata",
+        "ref": "1018",
+        "text": "अग्न्याधानेन यज्ञेन काषायेण जटाजिनैः । लोकान् विश्वासयित्वैव ततो लुम्पेद् यथा वृकः ।। १९ ।।"
+      }
+    ],
+    "लोप्ता": [
+      {
+        "src": "mahabharata",
+        "ref": "1359",
+        "text": "एष हि ब्राह्मणद्वेषी यज्ञद्वेषी च राक्षसः । धर्मस्य लोप्ता पापात्मा तस्मादेष निपातितः ।। २७ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "06.0001",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तुदसि": [
+      {
+        "src": "ramayanam",
+        "ref": "2.36.14",
+        "text": "वहन्तं किं तुदसि मां नियुज्य धुरि माहिते ।\nअनार्ये कृत्यमारब्धं किं न पूर्वमुपारुधः ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "383",
+        "text": "किं मां तुदसि दुःखार्तं मृतं मारयसे च माम् ।। १३ ।।"
+      }
+    ],
+    "तुदन्तु": [
+      {
+        "src": "mahabharata",
+        "ref": "2203",
+        "text": "ते वा सर्वे भीमसेनं तुदन्तु ।। २१ ।।"
+      }
+    ],
+    "तुदति": [
+      {
+        "src": "mahabharata",
+        "ref": "1467",
+        "text": "बुद्धिलाभात् तु पुरुषः सर्वं तुदति किल्बिषम् । विपाप्मा लभते सत्त्वं सत्त्वस्थः सम्प्रसीदति ।। ११ ।"
+      }
+    ]
+  }
+}

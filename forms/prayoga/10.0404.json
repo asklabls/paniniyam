@@ -1,0 +1,31 @@
+{
+  "id": "10.0404",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कल्याः": [
+      {
+        "src": "mahabharata",
+        "ref": "167",
+        "text": "तत्र वंशमहं पूर्वं श्रोतुमिच्छामि भार्गवम् । कथयस्व कथामेतां कल्याः स्म श्रवणे तव ।। ३ ।।"
+      }
+    ],
+    "कलयति": [
+      {
+        "src": "mahabharata",
+        "ref": "1492",
+        "text": "कालेनाहं त्वामजयं कालेनाहं जितस्त्वया । गन्ता गतिमतां कालः कालः कलयति प्रजाः ।। ३५ ।"
+      }
+    ]
+  }
+}

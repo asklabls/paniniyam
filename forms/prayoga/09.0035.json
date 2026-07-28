@@ -1,0 +1,24 @@
+{
+  "id": "09.0035",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "रेता": [
+      {
+        "src": "mahabharata",
+        "ref": "207",
+        "text": "कृतवाक् च सुवाक् चैव बृहदश्वो विभावसुः । ऊर्ध्व रेता वृषामित्रः सुहोत्रो होत्रवाहनः ।। २४ ॥"
+      }
+    ]
+  }
+}

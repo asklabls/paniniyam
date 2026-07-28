@@ -1,0 +1,24 @@
+{
+  "id": "02.0005",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दिग्धः": [
+      {
+        "src": "mahabharata",
+        "ref": "363",
+        "text": "गङ्गोर्मिभिरथो दिग्धः पुरुषं पवनो यदा । स्पृशते सोऽस्य पाप्मानं सद्य एवापकर्षति ।। ५६ ।।"
+      }
+    ]
+  }
+}

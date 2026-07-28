@@ -1,0 +1,29 @@
+{
+  "id": "01.0073",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कन्द": [
+      {
+        "src": "bhagwatam",
+        "ref": "551",
+        "text": "निर्मल करते थे॥ ३५॥ वहाँ रहकर उन्होने कन्द,"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "883",
+        "text": "हुए कन्द, मूल, फल आदिका ही सेवन करे॥ १८॥"
+      }
+    ]
+  }
+}

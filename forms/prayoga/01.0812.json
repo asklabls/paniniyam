@@ -1,0 +1,31 @@
+{
+  "id": "01.0812",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "जघास": [
+      {
+        "src": "bhagwatam",
+        "ref": "1209",
+        "text": "जघास हैयंगवमन्तरं गत:॥ ६ | खाने लगे॥ ६॥"
+      }
+    ],
+    "घस": [
+      {
+        "src": "bhagwatam",
+        "ref": "296",
+        "text": "हए जलमें घस गये॥ २६॥"
+      }
+    ]
+  }
+}

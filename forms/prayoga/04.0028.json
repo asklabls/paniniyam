@@ -1,0 +1,39 @@
+{
+  "id": "04.0028",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दूयते": [
+      {
+        "src": "mahabharata",
+        "ref": "2242",
+        "text": "नैतत् कारणमल्पं हि श्रोतुकामोऽस्मि सत्तम । कृष्णायास्तु परिक्लेशान्मनो मे दूयते भृशम् ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "337",
+        "text": "शराभिघातदुःखात् ते कच्चिद् गात्रं न दूयते । मानसादपि दुःखाद्धि शारीरं बलवत्तरम् ।। १४ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2018",
+        "text": "किं निमित्तं स नित्यं हि पार्थः सुखविवर्जितः । अतीव विजयो धीमन्निति मे दूयते मनः ।। ३ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2379",
+        "text": "दूयते मे मनोऽभीक्ष्णं घातयित्वा महाबलम् ।। ३१ ।।"
+      }
+    ]
+  }
+}

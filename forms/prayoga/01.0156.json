@@ -1,0 +1,24 @@
+{
+  "id": "01.0156",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वङ्ग": [
+      {
+        "src": "mahabharata",
+        "ref": "1998",
+        "text": "किनारे होता हुआ वङ्ग, पुण्ड्र और कोसल आदि देशोंमें गया ।। २९ ।"
+      }
+    ]
+  }
+}

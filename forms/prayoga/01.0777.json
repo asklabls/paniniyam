@@ -1,0 +1,29 @@
+{
+  "id": "01.0777",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "भूषिता": [
+      {
+        "src": "mahabharata",
+        "ref": "907",
+        "text": "धृतराष्ट्रस्य दायादा दुर्योधनपुरोगमाः । भूषिता भूषणैश्चित्रैः शतसंख्या विनिर्ययुः ।। १७ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "296",
+        "text": "मन्दारपुष्पैः संकीर्णां तथा मन्दाकिनीं नदीम् । स्वयंप्रभाश्च मणयो वज्रैर्भूमिश्च भूषिता ।। ६३ ॥"
+      }
+    ]
+  }
+}

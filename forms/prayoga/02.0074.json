@@ -1,0 +1,54 @@
+{
+  "id": "02.0074",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सन्धि": [
+      {
+        "src": "mahabharata",
+        "ref": "250",
+        "text": "बनानेकी इच्छा करे और उसके लिये जो सन्धि आदि आवश्यक कर्तव्य हो, करे ।। ५५ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2324",
+        "text": "समय आनेपर हम उनके साथ यथावत् सन्धि (मेल अथवा बाण-संधान) कर सकें ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "176",
+        "text": "और दोनों पक्षोंमें सन्धि स्थापित हो जाय ।। ४ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "627",
+        "text": "उनके द्वारा इन्द्रके उस कवच-बन्धनकी सन्धि भी नहीं काटी जा सकी ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "682",
+        "text": "बलवान् राजा हो, उसके साथ सन्धि करना श्रेष्ठ है ।। २७ ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "502",
+        "text": "साथ प्रीतिपूर्वक सन्धि भी कर ली॥३९॥ इसके"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "934",
+        "text": "और दानवोंके पास जाकर उनसे सन्धि कर लो॥ १९॥"
+      }
+    ]
+  }
+}

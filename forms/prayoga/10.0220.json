@@ -1,0 +1,24 @@
+{
+  "id": "10.0220",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कुत्सयसे": [
+      {
+        "src": "mahabharata",
+        "ref": "940",
+        "text": "यत् तु कुत्सयसे योधान् युध्यमानान् महाबलान् । तत्र ते वर्तयिष्यामि यथा युद्धमवर्तत ।। २८ ।"
+      }
+    ]
+  }
+}

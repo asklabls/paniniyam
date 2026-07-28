@@ -1,0 +1,24 @@
+{
+  "id": "01.1127",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मीमांसेत": [
+      {
+        "src": "mahabharata",
+        "ref": "718",
+        "text": "तत् सर्वमेव पुत्रस्ते न मीमांसेत कर्हिचित् । एवं वसन्ती पुत्रे ते वर्धयिष्याम्यहं रतिम् ।। १५ ।"
+      }
+    ]
+  }
+}

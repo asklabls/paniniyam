@@ -1,0 +1,24 @@
+{
+  "id": "01.0284",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मुञ्ज": [
+      {
+        "src": "mahabharata",
+        "ref": "2074",
+        "text": "अन्यः स पुरुषोऽव्यक्तस्त्वध्रुवो ध्रुवसंज्ञकः । यथा मुञ्ज इषीकाणां तथैवैतद्धि जायते ॥ १२ ॥"
+      }
+    ]
+  }
+}

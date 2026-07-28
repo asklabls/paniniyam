@@ -1,0 +1,31 @@
+{
+  "id": "01.0865",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "स्यन्दते": [
+      {
+        "src": "mahabharata",
+        "ref": "1688",
+        "text": "गौरिव प्रसवत्यर्थान् रसमुत्तमशालिनी । सततं स्यन्दते ह्येषा शाश्वतं ब्रह्मवादिनी ॥ २२ ॥"
+      }
+    ],
+    "स्यन्देते": [
+      {
+        "src": "mahabharata",
+        "ref": "1866",
+        "text": "स्यन्देते हि दिवा रुक्मं रात्रौ च द्विजसत्तम । नक्तं नक्षत्रताराणां प्रभामाक्षिप्य वर्ततः ।। २५ ।।"
+      }
+    ]
+  }
+}

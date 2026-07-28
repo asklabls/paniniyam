@@ -1,0 +1,39 @@
+{
+  "id": "10.0337",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "स्वाद": [
+      {
+        "src": "mahabharata",
+        "ref": "267",
+        "text": "स्वाद उत्पन्न कर देती है और वह भूख धनियोंके लिये सर्वथा दुर्लभ है ।। ५० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2012",
+        "text": "भोजनोंके स्वाद लेता और भाँति-भाँतिके रत्न धारण करता है ।। १५ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1691",
+        "text": "नासिका, कान, नेत्र, त्वचा, मन और बुद्धि-ये रसोंका आस्वादन नहीं कर सकते । केवल जिह्वा उसका स्वाद ले सकती है ।। ७ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1799",
+        "text": "तथा कड़वे अन्नका स्वाद न ले ।। २२ ।।"
+      }
+    ]
+  }
+}

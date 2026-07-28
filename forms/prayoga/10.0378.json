@@ -1,0 +1,31 @@
+{
+  "id": "10.0378",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "चानयामास": [
+      {
+        "src": "ramayanam",
+        "ref": "2.1.48",
+        "text": "न तु केकयराजानं जनकं वा नराधिपः ।\nत्वरया चानयामास पश्चात्तौ श्रोष्यतः प्रियम् ॥"
+      }
+    ],
+    "चानयिता": [
+      {
+        "src": "ramayanam",
+        "ref": "2.4.31",
+        "text": "समाश्रौषीद्राज्यशुल्कमनुत्तमम् ॥\nप्रागेव चागता तत्र सुमित्रा लक्ष्मणस्तथा ।\nसीता चानयिता श्रुत्वा प्रियं रामाभिषेचनम् ॥"
+      }
+    ]
+  }
+}

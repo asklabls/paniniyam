@@ -1,0 +1,31 @@
+{
+  "id": "01.0369",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मुण्ड": [
+      {
+        "src": "mahabharata",
+        "ref": "1870",
+        "text": "मुण्ड तथा त्रिदण्डधारी हैं ।। १४० ।।"
+      }
+    ],
+    "मुण्डिता": [
+      {
+        "src": "mahabharata",
+        "ref": "1385",
+        "text": "तेन संदिग्धसर्वाङ्गा भस्मना ब्रह्मचारिणः । जटिला मुण्डिता वापि नानाकारशिखण्डिनः ।।"
+      }
+    ]
+  }
+}

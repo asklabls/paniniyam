@@ -1,0 +1,54 @@
+{
+  "id": "01.0392",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ओठ": [
+      {
+        "src": "mahabharata",
+        "ref": "1161",
+        "text": "आयी थीं और वह दाँतोंसे ओठ चबा रहा था ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1303",
+        "text": "जोशमें आकर दाँतोंसे ओठ चबा रहे थे और रोषसे उनकी आँखें लाल हो रही थीं ।। ११ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2007",
+        "text": "क्रोधसे मूर्च्छित होकर दाँतोंसे ओठ चबाने लगे ।। ३१ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "761",
+        "text": "(ताल ठोकते) और दाँतोंसे ओठ चबाते हुए अपनी जगहसे उछल पड़े ।। २० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1048",
+        "text": "उठाये और दाँतोंसे ओठ दबाये नदीके तटपर खड़े थे ।। २६ ।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1678",
+        "text": "क्रोधसे ही वे ओठ चबाते एवं दाँत पीसते थे ।। ३७ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "692",
+        "text": "छोड़े, ओठ चबाये और सिर हिलाये, वह दुष्ट है ।। ४७ ।।"
+      }
+    ]
+  }
+}

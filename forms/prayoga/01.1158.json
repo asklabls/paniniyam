@@ -1,0 +1,31 @@
+{
+  "id": "01.1158",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वपते": [
+      {
+        "src": "mahabharata",
+        "ref": "84",
+        "text": "यादृशं वपते बीजं क्षेत्रमासाद्य कर्षकः । सुकृते दुष्कृते वापि तादृशं लभते फलम् ।। ६ ।।"
+      }
+    ],
+    "वपति": [
+      {
+        "src": "mahabharata",
+        "ref": "1197",
+        "text": "ब्राह्मणोऽपि महत् क्षेत्रं लोके चरति पादवत् । यत् तत्र बीजं वपति सा कृषिः प्रेत्य भाविनि ।। ५४ ।।"
+      }
+    ]
+  }
+}

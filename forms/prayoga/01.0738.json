@@ -1,0 +1,36 @@
+{
+  "id": "01.0738",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ग्लहे": [
+      {
+        "src": "mahabharata",
+        "ref": "2128",
+        "text": "एवमुक्त्वा मताक्षस्तान् ग्लहे सर्वानवस्थितान् । पराजयं लोकवीरानुक्त्वा राज्ञां पृथक्-पृथक् ।। ३१ ।।"
+      }
+    ],
+    "ग्लहते": [
+      {
+        "src": "mahabharata",
+        "ref": "904",
+        "text": "यान् स्म तान् ग्लहते घोरान् शकुनिः कुरुसंसदि ।। १८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1097",
+        "text": "यान् स्म तान् ग्लहते तात शकुनिः कुरुसंसदि । अक्षान् न तेऽक्षा निशिता बाणास्ते शत्रुतापनाः ।। १० ।।"
+      }
+    ]
+  }
+}

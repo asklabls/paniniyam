@@ -1,0 +1,31 @@
+{
+  "id": "06.0092",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "लिख": [
+      {
+        "src": "mahabharata",
+        "ref": "37",
+        "text": "व्यासोऽप्युवाच तं देवमबुद्ध्वा मा लिख क्वचित् । ओमित्युक्त्वा गणेशोऽपि बभूव किल लेखकः ।। ७९ ।।"
+      }
+    ],
+    "लिखेत्": [
+      {
+        "src": "mahabharata",
+        "ref": "1725",
+        "text": "दानवानां विनाशाय स्थापिता दिव्यरूपिणी । यो मां भक्त्या लिखेत् कुड्ये सपुत्रां यौवनान्विताम् ।। ३ ।।"
+      }
+    ]
+  }
+}

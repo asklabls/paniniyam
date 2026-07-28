@@ -1,0 +1,24 @@
+{
+  "id": "09.0023",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अवृणीत": [
+      {
+        "src": "mahabharata",
+        "ref": "1489",
+        "text": "सम्प्राप्य तादृशीं वृत्तिं सत्कृतः सततं परैः । अवृणीत सदा पुत्रान् मामेवाभ्यधिकं गुरुः ।। ४७ ।।"
+      }
+    ]
+  }
+}

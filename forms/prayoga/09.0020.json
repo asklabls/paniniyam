@@ -1,0 +1,31 @@
+{
+  "id": "09.0020",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दुधुवे": [
+      {
+        "src": "ramayanam",
+        "ref": "5.1.32",
+        "text": "दुधुवे च स रोमाणि चकम्पे चानलोपमः ।\nननाद च महानादं सुमहानिव तोयदः"
+      }
+    ],
+    "धुनन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "969",
+        "text": "कीर्तनाश्चैव तीर्थस्य स्नानाश्च पितृतर्पणात् । धुनन्ति पापं तीर्थेषु ते प्रयान्ति सुखं दिवम् ।। १७ ।।"
+      }
+    ]
+  }
+}

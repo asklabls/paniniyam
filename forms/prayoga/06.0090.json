@@ -1,0 +1,24 @@
+{
+  "id": "06.0090",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सिल": [
+      {
+        "src": "mahabharata",
+        "ref": "1198",
+        "text": "जलपात्र, ओढ़नेका कपड़ा और सिल लोढ़े - यही उनके पास सामग्री थी ।। २२ ।।"
+      }
+    ]
+  }
+}

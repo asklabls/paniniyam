@@ -1,0 +1,31 @@
+{
+  "id": "01.0192",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कचे": [
+      {
+        "src": "mahabharata",
+        "ref": "590",
+        "text": "कृतविद्ये कचे प्राप्ते हृष्टरूपा दिवौकसः । कचादधीत्य तां विद्यां कृतार्था भरतर्षभ ॥ १ ॥"
+      }
+    ],
+    "कचसे": [
+      {
+        "src": "mahabharata",
+        "ref": "590",
+        "text": "तब देवताओंको बड़ी प्रसन्नता हुई। वे कचसे उस विद्याको पढ़कर कृतार्थ हो गये ।। १ ।।"
+      }
+    ]
+  }
+}

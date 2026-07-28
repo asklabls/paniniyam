@@ -1,0 +1,29 @@
+{
+  "id": "01.0836",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "बर्हाणि": [
+      {
+        "src": "ramayanam",
+        "ref": "4.30.40",
+        "text": "त्यक्त्वा वराण्यात्मविभूषितानि\nबर्हाणि तीरोपगता नदीनाम् ।\nनिर्भर्त्स्यमाना इव सारसौघैः\nप्रयान्ति दीना विमना मयूराः ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "785",
+        "text": "यथा बर्हाणि चित्राणि बिभर्ति भुजगाशनः । तथा बहुविधं राजा रूपं कुर्वीत धर्मवित् ।। ४ ।"
+      }
+    ]
+  }
+}

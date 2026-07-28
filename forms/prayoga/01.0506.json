@@ -1,0 +1,36 @@
+{
+  "id": "01.0506",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "घूर्णते": [
+      {
+        "src": "mahabharata",
+        "ref": "1151",
+        "text": "वायुश्च घूर्णते भीमस्तदद्भुतमिवाभवत् । तमुदीक्ष्य महावेगं सर्वाम्भोनिधिमुत्तमम् ।। ६ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1279",
+        "text": "घूर्णते चपलेव स्त्री मत्ता परपुरंजय । नैव भूमिर्न च दिशः प्रदिशो वा चकाशिरे ।। ४४ ।"
+      }
+    ],
+    "घूर्णन्ते": [
+      {
+        "src": "mahabharata",
+        "ref": "1853",
+        "text": "पर्वताश्च व्यशीर्यन्त चकम्पे च वसुंधरा । मारुताश्चैव घूर्णन्ते चुक्षुभे वरुणालयः ।। ३८ ।।"
+      }
+    ]
+  }
+}

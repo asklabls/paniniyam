@@ -1,0 +1,44 @@
+{
+  "id": "01.0142",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "नख": [
+      {
+        "src": "mahabharata",
+        "ref": "2812",
+        "text": "हाथ, पैर और नख सभी बड़े-बड़े थे ।। १०४ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "3169",
+        "text": "नख बड़े ही सुन्दर और दर्शनीय थे ।। २९-३० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "509",
+        "text": "रंगकी हो गयी थीं और उनके अंगोंमें शंख आदि जलचरोंके नख लगनेसे चित्र बन गया था। ऐसा जान पड़ता था मानो उनके अंगोंमें शूकरके विचित्र रोम लग गये हों ।। २० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2440",
+        "text": "तथा रातमें सोये हुए मनुष्योंके केश और नख कुतरकर खा जाया करते थे ।। ५ ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "852",
+        "text": "बड़े-बड़े नख आयुधका काम देते थे॥ २२॥ उनके"
+      }
+    ]
+  }
+}

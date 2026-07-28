@@ -1,0 +1,39 @@
+{
+  "id": "03.0017",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "आराम": [
+      {
+        "src": "mahabharata",
+        "ref": "978",
+        "text": "आराम मिलनेपर पांचालराजकुमारी द्रौपदीको धीरे-धीरे चेत हुआ ।। १८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1758",
+        "text": "निवृत्त हो आराम कर रही है, दस हजार शिष्योंसे घिरे हुए उस वनमें आये ।। १ ||"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "524",
+        "text": "इच्छानुसार यहाँ आराम कीजिये। हमलोग आपको प्रसन्न रखनेका प्रयत्न करेंगे' ।। २४ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "531",
+        "text": "आराम मिले और सब लोग देखें ।। ३५-३६ ।।"
+      }
+    ]
+  }
+}

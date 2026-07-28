@@ -1,0 +1,24 @@
+{
+  "id": "10.0021",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "बन्धयिष्यति": [
+      {
+        "src": "ramayanam",
+        "ref": "2.84.4",
+        "text": "यदा नु खलु दुर्बुद्धिर्भरतः स्वयमागतः ।\nस एष हि महाकायः कोविदारध्वजो रथे ॥ ३\nबन्धयिष्यति वा पाशैरथ वास्मान् वधिष्यति ।\nअनु दाशरथिं रामं पित्रा राज्याद् विवासितम्"
+      }
+    ]
+  }
+}

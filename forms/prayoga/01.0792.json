@@ -1,0 +1,34 @@
+{
+  "id": "01.0792",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ऊषुः": [
+      {
+        "src": "ramayanam",
+        "ref": "1.68.19",
+        "text": "मन्त्रिणस्तु नरेन्द्रस्य रात्रिं परमसत्कृताः ।\nऊषुः प्रमुदिताः सर्वे गुणैः सर्वैः समन्विताः ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1187",
+        "text": "तस्मिन्नेव वने हृकास्त ऊषुः सह कृष्णया ।। २५ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1832",
+        "text": "सर्वे वेदविदः शूराः सर्वे सुचरितव्रताः । ऊषुः पित्रा सह रता गन्धमादनपर्वते ॥ १३ ॥"
+      }
+    ]
+  }
+}

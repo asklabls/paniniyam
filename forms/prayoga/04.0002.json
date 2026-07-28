@@ -1,0 +1,41 @@
+{
+  "id": "04.0002",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सेविष्यति": [
+      {
+        "src": "ramayanam",
+        "ref": "2.44.9",
+        "text": "शिवः सर्वेषु कालेषु काननेभ्यो विनिःसृतः ।\nराघवं युक्तशीतोष्णः सेविष्यति सुखोऽनिलः ॥"
+      }
+    ],
+    "सेविता": [
+      {
+        "src": "mahabharata",
+        "ref": "638",
+        "text": "सेविता विषयाः पुत्र यौवनेन मया तव ।। ११ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "663",
+        "text": "अग्नयः सहदेवेन सेविता यमुनामनु । ते तस्य कुरुशार्दूल सहस्रशतदक्षिणाः ।। ७॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "706",
+        "text": "गावस्तुष्टाः प्रयच्छन्ति सेविता वै न संशयः ।। ४५ ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "01.0952",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वाहिता": [
+      {
+        "src": "mahabharata",
+        "ref": "2242",
+        "text": "कष्टकी बात है। दुःशलां मानयन्ती या भर्तृणां भगिनीं शुभाम् । नाशपत् सिन्धुराजं तं बलात्कारेण वाहिता ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "261",
+        "text": "वाहिता सर्वभूतानां निलयश्च विभुर्भवः । अमोघः संयतो ह्यश्वो भोजनः प्राणधारणः ।। ११४ ।।"
+      }
+    ]
+  }
+}

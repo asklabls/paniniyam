@@ -1,0 +1,24 @@
+{
+  "id": "01.0781",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कषाम": [
+      {
+        "src": "mahabharata",
+        "ref": "1171",
+        "text": "अपाणित्वाद् वय ब्रह्मन् कण्टकं नोद्धरामहे । जन्तूनुच्चावचानङ्गे दशतो न कषाम वा ॥ १३ ॥"
+      }
+    ]
+  }
+}

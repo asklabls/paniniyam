@@ -1,0 +1,24 @@
+{
+  "id": "06.0143",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "क्षियेत्": [
+      {
+        "src": "mahabharata",
+        "ref": "2175",
+        "text": "अमत्यान्नमथैतेषां भुक्त्वा तु त्रियहं क्षियेत् । मत्या भुक्त्वा सकृद् वापि प्राजापत्यं चरेद् द्विजः ।।"
+      }
+    ]
+  }
+}

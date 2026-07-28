@@ -1,0 +1,39 @@
+{
+  "id": "01.0603",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कूलानि": [
+      {
+        "src": "ramayanam",
+        "ref": "4.30.51",
+        "text": "नवैर्नदीनां कुसुमप्रहासै-\nर्व्याधूयमानैर्मृदुमारुतेन\nधौतामलक्षौमपटप्रकाशैः\nकूलानि काशैरुपशोभितानि ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2504",
+        "text": "शीर्यमाणानि कूलानि प्रवृद्धेनेव वारिणा । मया कुरूणां वृन्दानि पात्यमानानि पश्य वै ।। २८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "756",
+        "text": "यथा चेमानि कूलानि हित्वा नायाति वेतसः ।। ६ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "284",
+        "text": "भित्त्वा भित्त्वा च कूलानि हुत्वा सर्वमिदं जगत् ।। ६६ ।।"
+      }
+    ]
+  }
+}

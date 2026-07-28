@@ -1,0 +1,36 @@
+{
+  "id": "01.0839",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "दुदुहुः": [
+      {
+        "src": "mahabharata",
+        "ref": "454",
+        "text": "कृषिं च सस्यं च नरा दुदुहुः पृथिवीतले । स्वायम्भुवो मनुर्वत्सस्तेषां दोग्धाभवत् पृथुः ।। २१ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "455",
+        "text": "स्वधां रजतपात्रेषु दुदुहुः पितरश्च ताम् । वत्सो वैवस्वतस्तेषां यमो दोग्धान्तकस्तदा ।। २६ ।।"
+      }
+    ],
+    "दुदोह": [
+      {
+        "src": "mahabharata",
+        "ref": "2068",
+        "text": "श्राद्धं संकल्पयामास जमदग्निः पुरा किल । होमधेनुस्तमागाच्च स्वयमेव दुदोह ताम् ।। ४१ ॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "01.0984",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वमन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "1238",
+        "text": "देवताप्रतिमाश्चैव कम्पन्ति च हसन्ति च । वमन्ति रुधिरं चास्यैः खिद्यन्ति प्रपतन्ति च ।। २६ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1990",
+        "text": "जितक्लमा रोषविषं वमन्ति ।। ९ ।"
+      }
+    ]
+  }
+}

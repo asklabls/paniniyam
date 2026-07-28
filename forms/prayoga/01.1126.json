@@ -1,0 +1,31 @@
+{
+  "id": "01.1126",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तितिक्षस्व": [
+      {
+        "src": "mahabharata",
+        "ref": "520",
+        "text": "तिष्ठ तात सतां वाक्ये सुहृदामर्थवादिनाम् । वृद्धं शान्तनवं भीष्मं तितिक्षस्व पितामहम् ॥। ११ ॥"
+      }
+    ],
+    "तितिक्षेत": [
+      {
+        "src": "mahabharata",
+        "ref": "1478",
+        "text": "भूमिरेव मनुष्येषु धारिणी भूतभाविनी । सा ते पादं तितिक्षेत समर्था हीति मे मतिः ।। २१ ।।"
+      }
+    ]
+  }
+}

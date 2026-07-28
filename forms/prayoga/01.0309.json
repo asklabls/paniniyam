@@ -1,0 +1,24 @@
+{
+  "id": "01.0309",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तुण्डे": [
+      {
+        "src": "mahabharata",
+        "ref": "1810",
+        "text": "गरुडस्य स्वयं तुण्डे पिता देवव्रतस्तव । चक्षुषी च भरद्वाजः कृतवर्मा च सात्वतः ।। ३ ।।"
+      }
+    ]
+  }
+}

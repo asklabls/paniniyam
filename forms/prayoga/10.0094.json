@@ -1,0 +1,24 @@
+{
+  "id": "10.0094",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "वेलयेव": [
+      {
+        "src": "mahabharata",
+        "ref": "2246",
+        "text": "क्रोधाग्निमें जलते रहे। अथ भीमो महाबाहुः सूदयिष्यंस्तु कीचकम् । वारितो धर्मपुत्रेण वेलयेव महोदधिः ।।"
+      }
+    ]
+  }
+}

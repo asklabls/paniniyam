@@ -1,0 +1,24 @@
+{
+  "id": "01.0588",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "ईर्ष्याः": [
+      {
+        "src": "mahabharata",
+        "ref": "1025",
+        "text": "ईर्ष्याः परसुखं दृष्ट्वा अन्यस्य न बुभूषकः । त्रिवर्गहन्ता चान्येषामात्मकामानुवर्तकः ॥ २५ ॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "06.0169",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "लिम्पन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "1413",
+        "text": "होनेपर भी मुझ अविनाशी परमेश्वरको तू वास्तवमें अकर्ता ही जान ३ । न मां कर्माणि लिम्पन्ति न मे कर्मफले स्पृहा । इति मां योऽभिजानाति कर्मभिर्न स बध्यते ॥ १४ ॥"
+      }
+    ],
+    "लिम्पस्व": [
+      {
+        "src": "mahabharata",
+        "ref": "1510",
+        "text": "तं भूक्त्वैव स तु क्षिप्रं ततो वचनमब्रवीत् । क्षिप्रमङ्गानि लिम्पस्व पायसेनेति स स्म ह ॥ २५ ॥"
+      }
+    ]
+  }
+}

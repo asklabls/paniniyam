@@ -1,0 +1,44 @@
+{
+  "id": "06.0088",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "हिल": [
+      {
+        "src": "mahabharata",
+        "ref": "2386",
+        "text": "'दिशाओंमें आग सी लग रही है और उनमें ये भयंकर गीदड़ियाँ चीत्कार करती हैं। घोड़े आँसू बहाते हैं और रथोंकी ध्वजाएँ बिना हिलाये ही हिल रही हैं ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "449",
+        "text": "दिया। उनके काबूमें आ जानेके कारण वह हिल भी न सकी ।। ६ ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1178",
+        "text": "चलीं। उस समय उनके पयोधर हिल रहे थे॥ १०॥"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1579",
+        "text": "साथ सारा पर्वत हिल गया॥ २६॥ आकाशमें देवता"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1982",
+        "text": "हुई बलँ तथा नाभि भी हिल जाया करती थी॥ २४॥"
+      }
+    ]
+  }
+}

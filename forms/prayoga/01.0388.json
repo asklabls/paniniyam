@@ -1,0 +1,34 @@
+{
+  "id": "01.0388",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "हठ": [
+      {
+        "src": "mahabharata",
+        "ref": "662",
+        "text": "हठ रखता है। उस दुरात्माको सन्मार्गपर ले आना असम्भव है ।। ३ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "739",
+        "text": "होता है कि महर्षि गालवने हठ या दुराग्रहके कारण पराजय प्राप्त की थी । विश्वामित्रं तपस्यन्तं धर्मो जिज्ञासया पुरा । अभ्यगच्छत् स्वयं भूत्वा वसिष्ठो भगवानृषिः ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1140",
+        "text": "समरभूमिमें युद्ध करनेका हठ अच्छा नहीं है।' ऐसा कहकर वे डाँट बताने लगीं ।।"
+      }
+    ]
+  }
+}

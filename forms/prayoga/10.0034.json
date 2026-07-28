@@ -1,0 +1,31 @@
+{
+  "id": "10.0034",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कुट्टयामास": [
+      {
+        "src": "mahabharata",
+        "ref": "588",
+        "text": "मौर्वी ध्वजं धनुश्चैव युगमीषां तथैव च । रथिनां कुट्टयामास भल्लैः संनतपर्वभिः ।। २५ ।।"
+      }
+    ],
+    "कुट्टयन्ति": [
+      {
+        "src": "mahabharata",
+        "ref": "3122",
+        "text": "कृष्णाः श्वेताश्च तं वृक्षं कुट्टयन्ति च मूषिकाः ।। २१ ।।"
+      }
+    ]
+  }
+}

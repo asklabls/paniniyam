@@ -1,0 +1,36 @@
+{
+  "id": "01.0566",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मलते": [
+      {
+        "src": "mahabharata",
+        "ref": "2152",
+        "text": "विकर्णने हाथ-पर-हाथ मलते हुए लंबी साँस खींचकर कहा- ।। १८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1986",
+        "text": "अपनी लाल आँखें मलते हुए पुनः जीवित हो उठे ।। ५२ ।।"
+      }
+    ],
+    "मलसे": [
+      {
+        "src": "bhagwatam",
+        "ref": "279",
+        "text": "वह अपने अज्ञानरूप मलसे मुक्त हो जाता हे॥ ३२॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "10.0417",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "गोमये": [
+      {
+        "src": "ramayanam",
+        "ref": "2.69.8",
+        "text": "स्वप्ने पितरमद्राक्षं मलिनं मुक्तमूर्धजम् ।\nपतन्तमद्रिशिखरात् कलुषे गोमये हृदे ॥"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "2.69.9",
+        "text": "प्लवमानश्च मे दृष्टः स तस्मिन् गोमये हृदे ।\nपिबन्नञ्जलिना तैलं हसन्निव मुहुर्मुहुः ॥"
+      }
+    ]
+  }
+}

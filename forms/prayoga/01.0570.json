@@ -1,0 +1,29 @@
+{
+  "id": "01.0570",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कले": [
+      {
+        "src": "mahabharata",
+        "ref": "416",
+        "text": "अथाब्रवीत् कलिं शक्रः सम्प्रेक्ष्य बलवृत्रहा । द्वापरेण सहायेन कले ब्रूहि क्व यास्यसि ॥ २ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "417",
+        "text": "एवंरूपं नलं यो वै कामयेच्छपितुं कले । आत्मानं स शपेन्मूढो हन्यादात्मानमात्मना ।। ११ ।।"
+      }
+    ]
+  }
+}

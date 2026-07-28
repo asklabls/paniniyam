@@ -1,0 +1,34 @@
+{
+  "id": "01.0973",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "पल": [
+      {
+        "src": "mahabharata",
+        "ref": "168",
+        "text": "बहुत ही प्यारी थी। उसके उदरमें भृगुजीके वीर्यसे उत्पन्न गर्भ पल रहा था ।। १३ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2064",
+        "text": "पल रहा है ।। १५ ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "2550",
+        "text": "तीन-तीन पल सोना चढ़ाना चाहिये ।। ७८ ।।"
+      }
+    ]
+  }
+}

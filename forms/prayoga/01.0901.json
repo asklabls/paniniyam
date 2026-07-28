@@ -1,0 +1,31 @@
+{
+  "id": "01.0901",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अकाम": [
+      {
+        "src": "mahabharata",
+        "ref": "514",
+        "text": "अकाम इव तं राजा गणयस्वेत्युवाच ह । एकदेशं च शाखायाः समादिष्टं मयानघ ।। २२ ।।"
+      }
+    ],
+    "आक": [
+      {
+        "src": "mahabharata",
+        "ref": "2152",
+        "text": "आक (मदार)-के फूल तथा आकके पत्तेपर रखे हुए फूल भी वर्जित हैं। नीमके फूलोंका भी परित्याग कर देना चाहिये ।।"
+      }
+    ]
+  }
+}

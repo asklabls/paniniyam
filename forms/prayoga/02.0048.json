@@ -1,0 +1,24 @@
+{
+  "id": "02.0048",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "श्राव": [
+      {
+        "src": "mahabharata",
+        "ref": "1401",
+        "text": "पृथुके विष्वगश्व और उनके पुत्र अद्रि हुए। अद्रिके पुत्रका नाम युवनाश्व था। युवनाश्वका पुत्र श्राव नामसे विख्यात हुआ ।। ३ ॥"
+      }
+    ]
+  }
+}

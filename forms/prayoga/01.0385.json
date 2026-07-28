@@ -1,0 +1,29 @@
+{
+  "id": "01.0385",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "कठ": [
+      {
+        "src": "mahabharata",
+        "ref": "1621",
+        "text": "कुक्कुरो वेणुजङ्घोऽथ कालापः कठ एव च । मुनयो धर्मविद्वांसो धृतात्मानो जितेन्द्रियाः ।। १८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1621",
+        "text": "तथा कठ आदि धर्मज्ञ, जितात्मा और जितेन्द्रिय मुनि उस सभामें विराजते थे ।। १०–"
+      }
+    ]
+  }
+}

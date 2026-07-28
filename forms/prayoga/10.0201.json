@@ -1,0 +1,31 @@
+{
+  "id": "10.0201",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तर्जयसे": [
+      {
+        "src": "mahabharata",
+        "ref": "519",
+        "text": "भीमसेनं च कौन्तेयं यस्य नास्ति समो बले । रणान्तकं तर्जयसे महावातमिव द्रुमः ॥। ४ ॥"
+      }
+    ],
+    "तर्जयामास": [
+      {
+        "src": "mahabharata",
+        "ref": "2109",
+        "text": "स विस्फार्य महच्चापमिन्द्राशनिसमप्रभम् । तर्जयामास वेगेन पाण्डवानां महारथान् ।। ७० ।।"
+      }
+    ]
+  }
+}

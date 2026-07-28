@@ -1,0 +1,24 @@
+{
+  "id": "01.0453",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "जम्भे": [
+      {
+        "src": "mahabharata",
+        "ref": "2106",
+        "text": "तावभ्यनन्दद् राजापि विवस्वानश्विनाविव । हते महासुरे जम्भे शक्रविष्णू यथा गुरुः ।। १९ ।।"
+      }
+    ]
+  }
+}

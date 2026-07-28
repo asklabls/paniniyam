@@ -1,0 +1,24 @@
+{
+  "id": "01.0628",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "सेल": [
+      {
+        "src": "mahabharata",
+        "ref": "1651",
+        "text": "विजय होगी और मेरे हृदयमें बारह वर्षोंसे जो सेल कसक रहा है, वह निकल जायगा। महाबाहो! ऐसा जानकर तुम्हारी जैसी इच्छा हो, वैसे व्यूहकी रचना करो' ।। २५–२७ ।।"
+      }
+    ]
+  }
+}

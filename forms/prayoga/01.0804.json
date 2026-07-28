@@ -1,0 +1,24 @@
+{
+  "id": "01.0804",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मृष्याद्": [
+      {
+        "src": "mahabharata",
+        "ref": "2551",
+        "text": "न मृष्याद् भूशसंक्रुद्धो मां दृष्ट्वा तु सशोणितम् । विराटमिह सामात्यं हन्यात् सबलवाहनम् ।। ५६ ।।"
+      }
+    ]
+  }
+}

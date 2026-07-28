@@ -1,0 +1,29 @@
+{
+  "id": "05.0005",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "चेष्यते": [
+      {
+        "src": "mahabharata",
+        "ref": "328",
+        "text": "कृतज्ञं धार्मिकं सत्यमक्षुद्रं दृढभक्तिकम् । जितेन्द्रियं स्थितं स्थित्यां मित्रमत्यागि चेष्यते ।। ५० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "128",
+        "text": "अग्निष्टुतं स राजर्षिरिन्द्रद्विष्टं महाबलः । प्रायश्चित्तेषु मर्त्यानां पुत्रकामेषु चेष्यते ॥ ४ ॥"
+      }
+    ]
+  }
+}

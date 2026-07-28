@@ -1,0 +1,29 @@
+{
+  "id": "10.0143",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "चूर्णयामास": [
+      {
+        "src": "mahabharata",
+        "ref": "1062",
+        "text": "तस्य गात्राणि सर्वाणि चूर्णयामास पाण्डवः । अरत्निना चाभिहत्य शिरः कायादपाहरत् ।। ७० ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1331",
+        "text": "चूर्णयामास वेगेन विसृष्टा भीमकर्मणा ।। १५ ।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "01.1102",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "आवे": [
+      {
+        "src": "mahabharata",
+        "ref": "1975",
+        "text": "बाधा न आवे। अच्छा, अब मैं चलता हूँ। आप सब लोगोंका कल्याण हो ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "71",
+        "text": "आवे और यत्नपूर्वक यज्ञका अनुष्ठान करे' ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "637",
+        "text": "सेनाके साथ आवे तो स्वयं भी सेनाके साथ आकर शत्रुको ललकारे ।। ८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1276",
+        "text": "उपयोगमें आवे ।। ८२ ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1224",
+        "text": "विपत्ति न आवे। उन्होंने कहा--॥ २२॥' भाइयो! अब"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1542",
+        "text": "भगाकर अपना भाग ले आवे॥ ४०॥ कमलनयन।"
+      }
+    ],
+    "अवे": [
+      {
+        "src": "mahabharata",
+        "ref": "423",
+        "text": "अश्वे अवे शतं गावो गवां पश्चादजाविकम् ।। ४ ।।"
+      }
+    ]
+  }
+}

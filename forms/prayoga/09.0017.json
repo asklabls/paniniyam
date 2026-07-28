@@ -1,0 +1,24 @@
+{
+  "id": "09.0017",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "तस्तार": [
+      {
+        "src": "mahabharata",
+        "ref": "297",
+        "text": "हितप्रियंवदैः काले बहुभिः पुण्यगन्धिभिः । द्विषच्छिरोभिः पृथिवीं स वै तस्तार फाल्गुनिः ।। ३० ।।"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "01.0964",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "स्तमेव": [
+      {
+        "src": "mahabharata",
+        "ref": "902",
+        "text": "स्तमेव मे देहि सुरेन्द्र नागम् ।। ५७ ।।"
+      }
+    ]
+  }
+}

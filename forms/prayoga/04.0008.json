@@ -1,0 +1,34 @@
+{
+  "id": "04.0008",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "व्युष्य": [
+      {
+        "src": "ramayanam",
+        "ref": "2.89.1",
+        "text": "व्युष्य रात्रिं तु तत्रैव गङ्गाकूले स राघवः ।\nकाल्यमुत्थाय शत्रुघ्नमिदं वचनमब्रवीत्"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "2.92.1",
+        "text": "ततस्तां रजनीं व्युष्य भरतः सपरिच्छदः ।\nकृतातिथ्यो भरद्वाजं कामादभिजगाम ह"
+      },
+      {
+        "src": "ramayanam",
+        "ref": "3.11.40",
+        "text": "तत्रैकां रजनीं व्युष्य प्रभाते राम गम्यताम् ।\nदक्षिणां दिशमास्थाय वनखण्डस्य पार्श्वतः ॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "10.0361",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "मय": [
+      {
+        "src": "ramayanam",
+        "ref": "6.7.8",
+        "text": "“ By Maya ( मय ) , a ruler of the Danavas\nदानवेन्द्रो महाबाहो वीर्योत्सिक्तो दुरासदः ।\nविगृह्य वशमानीतः कुम्भीनस्याः सुखावहः ॥"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1604",
+        "text": "यत्र दिव्यानभिप्रायान् पश्येम हि कृतांस्त्वया । आसुरान् मानुषांश्चैव सभां तां कुरु वै मय ।। १३ ।।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1627",
+        "text": "झिड़क रहा था॥ ३६॥ उस सभामें मय दानवने ऐसी"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "1635",
+        "text": "मय दानवने बतलायी थी॥ २८॥ भगवान्‌ श्रीकृष्णने"
+      }
+    ]
+  }
+}

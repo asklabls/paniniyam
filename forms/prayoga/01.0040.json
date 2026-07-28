@@ -1,0 +1,29 @@
+{
+  "id": "01.0040",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "अच्युतः": [
+      {
+        "src": "mahabharata",
+        "ref": "1347",
+        "text": "स एष हि महाबाहुः सर्वलोकनमस्कृतः । अच्युतः पुण्डरीकाक्षः सर्वभूतादिरीश्वरः ।। ३६ ।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1428",
+        "text": "अच्युतः प्रथितः प्राणः प्राणदो वासवानुजः । अपां निधिरधिष्ठानमप्रमत्तः प्रतिष्ठितः ।। ४८ ।।"
+      }
+    ]
+  }
+}

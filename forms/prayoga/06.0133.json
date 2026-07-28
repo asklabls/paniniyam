@@ -1,0 +1,44 @@
+{
+  "id": "06.0133",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "धुव": [
+      {
+        "src": "bhagwatam",
+        "ref": "218",
+        "text": "प्राचीनवर्हि, ऋभु और धुव भी जानते हैं॥ ४३॥ इनके"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "301",
+        "text": "छेदन करनेवाली हे॥ ४॥ देखो, उत्तानपादका पुत्र धुव"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "447",
+        "text": "पड़े॥ २४॥ यह सब समाचार सुनकर और धुव क्या"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "463",
+        "text": "धुवपर टूट पड़े॥ ७॥ महारथी धुव प्रचण्ड धनुर्धर थे।"
+      },
+      {
+        "src": "bhagwatam",
+        "ref": "471",
+        "text": "धुव हूँ इसकी स्मृति भी न रही॥ १८॥"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "01.0441",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "क्लीबे": [
+      {
+        "src": "mahabharata",
+        "ref": "1864",
+        "text": "क्लीबे दारक्रिया यादृगन्धे वा रूपदर्शनम् । अराज्ञो राजवत् पूजा तथा ते मधुसूदन ।। २९ ।।"
+      }
+    ]
+  }
+}

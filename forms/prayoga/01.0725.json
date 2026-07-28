@@ -1,0 +1,24 @@
+{
+  "id": "01.0725",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "बर्हे": [
+      {
+        "src": "ramayanam",
+        "ref": "7.18.23",
+        "text": "इदं नेत्रसहस्त्रं तु यत् तद् बर्हे भविष्यति ।\nवर्षमाणे मयि मुदं प्राप्स्यसे प्रीतिलक्षणाम् ॥"
+      }
+    ]
+  }
+}

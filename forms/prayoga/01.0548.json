@@ -1,0 +1,29 @@
+{
+  "id": "01.0548",
+  "generated": "2026-07-28",
+  "sources": [
+    "ramayanam",
+    "mahabharata",
+    "bhagwatam"
+  ],
+  "source_names": {
+    "ramayanam": "Vālmīki Rāmāyaṇam",
+    "mahabharata": "Mahābhāratam",
+    "bhagwatam": "Śrīmad-Bhāgavatam"
+  },
+  "cap_per_source": 50,
+  "forms": {
+    "पेये": [
+      {
+        "src": "mahabharata",
+        "ref": "1023",
+        "text": "त्वं हि भाज्ये पुरस्कार्यो भक्ष्ये पेये च भारत ।। ६८ ।।"
+      },
+      {
+        "src": "mahabharata",
+        "ref": "1683",
+        "text": "प्रेये पेये च दृश्ये च स्पृश्ये श्रव्ये तथैव च । मन्तव्येऽप्यथ बोद्धव्ये सुभगे पश्य सर्वदा ।। २२ ।।"
+      }
+    ]
+  }
+}
