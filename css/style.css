@@ -1595,6 +1595,14 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .dhatu-deriv-action:hover { color: var(--text); background: var(--hover-bg); }
 .dhatu-deriv-action:disabled { opacity: .4; cursor: default; }
+.dhatu-deriv-action.active { background: var(--accent); color: #fff; }
+.prayoga-wrap { padding: 4px 12px 8px; }
+.prayoga-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.prayoga-row:last-child { border-bottom: none; }
+.prayoga-src-badge { font-family: var(--font-ui); font-size: .7em; font-weight: 700; background: var(--hover-bg); color: var(--muted); padding: 2px 5px; border-radius: 3px; letter-spacing: .04em; flex-shrink: 0; }
+.prayoga-ref { font-size: .75em; color: var(--muted); flex-shrink: 0; }
+.prayoga-text { font-family: var(--font-dev); font-size: .88em; line-height: 1.7; white-space: pre-wrap; width: 100%; }
+.prayoga-match { font-weight: 700; color: var(--accent); }
 .dhatu-deriv-area .vidyut-steps-wrap { overflow: visible; }
 
 /* ── Kṛdanta pills ──────────────────────────────────────────────────────────── */

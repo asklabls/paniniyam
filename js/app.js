@@ -340,7 +340,8 @@ let dhatuReaderList = [];
 let dhatuReaderIdx  = -1;
 let dhatuReaderItem = null;
 let readerType      = 'sutra'; // 'sutra' | 'dhatu'
-let _pendingFormClick = null;  // { lakaraKey, padaKey, cellIndex } — set when navigating to related dhatu
+let _pendingFormClick = null;     // { lakaraKey, padaKey, cellIndex } — set when navigating to related dhatu
+let _lastDhatuLakaraKey = null;  // remembers last active lakara pill across dhatu navigation
 
 // Google Drive notes state
 let googleToken      = null;
@@ -1081,6 +1082,18 @@ async function loadDhatuForms(baseindex) {
   return bookData[key];
 }
 
+async function loadPrayoga(baseindex) {
+  const key = `prayoga:${baseindex}`;
+  if (key in bookData) return bookData[key];
+  try {
+    const res = await fetch(`${FORMS_BASE}/prayoga/${baseindex}.json`);
+    bookData[key] = res.ok ? await res.json() : null;
+  } catch (_) {
+    bookData[key] = null;
+  }
+  return bookData[key];
+}
+
 function prefetchDhatuForms(list, idx) {
   const range = [idx - 2, idx - 1, idx + 1, idx + 2]
     .filter(i => i >= 0 && i < list.length);
@@ -1203,18 +1216,24 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
     derivArea.className = 'dhatu-deriv-area';
     const entries = [];
 
+    // Determine which lakara to activate: pending nav > last remembered > first
+    const defaultLakaraKey = _pendingFormClick?.lakaraKey || _lastDhatuLakaraKey || null;
+
     available.forEach((lakara, i) => {
       const pForms = forms[`p${lakara.key}`];
       const aForms = forms[`a${lakara.key}`];
 
+      const isDefault = defaultLakaraKey
+        ? lakara.key === defaultLakaraKey
+        : i === 0;
       const pill = document.createElement('button');
-      pill.className = 'pratyaya-lak-pill dev-text' + (i === 0 ? ' active' : '');
+      pill.className = 'pratyaya-lak-pill dev-text' + (isDefault ? ' active' : '');
       pill._devText = lakara.dev;
       pill.textContent = translit(lakara.dev);
       pillBar.appendChild(pill);
 
       const lPanel = document.createElement('div');
-      lPanel.className = 'pratyaya-lak-panel' + (i === 0 ? ' active' : '');
+      lPanel.className = 'pratyaya-lak-panel' + (isDefault ? ' active' : '');
 
       if (pForms && aForms) {
         const split = document.createElement('div');
@@ -1235,6 +1254,7 @@ async function loadAndRenderDhatuForms(d, lakaras, panel) {
         entries.forEach(e => { e.pill.classList.remove('active'); e.panel.classList.remove('active'); });
         pill.classList.add('active');
         lPanel.classList.add('active');
+        _lastDhatuLakaraKey = lakara.key;
       });
     });
 
@@ -1455,6 +1475,53 @@ function renderVidyutSteps(container, result) {
   container.appendChild(credit);
 }
 
+function renderPrayogaView(hits, sourceNames, formText) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prayoga-wrap';
+  if (!hits.length) {
+    const msg = document.createElement('div');
+    msg.className = 'vidyut-loading';
+    msg.textContent = 'इस रूप का प्रयोग इन ग्रन्थों में नहीं मिला';
+    wrap.appendChild(msg);
+    return wrap;
+  }
+  for (const hit of hits) {
+    const row = document.createElement('div');
+    row.className = 'prayoga-row';
+    const badge = document.createElement('span');
+    badge.className = 'prayoga-src-badge';
+    badge.textContent = hit.src;
+    badge.title = sourceNames[hit.src] || hit.src;
+    row.appendChild(badge);
+    const ref = document.createElement('span');
+    ref.className = 'prayoga-ref';
+    ref.textContent = hit.ref;
+    row.appendChild(ref);
+    const textEl = document.createElement('div');
+    textEl.className = 'prayoga-text';
+    const parts = (hit.text || '').split(formText);
+    parts.forEach((part, i) => {
+      if (part) {
+        const s = document.createElement('span');
+        s.className = 'dev-text';
+        s._devText = part;
+        s.textContent = translit(part);
+        textEl.appendChild(s);
+      }
+      if (i < parts.length - 1) {
+        const m = document.createElement('span');
+        m.className = 'prayoga-match dev-text';
+        m._devText = formText;
+        m.textContent = translit(formText);
+        textEl.appendChild(m);
+      }
+    });
+    row.appendChild(textEl);
+    wrap.appendChild(row);
+  }
+  return wrap;
+}
+
 async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, derivArea, cellTds) {
   // Toggle off if same cell clicked again
   if (td.classList.contains('forms-cell-active')) {
@@ -1538,6 +1605,14 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
   copyBtn.disabled = true;
   actions.appendChild(copyBtn);
 
+  const prayogaBtn = document.createElement('button');
+  prayogaBtn.className = 'dhatu-deriv-action dev-text';
+  prayogaBtn._devText = 'प्रयोग';
+  prayogaBtn.textContent = translit('प्रयोग');
+  prayogaBtn.title = 'Text examples from corpus';
+  prayogaBtn.style.display = 'none';
+  actions.appendChild(prayogaBtn);
+
   const closeBtn = document.createElement('button');
   closeBtn.className = 'dhatu-deriv-action';
   closeBtn.title = 'Close';
@@ -1555,6 +1630,31 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
   const content = document.createElement('div');
   content.innerHTML = '<div class="vidyut-loading">Computing prakriyā…</div>';
   derivArea.appendChild(content);
+
+  const prayogaContent = document.createElement('div');
+  prayogaContent.style.display = 'none';
+  derivArea.appendChild(prayogaContent);
+
+  const formText = td._devText || '';
+  let prayogaData = null;
+  let _showingPrayoga = false;
+
+  loadPrayoga(dhatu.baseindex).then(data => {
+    prayogaData = data;
+    if (data) prayogaBtn.style.display = '';
+  });
+
+  prayogaBtn.addEventListener('click', () => {
+    _showingPrayoga = !_showingPrayoga;
+    prayogaBtn.classList.toggle('active', _showingPrayoga);
+    content.style.display = _showingPrayoga ? 'none' : '';
+    prayogaContent.style.display = _showingPrayoga ? '' : 'none';
+    if (_showingPrayoga) {
+      prayogaContent.innerHTML = '';
+      const hits = prayogaData?.forms?.[formText] || [];
+      prayogaContent.appendChild(renderPrayogaView(hits, prayogaData?.source_names || {}, formText));
+    }
+  });
 
   try {
     const v = await loadVidyut();
@@ -7099,7 +7199,7 @@ function showLegalPage(id) {
       title: 'Terms of Use',
       cards: [
         { title: 'Free educational use',
-          body: 'Paniniyam is a free, ad-free educational tool for studying Pāṇini\'s Ashtadhyayi and related Sanskrit grammatical texts. You are welcome to use it for personal study, teaching, and research.' },
+          body: '<b>Paniniyam</b> is a free, ad-free educational tool created to support the study of Pāṇini\'s <i>Aṣṭādhyāyī</i> and related Sanskrit grammatical texts. It is provided for <b>personal study and non-commercial research</b>. Institutions, organizations, publishers, and commercial entities <b>may not copy, mirror, redistribute, integrate, or use Paniniyam\'s content, data, or resources in their own platforms, services, or publications without prior written permission</b>.<br><br>Unauthorized institutional use, including automated extraction, bulk downloading, or incorporation into other databases or products, is prohibited. If your institution wishes to use Paniniyam\'s resources, please contact us to obtain permission and discuss appropriate licensing or collaboration.<br><br>By using this site, you agree to respect these terms and the effort invested in creating and maintaining this resource.' },
         { title: 'Content ownership',
           body: 'Classical texts (Ashtadhyayi sūtras, Kāśikā, Laghu Kaumudī, Dhatupatha, etc.) are in the public domain. Data sourced from the <a href="https://github.com/ashtadhyayi-com/data" target="_blank">ashtadhyayi-com/data</a> open repository is used under their open terms. Original commentary and analysis authored by us remains our intellectual property.' },
         { title: 'Your notes',
