@@ -56,7 +56,7 @@ const BOOKS = [
           { id: 'pratyaya-suchi', devName: 'प्रत्यय-सूची', engName: 'Pratyaya Sūchi', type: 'pratyaya-suchi-panel' },
         ]
       },
-      { id: 'shabda',     devName: 'नामरूप',         engName: 'Nāmarūpa',      type: 'shabda-browser' },
+      { id: 'shabda',     devName: 'नामरूप',         engName: 'Nāmarūpa',      type: 'shabda-browser', devOnly: true },
       { id: 'avyaya',     devName: 'अव्ययार्थाः',   engName: 'Avyayas',       type: 'avyaya-panel' },
       { id: 'paribhasha', devName: 'पारिभाषिक',     engName: 'Pāribhāṣika',   type: 'leaf' },
       { id: 'fit',        devName: 'फिट्सूत्राणि',  engName: 'Fiṭ Sūtrāṇi',  type: 'leaf', dataPath: 'fit/data.txt' },
@@ -2356,6 +2356,7 @@ function collapseAllAdhyayas(container, exceptPadas) {
 }
 
 function buildBookEntry(book, nested = false) {
+  if (book.devOnly && !isLocal) return document.createDocumentFragment();
   const wrap = document.createElement('div');
   wrap.className = 'nav-book';
 
@@ -2427,7 +2428,6 @@ function buildBookEntry(book, nested = false) {
   }
 
   if (book.type === 'namarupa-panel') {
-    if (!isLocal) return null;   // dev-only: hide from production nav
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showNamarupaPanel(); });
     wrap.appendChild(btn);
