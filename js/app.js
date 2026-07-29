@@ -1606,7 +1606,7 @@ async function showFormDerivInline(dhatu, lakaraKey, padaKey, cellIndex, td, der
   actions.appendChild(copyBtn);
 
   const prayogaBtn = document.createElement('button');
-  prayogaBtn.className = 'dhatu-deriv-action dev-text';
+  prayogaBtn.className = 'dhatu-deriv-pill dhatu-deriv-pill--prayoga dev-text';
   prayogaBtn._devText = 'प्रयोग';
   prayogaBtn.textContent = translit('प्रयोग');
   prayogaBtn.title = 'Text examples from corpus';

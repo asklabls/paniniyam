@@ -1596,6 +1596,7 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .dhatu-deriv-action:hover { color: var(--text); background: var(--hover-bg); }
 .dhatu-deriv-action:disabled { opacity: .4; cursor: default; }
 .dhatu-deriv-action.active { background: var(--accent); color: #fff; }
+.dhatu-deriv-pill--prayoga { margin-left: 0; }
 .prayoga-wrap { padding: 4px 12px 8px; }
 .prayoga-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .prayoga-row:last-child { border-bottom: none; }
