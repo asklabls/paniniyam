@@ -36,7 +36,7 @@ const BOOKS = [
     ]
   },
   { id: 'sambhashana', devName: 'संभाषणा',  engName: 'Spoken Sanskrit',  type: 'sambhashana-panel', icon: 'संभा' },
-  { id: 'namarupa',   devName: 'नामरूप',   engName: 'Namarupa',          type: 'namarupa-panel',    icon: 'नाम'  },
+  { id: 'namarupa',   devName: 'नामरूप',   engName: 'Namarupa',          type: 'namarupa-panel',    icon: 'नाम', devOnly: true },
   { id: 'visuals',     devName: 'Visuals',   engName: 'Visuals',          type: 'visual-library',    icon: 'Vis'  },
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
@@ -2427,6 +2427,7 @@ function buildBookEntry(book, nested = false) {
   }
 
   if (book.type === 'namarupa-panel') {
+    if (!isLocal) return null;   // dev-only: hide from production nav
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showNamarupaPanel(); });
     wrap.appendChild(btn);
@@ -6194,6 +6195,7 @@ const NAMARUPA_WORDLIST = {
 // ── Namarupa panel — rule-based subanta paradigm (subanta.js engine) ──────────
 
 function showNamarupaPanel() {
+  if (!isLocal) return;
   showPanel('namarupa');
   updateBookURL('namarupa');
   initNamarupaPanel($panelNamarupa);
