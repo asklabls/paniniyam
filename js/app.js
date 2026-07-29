@@ -6446,7 +6446,11 @@ function initNamarupaPanel(panel) {
         showGloss(q, _mwData[q]);
       }
     } else {
-      loadMWData().then(() => buildAC(input.value.trim().replace(/्$/, '')));
+      loadMWData().then(() => {
+        const q2 = input.value.trim().replace(/्$/, '');
+        buildAC(q2);
+        if (_mwData[q2]) { applyMWGender(_mwData[q2].g); showGloss(q2, _mwData[q2]); }
+      });
     }
   });
 
@@ -6502,6 +6506,11 @@ function initNamarupaPanel(panel) {
       }
       const grid = Subanta.paradigm(stem, activeLinga);
       tableArea.appendChild(buildNamarupaTable(stem, activeLinga, grid, sc, stem !== raw ? raw : null));
+      // Show MW gloss if available (strip trailing halant for lookup)
+      if (_mwData) {
+        const key = stem.replace(/्$/, '');
+        if (_mwData[key]) showGloss(key, _mwData[key]);
+      }
     } catch (e) {
       errorDiv.textContent = e.message;
       errorDiv.style.display = '';
