@@ -6530,13 +6530,21 @@ function renderNamarupaSteps(derivArea, steps, finalForm, vibName, vacName, acti
   header.appendChild(spacer);
 
   const copyBtn = document.createElement('button');
-  copyBtn.className = 'nm-steps-btn';
-  copyBtn.title = 'Copy prakriyā';
-  copyBtn.textContent = '⎘';
+  copyBtn.className = 'dhatu-deriv-action';
+  copyBtn.title = 'Copy prakriyā as text';
+  copyBtn.textContent = '📋';
   copyBtn.addEventListener('click', () => {
-    const lines = steps.map(s => `${s.rule}\t${s.form}\t${s.note || ''}`);
+    const header2 = `${finalForm} — ${vibName} ${vacName} | Subanta Prakriyā | paniniyam.com`;
+    const lines = [header2, ''];
+    steps.forEach(s => lines.push(`${s.rule}\t${s.form}\t${s.note || ''}`));
     lines.push(`—\t${finalForm}\tइति सिद्धम् ॥`);
-    navigator.clipboard?.writeText(lines.join('\n')).catch(() => {});
+    navigator.clipboard?.writeText(lines.join('\n')).then(() => {
+      copyBtn.textContent = '✓';
+      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+    }).catch(() => {
+      copyBtn.textContent = '✗';
+      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+    });
   });
   header.appendChild(copyBtn);
 
@@ -6637,7 +6645,7 @@ function renderNamarupaSteps(derivArea, steps, finalForm, vibName, vacName, acti
   // ── Footer attribution ────────────────────────────────────────────────────
   const footer = document.createElement('div');
   footer.className = 'nm-steps-footer';
-  footer.innerHTML = 'Prakriyā: <strong>Subanta Engine</strong>';
+  footer.innerHTML = '© Paniniyam.com · <strong>Subanta Engine</strong>';
   derivArea.appendChild(footer);
 }
 
