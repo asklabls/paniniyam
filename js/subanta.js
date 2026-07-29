@@ -2237,7 +2237,24 @@ function deriveRStemFlat(stem, linga, vib, vac) {
 
 // ── n-stem State derivation ───────────────────────────────────────────────────
 function deriveNStemState(stem, vib, vac) {
+  const pos = `${vib},${vac}`;
   const finalForm = deriveNStemFlat(stem, vib, vac);
+
+  // nom sg (राजन् → राजा): 6.4.8 lengthening → 8.2.7 न्-lopa → 6.1.68 apṛkta-hal lopa
+  if (pos === '1,1') {
+    const tokens = tok(stem);
+    const base = tokens.slice(0, -1).map(t => t.text).join(''); // strip final न
+    const lengthenedStem = base + 'ान्'; // e.g. राजान्
+    const steps = [];
+    steps.push({ rule: '4.1.2', note: 'स्वौजसमौट्…: सुँ (nom sg)',                                         form: stem + '+सुँ' });
+    steps.push({ rule: '1.3.2', note: 'उपदेशेऽजनुनासिक इत्: ँ in सुँ marks vowel as IT',                   form: stem + '+सुँ' });
+    steps.push({ rule: '1.3.9', note: 'तस्य लोपः: IT stripped → स्',                                        form: stem + '+स्' });
+    steps.push({ rule: '6.4.8', note: 'सर्वनामस्थाने चासम्बुद्धौ: उपधा-दीर्घः — अ→आ before सर्वनामस्थान',  form: lengthenedStem + '+स्' });
+    steps.push({ rule: '8.2.7', note: 'नलोपः सुप्स्वरसंज्ञातुग्विधिषु कृति: final न् drops before सुप्',    form: finalForm + '+स्' });
+    steps.push({ rule: '6.1.68', note: 'हल्ङ्याब्भ्यो दीर्घात् सुतिस्यपृक्तं हल्: अपृक्त-सकारस्य लोपः',  form: finalForm });
+    return { form: finalForm, steps };
+  }
+
   return stepsFromFlatSimple(stem, 'M', vib, vac, finalForm);
 }
 
