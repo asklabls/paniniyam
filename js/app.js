@@ -6534,7 +6534,7 @@ function renderNamarupaSteps(derivArea, steps, finalForm, vibName, vacName, acti
   copyBtn.title = 'Copy prakriyā as text';
   copyBtn.textContent = '📋';
   copyBtn.addEventListener('click', () => {
-    const header2 = `${finalForm} — ${vibName} ${vacName} | Subanta Prakriyā | paniniyam.com`;
+    const header2 = `${finalForm} — ${vibName} ${vacName} | © paniniyam.com. Subanta Engine`;
     const lines = [header2, ''];
     steps.forEach(s => lines.push(`${s.rule}\t${s.form}\t${s.note || ''}`));
     lines.push(`—\t${finalForm}\tइति सिद्धम् ॥`);
