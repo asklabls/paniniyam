@@ -2330,7 +2330,10 @@ function toggleSimpleCard(card) {
 // ── Navigation tree ───────────────────────────────────────────────────────────
 function buildNavTree() {
   $navTree.innerHTML = '';
-  for (const book of BOOKS) $navTree.appendChild(buildBookEntry(book));
+  for (const book of BOOKS) {
+    if (book.devOnly && !isLocal) continue;
+    $navTree.appendChild(buildBookEntry(book));
+  }
 }
 
 function collapseNavItem(btn, container) {
@@ -2356,7 +2359,6 @@ function collapseAllAdhyayas(container, exceptPadas) {
 }
 
 function buildBookEntry(book, nested = false) {
-  if (book.devOnly && !isLocal) return document.createDocumentFragment();
   const wrap = document.createElement('div');
   wrap.className = 'nav-book';
 
@@ -2482,6 +2484,7 @@ function buildBookEntry(book, nested = false) {
     });
   } else if (book.type === 'sub-tree') {
     for (const page of (book.pages || [])) {
+      if (page.devOnly && !isLocal) continue;
       if (page.type === 'sub-tree') {
         // Nested sub-tree — render recursively
         const nestedEntry = buildBookEntry(page, true);
