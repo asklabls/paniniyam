@@ -36,6 +36,7 @@ const BOOKS = [
     ]
   },
   { id: 'sambhashana', devName: 'संभाषणा',  engName: 'Spoken Sanskrit',  type: 'sambhashana-panel', icon: 'संभा' },
+  { id: 'namarupa',   devName: 'नामरूप',   engName: 'Namarupa',          type: 'namarupa-panel',    icon: 'नाम'  },
   { id: 'visuals',     devName: 'Visuals',   engName: 'Visuals',          type: 'visual-library',    icon: 'Vis'  },
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
@@ -413,6 +414,7 @@ const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
 const $panelSambhashana       = document.getElementById('panel-sambhashana');
+const $panelNamarupa          = document.getElementById('panel-namarupa');
 const $panelTranslit          = document.getElementById('panel-translit');
 const $panelArticles          = document.getElementById('panel-articles');
 const $app               = document.getElementById('app');
@@ -769,6 +771,7 @@ function showPanel(name) {
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
+  $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
   $panelArticles.style.display          = name === 'articles'          ? '' : 'none';
   // Visuals panel fills viewport and manages its own scroll internally
@@ -2419,6 +2422,13 @@ function buildBookEntry(book, nested = false) {
   if (book.type === 'sambhashana-panel') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); openSsMatrix(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'namarupa-panel') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showNamarupaPanel(); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -6181,6 +6191,550 @@ const NAMARUPA_WORDLIST = {
 
 
 
+// ── Namarupa panel — rule-based subanta paradigm (subanta.js engine) ──────────
+
+function showNamarupaPanel() {
+  showPanel('namarupa');
+  updateBookURL('namarupa');
+  initNamarupaPanel($panelNamarupa);
+}
+
+// ── MW dictionary (lazy-loaded once when namarupa panel opens) ────────────────
+let _mwData     = null;   // { "देवनागरी": { g, d }, ... }
+let _mwPromise  = null;
+
+function loadMWData() {
+  if (_mwData)    return Promise.resolve(_mwData);
+  if (_mwPromise) return _mwPromise;
+  _mwPromise = fetch(`${PRIVATE_BASE}/mw_linga.json`)
+    .then(r => r.ok ? r.json() : Promise.reject('MW data unavailable'))
+    .then(data => { _mwData = data; return data; })
+    .catch(() => { _mwData = {}; return {}; });
+  return _mwPromise;
+}
+
+function initNamarupaPanel(panel) {
+  if (panel._initialized) return;
+  panel._initialized = true;
+
+  panel.innerHTML = `
+    <div class="nm-panel">
+      <div class="nm-search-row">
+        <div class="nm-input-wrap">
+          <input class="nm-input dev-text" type="text" placeholder="प्रातिपदिकम् (e.g. राम)" spellcheck="false" autocomplete="off">
+          <ul class="nm-ac-list" style="display:none"></ul>
+        </div>
+        <div class="nm-linga-btns">
+          <button class="nm-linga active" data-l="M">पुं</button>
+          <button class="nm-linga" data-l="F">स्त्री</button>
+          <button class="nm-linga" data-l="N">नपुं</button>
+        </div>
+        <button class="nm-derive-btn">दर्शय</button>
+      </div>
+      <div class="nm-gloss" style="display:none"></div>
+      <div class="nm-error" style="display:none"></div>
+      <div class="nm-table-area"></div>
+    </div>
+  `;
+
+  const input     = panel.querySelector('.nm-input');
+  const acList    = panel.querySelector('.nm-ac-list');
+  const lingaBtns = panel.querySelectorAll('.nm-linga');
+  const deriveBtn = panel.querySelector('.nm-derive-btn');
+  const glossDiv  = panel.querySelector('.nm-gloss');
+  const errorDiv  = panel.querySelector('.nm-error');
+  const tableArea = panel.querySelector('.nm-table-area');
+
+  // Inject styles once
+  if (!document.getElementById('nm-styles')) {
+    const style = document.createElement('style');
+    style.id = 'nm-styles';
+    style.textContent = `
+      .nm-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
+      .nm-search-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 8px; }
+      .nm-input-wrap { flex: 1; min-width: 160px; position: relative; }
+      .nm-input { width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 6px;
+        border: 1px solid var(--border); background: var(--bg-card);
+        color: var(--text); font-size: 1.1rem; font-family: 'Tiro Devanagari Sanskrit', serif; }
+      .nm-input:focus { outline: none; border-color: var(--accent); }
+      .nm-ac-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+        margin: 2px 0 0; padding: 0; list-style: none;
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+        max-height: 280px; overflow-y: auto; }
+      .nm-ac-item { display: flex; align-items: baseline; gap: 10px;
+        padding: 7px 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+      .nm-ac-item:last-child { border-bottom: none; }
+      .nm-ac-item:hover, .nm-ac-item.nm-ac-sel { background: var(--hover-bg); }
+      .nm-ac-stem { font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 1rem;
+        font-weight: 600; color: var(--text); min-width: 80px; }
+      .nm-ac-tag { font-size: 0.75rem; color: var(--accent); background: var(--bg-sidebar);
+        padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
+      .nm-ac-def { font-size: 0.82rem; color: var(--muted); overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; }
+      .nm-linga-btns { display: flex; gap: 4px; padding-top: 2px; }
+      .nm-linga { padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border);
+        background: var(--bg-card); color: var(--text); cursor: pointer;
+        font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 0.95rem; transition: background .15s; }
+      .nm-linga:hover { background: var(--hover-bg); }
+      .nm-linga.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+      .nm-linga.nm-linga-mw { box-shadow: 0 0 0 2px var(--accent); }
+      .nm-derive-btn { padding: 8px 18px; border-radius: 6px; border: none;
+        background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
+        font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 0.95rem; }
+      .nm-derive-btn:hover { opacity: 0.88; }
+      .nm-gloss { font-size: 0.85rem; color: var(--muted); padding: 4px 2px 8px;
+        font-style: italic; }
+      .nm-gloss strong { color: var(--text); font-style: normal;
+        font-family: 'Tiro Devanagari Sanskrit', serif; }
+      .nm-error { color: #c0392b; padding: 8px; font-size: 0.9rem; }
+      .nm-table-wrap { overflow-x: auto; }
+      .nm-heading { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;
+        font-family: 'Tiro Devanagari Sanskrit', serif; color: var(--accent); }
+      .nm-table { border-collapse: collapse; min-width: 480px; width: 100%; }
+      .nm-table th, .nm-table td { padding: 8px 14px; text-align: center;
+        border: 1px solid var(--border); font-family: 'Tiro Devanagari Sanskrit', serif; }
+      .nm-table th { background: var(--bg-sidebar); color: var(--muted); font-size: 0.88rem; }
+      .nm-vib-label { text-align: right; min-width: 90px; color: var(--muted); font-size: 0.9rem; }
+      .nm-cell { font-size: 1.05rem; color: var(--text); cursor: pointer; }
+      .nm-cell:hover { background: var(--hover-bg); }
+      .nm-cell.nm-cell-active { background: var(--accent) !important; color: #fff !important; }
+      .nm-deriv-area { margin-top: 14px; border-radius: 8px; overflow: hidden;
+        border: 1px solid var(--border); }
+      .nm-steps-header { display: flex; align-items: center; gap: 8px;
+        padding: 8px 12px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border); }
+      .nm-form-pill { font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 1rem;
+        font-weight: 700; background: var(--accent2, var(--accent)); color: #fff;
+        padding: 3px 12px; border-radius: 20px; }
+      .nm-steps-btn { background: none; border: 1px solid var(--border); border-radius: 5px;
+        color: var(--muted); cursor: pointer; padding: 3px 8px; font-size: 0.85rem;
+        line-height: 1.4; }
+      .nm-steps-btn:hover { background: var(--hover-bg); color: var(--text); }
+      .nm-steps-footer { padding: 6px 14px; font-size: 0.78rem; text-align: right;
+        color: var(--muted); border-top: 1px solid var(--border);
+        background: var(--bg-sidebar); font-style: italic; }
+      .nm-deriv-area .vidyut-sutra-text { display: inline-block; max-width: 260px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        vertical-align: middle; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  let activeLinga = 'M';
+
+  // ── Gender pill helpers ───────────────────────────────────────────────────
+  const LINGA_FROM_G = { m: ['M'], f: ['F'], n: ['N'], mfn: ['M','F','N'],
+                         mf: ['M','F'], mn: ['M','N'], fn: ['F','N'] };
+
+  function setActiveLinga(l, fromMW) {
+    lingaBtns.forEach(b => {
+      b.classList.toggle('active', b.dataset.l === l);
+      b.classList.toggle('nm-linga-mw', fromMW && LINGA_FROM_G[fromMW]?.includes(b.dataset.l));
+    });
+    activeLinga = l;
+  }
+
+  function applyMWGender(g) {
+    // For single-gender entries auto-select; for multi-gender highlight all, keep current
+    const candidates = LINGA_FROM_G[g] || [];
+    lingaBtns.forEach(b => {
+      b.classList.toggle('nm-linga-mw', candidates.includes(b.dataset.l));
+    });
+    if (candidates.length === 1) {
+      lingaBtns.forEach(b => b.classList.toggle('active', b.dataset.l === candidates[0]));
+      activeLinga = candidates[0];
+    }
+    // Multi-gender: leave current selection, just highlight the valid pills
+  }
+
+  function clearMWGender() {
+    lingaBtns.forEach(b => b.classList.remove('nm-linga-mw'));
+  }
+
+  lingaBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      lingaBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeLinga = btn.dataset.l;
+    });
+  });
+
+  // ── MW gloss display ──────────────────────────────────────────────────────
+  function showGloss(stem, entry) {
+    if (!entry || !entry.d) { glossDiv.style.display = 'none'; return; }
+    glossDiv.style.display = '';
+    glossDiv.innerHTML = `<strong class="dev-text"></strong> · ${entry.d} <span style="opacity:.5;font-size:.8em">(MW)</span>`;
+    const strongEl = glossDiv.querySelector('strong');
+    strongEl._devText = stem;
+    strongEl.textContent = translit(stem);
+  }
+
+  // ── Autocomplete ──────────────────────────────────────────────────────────
+  let acIndex = -1;
+
+  function closeAC() { acList.style.display = 'none'; acList.innerHTML = ''; acIndex = -1; }
+
+  function selectAC(item) {
+    const stem = item.dataset.stem;
+    const g    = item.dataset.g;
+    const d    = item.dataset.d;
+    input.value = stem;
+    closeAC();
+    if (g) applyMWGender(g);
+    showGloss(stem, { g, d });
+    runDerive();
+  }
+
+  function buildAC(q) {
+    if (!_mwData || q.length < 1) { closeAC(); return; }
+    const matches = [];
+    for (const stem in _mwData) {
+      if (stem.startsWith(q)) {
+        matches.push([stem, _mwData[stem]]);
+        if (matches.length >= 12) break;
+      }
+    }
+    if (!matches.length) { closeAC(); return; }
+    acList.innerHTML = '';
+    const G_LABEL = { m:'पुं', f:'स्त्री', n:'नपुं', mfn:'त्रि', mf:'पुं/स्त्री', mn:'पुं/नपुं', fn:'स्त्री/नपुं' };
+    matches.forEach(([stem, e]) => {
+      const li = document.createElement('li');
+      li.className = 'nm-ac-item';
+      li.dataset.stem = stem; li.dataset.g = e.g || ''; li.dataset.d = e.d || '';
+
+      const stemEl = document.createElement('span');
+      stemEl.className = 'nm-ac-stem dev-text';
+      stemEl._devText = stem;
+      stemEl.textContent = translit(stem);
+      li.appendChild(stemEl);
+
+      if (e.g) {
+        const tagDev = G_LABEL[e.g] || e.g;
+        const tagEl = document.createElement('span');
+        tagEl.className = 'nm-ac-tag dev-text';
+        tagEl._devText = tagDev;
+        tagEl.textContent = translit(tagDev);
+        li.appendChild(tagEl);
+      }
+      if (e.d) {
+        const defEl = document.createElement('span');
+        defEl.className = 'nm-ac-def';
+        defEl.textContent = e.d;
+        li.appendChild(defEl);
+      }
+
+      li.addEventListener('mousedown', ev => { ev.preventDefault(); selectAC(li); });
+      acList.appendChild(li);
+    });
+    acIndex = -1;
+    acList.style.display = '';
+  }
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().replace(/्$/, '');
+    clearMWGender();
+    glossDiv.style.display = 'none';
+    if (!q) { closeAC(); return; }
+    if (_mwData) {
+      buildAC(q);
+      // Exact match → apply gender immediately
+      if (_mwData[q]) {
+        applyMWGender(_mwData[q].g);
+        showGloss(q, _mwData[q]);
+      }
+    } else {
+      loadMWData().then(() => buildAC(input.value.trim().replace(/्$/, '')));
+    }
+  });
+
+  input.addEventListener('keydown', e => {
+    if (acList.style.display !== 'none') {
+      const items = acList.querySelectorAll('.nm-ac-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        acIndex = Math.min(acIndex + 1, items.length - 1);
+        items.forEach((it, i) => it.classList.toggle('nm-ac-sel', i === acIndex));
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        acIndex = Math.max(acIndex - 1, -1);
+        items.forEach((it, i) => it.classList.toggle('nm-ac-sel', i === acIndex));
+        return;
+      }
+      if (e.key === 'Enter' && acIndex >= 0) {
+        e.preventDefault();
+        selectAC(items[acIndex]);
+        return;
+      }
+      if (e.key === 'Escape') { closeAC(); return; }
+    }
+    if (e.key === 'Enter') runDerive();
+  });
+
+  document.addEventListener('click', e => {
+    if (!panel.contains(e.target)) closeAC();
+  }, true);
+
+  // ── Derivation ────────────────────────────────────────────────────────────
+  function runDerive() {
+    const raw = input.value.trim();
+    if (!raw) return;
+    closeAC();
+    errorDiv.style.display = 'none';
+    tableArea.innerHTML = '';
+    try {
+      if (!window.Subanta) throw new Error('Subanta engine not loaded');
+      let stem = raw;
+      let sc;
+      try {
+        sc = Subanta.stemClass(stem, activeLinga);
+      } catch (e1) {
+        if (raw.endsWith('्')) {
+          stem = raw.slice(0, -1);
+          sc = Subanta.stemClass(stem, activeLinga);
+        } else {
+          throw e1;
+        }
+      }
+      const grid = Subanta.paradigm(stem, activeLinga);
+      tableArea.appendChild(buildNamarupaTable(stem, activeLinga, grid, sc, stem !== raw ? raw : null));
+    } catch (e) {
+      errorDiv.textContent = e.message;
+      errorDiv.style.display = '';
+    }
+  }
+
+  deriveBtn.addEventListener('click', runDerive);
+
+  // Start loading MW data in background as soon as panel opens
+  loadMWData();
+}
+
+function renderNamarupaSteps(derivArea, steps, finalForm, vibName, vacName, activeCellRef) {
+  // ── Header: [form pill]  [copy □]  [× close] ─────────────────────────────
+  const header = document.createElement('div');
+  header.className = 'nm-steps-header';
+
+  const pill = document.createElement('span');
+  pill.className = 'nm-form-pill dev-text';
+  pill._devText = finalForm;
+  pill.textContent = typeof translit === 'function' ? translit(finalForm) : finalForm;
+  header.appendChild(pill);
+
+  const spacer = document.createElement('span');
+  spacer.style.flex = '1';
+  header.appendChild(spacer);
+
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'nm-steps-btn';
+  copyBtn.title = 'Copy prakriyā';
+  copyBtn.textContent = '⎘';
+  copyBtn.addEventListener('click', () => {
+    const lines = steps.map(s => `${s.rule}\t${s.form}\t${s.note || ''}`);
+    lines.push(`—\t${finalForm}\tइति सिद्धम् ॥`);
+    navigator.clipboard?.writeText(lines.join('\n')).catch(() => {});
+  });
+  header.appendChild(copyBtn);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'nm-steps-btn';
+  closeBtn.title = 'Close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => {
+    derivArea.style.display = 'none';
+    derivArea.innerHTML = '';
+    if (activeCellRef) activeCellRef.classList.remove('nm-cell-active');
+  });
+  header.appendChild(closeBtn);
+  derivArea.appendChild(header);
+
+  // ── Steps table (reuse vidyut-steps-table CSS) ────────────────────────────
+  const table = document.createElement('table');
+  table.className = 'vidyut-steps-table';
+
+  steps.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.className = 'vidyut-step';
+
+    // Left column: intermediate form (split on '+' for stem / suffix colouring)
+    const formTd = document.createElement('td');
+    formTd.className = 'vidyut-step-form';
+    (s.form || '').split('+').forEach((part, pi) => {
+      if (pi > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'vidyut-sep';
+        sep.textContent = '+';
+        formTd.appendChild(sep);
+      }
+      const sp = document.createElement('span');
+      sp.className = 'vidyut-term dev-text';
+      sp._devText = part;
+      sp.textContent = typeof translit === 'function' ? translit(part) : part;
+      formTd.appendChild(sp);
+    });
+    tr.appendChild(formTd);
+
+    // Right column: sūtra text from index + clickable number
+    const sutraTd = document.createElement('td');
+    sutraTd.className = 'vidyut-step-sutra';
+    const parts3 = (s.rule || '').split('.');
+    if (parts3.length === 3) {
+      const sid = parts3[0] + parts3[1] + parts3[2].padStart(3, '0');
+      const sutra = (typeof sutraIndex !== 'undefined') && sutraIndex[sid];
+      if (sutra) {
+        const txt = document.createElement('span');
+        txt.className = 'vidyut-sutra-text dev-text';
+        txt._devText = sutra.s;
+        txt.textContent = typeof translit === 'function' ? translit(sutra.s) : sutra.s;
+        sutraTd.appendChild(txt);
+      } else if (s.note) {
+        const txt = document.createElement('span');
+        txt.className = 'vidyut-sutra-text dev-text';
+        txt._devText = s.note;
+        txt.textContent = s.note;
+        sutraTd.appendChild(txt);
+      }
+      const ref = document.createElement('a');
+      ref.className = 'vidyut-sutra-ref sutra-link';
+      ref.href = `?sutra=${s.rule}`;
+      ref.dataset.id = sid;
+      ref.textContent = s.rule;
+      ref.addEventListener('click', e => { e.preventDefault(); gotoSutra(sid); });
+      sutraTd.appendChild(ref);
+    } else {
+      const txt = document.createElement('span');
+      txt.className = 'vidyut-sutra-text';
+      txt.textContent = s.note || s.rule || '';
+      sutraTd.appendChild(txt);
+    }
+    tr.appendChild(sutraTd);
+    table.appendChild(tr);
+  });
+
+  // ── Final row: इति सिद्धम् ॥ ─────────────────────────────────────────────
+  const finalTr = document.createElement('tr');
+  finalTr.className = 'vidyut-step vidyut-step-final';
+  const finalFormTd = document.createElement('td');
+  finalFormTd.className = 'vidyut-step-form';
+  const finalSp = document.createElement('span');
+  finalSp.className = 'vidyut-term vidyut-final-word dev-text';
+  finalSp._devText = finalForm;
+  finalSp.textContent = typeof translit === 'function' ? translit(finalForm) : finalForm;
+  finalFormTd.appendChild(finalSp);
+  finalTr.appendChild(finalFormTd);
+  const finalSutraTd = document.createElement('td');
+  finalSutraTd.className = 'vidyut-step-sutra vidyut-siddham dev-text';
+  finalSutraTd._devText = 'इति सिद्धम् ॥';
+  finalSutraTd.textContent = typeof translit === 'function' ? translit('इति सिद्धम् ॥') : 'इति सिद्धम् ॥';
+  finalTr.appendChild(finalSutraTd);
+  table.appendChild(finalTr);
+  derivArea.appendChild(table);
+
+  // ── Footer attribution ────────────────────────────────────────────────────
+  const footer = document.createElement('div');
+  footer.className = 'nm-steps-footer';
+  footer.innerHTML = 'Prakriyā: <strong>Subanta Engine</strong>';
+  derivArea.appendChild(footer);
+}
+
+function buildNamarupaTable(stem, linga, grid, sc, rawInput) {
+  const VIB_NAMES = ['प्रथमा','द्वितीया','तृतीया','चतुर्थी','पञ्चमी','षष्ठी','सप्तमी'];
+  const VAC_NAMES = ['एकवचन','द्विवचन','बहुवचन'];
+  const LINGA_LABEL = { M: 'पुंलिङ्ग', F: 'स्त्रीलिङ्ग', N: 'नपुंसकलिङ्ग' };
+  const SC_LABEL = {
+    a_masc:'अकारान्त पुं', a_neut:'अकारान्त नपुं', aa_fem:'आकारान्त स्त्री',
+    i_masc:'इकारान्त पुं', i_fem:'इकारान्त स्त्री', i_neut:'इकारान्त नपुं',
+    u_masc:'उकारान्त पुं', u_fem:'उकारान्त स्त्री', u_neut:'उकारान्त नपुं',
+    ii_fem:'ईकारान्त स्त्री', ii_mono:'ई-एकाक्षर स्त्री',
+    uu_fem:'ऊकारान्त स्त्री', uu_mono:'ऊ-एकाक्षर स्त्री',
+    r_masc:'ऋकारान्त पुं', r_fem:'ऋकारान्त स्त्री',
+    n_stem:'नकारान्त', in_masc:'-इन् पुं', at_masc:'-अत् पुं',
+    t_stem:'तकारान्त', d_stem:'दकारान्त', r_hal:'रकारान्त',
+    jaj_hal:'जकारान्त', haj_hal:'हकारान्त', caj_hal:'चकारान्त',
+    sha_hal:'शकारान्त', sha_satva_hal:'षकारान्त', paj_hal:'पकारान्त',
+    s_masc:'सकारान्त पुं', s_neut:'सकारान्त नपुं', vas_stem:'-वस् पुं',
+    na_retro_hal:'णकारान्त',
+    special:'अनियमित',
+  };
+
+  const wrap = document.createElement('div');
+  wrap.className = 'nm-table-wrap';
+
+  const heading = document.createElement('div');
+  heading.className = 'nm-heading dev-text';
+  const scTag = sc && SC_LABEL[sc] ? `\u2002·\u2002${SC_LABEL[sc]}` : '';
+  const headingDev = stem + '\u2002(' + (LINGA_LABEL[linga] || linga) + scTag + ')';
+  heading._devText = headingDev;
+  heading.textContent = translit(headingDev);
+  wrap.appendChild(heading);
+
+  const table = document.createElement('table');
+  table.className = 'nm-table';
+
+  const headRow = document.createElement('tr');
+  headRow.innerHTML = '<th></th>';
+  VAC_NAMES.forEach(v => {
+    const th = document.createElement('th');
+    th.className = 'dev-text';
+    th._devText = v;
+    th.textContent = translit(v);
+    headRow.appendChild(th);
+  });
+  table.appendChild(headRow);
+
+  // derivArea sits below table — created first so cells can reference it
+  const derivArea = document.createElement('div');
+  derivArea.className = 'nm-deriv-area';
+  derivArea.style.display = 'none';
+
+  let activeCell = null;
+
+  grid.forEach((row, vibIdx) => {
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.className = 'dev-text nm-vib-label';
+    th._devText = VIB_NAMES[vibIdx];
+    th.textContent = translit(VIB_NAMES[vibIdx]);
+    tr.appendChild(th);
+    row.forEach((cell, vacIdx) => {
+      // cell is {form, steps} from new API
+      const form = (cell && typeof cell === 'object') ? (cell.form || '—') : (cell || '—');
+      const steps = (cell && typeof cell === 'object') ? (cell.steps || []) : [];
+      const td = document.createElement('td');
+      td.className = 'dev-text nm-cell';
+      td._devText = form;
+      td.textContent = translit(form);
+      td.addEventListener('click', () => {
+        if (activeCell === td) {
+          // Toggle off
+          td.classList.remove('nm-cell-active');
+          derivArea.style.display = 'none';
+          derivArea.innerHTML = '';
+          activeCell = null;
+          return;
+        }
+        if (activeCell) activeCell.classList.remove('nm-cell-active');
+        activeCell = td;
+        td.classList.add('nm-cell-active');
+        derivArea.style.display = '';
+        derivArea.innerHTML = '';
+        if (!steps.length) {
+          derivArea.innerHTML = '<div style="padding:10px;color:var(--muted)">—</div>';
+          return;
+        }
+        renderNamarupaSteps(derivArea, steps, form, VIB_NAMES[vibIdx], VAC_NAMES[vacIdx], activeCell);
+      });
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+  wrap.appendChild(derivArea);
+  return wrap;
+}
+
 // ── Śabdarūpāvalī book panel (Yudhiṣṭhira Mīmāṃsaka) ────────────────────────
 
 const SRV_LINGA_LABEL = { Pum: 'पुं०', Stri: 'स्त्री०', Napumsaka: 'नपुं०' };
@@ -7602,6 +8156,13 @@ function renderAboutSection(id) {
           <div class="about-card">
             <div class="about-card-title">Transliteration — Sanscript.js</div>
             <p>Multi-script transliteration across 11 Indic scripts is powered by <a href="https://github.com/sanskrit-coders/sanscript.js" target="_blank">Sanscript.js</a>, an open-source library by the Sanskrit Coders community.</p>
+          </div>
+
+          <div class="about-card">
+            <div class="about-card-title">Monier-Williams Sanskrit–English Dictionary</div>
+            <p><em>A Sanskrit-English Dictionary</em> by <strong>Monier Williams, Monier; Ernst Leumann; Carl Cappeller</strong>. Oxford: Clarendon Press, 1899.</p>
+            <p style="margin-top:8px">XML digital edition © 2014 The Sanskrit Library and Thomas Malten. Editors: Jim Funderburk, Thomas Malten, Peter M. Scharf, with contributions from Karthikeyan Panchapagesan, Krists Pudzins, Pawan Goyal, and others.</p>
+            <p style="margin-top:8px">Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank">CC BY-NC-SA 3.0</a>. Source: <a href="https://www.sanskrit-lexicon.uni-koeln.de" target="_blank">Cologne Digital Sanskrit Dictionaries</a>.</p>
           </div>
 
           <div class="about-card">
