@@ -6363,7 +6363,10 @@ function initNamarupaPanel(panel) {
   function showGloss(stem, entry) {
     if (!entry || !entry.d) { glossDiv.style.display = 'none'; return; }
     glossDiv.style.display = '';
-    glossDiv.innerHTML = `<strong class="dev-text"></strong> · ${entry.d} <span style="opacity:.5;font-size:.8em">(MW)</span>`;
+    const mwLink = entry.p
+      ? ` <a href="https://archive.org/details/nSrb_a-sanskrit-english-dictionary-sir-monier-monier-williams/page/${entry.p}/mode/1up" target="_blank" style="opacity:.5;font-size:.8em;text-decoration:none">MW p.${entry.p} ↗</a>`
+      : ` <span style="opacity:.5;font-size:.8em">(MW)</span>`;
+    glossDiv.innerHTML = `<strong class="dev-text"></strong> · ${entry.d}${mwLink}`;
     const strongEl = glossDiv.querySelector('strong');
     strongEl._devText = stem;
     strongEl.textContent = translit(stem);
