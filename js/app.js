@@ -604,14 +604,22 @@ function renderCommentaryHTML(raw) {
           const pipeIdx = inner.indexOf('|');
           const ref     = (pipeIdx >= 0 ? inner.slice(0, pipeIdx) : inner).trim();
           const display = pipeIdx >= 0 ? inner.slice(pipeIdx+1).trim() : null;
-          const sid = sutraRefToId(ref);
-          if (sid) {
-            const label = display ? translitMixed(display) : devDigitsToAscii(ref);
-            html += `<a class="sutra-link" data-id="${sid}" href="#">${label}</a>`;
+          // [[s:stem_Linga|display]] — shabda declension popup
+          if (ref.startsWith('s:')) {
+            const shabdaId = ref.slice(2);
+            const esc   = shabdaId.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const label = display ? translitMixed(display) : translit(shabdaId.replace(/_[PSNApsna]$/, ''));
+            html += `<a class="shabda-link" data-shabda="${esc}" href="#">${label}</a>`;
           } else {
-            const esc = ref.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-            const label = display ? translitMixed(display) : translit(ref);
-            html += `<a class="concept-link" data-concept="${esc}" href="#">${label}</a>`;
+            const sid = sutraRefToId(ref);
+            if (sid) {
+              const label = display ? translitMixed(display) : devDigitsToAscii(ref);
+              html += `<a class="sutra-link" data-id="${sid}" href="#">${label}</a>`;
+            } else {
+              const esc = ref.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+              const label = display ? translitMixed(display) : translit(ref);
+              html += `<a class="concept-link" data-concept="${esc}" href="#">${label}</a>`;
+            }
           }
           i = end + 2; continue;
         }
@@ -3272,6 +3280,113 @@ function hideConceptPopup() {
   conceptHideTimer = setTimeout(() => {
     if ($conceptPopup) $conceptPopup.classList.remove('visible');
   }, 120);
+}
+
+// ── Shabda declension popup ([[s:stem_Linga|display]] links) ──────────────────
+let $shabdaPopup   = null;
+let shabdaHideTimer = null;
+
+function getShabdaPopup() {
+  if (!$shabdaPopup) {
+    $shabdaPopup = document.createElement('div');
+    $shabdaPopup.className = 'shabda-popup';
+    $shabdaPopup.addEventListener('mouseenter', () => clearTimeout(shabdaHideTimer));
+    $shabdaPopup.addEventListener('mouseleave', hideShabdaPopup);
+    document.body.appendChild($shabdaPopup);
+  }
+  return $shabdaPopup;
+}
+
+function positionShabdaPopup(el) {
+  const popup = getShabdaPopup();
+  const r   = el.getBoundingClientRect();
+  const popW = Math.min(520, window.innerWidth - 16);
+  const margin = 8;
+  let left = r.left;
+  if (left + popW > window.innerWidth - margin) left = window.innerWidth - popW - margin;
+  if (left < margin) left = margin;
+  const spaceBelow = window.innerHeight - r.bottom;
+  if (spaceBelow < 280 && r.top > 280) {
+    popup.style.top = ''; popup.style.bottom = (window.innerHeight - r.top + 4) + 'px';
+  } else {
+    popup.style.bottom = ''; popup.style.top = (r.bottom + 4) + 'px';
+  }
+  popup.style.left  = left + 'px';
+  popup.style.width = popW + 'px';
+}
+
+function hideShabdaPopup() {
+  shabdaHideTimer = setTimeout(() => {
+    if ($shabdaPopup) $shabdaPopup.classList.remove('visible');
+  }, 120);
+}
+
+async function showShabdaPopup(el, shabdaId) {
+  clearTimeout(shabdaHideTimer);
+  const popup = getShabdaPopup();
+  popup.innerHTML = '<div class="sp-loading">…</div>';
+  positionShabdaPopup(el);
+  popup.classList.add('visible');
+
+  // Parse "stem_Linga" e.g. "तद_P"
+  const lastUs = shabdaId.lastIndexOf('_');
+  const stem   = lastUs >= 0 ? shabdaId.slice(0, lastUs) : shabdaId;
+  const linga  = lastUs >= 0 ? shabdaId.slice(lastUs + 1).toUpperCase() : '';
+
+  let index;
+  try { index = await loadShabdapatha(); }
+  catch (_) { popup.innerHTML = '<div class="sp-empty">—</div>'; return; }
+
+  // Try stem directly, then with halanta (तद → तद्)
+  let all = index[stem] || index[stem + '्'] || [];
+  // Filter by linga if given, fall back to all entries if filter yields nothing
+  const filtered = linga ? all.filter(e => e.linga === linga) : all;
+  const entries  = filtered.length ? filtered : all;
+
+  if (!entries.length) {
+    popup.innerHTML = `<div class="sp-empty">${translit(stem)} not found</div>`;
+    return;
+  }
+
+  popup.innerHTML = '';
+  for (const entry of entries) {
+    const lingaDev = SHABDAPATHA_LINGA_DEV[entry.linga] || '';
+    const forms    = entry.forms.split(';');  // 24: 8 vibhakti × 3 vacana
+
+    // Header: stem + linga badge
+    const hdr = document.createElement('div');
+    hdr.className = 'sp-header';
+    const stemEl = devEl('span', 'sp-stem dev-text', stem);
+    hdr.appendChild(stemEl);
+    if (lingaDev) hdr.appendChild(devEl('span', 'sp-linga dev-text', lingaDev));
+    popup.appendChild(hdr);
+
+    // Compact declension table
+    const table  = document.createElement('table');
+    table.className = 'sp-table';
+    const thead = document.createElement('thead');
+    const hrow  = document.createElement('tr');
+    hrow.appendChild(document.createElement('th'));
+    VACANA_NAMES.forEach(v => hrow.appendChild(devEl('th', 'dev-text', v)));
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (let vib = 0; vib < 8; vib++) {
+      const tr = document.createElement('tr');
+      tr.appendChild(devEl('td', 'sp-vib dev-text', VIBHAKTI_NAMES[vib]));
+      for (let vac = 0; vac < 3; vac++) {
+        const form = forms[vib * 3 + vac] || '—';
+        tr.appendChild(devEl('td', 'sp-form dev-text', form));
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    popup.appendChild(table);
+  }
+
+  // Re-position now that content is known
+  positionShabdaPopup(el);
 }
 
 // ── Sutra visual popup (SVG diagram in concept-popup, triggered from artha-viz-btn) ──
@@ -10673,6 +10788,20 @@ document.addEventListener('mouseout', e => {
 document.addEventListener('click', e => {
   const link = e.target.closest('.concept-link');
   if (link) { e.preventDefault(); showConceptPopup(link, link.dataset.concept); }
+});
+
+// ── Global shabda-link hover ──────────────────────────────────────────────────
+document.addEventListener('mouseover', e => {
+  const link = e.target.closest('.shabda-link');
+  if (link && link.dataset.shabda) showShabdaPopup(link, link.dataset.shabda);
+});
+document.addEventListener('mouseout', e => {
+  const link = e.target.closest('.shabda-link');
+  if (link) hideShabdaPopup();
+});
+document.addEventListener('click', e => {
+  const link = e.target.closest('.shabda-link');
+  if (link) { e.preventDefault(); showShabdaPopup(link, link.dataset.shabda); }
 });
 
 // ── km-dhatu-hdr hover tooltip ────────────────────────────────────────────────

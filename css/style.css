@@ -2497,6 +2497,76 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
   border-radius: 2px;
 }
 
+/* ── Shabda link ─────────────────────────────────────────────────────────────── */
+.shabda-link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent);
+  cursor: pointer;
+}
+.shabda-link:hover {
+  background: var(--hover-bg, rgba(0,0,0,.06));
+  border-radius: 2px;
+}
+
+/* ── Shabda declension popup ─────────────────────────────────────────────────── */
+.shabda-popup {
+  position: fixed;
+  z-index: 10002;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  padding: 10px 12px 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.shabda-popup.visible { opacity: 1; pointer-events: auto; }
+.sp-loading, .sp-empty {
+  padding: 16px 8px; text-align: center;
+  color: var(--muted); font-style: italic; font-family: var(--font-dev);
+}
+.sp-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.sp-stem {
+  font-family: var(--font-dev); font-size: 1.1em;
+  font-weight: 700; color: var(--accent);
+}
+.sp-linga {
+  font-family: var(--font-dev); font-size: .75em;
+  color: var(--muted); background: var(--bg-sidebar);
+  border-radius: 10px; padding: 1px 8px;
+}
+.sp-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-dev);
+  font-size: .85em;
+}
+.sp-table th,
+.sp-table td {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  text-align: center;
+}
+.sp-table thead th {
+  background: var(--bg-sidebar);
+  font-weight: 600;
+  font-size: .8em;
+}
+.sp-vib {
+  text-align: left !important;
+  color: var(--muted);
+  white-space: nowrap;
+  font-size: .78em !important;
+}
+.sp-form { font-weight: 500; }
+
 /* ── Concept popup ─────────────────────────────────────────────────────────── */
 .concept-popup {
   position: fixed;
