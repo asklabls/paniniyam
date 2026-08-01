@@ -41,6 +41,7 @@ const BOOKS = [
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
       { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',    engName: 'Bhaṭṭikāvya',       type: 'bhattikavya-panel'       },
+      { id: 'anuvada-prarambhik', devName: 'प्रारम्भिक रचनानुवाद', engName: 'Anuvāda Pārambhik', type: 'anuvada-panel' },
       { id: 'rupavatarah',    devName: 'रूपावतारः',        engName: 'Rūpāvatāraḥ',       type: 'rupavatarah-panel'       },
       { id: 'nirukta',        devName: 'निरुक्तम्',        engName: 'Nirukta',            type: 'nirukta-panel'           },
       { id: 'yogadarshana',   devName: 'योगदर्शनम्',       engName: 'Yoga Darśana',       type: 'yogadarshana-panel'      },
@@ -413,6 +414,7 @@ const $panelRupavatarah       = document.getElementById('panel-rupavatarah');
 const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
+const $panelAnuvada           = document.getElementById('panel-anuvada');
 const $panelSambhashana       = document.getElementById('panel-sambhashana');
 const $panelNamarupa          = document.getElementById('panel-namarupa');
 const $panelTranslit          = document.getElementById('panel-translit');
@@ -661,13 +663,55 @@ function renderCommentaryHTML(raw) {
         html += tHtml;
         continue;
       }
+      // Headings
+      if (t.startsWith('#### ')) {
+        flushPara();
+        html += `<div class="commentary-heading">${renderInline(t.slice(5))}</div>`;
+        li++; continue;
+      }
       if (t.startsWith('### ')) {
-        // Flush accumulated paragraph lines before heading
         flushPara();
         html += `<div class="commentary-heading">${renderInline(t.slice(4))}</div>`;
-      } else {
-        paraLines += (paraLines ? '<br>' : '') + renderInline(t);
+        li++; continue;
       }
+      if (t.startsWith('## ')) {
+        flushPara();
+        html += `<div class="commentary-h2">${renderInline(t.slice(3))}</div>`;
+        li++; continue;
+      }
+      if (t.startsWith('# ')) {
+        flushPara();
+        html += `<div class="commentary-h1">${renderInline(t.slice(2))}</div>`;
+        li++; continue;
+      }
+      // Unordered list: collect consecutive lines starting with - or *
+      if (t.startsWith('- ') || t.startsWith('* ')) {
+        flushPara();
+        let ulHtml = '<ul class="commentary-ul">';
+        while (li < rawLines.length) {
+          const lt = rawLines[li].trim();
+          if (lt.startsWith('- ') || lt.startsWith('* ')) {
+            ulHtml += `<li>${renderInline(lt.slice(2))}</li>`;
+            li++;
+          } else { break; }
+        }
+        html += ulHtml + '</ul>';
+        continue;
+      }
+      // Ordered list: collect consecutive lines starting with N.
+      if (/^\d+\.\s/.test(t)) {
+        flushPara();
+        let olHtml = '<ol class="commentary-ol">';
+        while (li < rawLines.length) {
+          const lt = rawLines[li].trim();
+          const m = lt.match(/^\d+\.\s+([\s\S]*)/);
+          if (m) { olHtml += `<li>${renderInline(m[1])}</li>`; li++; }
+          else { break; }
+        }
+        html += olHtml + '</ol>';
+        continue;
+      }
+      paraLines += (paraLines ? '<br>' : '') + renderInline(t);
       li++;
     }
     flushPara();
@@ -770,6 +814,7 @@ function showPanel(name) {
   $panelNirukta.style.display           = name === 'nirukta'           ? '' : 'none';
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
+  $panelAnuvada.style.display           = name === 'anuvada'           ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
@@ -2520,6 +2565,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showYogaDarshanaPanel(); };
       } else if (page.type === 'shabdarupavali-panel') {
         clickFn = () => { closeDrawer(); showShabdarupavali(); };
+      } else if (page.type === 'anuvada-panel') {
+        clickFn = () => { closeDrawer(); showAnuvadaPanel(1); };
       } else if (page.type === 'shabda-browser') {
         clickFn = () => { closeDrawer(); showShabdaEngine(); };
       } else {
@@ -9776,6 +9823,129 @@ function showNiruktaPanel() {
   );
 }
 
+// ── Anuvada Prarambhik panel ──────────────────────────────────────────────────
+// Source: Prarambhik Rachana-Anuvada Kaumudi
+// Each exercise = 2 pages mined by mine_anuvada.py.
+// The first ## heading in each page becomes the card header (user-controlled via vault).
+const ANUVADA_BOOK_TITLE = 'प्रारम्भिक रचनानुवादकौमुदी';
+const ANUVADA_MAX        = 30;
+let anuvadaCache         = {};
+
+async function showAnuvadaPanel(exNum) {
+  if (!exNum || exNum < 1 || exNum > ANUVADA_MAX) exNum = 1;
+  showPanel('anuvada');
+  const panel = $panelAnuvada;
+
+  // Build chrome once
+  if (!panel._built) {
+    panel._built = true;
+    panel.innerHTML = '';
+
+    const nav = document.createElement('div');
+    nav.className = 'anuvada-nav';
+
+    // Book title (once, at top of nav)
+    const title = document.createElement('div');
+    title.className = 'anuvada-book-title dev-text';
+    title._devText  = ANUVADA_BOOK_TITLE;
+    title.textContent = translit(ANUVADA_BOOK_TITLE);
+    nav.appendChild(title);
+
+    // Exercise pills
+    const pills = document.createElement('div');
+    pills.className = 'anuvada-pills';
+    for (let i = 1; i <= ANUVADA_MAX; i++) {
+      const pill = document.createElement('button');
+      pill.className   = 'anuvada-pill';
+      pill.textContent = i;
+      pill.dataset.ex  = i;
+      pill.addEventListener('click', () => showAnuvadaExercise(i));
+      pills.appendChild(pill);
+    }
+    nav.appendChild(pills);
+    panel._pills = pills;
+
+    const content = document.createElement('div');
+    content.className = 'anuvada-content';
+    panel._content    = content;
+
+    panel.appendChild(nav);
+    panel.appendChild(content);
+  }
+
+  await showAnuvadaExercise(exNum);
+}
+
+async function showAnuvadaExercise(exNum) {
+  const panel   = $panelAnuvada;
+  const content = panel._content;
+
+  // Mark active pill
+  panel._pills.querySelectorAll('.anuvada-pill').forEach(p => {
+    p.classList.toggle('active', +p.dataset.ex === exNum);
+  });
+
+  history.replaceState({ book: 'anuvada-prarambhik' }, '', `?book=anuvada-prarambhik&ex=${exNum}`);
+  content.innerHTML = '<div class="loading-inline">…</div>';
+  content.scrollTop = 0;
+
+  const num = String(exNum).padStart(2, '0');
+
+  if (!anuvadaCache[exNum]) {
+    if (!PRIVATE_BASE) {
+      content.innerHTML = '<div class="no-data">Anuvāda data not available locally.</div>';
+      return;
+    }
+    try {
+      const res = await fetch(`${PRIVATE_BASE}/anuvada-prarambhik/exercise_${num}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      anuvadaCache[exNum] = await res.json();
+    } catch (_) {
+      const _devN = String(exNum).replace(/\d/g, d => '०१२३४५६७८९'[+d]);
+      content.innerHTML = `<div class="anuvada-empty">अभ्यास ${_devN} — coming soon.</div>`;
+      return;
+    }
+  }
+
+  const data = anuvadaCache[exNum];
+  content.innerHTML = '';
+
+  for (const pageRaw of data.content) {
+    // Extract first ## heading as card title; rest is body
+    const headingMatch = pageRaw.match(/^##\s+(.+)/m);
+    const cardTitle    = headingMatch ? headingMatch[1].trim() : '';
+    const bodyRaw      = pageRaw.replace(/^##\s+[^\n]*\n?/m, '').trimStart();
+
+    // Card (sutra-card style, open by default, click header to collapse)
+    const card = document.createElement('div');
+    card.className = 'sutra-card anuvada-card open';
+
+    // Card header row — click to toggle
+    const row = document.createElement('div');
+    row.className = 'sutra-row anuvada-card-row';
+    const hEl = document.createElement('span');
+    hEl.className = 'sutra-text dev-text';
+    hEl._devText  = cardTitle;
+    hEl.textContent = translit(cardTitle);
+    row.appendChild(hEl);
+    row.addEventListener('click', () => card.classList.toggle('open'));
+    card.appendChild(row);
+
+    // Card body
+    const detail = document.createElement('div');
+    detail.className = 'sutra-detail anuvada-detail';
+
+    const body = document.createElement('div');
+    body.className = 'commentary-panel anuvada-body';
+    body._rawCommentary = bodyRaw;
+    setCommentaryHTML(body, bodyRaw);
+    detail.appendChild(body);
+    card.appendChild(detail);
+
+    content.appendChild(card);
+  }
+}
+
 // ── Yoga Darshana (skeleton) ──────────────────────────────────────────────────
 function showYogaDarshanaPanel() {
   buildPlaceholderPanel(
@@ -10440,6 +10610,9 @@ async function init() {
         showYogaDarshanaPanel();
       } else if (urlBook === 'shabdarupavali') {
         await showShabdarupavali();
+      } else if (urlBook === 'anuvada-prarambhik') {
+        const exParam = parseInt(params.get('ex')) || 1;
+        await showAnuvadaPanel(exParam);
       } else {
         // Search top-level leaf books, then sub-tree children
         let book = BOOKS.find(b => b.id === urlBook && b.type === 'leaf');
