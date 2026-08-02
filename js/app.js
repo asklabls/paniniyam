@@ -686,7 +686,7 @@ function renderCommentaryHTML(raw) {
       }
       if (t.startsWith('### ')) {
         flushPara();
-        html += `<div class="commentary-heading">${renderInline(t.slice(4))}</div>`;
+        html += `<div class="commentary-h3">${renderInline(t.slice(4))}</div>`;
         li++; continue;
       }
       if (t.startsWith('## ')) {

@@ -3431,6 +3431,15 @@ table.commentary-md-table thead tr {
   color: var(--accent);
   margin: 16px 0 8px;
 }
+.commentary-h3 {
+  font-family: var(--font-dev);
+  font-size: .95em;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 10px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
 /* Lists emitted by renderCommentaryHTML */
 .commentary-ul,
 .commentary-ol {
