@@ -3483,23 +3483,34 @@ async function showDhatuPopup(el, dhId) {
   positionDhatuPopup(el);
   popup.classList.add('visible');
 
-  // Parse "dhatu_name" or "dhatu_name:lakara"  e.g. "रक्ष:lat"
-  const parts  = dhId.trim().split(':');
-  const stem   = parts[0].trim();
-  const lakara = (parts[1] || 'lat').trim();
+  // Parse "stem" or "stem:lakara"
+  // stem can be a baseindex "01.0345" (from insert_paniniyam_link.js) or a dhatu name "रक्ष"
+  const colIdx = dhId.indexOf(':');
+  const stem   = (colIdx >= 0 ? dhId.slice(0, colIdx) : dhId).trim();
+  const lakara = (colIdx >= 0 ? dhId.slice(colIdx + 1) : 'lat').trim();
 
-  let idx;
-  try { idx = await getDhatuNameIndex(); }
-  catch (_) { popup.innerHTML = '<div class="sp-empty">—</div>'; return; }
+  const isBaseindex = /^\d+\.\d+/.test(stem);
 
-  // Try stem directly, then with terminal halanta, then strip-all-halanta fallback
-  let entries = idx[stem] || idx[stem + '्'] || [];
-  if (!entries.length) {
-    const stripped = stem.replace(/्/g, '');
-    for (const [key, val] of Object.entries(idx)) {
-      if (key.replace(/्/g, '') === stripped) { entries = val; break; }
+  let entries = [];
+  try {
+    if (isBaseindex) {
+      // Direct baseindex lookup — find in dhatupatha data
+      const data = await loadData('dhatupatha', 'dhatu/data.txt');
+      const match = data.find(d => d.baseindex === stem);
+      if (match) entries = [match];
+    } else {
+      // Name lookup with halanta-stripping fallback
+      const idx = await getDhatuNameIndex();
+      entries = idx[stem] || idx[stem + '्'] || [];
+      if (!entries.length) {
+        const stripped = stem.replace(/्/g, '');
+        for (const [key, val] of Object.entries(idx)) {
+          if (key.replace(/्/g, '') === stripped) { entries = val; break; }
+        }
+      }
     }
-  }
+  } catch (_) { popup.innerHTML = '<div class="sp-empty">—</div>'; return; }
+
   if (!entries.length) {
     popup.innerHTML = `<div class="sp-empty">${translit(stem)} not found</div>`;
     return;
