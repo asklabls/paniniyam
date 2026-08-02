@@ -610,6 +610,13 @@ function renderCommentaryHTML(raw) {
             const esc   = shabdaId.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const label = display ? translitMixed(display) : translit(shabdaId.replace(/_[PSNApsna]$/, ''));
             html += `<a class="shabda-link" data-shabda="${esc}" href="#">${label}</a>`;
+          // [[d:dhatu_name|display]] or [[d:dhatu_name:lakara|display]] — dhatu conjugation popup
+          } else if (ref.startsWith('d:')) {
+            const dhId  = ref.slice(2);
+            const esc   = dhId.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const dname = dhId.split(':')[0];
+            const label = display ? translitMixed(display) : translit(dname.replace(/्$/, ''));
+            html += `<a class="dhatu-link" data-dhatu="${esc}" href="#">${label}</a>`;
           } else {
             const sid = sutraRefToId(ref);
             if (sid) {
@@ -3329,9 +3336,16 @@ async function showShabdaPopup(el, shabdaId) {
   popup.classList.add('visible');
 
   // Parse "stem_Linga" e.g. "तद_P"
-  const lastUs = shabdaId.lastIndexOf('_');
-  const stem   = lastUs >= 0 ? shabdaId.slice(0, lastUs) : shabdaId;
-  const linga  = lastUs >= 0 ? shabdaId.slice(lastUs + 1).toUpperCase() : '';
+  // Normalize: trim whitespace (Obsidian sometimes adds spaces inside links)
+  const cleanId = shabdaId.trim().replace(/\s+/g, '');
+  const lastUs  = cleanId.lastIndexOf('_');
+  let   stem    = lastUs >= 0 ? cleanId.slice(0, lastUs).trim() : cleanId;
+  const linga   = lastUs >= 0 ? cleanId.slice(lastUs + 1).toUpperCase() : '';
+
+  // Alias table for cases where stem is a different word (not just halanta issue)
+  // e.g. the interrogative pronoun किम् shows nominative form कः in vault notes
+  const SHABDA_ALIASES = { 'क': 'किम' };
+  stem = SHABDA_ALIASES[stem] || stem;
 
   let index;
   try { index = await loadShabdapatha(); }
@@ -3339,6 +3353,15 @@ async function showShabdaPopup(el, shabdaId) {
 
   // Try stem directly, then with halanta (तद → तद्)
   let all = index[stem] || index[stem + '्'] || [];
+
+  // Fallback: insert_paniniyam_link.js strips ALL internal halanta (virama U+094D)
+  // e.g. युष्मद → युषमद, ज्ञान → जञान. Match by comparing stripped forms.
+  if (!all.length) {
+    const stripped = stem.replace(/्/g, '');
+    for (const [key, val] of Object.entries(index)) {
+      if (key.replace(/्/g, '') === stripped) { all = val; break; }
+    }
+  }
   // Filter by linga if given, fall back to all entries if filter yields nothing
   const filtered = linga ? all.filter(e => e.linga === linga) : all;
   const entries  = filtered.length ? filtered : all;
@@ -3371,13 +3394,21 @@ async function showShabdaPopup(el, shabdaId) {
     thead.appendChild(hrow);
     table.appendChild(thead);
 
+    const SP_SET1 = new Set(['0,0','0,1','0,2','1,0','1,1']);
+    const SP_SET2 = new Set(['1,2','2,0','3,0','4,0','5,0','6,0','5,1','5,2','6,1']);
+    const VIB_DISPLAY_ORDER = [0, 7, 1, 2, 3, 4, 5, 6]; // सम्बोधन after प्रथमा
+
     const tbody = document.createElement('tbody');
-    for (let vib = 0; vib < 8; vib++) {
+    for (const vib of VIB_DISPLAY_ORDER) {
       const tr = document.createElement('tr');
       tr.appendChild(devEl('td', 'sp-vib dev-text', VIBHAKTI_NAMES[vib]));
       for (let vac = 0; vac < 3; vac++) {
         const form = forms[vib * 3 + vac] || '—';
-        tr.appendChild(devEl('td', 'sp-form dev-text', form));
+        const key = `${vib},${vac}`;
+        const cls = SP_SET1.has(key) ? 'sp-form dev-text sp-set1'
+                  : SP_SET2.has(key) ? 'sp-form dev-text sp-set2'
+                  : 'sp-form dev-text';
+        tr.appendChild(devEl('td', cls, form));
       }
       tbody.appendChild(tr);
     }
@@ -3387,6 +3418,190 @@ async function showShabdaPopup(el, shabdaId) {
 
   // Re-position now that content is known
   positionShabdaPopup(el);
+}
+
+// ── Dhatu hover popup ─────────────────────────────────────────────────────────
+let $dhatuPopup   = null;
+let dhatuHideTimer = null;
+let _dhatuNameIdx  = null;  // stem → [{baseindex, pada, artha, dhatu}]
+
+const LAKARA_DEV_MAP = Object.fromEntries(
+  [...LAKARA_SARVA, ...LAKARA_ARDHA].map(l => [l.key, l.dev])
+);
+
+function getDhatuPopup() {
+  if (!$dhatuPopup) {
+    $dhatuPopup = document.createElement('div');
+    $dhatuPopup.className = 'shabda-popup dhatu-popup';
+    $dhatuPopup.addEventListener('mouseenter', () => clearTimeout(dhatuHideTimer));
+    $dhatuPopup.addEventListener('mouseleave', hideDhatuPopup);
+    document.body.appendChild($dhatuPopup);
+  }
+  return $dhatuPopup;
+}
+
+function hideDhatuPopup() {
+  dhatuHideTimer = setTimeout(() => {
+    if ($dhatuPopup) $dhatuPopup.classList.remove('visible');
+  }, 120);
+}
+
+function positionDhatuPopup(el) {
+  const popup = getDhatuPopup();
+  const r   = el.getBoundingClientRect();
+  const popW = Math.min(520, window.innerWidth - 16);
+  const margin = 8;
+  let left = r.left;
+  if (left + popW > window.innerWidth - margin) left = window.innerWidth - popW - margin;
+  if (left < margin) left = margin;
+  const spaceBelow = window.innerHeight - r.bottom;
+  if (spaceBelow < 280 && r.top > 280) {
+    popup.style.top = ''; popup.style.bottom = (window.innerHeight - r.top + 4) + 'px';
+  } else {
+    popup.style.bottom = ''; popup.style.top = (r.bottom + 4) + 'px';
+  }
+  popup.style.left  = left + 'px';
+  popup.style.width = popW + 'px';
+}
+
+async function getDhatuNameIndex() {
+  if (_dhatuNameIdx) return _dhatuNameIdx;
+  const data = await loadData('dhatupatha', 'dhatu/data.txt');
+  _dhatuNameIdx = {};
+  for (const d of data) {
+    const key = (d.dhatu || '').replace(/्$/, '');
+    if (!_dhatuNameIdx[key]) _dhatuNameIdx[key] = [];
+    _dhatuNameIdx[key].push(d);
+  }
+  return _dhatuNameIdx;
+}
+
+async function showDhatuPopup(el, dhId) {
+  clearTimeout(dhatuHideTimer);
+  const popup = getDhatuPopup();
+  popup.innerHTML = '<div class="sp-loading">…</div>';
+  positionDhatuPopup(el);
+  popup.classList.add('visible');
+
+  // Parse "dhatu_name" or "dhatu_name:lakara"  e.g. "रक्ष:lat"
+  const parts  = dhId.trim().split(':');
+  const stem   = parts[0].trim();
+  const lakara = (parts[1] || 'lat').trim();
+
+  let idx;
+  try { idx = await getDhatuNameIndex(); }
+  catch (_) { popup.innerHTML = '<div class="sp-empty">—</div>'; return; }
+
+  // Try stem directly, then with terminal halanta, then strip-all-halanta fallback
+  let entries = idx[stem] || idx[stem + '्'] || [];
+  if (!entries.length) {
+    const stripped = stem.replace(/्/g, '');
+    for (const [key, val] of Object.entries(idx)) {
+      if (key.replace(/्/g, '') === stripped) { entries = val; break; }
+    }
+  }
+  if (!entries.length) {
+    popup.innerHTML = `<div class="sp-empty">${translit(stem)} not found</div>`;
+    return;
+  }
+
+  popup.innerHTML = '';
+  for (const entry of entries) {
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'sp-header';
+    const stemEl = document.createElement('span');
+    stemEl.className = 'sp-stem dev-text';
+    stemEl._devText = entry.dhatu;
+    stemEl.textContent = translit(entry.dhatu);
+    hdr.appendChild(stemEl);
+    if (entry.artha) {
+      const arthaEl = document.createElement('span');
+      arthaEl.className = 'dp-artha dev-text';
+      arthaEl._devText = entry.artha;
+      arthaEl.textContent = ' — ' + translit(entry.artha);
+      hdr.appendChild(arthaEl);
+    }
+    // Lakara tabs (सार्वधातुक only: lat, lot, lang, vidhiling)
+    const tabRow = document.createElement('div');
+    tabRow.className = 'dp-tab-row';
+    let activeLakara = lakara;
+
+    // Load forms and render table for a given lakara
+    async function renderFormsTable(container, lk) {
+      container.innerHTML = '<div class="sp-loading">…</div>';
+      let forms;
+      try {
+        const fdata = await loadDhatuForms(entry.baseindex);
+        // Prefer parasmaipada, fall back to atmanepada
+        const pkey = 'p' + lk;
+        const akey = 'a' + lk;
+        const praw = fdata[pkey] || '';
+        const araw = fdata[akey] || '';
+        forms = { para: praw ? praw.split(';') : null, atma: araw ? araw.split(';') : null };
+      } catch (_) {
+        container.innerHTML = '<div class="sp-empty">—</div>';
+        return;
+      }
+      container.innerHTML = '';
+      ['para', 'atma'].forEach(pada => {
+        if (!forms[pada]) return;
+        const padaDev = pada === 'para' ? 'परस्मैपद' : 'आत्मनेपद';
+        if (forms.para && forms.atma) {
+          const padaLabel = document.createElement('div');
+          padaLabel.className = 'dp-pada-label dev-text';
+          padaLabel._devText = padaDev;
+          padaLabel.textContent = translit(padaDev);
+          container.appendChild(padaLabel);
+        }
+        const table = document.createElement('table');
+        table.className = 'sp-table';
+        const thead = document.createElement('thead');
+        const hrow  = document.createElement('tr');
+        hrow.appendChild(document.createElement('th'));
+        VACANA_NAMES.forEach(v => hrow.appendChild(devEl('th', 'dev-text', v)));
+        thead.appendChild(hrow);
+        table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        PURUSH_FORMS_DEV.forEach((purush, row) => {
+          const tr = document.createElement('tr');
+          tr.appendChild(devEl('td', 'sp-vib dev-text', purush));
+          for (let col = 0; col < 3; col++) {
+            const form = forms[pada][row * 3 + col] || '—';
+            tr.appendChild(devEl('td', 'sp-form dev-text', form));
+          }
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
+      });
+    }
+
+    const formsArea = document.createElement('div');
+    formsArea.className = 'dp-forms-area';
+
+    LAKARA_SARVA.forEach(lk => {
+      const btn = document.createElement('button');
+      btn.className = 'dp-tab' + (lk.key === activeLakara ? ' active' : '');
+      btn.dataset.lk = lk.key;
+      btn._devText = lk.dev;
+      btn.textContent = translit(lk.dev);
+      btn.addEventListener('click', () => {
+        tabRow.querySelectorAll('.dp-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeLakara = lk.key;
+        renderFormsTable(formsArea, lk.key);
+      });
+      tabRow.appendChild(btn);
+    });
+
+    popup.appendChild(hdr);
+    popup.appendChild(tabRow);
+    popup.appendChild(formsArea);
+    renderFormsTable(formsArea, activeLakara);
+  }
+
+  positionDhatuPopup(el);
 }
 
 // ── Sutra visual popup (SVG diagram in concept-popup, triggered from artha-viz-btn) ──
@@ -10802,6 +11017,20 @@ document.addEventListener('mouseout', e => {
 document.addEventListener('click', e => {
   const link = e.target.closest('.shabda-link');
   if (link) { e.preventDefault(); showShabdaPopup(link, link.dataset.shabda); }
+});
+
+// ── Global dhatu-link hover ───────────────────────────────────────────────────
+document.addEventListener('mouseover', e => {
+  const link = e.target.closest('.dhatu-link');
+  if (link && link.dataset.dhatu) showDhatuPopup(link, link.dataset.dhatu);
+});
+document.addEventListener('mouseout', e => {
+  const link = e.target.closest('.dhatu-link');
+  if (link) hideDhatuPopup();
+});
+document.addEventListener('click', e => {
+  const link = e.target.closest('.dhatu-link');
+  if (link) { e.preventDefault(); showDhatuPopup(link, link.dataset.dhatu); }
 });
 
 // ── km-dhatu-hdr hover tooltip ────────────────────────────────────────────────

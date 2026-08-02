@@ -2566,6 +2566,46 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
   font-size: .78em !important;
 }
 .sp-form { font-weight: 500; }
+.sp-set1 { color: var(--accent2); font-weight: 600; }
+.sp-set2 { color: var(--accent); }
+
+/* ── Dhatu popup ───────────────────────────────────────────────────────────── */
+.dhatu-link {
+  color: var(--accent2);
+  text-decoration: underline dotted var(--accent2);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.dhatu-popup { min-width: 300px; }
+.dp-artha { color: var(--muted); font-size: .88em; }
+.dp-tab-row {
+  display: flex;
+  gap: 4px;
+  padding: 6px 10px 4px;
+  border-bottom: 1px solid var(--border);
+}
+.dp-tab {
+  padding: 2px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  font-size: .8em;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dp-tab.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.dp-forms-area { padding: 6px 4px 2px; }
+.dp-pada-label {
+  font-size: .75em;
+  color: var(--muted);
+  padding: 4px 8px 2px;
+  font-weight: 600;
+}
 
 /* ── Concept popup ─────────────────────────────────────────────────────────── */
 .concept-popup {
