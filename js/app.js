@@ -41,7 +41,7 @@ const BOOKS = [
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
       { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',    engName: 'Bhaṭṭikāvya',       type: 'bhattikavya-panel'       },
-      { id: 'anuvada-prarambhik', devName: 'प्रारम्भिक रचनानुवाद', engName: 'Anuvāda Pārambhik', type: 'anuvada-panel' },
+      { id: 'anuvada-prarambhik', devName: 'रचनानुवाद-१', engName: 'Anuvāda Pārambhik', type: 'anuvada-panel' },
       { id: 'rupavatarah',    devName: 'रूपावतारः',        engName: 'Rūpāvatāraḥ',       type: 'rupavatarah-panel'       },
       { id: 'nirukta',        devName: 'निरुक्तम्',        engName: 'Nirukta',            type: 'nirukta-panel'           },
       { id: 'yogadarshana',   devName: 'योगदर्शनम्',       engName: 'Yoga Darśana',       type: 'yogadarshana-panel'      },
@@ -10191,6 +10191,11 @@ async function showAnuvadaPanel(exNum) {
     title._devText  = ANUVADA_BOOK_TITLE;
     title.textContent = translit(ANUVADA_BOOK_TITLE);
     nav.appendChild(title);
+
+    const author = document.createElement('div');
+    author.className = 'anuvada-book-author';
+    author.textContent = 'by Dr. KapilDev Dwivedi';
+    nav.appendChild(author);
 
     // Exercise pills
     const pills = document.createElement('div');
