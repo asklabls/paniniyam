@@ -369,6 +369,7 @@ let _saveAuthorInProgress  = false;
 
 // Session tab memory — remembers last-clicked tab per group within one session
 const activeTabByGroup = {};
+let activeDhatuTab = 'sarva'; // persists across dhatu navigation
 
 // Drawer state
 let activeDrawer    = null;
@@ -1045,6 +1046,7 @@ function renderReaderDhatu(d) {
       tab.classList.add('active');
       Object.values(panels).forEach(p => p.classList.remove('active'));
       panel.classList.add('active');
+      activeDhatuTab = tabDef.id;
       if (!panel._loaded) {
         panel._loaded = true;
         loadAndRenderDhatuForms(d, tabDef.lakaras, panel);
@@ -1055,7 +1057,7 @@ function renderReaderDhatu(d) {
     panelWrap.appendChild(panel);
   });
 
-  // माधवीया धातुवृत्तिः tab (lazy, hidden until data available)
+  // माधवीय धातुवृत्तिः tab (lazy, hidden until data available)
   if (MDV_BASE) {
     const mdvPanel = document.createElement('div');
     mdvPanel.className = 'detail-tab-panel';
@@ -1065,8 +1067,8 @@ function renderReaderDhatu(d) {
 
     const mdvTab = document.createElement('button');
     mdvTab.className = 'detail-tab dev-text';
-    mdvTab._devText = 'माधवीया';
-    mdvTab.textContent = translit('माधवीया');
+    mdvTab._devText = 'माधवीय';
+    mdvTab.textContent = translit('माधवीय');
     mdvTab.style.display = 'none'; // hidden until data confirmed
 
     mdvTab.addEventListener('click', () => {
@@ -1074,6 +1076,7 @@ function renderReaderDhatu(d) {
       mdvTab.classList.add('active');
       Object.values(panels).forEach(p => p.classList.remove('active'));
       mdvPanel.classList.add('active');
+      activeDhatuTab = 'mdv';
       if (!mdvPanel._loaded) {
         mdvPanel._loaded = true;
         loadAndRenderMdv(d.baseindex, mdvPanel);
@@ -1113,6 +1116,7 @@ function renderReaderDhatu(d) {
       krdTab.classList.add('active');
       Object.values(panels).forEach(p => p.classList.remove('active'));
       krdPanel.classList.add('active');
+      activeDhatuTab = 'krdanta';
       if (!krdPanel._loaded) {
         krdPanel._loaded = true;
         loadAndRenderKrdanta(d, krdPanel);
@@ -1123,12 +1127,25 @@ function renderReaderDhatu(d) {
     panelWrap.appendChild(krdPanel);
   }
 
-  // Activate and auto-load first tab
-  tabBar.querySelectorAll('.detail-tab')[0].classList.add('active');
-  const firstPanel = panelWrap.querySelectorAll('.detail-tab-panel')[0];
-  firstPanel.classList.add('active');
-  firstPanel._loaded = true;
-  loadAndRenderDhatuForms(d, DHATU_TABS[0].lakaras, firstPanel);
+  // Activate last-used tab (or sarva as default)
+  const allTabEls   = [...tabBar.querySelectorAll('.detail-tab')];
+  const allPanelEls = [...panelWrap.querySelectorAll('.detail-tab-panel')];
+  const targetPanelEl = allPanelEls.find(p => p.dataset.panel === activeDhatuTab) || allPanelEls[0];
+  const targetIdx     = allPanelEls.indexOf(targetPanelEl);
+  const targetTabEl   = allTabEls[targetIdx] || allTabEls[0];
+  targetTabEl.classList.add('active');
+  targetPanelEl.classList.add('active');
+  if (!targetPanelEl._loaded) {
+    targetPanelEl._loaded = true;
+    if (activeDhatuTab === 'mdv') {
+      loadAndRenderMdv(d.baseindex, targetPanelEl);
+    } else if (activeDhatuTab === 'krdanta') {
+      loadAndRenderKrdanta(d, targetPanelEl);
+    } else {
+      const tabDef = DHATU_TABS.find(t => t.id === activeDhatuTab) || DHATU_TABS[0];
+      loadAndRenderDhatuForms(d, tabDef.lakaras, targetPanelEl);
+    }
+  }
 
   groupEl.appendChild(tabBar);
   groupEl.appendChild(panelWrap);
