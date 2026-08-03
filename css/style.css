@@ -35,6 +35,9 @@
   --badge-STR:  #f5c8a0;
   /* sutra ID / reference number colour — neutral, no colour cast */
   --num-color:  #9a8a7a;
+  /* inline text link colours — high contrast for body readability */
+  --link:       #8a5520;
+  --link2:      #2a6e78;
 }
 
 /* ── Colour themes ─────────────────────────────────────────────── */
@@ -48,6 +51,7 @@
   --badge-KRT: #b8f0c0; --badge-TD: #fdd9b0; --badge-SM: #e0c0fc;
   --badge-VK: #b0e4f8; --badge-SUP: #d0d4e0; --badge-TIN: #b8e8e4; --badge-STR: #fde0b0;
   --num-color: #8a9aaa;
+  --link: #1d4ed8; --link2: #c2500a;
 }
 [data-theme="forest"] {
   --bg: #f2f8f0; --bg-sidebar: #e4f0e0; --bg-card: #ffffff;
@@ -59,6 +63,7 @@
   --badge-KRT: #b0ddb4; --badge-TD: #f0c888; --badge-SM: #ccaaec;
   --badge-VK: #a0d0e0; --badge-SUP: #ccd0c0; --badge-TIN: #b0d4cc; --badge-STR: #f0c098;
   --num-color: #8a9088;
+  --link: #166534; --link2: #a07010;
 }
 [data-theme="saffron"] {
   --bg: #fffbf0; --bg-sidebar: #fff4d8; --bg-card: #ffffff;
@@ -70,6 +75,7 @@
   --badge-KRT: #b8e8bc; --badge-TD: #f5c896; --badge-SM: #d4b0f0;
   --badge-VK: #a8d8ec; --badge-SUP: #e0d0b0; --badge-TIN: #b8d8d4; --badge-STR: #f5c8a0;
   --num-color: #9a8a70;
+  --link: #b45309; --link2: #065f46;
 }
 [data-theme="night"] {
   --bg: #1e1e2e; --bg-sidebar: #181825; --bg-card: #313244;
@@ -81,6 +87,7 @@
   --badge-KRT: #a6e3a1; --badge-TD: #fab387; --badge-SM: #cba6f7;
   --badge-VK: #89dceb; --badge-SUP: #a6adc8; --badge-TIN: #94e2d5; --badge-STR: #f9e2af;
   --num-color: #7c8098;
+  --link: #89b4fa; --link2: #cba6f7;
 }
 
 html, body { height: 100%; overflow: hidden; }
@@ -788,10 +795,10 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .sutra-quote { color: var(--accent); font-style: italic; }
 /* Inline sutra link  [[7.2.1]] */
 .sutra-link {
-  color: var(--accent2); font-weight: 600; text-decoration: none;
-  font-size: .85em; border-bottom: 1px dashed var(--accent2);
+  color: var(--link2); font-weight: 600; text-decoration: none;
+  font-size: .85em; border-bottom: 1px dashed var(--link2);
 }
-.sutra-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.sutra-link:hover { color: var(--link); border-bottom-color: var(--link); }
 
 /* ── Reader panel ─────────────────────────────────────────────── */
 .panel-reader { max-width: none; }
@@ -2487,9 +2494,9 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
 
 /* ── Concept links ─────────────────────────────────────────────────────────── */
 .concept-link {
-  color: var(--accent);
+  color: var(--link);
   text-decoration: none;
-  border-bottom: 1px dashed var(--accent);
+  border-bottom: 1px dashed var(--link);
   cursor: pointer;
 }
 .concept-link:hover {
@@ -2499,9 +2506,9 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
 
 /* ── Shabda link ─────────────────────────────────────────────────────────────── */
 .shabda-link {
-  color: var(--accent);
+  color: var(--link);
   text-decoration: none;
-  border-bottom: 1px dotted var(--accent);
+  border-bottom: 1px dotted var(--link);
   cursor: pointer;
 }
 .shabda-link:hover {
@@ -2571,8 +2578,8 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
 
 /* ── Dhatu popup ───────────────────────────────────────────────────────────── */
 .dhatu-link {
-  color: var(--accent2);
-  text-decoration: underline dotted var(--accent2);
+  color: var(--link2);
+  text-decoration: underline dotted var(--link2);
   text-underline-offset: 3px;
   cursor: pointer;
 }
