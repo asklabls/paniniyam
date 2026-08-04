@@ -1127,13 +1127,15 @@ function deriveAAFemState(stem, vib, vac) {
   }
 
   // ── inst sg (3,1) ─────────────────────────────────────────────────────────
-  // सीता + टा → (1.3.7) ट् IT → (1.3.9) → आ → (6.4.148) ā-lopa + य् → सीतया
+  // सीता + टा → (1.3.7) ट् IT → (1.3.9) → आ → (7.3.105) सीते + आ → (6.1.78) सीतय् + आ → सीतया
   if (pos === '3,1') {
     const finalForm = b + 'या';
-    steps.push({ rule: '4.1.2',   note: 'स्वौजसमौट्…: टा (inst sg)',                                              form: stem + '+टा' });
-    steps.push({ rule: '1.3.7',   note: 'चुटू: ट् of टा is IT (टु-वर्ग)',                                         form: stem + '+टा' });
-    steps.push({ rule: '1.3.9',   note: 'तस्य लोपः: IT (ट्) लोपः → आ',                                           form: stem + '+आ' });
-    steps.push({ rule: '6.4.148', note: 'यस्येति च: stem-final ā + vowel-suffix — ā लोपः, य् + आ = या',          form: finalForm });
+    steps.push({ rule: '4.1.2',  note: 'स्वौजसमौट्…: टा (inst sg)',                                                                       form: stem + '+टा' });
+    steps.push({ rule: '1.3.7',  note: 'चुटू: ट् of टा is IT (टु-वर्ग)',                                                                  form: stem + '+टा' });
+    steps.push({ rule: '1.3.9',  note: 'तस्य लोपः: IT (ट्) लोपः → आ',                                                                    form: stem + '+आ' });
+    steps.push({ rule: '7.3.105', note: 'आङि चापः: आबन्त अङ्ग को आ-आदि प्रत्यये परे एकारादेशः → ' + b + 'े+आ',                         form: b + 'े+आ' });
+    steps.push({ rule: '6.1.78', note: 'एचोऽयवायावः: ए → अय् (before vowel) → ' + b + 'य्+आ',                                            form: b + 'य्+आ' });
+    steps.push({ rule: 'sandhi', note: 'य् + आ → या',                                                                                      form: finalForm });
     return { form: finalForm, steps };
   }
 
