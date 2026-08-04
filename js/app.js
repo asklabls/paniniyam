@@ -3389,48 +3389,111 @@ async function showShabdaPopup(el, shabdaId) {
   }
 
   popup.innerHTML = '';
-  for (const entry of entries) {
-    const lingaDev = SHABDAPATHA_LINGA_DEV[entry.linga] || '';
-    const forms    = entry.forms.split(';');  // 24: 8 vibhakti × 3 vacana
 
-    // Header: stem + linga badge
+  // Sankhya layout: words with एकवचनाभावः or द्विवचनाभावः or बहुवचनाभावः
+  // show पुं/स्त्री/नपुं columns instead of एक/द्वि/बहु columns.
+  const isSankhya = entries.some(e =>
+    e.prakriya_options && (
+      e.prakriya_options['एकवचनाभावः'] ||
+      e.prakriya_options['द्विवचनाभावः'] ||
+      e.prakriya_options['बहुवचनाभावः']
+    )
+  );
+
+  if (isSankhya) {
+    // Determine which vacana column to use per entry (the one that has data)
+    // एकवचनाभावः + द्विवचनाभावः → only bahu (col 2)
+    // बहुवचनाभावः + एकवचनाभावः → only dvi (col 1)
+    // एकवचनाभावः alone → dvi + bahu both exist
+    function vacanaCol(e) {
+      const opts = e.prakriya_options || {};
+      if (opts['एकवचनाभावः'] && opts['द्विवचनाभावः']) return 2; // bahu only
+      if (opts['एकवचनाभावः'] && opts['बहुवचनाभावः']) return 1; // dvi only
+      if (opts['बहुवचनाभावः'] && opts['द्विवचनाभावः']) return 0; // eka only
+      return 2; // default bahu
+    }
+
+    // Collect P, S, N entries
+    const byLinga = { P: null, S: null, N: null };
+    for (const e of entries) byLinga[e.linga] = e;
+    const lingaOrder = ['P', 'S', 'N'];
+    const lingaLabels = { P: 'पुंलिङ्ग', S: 'स्त्रीलिङ्ग', N: 'नपुंसक' };
+    const activeLinga = lingaOrder.filter(l => byLinga[l]);
+
+    // Header
     const hdr = document.createElement('div');
     hdr.className = 'sp-header';
-    const stemEl = devEl('span', 'sp-stem dev-text', stem);
-    hdr.appendChild(stemEl);
-    if (lingaDev) hdr.appendChild(devEl('span', 'sp-linga dev-text', lingaDev));
+    hdr.appendChild(devEl('span', 'sp-stem dev-text', stem));
     popup.appendChild(hdr);
 
-    // Compact declension table
-    const table  = document.createElement('table');
+    const VIB_DISPLAY_ORDER = [0, 7, 1, 2, 3, 4, 5, 6];
+    const table = document.createElement('table');
     table.className = 'sp-table';
     const thead = document.createElement('thead');
     const hrow  = document.createElement('tr');
     hrow.appendChild(document.createElement('th'));
-    VACANA_NAMES.forEach(v => hrow.appendChild(devEl('th', 'dev-text', v)));
-    thead.appendChild(hrow);
-    table.appendChild(thead);
-
-    const SP_SET1 = new Set(['0,0','0,1','0,2','1,0','1,1']);
-    const SP_SET2 = new Set(['1,2','2,0','3,0','4,0','5,0','6,0','5,1','5,2','6,1']);
-    const VIB_DISPLAY_ORDER = [0, 7, 1, 2, 3, 4, 5, 6]; // सम्बोधन after प्रथमा
+    activeLinga.forEach(l => hrow.appendChild(devEl('th', 'dev-text', lingaLabels[l])));
+    thead.appendChild(hrow); table.appendChild(thead);
 
     const tbody = document.createElement('tbody');
     for (const vib of VIB_DISPLAY_ORDER) {
       const tr = document.createElement('tr');
       tr.appendChild(devEl('td', 'sp-vib dev-text', VIBHAKTI_NAMES[vib]));
-      for (let vac = 0; vac < 3; vac++) {
-        const form = forms[vib * 3 + vac] || '—';
-        const key = `${vib},${vac}`;
-        const cls = SP_SET1.has(key) ? 'sp-form dev-text sp-set1'
-                  : SP_SET2.has(key) ? 'sp-form dev-text sp-set2'
-                  : 'sp-form dev-text';
-        tr.appendChild(devEl('td', cls, form));
+      for (const l of activeLinga) {
+        const e = byLinga[l];
+        const col  = vacanaCol(e);
+        const form = e.forms.split(';')[vib * 3 + col] || '—';
+        tr.appendChild(devEl('td', 'sp-form dev-text', form));
       }
       tbody.appendChild(tr);
     }
     table.appendChild(tbody);
     popup.appendChild(table);
+
+  } else {
+    for (const entry of entries) {
+      const lingaDev = SHABDAPATHA_LINGA_DEV[entry.linga] || '';
+      const forms    = entry.forms.split(';');  // 24: 8 vibhakti × 3 vacana
+
+      // Header: stem + linga badge
+      const hdr = document.createElement('div');
+      hdr.className = 'sp-header';
+      const stemEl = devEl('span', 'sp-stem dev-text', stem);
+      hdr.appendChild(stemEl);
+      if (lingaDev) hdr.appendChild(devEl('span', 'sp-linga dev-text', lingaDev));
+      popup.appendChild(hdr);
+
+      // Compact declension table
+      const table  = document.createElement('table');
+      table.className = 'sp-table';
+      const thead = document.createElement('thead');
+      const hrow  = document.createElement('tr');
+      hrow.appendChild(document.createElement('th'));
+      VACANA_NAMES.forEach(v => hrow.appendChild(devEl('th', 'dev-text', v)));
+      thead.appendChild(hrow);
+      table.appendChild(thead);
+
+      const SP_SET1 = new Set(['0,0','0,1','0,2','1,0','1,1']);
+      const SP_SET2 = new Set(['1,2','2,0','3,0','4,0','5,0','6,0','5,1','5,2','6,1']);
+      const VIB_DISPLAY_ORDER = [0, 7, 1, 2, 3, 4, 5, 6]; // सम्बोधन after प्रथमा
+
+      const tbody = document.createElement('tbody');
+      for (const vib of VIB_DISPLAY_ORDER) {
+        const tr = document.createElement('tr');
+        tr.appendChild(devEl('td', 'sp-vib dev-text', VIBHAKTI_NAMES[vib]));
+        for (let vac = 0; vac < 3; vac++) {
+          const form = forms[vib * 3 + vac] || '—';
+          const key = `${vib},${vac}`;
+          const cls = SP_SET1.has(key) ? 'sp-form dev-text sp-set1'
+                    : SP_SET2.has(key) ? 'sp-form dev-text sp-set2'
+                    : 'sp-form dev-text';
+          tr.appendChild(devEl('td', cls, form));
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      popup.appendChild(table);
+    }
   }
 
   // Re-position now that content is known
