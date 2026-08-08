@@ -7968,7 +7968,16 @@ function makeUnaadiResultItem(u, q) {
 
   item.addEventListener('click', async () => {
     const data = await loadData('unaadi', 'unaadi/data.txt');
-    renderUnaadiAll(data);
+    let sanHin = null, satyavrata = null;
+    if (PRIVATE_BASE) {
+      const [r1, r2] = await Promise.allSettled([
+        fetch(`${PRIVATE_BASE}/unaadi_san_hin.json`),
+        fetch(`${PRIVATE_BASE}/unaadi_satyavrata.json`),
+      ]);
+      if (r1.status === 'fulfilled' && r1.value.ok) sanHin     = await r1.value.json();
+      if (r2.status === 'fulfilled' && r2.value.ok) satyavrata = await r2.value.json();
+    }
+    renderUnaadiAll(data, sanHin, satyavrata);
     closeDrawer();
     const card = $sutraList.querySelector(`[data-id="${u.i}"]`);
     if (card) { card.scrollIntoView({ block: 'center' }); toggleSimpleCard(card); }
