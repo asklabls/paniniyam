@@ -7906,8 +7906,13 @@ function searchGana(data, q) {
 
 function searchUnaadi(data, q) {
   const dq = normalizeToDevanagari(q);
-  return data.filter(u =>
-    (u.sutra && u.sutra.includes(dq)) || (u.pratyay && u.pratyay.includes(dq)));
+  const results = [];
+  for (const u of data) {
+    if (u.sutra  && u.sutra.includes(dq))  { results.push({ ...u, _matchField: 'sutra'  }); continue; }
+    if (u.pratyay && u.pratyay.includes(dq)) { results.push({ ...u, _matchField: 'pratyay' }); continue; }
+    if (u.sk     && u.sk.includes(dq))     { results.push({ ...u, _matchField: 'sk'     }); }
+  }
+  return results;
 }
 
 function makeGanaResultItem(g, q) {
@@ -7931,11 +7936,36 @@ function makeGanaResultItem(g, q) {
 function makeUnaadiResultItem(u, q) {
   const item = document.createElement('div');
   item.className = 'search-result-item';
+
+  // ref col: pratyaya
   const ref = document.createElement('span');
   ref.className = 'sri-ref';
-  ref.textContent = u.pratyay || u.i || '';
+  ref.textContent = u.pratyay || '';
   item.appendChild(ref);
-  item.appendChild(highlightMatch(u.sutra || '', q));
+
+  // id col: sutra number e.g. 1.1
+  const idEl = document.createElement('span');
+  idEl.className = 'sri-ref sri-unaadi-id';
+  idEl.textContent = `${u.i.slice(0, -3)}.${parseInt(u.i.slice(-3), 10)}`;
+  item.appendChild(idEl);
+
+  // snippet: sutra text (when matched on sutra/pratyay) or sk excerpt (when matched on examples)
+  const dq = normalizeToDevanagari(q);
+  const snip = document.createElement('div');
+  snip.className = 'sri-snippet';
+  if (u._matchField === 'sk' && u.sk) {
+    const idx = u.sk.indexOf(dq);
+    if (idx >= 0) {
+      const start = Math.max(0, idx - 20);
+      const end   = Math.min(u.sk.length, idx + dq.length + 30);
+      const raw   = (start > 0 ? '…' : '') + u.sk.slice(start, end) + (end < u.sk.length ? '…' : '');
+      snip.appendChild(highlightMatch(raw, q));
+    }
+  } else {
+    snip.appendChild(highlightMatch(u.sutra || '', q));
+  }
+  item.appendChild(snip);
+
   item.addEventListener('click', async () => {
     const data = await loadData('unaadi', 'unaadi/data.txt');
     renderUnaadiAll(data);
@@ -9261,18 +9291,26 @@ function renderUnaadiAll(data, sanHin, satyavrata) {
       panelWrap.appendChild(panel);
 
       const btn = devEl('button', 'detail-tab', tabDef.label);
+      btn.dataset.tab = tabDef.id;
       btn.addEventListener('click', e => {
         e.stopPropagation();
         tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         panelWrap.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
         panel.classList.add('active');
+        activeTabByGroup['unaadi'] = tabDef.id;
       });
       tabBar.appendChild(btn);
 
       if (!firstTabBtn) { firstTabBtn = btn; firstPanel = panel; }
     }
-    if (firstTabBtn) {
+    const savedTabId = activeTabByGroup['unaadi'];
+    const savedBtn   = savedTabId && tabBar.querySelector(`[data-tab="${savedTabId}"]`);
+    const savedPanel = savedTabId && panelWrap.querySelector(`[data-panel="${savedTabId}"]`);
+    if (savedBtn && savedPanel) {
+      savedBtn.classList.add('active');
+      savedPanel.classList.add('active');
+    } else if (firstTabBtn) {
       firstTabBtn.classList.add('active');
       firstPanel.classList.add('active');
     }

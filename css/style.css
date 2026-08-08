@@ -444,6 +444,9 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 }
 .sri-text { flex: 1; font-size: .92em; color: var(--text); line-height: 1.4; }
 .sri-text mark { background: none; color: var(--accent); font-weight: 700; }
+.sri-unaadi-id { min-width: 32px; }
+.sri-snippet { font-size: .82em; color: var(--muted); line-height: 1.4; flex: 1; }
+.sri-snippet .sri-text mark { color: var(--accent); }
 .sri-source {
   font-size: .7em; color: var(--muted); flex-shrink: 0;
   border: 1px solid var(--border); border-radius: 10px;
