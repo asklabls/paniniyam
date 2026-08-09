@@ -10506,6 +10506,48 @@ async function loadPhitPradipa() {
   return phitPradipaData;
 }
 
+// Tabs: फिट्सूत्रप्रदीप first (default), then वृत्तिः
+const FIT_TABS = [
+  { id: 'pradipa', label: 'फिट्सूत्रप्रदीप' },
+  { id: 'vritti',  label: 'वृत्तिः'          },
+];
+
+function buildFitTabPanel(tabId, f, pd) {
+  const panel = document.createElement('div');
+  panel.className = 'detail-tab-panel commentary-text';
+  panel.dataset.panel = tabId;
+
+  if (tabId === 'pradipa') {
+    if (pd) {
+      if (pd.pada0) {
+        const p0 = document.createElement('div');
+        p0.className = 'fit-pada0';
+        p0.innerHTML = '<span class="fit-pada0-label">पद०-</span> ' + pd.pada0;
+        panel.appendChild(p0);
+      }
+      if (pd.vritti) {
+        const vr = document.createElement('div');
+        vr.className = 'detail-sanskrit commentary-panel';
+        vr._rawCommentary = pd.vritti;
+        setCommentaryHTML(vr, pd.vritti);
+        panel.appendChild(vr);
+      }
+      if (!pd.pada0 && !pd.vritti) panel.innerHTML = '<span class="no-data">No data.</span>';
+    } else {
+      panel.innerHTML = '<span class="no-data">No data.</span>';
+    }
+  } else if (tabId === 'vritti') {
+    if (f.sk) {
+      panel.classList.add('commentary-panel');
+      panel._rawCommentary = f.sk;
+      setCommentaryHTML(panel, f.sk);
+    } else {
+      panel.innerHTML = '<span class="no-data">No data.</span>';
+    }
+  }
+  return panel;
+}
+
 async function renderFitAll(data) {
   setListHeader('फिट्सूत्राणि', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
@@ -10526,47 +10568,47 @@ async function renderFitAll(data) {
     idEl.textContent = `${f.p}.${f.n}`;
     row.appendChild(idEl);
     row.appendChild(devEl('span', 'sutra-text', f.s));
+
     const detail = document.createElement('div');
     detail.className = 'sutra-detail';
     detail.appendChild(devEl('div', 'detail-sutra-full', f.s));
-    if (f.sk) {
-      const sec = document.createElement('div');
-      sec.className = 'detail-section';
-      const lbl = document.createElement('div');
-      lbl.className = 'detail-label';
-      lbl.textContent = 'Commentary';
-      sec.appendChild(lbl);
-      const skDiv = document.createElement('div');
-      skDiv.className = 'detail-sanskrit commentary-panel';
-      skDiv._rawCommentary = f.sk;
-      setCommentaryHTML(skDiv, f.sk);
-      sec.appendChild(skDiv);
-      detail.appendChild(sec);
+
+    const pd = pradipa && pradipa[`${f.p}/${f.n}`];
+    const tabBar = document.createElement('div');
+    tabBar.className = 'detail-tabs';
+    const panelWrap = document.createElement('div');
+    panelWrap.className = 'detail-tab-panels';
+
+    let firstBtn = null, firstPanel = null;
+    for (const tabDef of FIT_TABS) {
+      const tp = buildFitTabPanel(tabDef.id, f, pd);
+      panelWrap.appendChild(tp);
+      const btn = devEl('button', 'detail-tab', tabDef.label);
+      btn.dataset.tab = tabDef.id;
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panelWrap.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+        tp.classList.add('active');
+        activeTabByGroup['fit'] = tabDef.id;
+      });
+      tabBar.appendChild(btn);
+      if (!firstBtn) { firstBtn = btn; firstPanel = tp; }
     }
-    const key = `${f.p}/${f.n}`;
-    if (pradipa && pradipa[key]) {
-      const pd = pradipa[key];
-      const sec = document.createElement('div');
-      sec.className = 'detail-section';
-      const lbl = document.createElement('div');
-      lbl.className = 'detail-label';
-      lbl.textContent = 'फिट्सूत्रप्रदीप';
-      sec.appendChild(lbl);
-      if (pd.pada0) {
-        const p0 = document.createElement('div');
-        p0.className = 'fit-pada0';
-        p0.innerHTML = '<span class="fit-pada0-label">पद०-</span> ' + pd.pada0;
-        sec.appendChild(p0);
-      }
-      if (pd.vritti) {
-        const vr = document.createElement('div');
-        vr.className = 'detail-sanskrit commentary-panel';
-        vr._rawCommentary = pd.vritti;
-        setCommentaryHTML(vr, pd.vritti);
-        sec.appendChild(vr);
-      }
-      detail.appendChild(sec);
+    const savedId    = activeTabByGroup['fit'];
+    const savedBtn   = savedId && tabBar.querySelector(`[data-tab="${savedId}"]`);
+    const savedPanel = savedId && panelWrap.querySelector(`[data-panel="${savedId}"]`);
+    if (savedBtn && savedPanel) {
+      savedBtn.classList.add('active');
+      savedPanel.classList.add('active');
+    } else if (firstBtn) {
+      firstBtn.classList.add('active');
+      firstPanel.classList.add('active');
     }
+
+    detail.appendChild(tabBar);
+    detail.appendChild(panelWrap);
     card.appendChild(row);
     card.appendChild(detail);
     card.addEventListener('click', () => toggleSimpleCard(card));
