@@ -2261,8 +2261,8 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
 }
 .avyaya-table thead th {
   font-weight: 700;
-  background: var(--bar);
-  color: #fff;
+  background: var(--bar-bg);
+  color: var(--bar-fg);
   padding: 8px 12px;
   text-align: left;
   white-space: nowrap;
