@@ -10486,11 +10486,25 @@ function renderShikshaAll(data) {
 }
 
 // ── Fit Sutrani ───────────────────────────────────────────────────────────────
-function renderFitAll(data) {
+let phitPradipaData = null;
+
+async function loadPhitPradipa() {
+  if (phitPradipaData) return phitPradipaData;
+  if (!PRIVATE_BASE) return null;
+  try {
+    const r = await fetch(`${PRIVATE_BASE}/phit-pradipa.json`);
+    if (!r.ok) return null;
+    phitPradipaData = await r.json();
+  } catch (e) { phitPradipaData = null; }
+  return phitPradipaData;
+}
+
+async function renderFitAll(data) {
   setListHeader('फिट्सूत्राणि', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
   let lastP = null;
   const pNames = ['', 'प्रथमः', 'द्वितीयः', 'तृतीयः', 'चतुर्थः'];
+  const pradipa = await loadPhitPradipa();
   for (const f of data) {
     if (f.p !== lastP) {
       $sutraList.appendChild(devEl('div', 'section-header', `${pNames[+f.p] || f.p} अध्यायः`));
@@ -10520,6 +10534,30 @@ function renderFitAll(data) {
       skDiv._rawCommentary = f.sk;
       setCommentaryHTML(skDiv, f.sk);
       sec.appendChild(skDiv);
+      detail.appendChild(sec);
+    }
+    const key = `${f.p}/${f.n}`;
+    if (pradipa && pradipa[key]) {
+      const pd = pradipa[key];
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      const lbl = document.createElement('div');
+      lbl.className = 'detail-label';
+      lbl.textContent = 'फिट्सूत्रप्रदीप';
+      sec.appendChild(lbl);
+      if (pd.pada0) {
+        const p0 = document.createElement('div');
+        p0.className = 'fit-pada0';
+        p0.innerHTML = '<span class="fit-pada0-label">पद०-</span> ' + pd.pada0;
+        sec.appendChild(p0);
+      }
+      if (pd.vritti) {
+        const vr = document.createElement('div');
+        vr.className = 'detail-sanskrit commentary-panel';
+        vr._rawCommentary = pd.vritti;
+        setCommentaryHTML(vr, pd.vritti);
+        sec.appendChild(vr);
+      }
       detail.appendChild(sec);
     }
     card.appendChild(row);
