@@ -2260,11 +2260,14 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
   font-size: .9em;
 }
 .avyaya-table thead th {
-  font-weight: 700;
-  background: var(--bar-bg);
-  color: var(--bar-fg);
+  background: var(--bg-sidebar, var(--bg));
+  border-bottom: 2px solid var(--border);
   padding: 8px 12px;
   text-align: left;
+  font-family: var(--font-dev);
+  font-size: .85em;
+  font-weight: 600;
+  color: var(--accent);
   white-space: nowrap;
 }
 .avyaya-th-a { width: 18%; }
