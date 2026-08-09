@@ -5298,7 +5298,7 @@ function renderAvyayaTable(wrap, data, section, letter) {
   // Header
   const thead = document.createElement('thead');
   const hr = document.createElement('tr');
-  for (const [dev, cls] of [['अव्ययम्', 'avyaya-th-a'], ['अर्थः', 'avyaya-th-m'], ['उदाहरणानि', 'avyaya-th-u']]) {
+  for (const [dev, cls] of [['प्रत्ययानिः', 'avyaya-th-a'], ['अर्थः', 'avyaya-th-m'], ['उदाहरणानि', 'avyaya-th-u']]) {
     const th = document.createElement('th');
     th.className = cls + ' dev-text';
     th._devText = dev;
@@ -5323,9 +5323,16 @@ function renderAvyayaTable(wrap, data, section, letter) {
     tdM.textContent = translit(row.m);
 
     const tdU = document.createElement('td');
-    tdU.className = 'avyaya-cell-u dev-text';
-    tdU._devText = row.u;
-    tdU.textContent = translit(row.u);
+    tdU.className = 'avyaya-cell-u';
+    // Split on each ( so every "(context) example" starts on its own line
+    const uParts = row.u.split(/(?=\()/);
+    for (const p of uParts) {
+      const sp = document.createElement('span');
+      sp.className = 'avyaya-eg dev-text';
+      sp._devText = p.trim();
+      sp.textContent = translit(p.trim());
+      tdU.appendChild(sp);
+    }
 
     tr.appendChild(tdA);
     tr.appendChild(tdM);

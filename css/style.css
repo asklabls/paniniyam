@@ -2293,6 +2293,7 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
   vertical-align: top;
   line-height: 1.55;
 }
+.avyaya-eg { display: block; }
 .avyaya-loading,
 .avyaya-empty {
   padding: 32px 16px;
