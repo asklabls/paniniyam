@@ -11394,7 +11394,7 @@ async function init() {
     const $introVideo = document.getElementById('welcome-intro-video');
     if ($introVideo) {
       $introVideo.innerHTML = `
-        <a class="welcome-intro-link" href="https://youtu.be/XBD6EZ897XQ"
+        <a class="welcome-intro-link" href="https://youtu.be/XBD6EZ897XQ?t=0"
            target="_blank" rel="noopener" title="How to use this site">
           <div class="welcome-intro-thumb">
             <img src="https://img.youtube.com/vi/XBD6EZ897XQ/mqdefault.jpg"
