@@ -291,6 +291,16 @@ const nrCache = {};
 let $nrMatrix = null;
 let _nrMatrixJustOpened = false;
 
+const YD_PADAS = [1,2,3,4];
+const YD_PADA_NAMES_DEV = {
+  1:'१-समाधि', 2:'२-साधन', 3:'३-विभूति', 4:'४-कैवल्य',
+};
+const YD_PADA_COUNTS = { 1:51, 2:55, 3:55, 4:34 };
+let ydCurrentPada = 0;
+const ydCache = {};       // keyed by pada number, value = array of sutra objects
+let $ydMatrix = null;
+let _ydMatrixJustOpened = false;
+
 const BK_SARGAS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21]; // sarga 15 absent
 
 const RV_SECTIONS = [1,2,3,4,5,6,7,8];
@@ -623,6 +633,12 @@ function renderCommentaryHTML(raw) {
             if (sid) {
               const label = display ? translitMixed(display) : devDigitsToAscii(ref);
               html += `<a class="sutra-link" data-id="${sid}" href="#">${label}</a>`;
+            } else if (/^\d{2}\.\d{4}__/.test(ref)) {
+              // [[baseindex__name|display]] — dhatu link from vault insert scripts
+              const baseindex = ref.slice(0, 7);
+              const esc = baseindex.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+              const label = display ? translitMixed(display) : translit(ref.slice(8));
+              html += `<a class="dhatu-link" data-dhatu="${esc}" href="#">${label}</a>`;
             } else {
               const esc = ref.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
               const label = display ? translitMixed(display) : translit(ref);
@@ -5098,7 +5114,7 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('click', e => {
-  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened || _rvMatrixJustOpened || _ssMatrixJustOpened) return;
+  if (_padaMatrixJustOpened || _ganaMatrixJustOpened || _bkMatrixJustOpened || _nrMatrixJustOpened || _rvMatrixJustOpened || _ssMatrixJustOpened || _ydMatrixJustOpened) return;
   if ($padaMatrix?.classList.contains('open') &&
       !$padaMatrix.contains(e.target) &&
       e.target !== $btnPadaGrid && !$btnPadaGrid.contains(e.target)) {
@@ -5123,6 +5139,10 @@ document.addEventListener('click', e => {
   if ($ssMatrix?.classList.contains('open') &&
       !$ssMatrix.contains(e.target)) {
     closeSsMatrix();
+  }
+  if ($ydMatrix?.classList.contains('open') &&
+      !$ydMatrix.contains(e.target)) {
+    closeYdMatrix();
   }
 });
 
@@ -10426,13 +10446,291 @@ async function showAnuvadaExercise(exNum) {
   }
 }
 
-// ── Yoga Darshana (skeleton) ──────────────────────────────────────────────────
+// ── Yoga Darshana ─────────────────────────────────────────────────────────────
+function buildYdMatrix() {
+  const wrap = document.createElement('div');
+  wrap.id = 'yd-matrix';
+  wrap.className = 'bk-matrix';
+
+  const headerRow = document.createElement('div');
+  headerRow.className = 'pm-row pm-header';
+  const th = document.createElement('div');
+  th.className = 'pm-th dev-text';
+  th.style.cssText = 'min-width:0; flex:1; text-align:left;';
+  th._devText = 'योगदर्शनम् — पादाः';
+  th.textContent = translit('योगदर्शनम् — पादाः');
+  headerRow.appendChild(th);
+  wrap.appendChild(headerRow);
+
+  const rowEl = document.createElement('div');
+  rowEl.className = 'pm-row';
+  for (const n of YD_PADAS) {
+    const cell = document.createElement('button');
+    cell.className = 'pm-cell yd-pada-cell dev-text';
+    cell._devText = YD_PADA_NAMES_DEV[n];
+    cell.textContent = translit(YD_PADA_NAMES_DEV[n]);
+    cell.title = `${YD_PADA_COUNTS[n]} sūtras`;
+    cell.addEventListener('click', () => { closeYdMatrix(); showYogaDarshana(n); });
+    rowEl.appendChild(cell);
+  }
+  wrap.appendChild(rowEl);
+  return wrap;
+}
+
+function openYdMatrix() {
+  if (!$ydMatrix) { $ydMatrix = buildYdMatrix(); document.body.appendChild($ydMatrix); }
+  $ydMatrix.classList.add('open');
+  _ydMatrixJustOpened = true;
+  setTimeout(() => { _ydMatrixJustOpened = false; }, 0);
+}
+
+function closeYdMatrix() { $ydMatrix?.classList.remove('open'); }
+
+async function showYogaDarshana(padaNum) {
+  if (!YD_PADAS.includes(padaNum)) padaNum = 1;
+  ydCurrentPada = padaNum;
+  history.replaceState({ book: 'yogadarshana' }, '', `?book=yogadarshana&pada=${padaNum}`);
+
+  if (!ydCache[padaNum]) {
+    setListHeader('योगदर्शनम्', ''); $sutraList.innerHTML = '<div class="loading-inline">Loading…</div>';
+    showPanel('list');
+    if (!PRIVATE_BASE) {
+      $sutraList.innerHTML = '<div class="no-data">Yoga Darshana data not available locally.</div>';
+      return;
+    }
+    try {
+      const count = YD_PADA_COUNTS[padaNum];
+      const urls = Array.from({ length: count }, (_, i) => {
+        const num = String(i + 1).padStart(3, '0');
+        return `${PRIVATE_BASE}/yog-darshan/${padaNum}.${num}.json`;
+      });
+      const results = await Promise.all(urls.map(u => fetch(u).then(r => r.ok ? r.json() : null)));
+      ydCache[padaNum] = results.filter(Boolean);
+    } catch (e) {
+      $sutraList.innerHTML = `<div class="no-data">Could not load pada ${padaNum}: ${e.message}</div>`;
+      return;
+    }
+  }
+
+  renderYdPada(padaNum, ydCache[padaNum]);
+
+  // Background prefetch of adjacent padas
+  const idx = YD_PADAS.indexOf(padaNum);
+  [YD_PADAS[idx - 1], YD_PADAS[idx + 1]].filter(Boolean).forEach(n => {
+    if (!ydCache[n]) {
+      const count = YD_PADA_COUNTS[n];
+      const urls = Array.from({ length: count }, (_, i) => {
+        const num = String(i + 1).padStart(3, '0');
+        return `${PRIVATE_BASE}/yog-darshan/${n}.${num}.json`;
+      });
+      Promise.all(urls.map(u => fetch(u).then(r => r.ok ? r.json() : null)))
+        .then(res => { ydCache[n] = res.filter(Boolean); }).catch(() => {});
+    }
+  });
+}
+
+function renderYdPada(padaNum, sutras) {
+  const padaName = YD_PADA_NAMES_DEV[padaNum];
+  const idx = YD_PADAS.indexOf(padaNum);
+  const prevN = YD_PADAS[idx - 1] || null;
+  const nextN = YD_PADAS[idx + 1] || null;
+
+  setListHeader('योगदर्शनम्', `${sutras.length} sūtras`);
+  $sutraList.innerHTML = '';
+
+  // Sticky pada nav
+  const nav = document.createElement('div');
+  nav.className = 'bk-nav yd-nav';
+
+  const btnP = document.createElement('button');
+  btnP.className = 'bar-btn bk-nav-btn';
+  btnP.textContent = '◀';
+  btnP.disabled = !prevN;
+  if (prevN) btnP.addEventListener('click', () => showYogaDarshana(prevN));
+  nav.appendChild(btnP);
+
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'bk-nav-title';
+  titleWrap.title = 'Choose pāda';
+  titleWrap.addEventListener('click', () => openYdMatrix());
+  const nameEl = document.createElement('span');
+  nameEl.className = 'bk-sarga-name dev-text';
+  nameEl._devText = padaName;
+  nameEl.textContent = translit(padaName);
+  titleWrap.appendChild(nameEl);
+  const countEl = document.createElement('span');
+  countEl.className = 'bk-sarga-count';
+  countEl.textContent = `${sutras.length} sūtras`;
+  titleWrap.appendChild(countEl);
+  nav.appendChild(titleWrap);
+
+  const btnN = document.createElement('button');
+  btnN.className = 'bar-btn bk-nav-btn';
+  btnN.textContent = '▶';
+  btnN.disabled = !nextN;
+  if (nextN) btnN.addEventListener('click', () => showYogaDarshana(nextN));
+  nav.appendChild(btnN);
+
+  $sutraList.appendChild(nav);
+
+  // Sutra cards
+  for (let i = 0; i < sutras.length; i++) {
+    $sutraList.appendChild(renderYdCard(sutras[i], i > 0 ? sutras[i - 1] : null));
+  }
+  showPanel('list');
+}
+
+function renderYdCard(s, prevSutra) {
+  const card = document.createElement('div');
+  card.className = 'sutra-card';
+  card.dataset.id = s.id;
+
+  // Collapsed row: id + sutra text
+  const row = document.createElement('div');
+  row.className = 'sutra-row';
+  const idEl = document.createElement('span');
+  idEl.className = 'sutra-id';
+  idEl.textContent = s.id;
+  row.appendChild(idEl);
+  if (s.sutra) row.appendChild(devEl('span', 'sutra-text', s.sutra));
+  card.appendChild(row);
+
+  // Expanded detail
+  const detail = document.createElement('div');
+  detail.className = 'sutra-detail';
+
+  // Full sutra text (large)
+  if (s.sutra) detail.appendChild(devEl('div', 'detail-sutra-full', s.sutra));
+
+  // Always-visible meta: avatarnika (from prev sutra) + shabdaartha + sutraartha
+  const hasAv = prevSutra?.avatarnika;
+  if (hasAv || s.shabdaartha || s.sutraartha) {
+    const meta = document.createElement('div');
+    meta.className = 'sutra-meta yd-meta';
+
+    if (hasAv) {
+      const r = document.createElement('div');
+      r.className = 'meta-row yd-av-row';
+      const lbl = document.createElement('span');
+      lbl.className = 'meta-label dev-text';
+      lbl._devText = 'अवतरणिका';
+      lbl.textContent = translit('अवतरणिका');
+      const val = document.createElement('span');
+      val.className = 'meta-value';
+      const sk = document.createElement('span');
+      sk.className = 'dev-text yd-av-sk';
+      sk._devText = prevSutra.avatarnika;
+      sk.textContent = translit(prevSutra.avatarnika);
+      val.appendChild(sk);
+      if (prevSutra.artha) {
+        const hi = document.createElement('span');
+        hi.className = 'yd-av-hi mixed-text';
+        hi._mixedText = prevSutra.artha;
+        hi.textContent = translitMixed(prevSutra.artha);
+        val.appendChild(hi);
+      }
+      r.appendChild(lbl); r.appendChild(val);
+      meta.appendChild(r);
+    }
+
+    const metaRows = [
+      { key: 'shabdaartha', label: 'शब्दार्थः', val: s.shabdaartha },
+      { key: 'sutraartha',  label: 'सूत्रार्थः', val: s.sutraartha  },
+    ];
+    for (const { label, val } of metaRows) {
+      if (!val) continue;
+      const r = document.createElement('div');
+      r.className = 'meta-row';
+      const lbl = document.createElement('span');
+      lbl.className = 'meta-label dev-text';
+      lbl._devText = label;
+      lbl.textContent = translit(label);
+      const v = document.createElement('span');
+      v.className = 'meta-value mixed-text';
+      v._mixedText = val;
+      v.textContent = translitMixed(val);
+      r.appendChild(lbl); r.appendChild(v);
+      meta.appendChild(r);
+    }
+    detail.appendChild(meta);
+  }
+
+  // Two tabs: व्यासभाष्यम् (Sanskrit + Hindi stacked) | योगार्थप्रकाशः
+  const yoVal = [s.yo_pr, s.bhaavartha].filter(Boolean).join('\n\n');
+
+  // Build Vyasa panel: Sanskrit block + separator + Hindi block
+  let vyasaPanel = null;
+  if (s.vyabhaa || s.vyabhaa_a) {
+    vyasaPanel = document.createElement('div');
+    if (s.vyabhaa) {
+      const sk = document.createElement('div');
+      sk.className = 'commentary-panel detail-sanskrit yd-vb-sk';
+      sk._rawCommentary = s.vyabhaa;
+      setCommentaryHTML(sk, s.vyabhaa);
+      vyasaPanel.appendChild(sk);
+    }
+    if (s.vyabhaa && s.vyabhaa_a) {
+      vyasaPanel.appendChild(Object.assign(document.createElement('hr'), { className: 'bk-fn-sep' }));
+    }
+    if (s.vyabhaa_a) {
+      const hi = document.createElement('div');
+      hi.className = 'commentary-panel yd-vb-hi';
+      hi._rawCommentary = s.vyabhaa_a;
+      setCommentaryHTML(hi, s.vyabhaa_a);
+      vyasaPanel.appendChild(hi);
+    }
+  }
+
+  const ydTabs = [
+    { label: 'व्यासभाष्यम्',   panel: vyasaPanel },
+    { label: 'योगार्थप्रकाशः', panel: yoVal ? (() => {
+        const el = document.createElement('div');
+        el.className = 'commentary-panel';
+        el._rawCommentary = yoVal;
+        setCommentaryHTML(el, yoVal);
+        return el;
+      })() : null },
+  ].filter(t => t.panel);
+
+  if (ydTabs.length) {
+    const tabBar = document.createElement('div');
+    tabBar.className = 'detail-tabs';
+    const panelWrap = document.createElement('div');
+    panelWrap.className = 'detail-tab-panels';
+    let firstBtn = null, firstPanel = null;
+    for (const t of ydTabs) {
+      const tp = document.createElement('div');
+      tp.className = 'detail-tab-panel';
+      tp.appendChild(t.panel);
+      panelWrap.appendChild(tp);
+      const btn = devEl('button', 'detail-tab dev-text', t.label);
+      btn._devText = t.label;
+      btn.textContent = translit(t.label);
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        tabBar.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panelWrap.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+        tp.classList.add('active');
+      });
+      tabBar.appendChild(btn);
+      if (!firstBtn) { firstBtn = btn; firstPanel = tp; }
+    }
+    if (firstBtn) { firstBtn.classList.add('active'); firstPanel.classList.add('active'); }
+    detail.appendChild(tabBar);
+    detail.appendChild(panelWrap);
+  }
+
+  card.appendChild(detail);
+  card.addEventListener('click', () => toggleSimpleCard(card));
+  return card;
+}
+
 function showYogaDarshanaPanel() {
-  buildPlaceholderPanel(
-    $panelYogadarshana, 'योगदर्शनम्', 'Yoga Darśana — Patañjali + Vyāsa Bhāṣya',
-    'Commentary by Swami Satyapati Parivrajaka.<br>Content being digitised — coming soon.',
-    'yogadarshana'
-  );
+  showPanel('list');
+  setListHeader('योगदर्शनम्', '');
+  $sutraList.innerHTML = '';
+  openYdMatrix();
 }
 
 // ── Shiksha ───────────────────────────────────────────────────────────────────
@@ -11096,10 +11394,10 @@ async function init() {
     const $introVideo = document.getElementById('welcome-intro-video');
     if ($introVideo) {
       $introVideo.innerHTML = `
-        <a class="welcome-intro-link" href="https://youtu.be/E1eAZQJ-3IA"
+        <a class="welcome-intro-link" href="https://youtu.be/XBD6EZ897XQ"
            target="_blank" rel="noopener" title="How to use this site">
           <div class="welcome-intro-thumb">
-            <img src="https://img.youtube.com/vi/E1eAZQJ-3IA/mqdefault.jpg"
+            <img src="https://img.youtube.com/vi/XBD6EZ897XQ/mqdefault.jpg"
                  alt="How to use site — intro video">
             <div class="welcome-intro-play">▶</div>
           </div>
@@ -11167,7 +11465,8 @@ async function init() {
       } else if (urlBook === 'nirukta') {
         showNiruktaPanel();
       } else if (urlBook === 'yogadarshana') {
-        showYogaDarshanaPanel();
+        const padaParam = parseInt(params.get('pada')) || 1;
+        await showYogaDarshana(padaParam);
       } else if (urlBook === 'shabdarupavali') {
         await showShabdarupavali();
       } else if (urlBook === 'anuvada-prarambhik') {
