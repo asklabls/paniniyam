@@ -8821,6 +8821,10 @@ function renderAboutSection(id) {
           <h2 class="about-title">What learners say</h2>
           <p class="about-intro">Kind words from those who use Paniniyam in their study of Sanskrit grammar.</p>
           <div class="about-card about-testimonial-card">
+            <blockquote class="about-testimonial-quote">"Cannot thank you enough, I must be blessed to find this. 🙏"</blockquote>
+            <div class="about-testimonial-attr">— Harsh, 2026</div>
+          </div>
+          <div class="about-card about-testimonial-card">
             <blockquote class="about-testimonial-quote">"Hello! I am a new learner of Sanskrit and have just begun my journey of learning Sanskrit grammar. I am very grateful for this site that you have created as it has helped with my note taking throughout my learning experience. One thing that I feel would be helpful would be the general meaning of sutras to assist foreign learners who can't translate easily. Other than that this site is great and has been a great tool that I have been able to confidently share with others who are interested in learning this great, ancient language. I appreciate everything this site has given me. Thank you very much."</blockquote>
             <div class="about-testimonial-attr">— Joe, 2026</div>
           </div>
