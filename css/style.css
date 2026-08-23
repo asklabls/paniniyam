@@ -3038,6 +3038,17 @@ hr.bk-fn-sep {
   border: none; border-top: 1px dashed var(--border);
   margin: 10px 0 4px;
 }
+
+/* ── Yoga Darshana panel ─────────────────────────────────────────────────────── */
+#yd-matrix .yd-pada-cell {
+  min-width: 120px; font-size: .82em; white-space: normal;
+  line-height: 1.3; padding: 6px 8px; height: auto;
+}
+.yd-meta { margin-top: 4px; }
+.yd-yo-pr { padding: 10px 0 4px; }
+.yd-av-row .meta-value { display: flex; flex-direction: column; gap: 2px; }
+.yd-av-sk { font-style: italic; color: var(--muted); font-size: .9em; }
+.yd-av-hi { font-size: .88em; color: var(--muted); }
 table.commentary-md-table {
   border-collapse: collapse;
   margin: 10px 0;
