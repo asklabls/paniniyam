@@ -225,16 +225,19 @@ body { font-family: var(--font-dev);
   display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
 }
 .gm-cell {
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   padding: 6px 10px; min-width: 96px;
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: 4px; cursor: pointer;
   transition: background .12s, border-color .12s;
 }
 .gm-cell:hover { background: var(--hover-bg); border-color: var(--accent); }
+.gm-top {
+  display: flex; align-items: baseline; gap: 0;
+}
 .gm-num {
-  font-size: .65em; color: var(--muted);
-  font-family: 'Noto Sans', monospace; letter-spacing: .04em;
+  font-size: .75em; color: var(--muted);
+  font-family: 'Noto Sans', monospace; letter-spacing: .02em;
 }
 .gm-name {
   font-size: .85em; font-weight: 600; color: var(--text);
@@ -242,7 +245,7 @@ body { font-family: var(--font-dev);
 }
 .gm-cell:hover .gm-name { color: var(--accent); }
 .gm-count {
-  font-size: .65em; color: var(--muted);
+  font-size: .75em; color: var(--accent);
   font-family: 'Noto Sans', sans-serif;
 }
 

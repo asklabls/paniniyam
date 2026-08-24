@@ -5038,7 +5038,7 @@ $btnPadaGrid.addEventListener('click', () => {
 let $ganaMatrix = null;
 let _ganaMatrixJustOpened = false;
 
-const GANA_SHORT_DEV = ['','भ्वादिः','अदादिः','जुहोत्यादिः','दिवादिः','स्वादिः','तुदादिः','रुधादिः','तनादिः','क्र्यादिः','चुरादिः'];
+const GANA_SHORT_DEV = ['','भ्वादि','अदादि','जुहोत्यादि','दिवादि','स्वादि','तुदादि','रुधादि','तनादि','क्र्यादि','चुरादि'];
 
 async function buildGanaMatrix() {
   const wrap = document.createElement('div');
@@ -5065,21 +5065,23 @@ async function buildGanaMatrix() {
     const cell = document.createElement('button');
     cell.className = 'gm-cell';
 
+    const top = document.createElement('span');
+    top.className = 'gm-top';
     const num = document.createElement('span');
     num.className = 'gm-num';
-    num.textContent = String(g).padStart(2, '0');
-
+    num.textContent = String(g).padStart(2, '0') + ' – ';
     const name = document.createElement('span');
     name.className = 'gm-name dev-text';
     name._devText = GANA_SHORT_DEV[g];
     name.textContent = translit(GANA_SHORT_DEV[g]);
+    top.appendChild(num);
+    top.appendChild(name);
 
     const cnt = document.createElement('span');
     cnt.className = 'gm-count';
     cnt.textContent = counts[String(g)] || '';
 
-    cell.appendChild(num);
-    cell.appendChild(name);
+    cell.appendChild(top);
     cell.appendChild(cnt);
 
     cell.addEventListener('click', () => {
