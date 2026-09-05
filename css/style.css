@@ -991,6 +991,9 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .nav-book-btn.open .arrow { transform: rotate(90deg); }
 .nav-book-leaf { cursor: pointer; }
 .nav-book-leaf.active { color: var(--accent); background: #e8d8c0; }
+.nav-created-by { display: flex; align-items: center; gap: 4px; padding: 2px 12px 6px; font-size: 11px; color: var(--text-muted); text-decoration: none; opacity: 0.7; }
+.nav-created-by:hover { opacity: 1; text-decoration: underline; }
+.nav-created-by img { vertical-align: middle; flex-shrink: 0; }
 
 .nav-sections { display: none; background: #f0e8d6; }
 .nav-sections.open { display: block; }

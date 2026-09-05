@@ -2477,6 +2477,19 @@ function buildBookEntry(book, nested = false) {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); showAbout(); });
     wrap.appendChild(btn);
+    const fqLink = document.createElement('a');
+    fqLink.href = 'https://fourthquest.com/';
+    fqLink.target = '_blank';
+    fqLink.rel = 'noopener';
+    fqLink.className = 'nav-created-by';
+    const fqImg = document.createElement('img');
+    fqImg.src = 'img/fourthquest.png';
+    fqImg.width = 14;
+    fqImg.height = 14;
+    fqImg.alt = 'FourthQuest';
+    fqLink.appendChild(fqImg);
+    fqLink.appendChild(document.createTextNode(' Created by FourthQuest'));
+    wrap.appendChild(fqLink);
     return wrap;
   }
 
