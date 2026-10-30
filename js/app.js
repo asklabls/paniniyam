@@ -10967,6 +10967,8 @@ async function playRamCardAt(idx) {
 }
 
 async function playRamShloka(kanda, sarga, audioName, btn, kandaDir, sargaDir) {
+  // If this button is already playing, stop it
+  const wasPlaying = btn.classList.contains('playing');
   // Stop any currently playing
   if (currentRamAudio) {
     currentRamAudio.pause();
@@ -10976,10 +10978,7 @@ async function playRamShloka(kanda, sarga, audioName, btn, kandaDir, sargaDir) {
     b.classList.remove('playing');
     b.textContent = '▶';
   });
-  if (btn.classList.contains('was-playing')) {
-    btn.classList.remove('was-playing');
-    return;
-  }
+  if (wasPlaying) return;
 
   btn.classList.add('loading');
   btn.textContent = '…';
