@@ -3627,6 +3627,15 @@ table.commentary-md-table thead tr {
 /* Ramayanam expandable shloka detail */
 .ram-shloka-card { cursor: pointer; }
 .ram-shloka-card .sutra-detail { background: var(--bg-card); }
+.ram-padachchheda {
+  font-family: var(--font-dev);
+  font-size: 1.05em;
+  line-height: 1.8;
+  color: var(--accent);
+  white-space: pre-line;
+  padding: 6px 0 10px;
+  font-weight: 600;
+}
 .ram-word-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

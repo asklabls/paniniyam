@@ -10835,6 +10835,19 @@ async function showRamayanamSarga(kanda, sarga) {
       const detail = document.createElement('div');
       detail.className = 'sutra-detail';
 
+      // Padachchheda verse (authoritative Devanagari)
+      if (shMeaning.verse) {
+        const vlbl = document.createElement('div');
+        vlbl.className = 'ram-detail-label';
+        vlbl.textContent = 'Padachchheda';
+        detail.appendChild(vlbl);
+        const verseEl = document.createElement('div');
+        verseEl.className = 'ram-padachchheda dev-text';
+        verseEl._devText = shMeaning.verse;
+        verseEl.textContent = translit(shMeaning.verse);
+        detail.appendChild(verseEl);
+      }
+
       // Word-by-word grid (2-column)
       if (shMeaning.words && shMeaning.words.length) {
         const lbl = document.createElement('div');
