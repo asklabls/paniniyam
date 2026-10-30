@@ -3624,10 +3624,56 @@ table.commentary-md-table thead tr {
   font-size: 1.1em;
   font-family: var(--font-dev);
 }
+/* Ramayanam expandable shloka detail */
+.ram-shloka-card { cursor: pointer; }
+.ram-shloka-card .sutra-detail { background: var(--bg-card); }
+.ram-word-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 8px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ram-word-cell {
+  display: flex;
+  gap: 6px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: .88em;
+  line-height: 1.5;
+}
+.ram-word-cell:nth-last-child(-n+2) { border-bottom: none; }
+.ram-word-key {
+  font-weight: 700;
+  color: var(--accent2);
+  white-space: nowrap;
+  font-style: italic;
+}
+.ram-word-eq { color: var(--muted); }
+.ram-word-val { color: var(--text); }
+.ram-translation {
+  font-size: .9em;
+  line-height: 1.7;
+  color: var(--text);
+  padding: 8px 0 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.ram-detail-label {
+  font-size: .72em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
 @media (max-width: 480px) {
   .ram-kanda-pill { font-size: .78em; padding: 3px 8px; }
   .ram-sarga-pill { font-size: .72em; min-width: 24px; padding: 2px 4px; }
   .ram-shloka-num { min-width: 42px; }
+  .ram-word-grid { grid-template-columns: 1fr; }
 }
 
 /* Headings emitted by renderCommentaryHTML for ## and # */

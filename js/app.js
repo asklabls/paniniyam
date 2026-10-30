@@ -10589,6 +10589,7 @@ async function showAnuvadaExercise(exNum) {
 // ── Ramayanam panel ──────────────────────────────────────────────────────────
 let ramMeta = null;
 let ramCache = {};
+let ramMeaningCache = {};
 let ramAudioCache = {};
 let currentRamAudio = null;
 let ramAutoplay = false;
@@ -10715,6 +10716,16 @@ async function showRamayanamSarga(kanda, sarga) {
   const shlokas = ramCache[key];
   content.innerHTML = '';
 
+  // Load meaning data (if available)
+  const mKey = `meaning_${key}`;
+  if (ramMeaningCache[mKey] === undefined) {
+    try {
+      const mRes = await fetch(`${PRIVATE_BASE}/ramayanam/${mKey}.json`);
+      ramMeaningCache[mKey] = mRes.ok ? await mRes.json() : null;
+    } catch (_) { ramMeaningCache[mKey] = null; }
+  }
+  const meanings = ramMeaningCache[mKey];
+
   const isProofread = sarga <= kandaMeta.ready;
 
   // Sarga header
@@ -10817,6 +10828,47 @@ async function showRamayanamSarga(kanda, sarga) {
     row.appendChild(audioBtn);
 
     card.appendChild(row);
+
+    // Expandable detail with word meanings
+    const shMeaning = meanings && !sh.start && !sh.c ? meanings[String(sh.n)] : null;
+    if (shMeaning) {
+      const detail = document.createElement('div');
+      detail.className = 'sutra-detail';
+
+      // Word-by-word grid (2-column)
+      if (shMeaning.words && shMeaning.words.length) {
+        const lbl = document.createElement('div');
+        lbl.className = 'ram-detail-label';
+        lbl.textContent = 'Word meanings';
+        detail.appendChild(lbl);
+
+        const grid = document.createElement('div');
+        grid.className = 'ram-word-grid';
+        for (const w of shMeaning.words) {
+          const cell = document.createElement('div');
+          cell.className = 'ram-word-cell';
+          cell.innerHTML = `<span class="ram-word-key">${w.w}</span><span class="ram-word-eq">=</span><span class="ram-word-val">${w.m}</span>`;
+          grid.appendChild(cell);
+        }
+        detail.appendChild(grid);
+      }
+
+      // English translation
+      if (shMeaning.translation) {
+        const tlbl = document.createElement('div');
+        tlbl.className = 'ram-detail-label';
+        tlbl.textContent = 'Translation';
+        detail.appendChild(tlbl);
+        const tDiv = document.createElement('div');
+        tDiv.className = 'ram-translation';
+        tDiv.textContent = shMeaning.translation;
+        detail.appendChild(tDiv);
+      }
+
+      card.appendChild(detail);
+      card.addEventListener('click', () => toggleSimpleCard(card));
+    }
+
     content.appendChild(card);
     ramCardList.push({ card, audioBtn, audioFile, kandaDir, sargaDir, kanda, sarga });
   }
