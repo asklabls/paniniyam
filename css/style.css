@@ -3524,10 +3524,8 @@ table.commentary-md-table thead tr {
   color: var(--bar-fg, #fff);
   border-color: var(--bar-bg, var(--bar));
 }
-.ram-sarga-pill.disabled {
-  opacity: .35;
-  cursor: default;
-  pointer-events: none;
+.ram-sarga-pill.proofread {
+  border-color: var(--accent);
 }
 .ram-content {
   flex: 1;
@@ -3566,6 +3564,15 @@ table.commentary-md-table thead tr {
 }
 .ram-shloka-num {
   min-width: 56px;
+}
+.ram-placeholder {
+  color: var(--muted);
+  font-style: italic;
+  font-size: .9em;
+}
+.ram-start-card,
+.ram-iti-card {
+  opacity: .7;
 }
 .ram-coming-soon {
   padding: 60px 20px;

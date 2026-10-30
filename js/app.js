@@ -10556,11 +10556,8 @@ async function showRamayanamPanel(kanda, sarga) {
     pill.className = 'ram-sarga-pill';
     pill.textContent = s;
     pill.dataset.sarga = s;
-    if (s > kandaMeta.ready) pill.classList.add('disabled');
-    pill.addEventListener('click', () => {
-      if (s > kandaMeta.ready) return;
-      showRamayanamSarga(kanda, s);
-    });
+    if (s <= kandaMeta.ready) pill.classList.add('proofread');
+    pill.addEventListener('click', () => showRamayanamSarga(kanda, s));
     sargaPills.appendChild(pill);
   }
 
@@ -10581,12 +10578,6 @@ async function showRamayanamSarga(kanda, sarga) {
   // Update URL
   history.replaceState({}, '', `?book=ramayanam&kanda=${kanda}&sarga=${sarga}`);
 
-  // Not ready?
-  if (sarga > kandaMeta.ready) {
-    content.innerHTML = '<div class="ram-coming-soon dev-text">शीघ्रमेव आगमिष्यति… (coming soon)</div>';
-    return;
-  }
-
   content.innerHTML = '<div class="loading-inline">…</div>';
   content.scrollTop = 0;
 
@@ -10598,13 +10589,15 @@ async function showRamayanamSarga(kanda, sarga) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       ramCache[key] = await res.json();
     } catch (_) {
-      content.innerHTML = '<div class="ram-coming-soon">Could not load sarga data.</div>';
+      content.innerHTML = '<div class="ram-coming-soon dev-text">शीघ्रमेव आगमिष्यति… (coming soon)</div>';
       return;
     }
   }
 
   const shlokas = ramCache[key];
   content.innerHTML = '';
+
+  const isProofread = sarga <= kandaMeta.ready;
 
   // Sarga header
   const sargaTitle = meta.sarga_titles?.[String(sarga)] || `सर्गः ${sarga}`;
@@ -10617,7 +10610,8 @@ async function showRamayanamSarga(kanda, sarga) {
   header.appendChild(hTitle);
   const hCount = document.createElement('span');
   hCount.className = 'ram-sarga-count';
-  hCount.textContent = `${shlokas.length} ślokās`;
+  const realCount = shlokas.filter(s => !s.c && !s.start && s.n > 0).length;
+  hCount.textContent = `${realCount} ślokās`;
   header.appendChild(hCount);
   content.appendChild(header);
 
@@ -10628,6 +10622,8 @@ async function showRamayanamSarga(kanda, sarga) {
   for (const sh of shlokas) {
     const card = document.createElement('div');
     card.className = 'sutra-card ram-shloka-card';
+    if (sh.start) card.classList.add('ram-start-card');
+    if (sh.c) card.classList.add('ram-iti-card');
 
     const row = document.createElement('div');
     row.className = 'sutra-row ram-shloka-row';
@@ -10635,35 +10631,54 @@ async function showRamayanamSarga(kanda, sarga) {
     // Shloka number
     const numEl = document.createElement('span');
     numEl.className = 'sutra-id ram-shloka-num';
-    numEl.textContent = sh.c ? '' : `${kanda}.${sarga}.${sh.n}`;
+    if (sh.start) {
+      numEl.textContent = '🙏';
+    } else if (sh.c) {
+      numEl.textContent = '';
+    } else {
+      numEl.textContent = `${kanda}.${sarga}.${sh.n}`;
+    }
     row.appendChild(numEl);
 
     // Shloka text
     const tSpan = document.createElement('span');
     tSpan.className = 'sutra-text dev-text';
-    tSpan._devText = sh.t;
-    tSpan.textContent = translit(sh.t);
+    if (sh.t) {
+      tSpan._devText = sh.t;
+      tSpan.textContent = translit(sh.t);
+    } else {
+      // Audio-only placeholder
+      tSpan.className = 'sutra-text ram-placeholder';
+      if (sh.start) {
+        tSpan.textContent = 'अथ सर्गारम्भः';
+      } else if (sh.c) {
+        tSpan.textContent = 'इति सर्गसमाप्तिः';
+      } else {
+        tSpan.textContent = `श्लोकः ${sh.n}`;
+      }
+    }
     row.appendChild(tSpan);
 
-    // Audio button (for non-colophon shlokas)
-    if (!sh.c && sh.n > 0) {
-      const audioBtn = document.createElement('button');
-      audioBtn.className = 'audio-btn';
-      audioBtn.title = 'Play';
-      audioBtn.textContent = '▶';
-      audioBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        playRamShloka(kanda, sarga, sh.n, audioBtn, kandaDir, sargaDir);
-      });
-      row.appendChild(audioBtn);
-    }
+    // Audio button
+    const audioFile = sh.start ? '000-start'
+      : sh.c ? `${String(sh.n).padStart(3, '0')}-iti`
+      : String(sh.n).padStart(3, '0');
+    const audioBtn = document.createElement('button');
+    audioBtn.className = 'audio-btn';
+    audioBtn.title = 'Play';
+    audioBtn.textContent = '▶';
+    audioBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      playRamShloka(kanda, sarga, audioFile, audioBtn, kandaDir, sargaDir);
+    });
+    row.appendChild(audioBtn);
 
     card.appendChild(row);
     content.appendChild(card);
   }
 }
 
-async function playRamShloka(kanda, sarga, shlokaNum, btn, kandaDir, sargaDir) {
+async function playRamShloka(kanda, sarga, audioName, btn, kandaDir, sargaDir) {
   // Stop any currently playing
   if (currentRamAudio) {
     currentRamAudio.pause();
@@ -10681,8 +10696,7 @@ async function playRamShloka(kanda, sarga, shlokaNum, btn, kandaDir, sargaDir) {
   btn.classList.add('loading');
   btn.textContent = '…';
 
-  const audioFile = `${String(shlokaNum).padStart(3, '0')}.mp3`;
-  const url = `${PRIVATE_BASE}/${ramMeta.audio_base}/${kandaDir}/${sargaDir}/${audioFile}`;
+  const url = `${PRIVATE_BASE}/${ramMeta.audio_base}/${kandaDir}/${sargaDir}/${audioName}.mp3`;
 
   try {
     btn.classList.remove('loading');
