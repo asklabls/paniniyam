@@ -404,6 +404,9 @@ const $sutraList         = document.getElementById('sutra-list');
 const $searchDrawerBody  = document.getElementById('search-drawer-body');
 const $listTitle         = document.getElementById('list-title');
 const $listCount         = document.getElementById('list-count');
+const $btnAutoplayList   = document.getElementById('btn-autoplay-list');
+let sutraAutoplay        = false;
+let sutraCardList        = [];  // [{card, audioBtn, sutra}]
 const $welcomeTitle      = document.getElementById('welcome-title');
 $welcomeTitle._devText   = $welcomeTitle.textContent.trim();
 const $welcomeStats      = document.getElementById('welcome-stats');
@@ -2228,6 +2231,101 @@ async function playsutra(sutra, btn) {
   }
 }
 
+// ── Sutra autoplay ───────────────────────────────────────────────────────────
+function stopSutraAutoplay() {
+  sutraAutoplay = false;
+  $btnAutoplayList.classList.remove('active');
+  $btnAutoplayList.textContent = '▶▶';
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  document.querySelectorAll('.audio-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  document.querySelectorAll('.sutra-card.sutra-playing').forEach(c => {
+    c.classList.remove('sutra-playing');
+  });
+}
+
+async function playSutraCardAt(idx) {
+  if (idx >= sutraCardList.length || !sutraAutoplay) {
+    stopSutraAutoplay();
+    return;
+  }
+
+  const card = sutraCardList[idx];
+  const btn  = card._audioBtn;
+  const sutra = card._sutra;
+
+  // Stop previous
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  document.querySelectorAll('.audio-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  document.querySelectorAll('.sutra-card.sutra-playing').forEach(c => {
+    c.classList.remove('sutra-playing');
+  });
+
+  // Scroll and highlight
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('sutra-playing');
+
+  btn.classList.add('loading');
+  btn.textContent = '…';
+
+  try {
+    const key = `${sutra.a}-${sutra.p}`;
+    if (!audioCache[key]) {
+      audioCache[key] = await fetchJSON(`audio/sutraani/${sutra.a}-${sutra.p}.txt`);
+    }
+    const uri = audioCache[key][sutra.i];
+    if (!uri) {
+      btn.classList.remove('loading');
+      btn.textContent = '▶';
+      card.classList.remove('sutra-playing');
+      if (sutraAutoplay) playSutraCardAt(idx + 1);
+      return;
+    }
+    btn.classList.remove('loading');
+    btn.classList.add('playing');
+    btn.textContent = '■';
+    currentAudio = new Audio(uri);
+    await currentAudio.play();
+    currentAudio.addEventListener('ended', () => {
+      btn.classList.remove('playing');
+      btn.textContent = '▶';
+      card.classList.remove('sutra-playing');
+      currentAudio = null;
+      if (sutraAutoplay) playSutraCardAt(idx + 1);
+    });
+  } catch (_) {
+    btn.classList.remove('loading', 'playing');
+    btn.textContent = '▶';
+    card.classList.remove('sutra-playing');
+    currentAudio = null;
+    if (sutraAutoplay) playSutraCardAt(idx + 1);
+  }
+}
+
+$btnAutoplayList.addEventListener('click', () => {
+  if (sutraAutoplay) {
+    stopSutraAutoplay();
+  } else {
+    sutraAutoplay = true;
+    $btnAutoplayList.classList.add('active');
+    $btnAutoplayList.textContent = '■■';
+    // Must be on list panel to autoplay
+    showPanel('list');
+    if (sutraCardList.length) playSutraCardAt(0);
+  }
+});
+
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 function makeNavLabel(devText) {
   const span = document.createElement('span');
@@ -2867,6 +2965,8 @@ function createSutraCard(sutra) {
   card.appendChild(row);
   card.appendChild(detail);
   card.addEventListener('click', () => toggleCard(card, sutra));
+  card._audioBtn = audioBtn;
+  card._sutra    = sutra;
   return card;
 }
 
@@ -4239,8 +4339,14 @@ function showPada(a, p, btnEl) {
 
   // Prepare list view (in background)
   setListHeader(`${ADHYAYA_NAMES_DEV[a]} — ${PADA_NAMES_DEV[p]}`, `${filtered.length} sūtras`);
+  stopSutraAutoplay();
+  sutraCardList = [];
   $sutraList.innerHTML = '';
-  for (const s of filtered) $sutraList.appendChild(createSutraCard(s));
+  for (const s of filtered) {
+    const card = createSutraCard(s);
+    $sutraList.appendChild(card);
+    sutraCardList.push(card);
+  }
 
   // Set reader list and enter reader mode
   readerList = sutraList;
@@ -4272,8 +4378,14 @@ function gotoSutra(idStr) {
   // Rebuild list view for this pada
   currentPada = { a: +sutra.a, p: +sutra.p };
   setListHeader(`${ADHYAYA_NAMES_DEV[+sutra.a]} — ${PADA_NAMES_DEV[+sutra.p]}`, `${pada.length} sūtras`);
+  stopSutraAutoplay();
+  sutraCardList = [];
   $sutraList.innerHTML = '';
-  for (const s of pada) $sutraList.appendChild(createSutraCard(s));
+  for (const s of pada) {
+    const card = createSutraCard(s);
+    $sutraList.appendChild(card);
+    sutraCardList.push(card);
+  }
 
   readerList = sutraList;
   showReader(sutra, idx >= 0 ? idx : 0);

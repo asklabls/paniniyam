@@ -666,13 +666,34 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .list-title { font-size: 1.1em; font-weight: 700; color: var(--accent);
   font-family: var(--font-dev); }
 .list-count  { font-size: .8em; color: var(--muted); }
+.list-autoplay-btn {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: .82em;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.list-autoplay-btn:hover { border-color: var(--accent); color: var(--accent); }
+.list-autoplay-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
 
 /* ── Sutra card ───────────────────────────────────────────────── */
 .sutra-card {
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: var(--radius); margin-bottom: 10px;
-  cursor: pointer; transition: box-shadow .15s, border-color .15s;
+  cursor: pointer; transition: box-shadow .15s, border-color .15s, background .2s;
   overflow: hidden;
+}
+.sutra-card.sutra-playing {
+  background: var(--bg-sidebar, #fdf6e3) !important;
+  border-left: 3px solid var(--accent);
 }
 .sutra-card:hover { border-color: var(--accent2); box-shadow: 0 2px 8px rgba(139,69,19,.12); }
 .sutra-card.open  { border-color: var(--accent);  box-shadow: 0 2px 12px rgba(139,69,19,.18); }
