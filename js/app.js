@@ -10479,6 +10479,8 @@ let ramMeta = null;
 let ramCache = {};
 let ramAudioCache = {};
 let currentRamAudio = null;
+let ramAutoplay = false;
+let ramCardList = [];  // ordered list of {card, audioBtn, audioFile, kandaDir, sargaDir, kanda, sarga}
 
 const RAM_KANDA_SHORT = ['', 'बाल', 'अयोध्या', 'अरण्य', 'किष्किन्धा', 'सुन्दर', 'युद्ध', 'उत्तर'];
 
@@ -10565,6 +10567,10 @@ async function showRamayanamPanel(kanda, sarga) {
 }
 
 async function showRamayanamSarga(kanda, sarga) {
+  // Stop autoplay on sarga change
+  ramAutoplay = false;
+  stopRamAutoplay();
+
   const panel = $panelRamayanam;
   const content = panel._content;
   const meta = await loadRamMeta();
@@ -10613,11 +10619,30 @@ async function showRamayanamSarga(kanda, sarga) {
   const realCount = shlokas.filter(s => !s.c && !s.start && s.n > 0).length;
   hCount.textContent = `${realCount} ślokās`;
   header.appendChild(hCount);
+
+  // Autoplay toggle button
+  const autoBtn = document.createElement('button');
+  autoBtn.className = 'ram-autoplay-btn' + (ramAutoplay ? ' active' : '');
+  autoBtn.title = 'Auto-play all shlokas';
+  autoBtn.textContent = ramAutoplay ? '■■' : '▶▶';
+  autoBtn.addEventListener('click', () => {
+    ramAutoplay = !ramAutoplay;
+    autoBtn.classList.toggle('active', ramAutoplay);
+    autoBtn.textContent = ramAutoplay ? '■■' : '▶▶';
+    if (ramAutoplay) {
+      // Start from first card
+      if (ramCardList.length) playRamCardAt(0);
+    } else {
+      stopRamAutoplay();
+    }
+  });
+  header.appendChild(autoBtn);
   content.appendChild(header);
 
   // Shloka cards
   const kandaDir = meta.kanda_dirs[kanda];
   const sargaDir = `sarga_${String(sarga).padStart(3, '0')}`;
+  ramCardList = [];
 
   for (const sh of shlokas) {
     const card = document.createElement('div');
@@ -10667,14 +10692,87 @@ async function showRamayanamSarga(kanda, sarga) {
     audioBtn.className = 'audio-btn';
     audioBtn.title = 'Play';
     audioBtn.textContent = '▶';
+    const cardIdx = ramCardList.length;
     audioBtn.addEventListener('click', e => {
       e.stopPropagation();
-      playRamShloka(kanda, sarga, audioFile, audioBtn, kandaDir, sargaDir);
+      if (ramAutoplay) {
+        // Click during autoplay: play from this card onwards
+        playRamCardAt(cardIdx);
+      } else {
+        playRamShloka(kanda, sarga, audioFile, audioBtn, kandaDir, sargaDir);
+      }
     });
     row.appendChild(audioBtn);
 
     card.appendChild(row);
     content.appendChild(card);
+    ramCardList.push({ card, audioBtn, audioFile, kandaDir, sargaDir, kanda, sarga });
+  }
+}
+
+function stopRamAutoplay() {
+  if (currentRamAudio) {
+    currentRamAudio.pause();
+    currentRamAudio = null;
+  }
+  document.querySelectorAll('.ram-shloka-card .audio-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  document.querySelectorAll('.ram-shloka-card.ram-playing').forEach(c => {
+    c.classList.remove('ram-playing');
+  });
+}
+
+async function playRamCardAt(idx) {
+  if (idx >= ramCardList.length || !ramAutoplay) {
+    ramAutoplay = false;
+    const autoBtn = document.querySelector('.ram-autoplay-btn');
+    if (autoBtn) { autoBtn.classList.remove('active'); autoBtn.textContent = '▶▶'; }
+    return;
+  }
+
+  const { card, audioBtn, audioFile, kandaDir, sargaDir, kanda, sarga } = ramCardList[idx];
+
+  // Stop previous
+  if (currentRamAudio) {
+    currentRamAudio.pause();
+    currentRamAudio = null;
+  }
+  document.querySelectorAll('.ram-shloka-card .audio-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  document.querySelectorAll('.ram-shloka-card.ram-playing').forEach(c => {
+    c.classList.remove('ram-playing');
+  });
+
+  // Scroll card into view
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('ram-playing');
+  audioBtn.classList.add('playing');
+  audioBtn.textContent = '■';
+
+  const url = `${PRIVATE_BASE}/${ramMeta.audio_base}/${kandaDir}/${sargaDir}/${audioFile}.mp3`;
+
+  try {
+    currentRamAudio = new Audio(url);
+    await currentRamAudio.play();
+    currentRamAudio.addEventListener('ended', () => {
+      audioBtn.classList.remove('playing');
+      audioBtn.textContent = '▶';
+      card.classList.remove('ram-playing');
+      currentRamAudio = null;
+      // Chain to next
+      if (ramAutoplay) playRamCardAt(idx + 1);
+    });
+  } catch (_) {
+    audioBtn.classList.remove('playing');
+    audioBtn.textContent = '▶';
+    card.classList.remove('ram-playing');
+    currentRamAudio = null;
+    // Skip failed, try next
+    if (ramAutoplay) playRamCardAt(idx + 1);
   }
 }
 
