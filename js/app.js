@@ -40,6 +40,7 @@ const BOOKS = [
   { id: 'visuals',     devName: 'Visuals',   engName: 'Visuals',          type: 'visual-library',    icon: 'Vis'  },
   { id: 'books', devName: 'Books', engName: 'Books', type: 'sub-tree', icon: 'Books',
     pages: [
+      { id: 'ramayanam',       devName: 'रामायणम्',         engName: 'Rāmāyaṇam',         type: 'ramayanam-panel'         },
       { id: 'bhattikavya',    devName: 'भट्टिकाव्यम्',    engName: 'Bhaṭṭikāvya',       type: 'bhattikavya-panel'       },
       { id: 'anuvada-prarambhik', devName: 'रचनानुवाद-१', engName: 'Anuvāda Pārambhik', type: 'anuvada-panel' },
       { id: 'rupavatarah',    devName: 'रूपावतारः',        engName: 'Rūpāvatāraḥ',       type: 'rupavatarah-panel'       },
@@ -426,6 +427,7 @@ const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
 const $panelAnuvada           = document.getElementById('panel-anuvada');
+const $panelRamayanam         = document.getElementById('panel-ramayanam');
 const $panelSambhashana       = document.getElementById('panel-sambhashana');
 const $panelNamarupa          = document.getElementById('panel-namarupa');
 const $panelTranslit          = document.getElementById('panel-translit');
@@ -847,6 +849,7 @@ function showPanel(name) {
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelAnuvada.style.display           = name === 'anuvada'           ? '' : 'none';
+  $panelRamayanam.style.display         = name === 'ramayanam'         ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
@@ -2626,6 +2629,8 @@ function buildBookEntry(book, nested = false) {
         clickFn = () => { closeDrawer(); showYogaDarshanaPanel(); };
       } else if (page.type === 'shabdarupavali-panel') {
         clickFn = () => { closeDrawer(); showShabdarupavali(); };
+      } else if (page.type === 'ramayanam-panel') {
+        clickFn = () => { closeDrawer(); showRamayanamPanel(1, 1); };
       } else if (page.type === 'anuvada-panel') {
         clickFn = () => { closeDrawer(); showAnuvadaPanel(1); };
       } else if (page.type === 'shabda-browser') {
@@ -10469,6 +10474,234 @@ async function showAnuvadaExercise(exNum) {
   }
 }
 
+// ── Ramayanam panel ──────────────────────────────────────────────────────────
+let ramMeta = null;
+let ramCache = {};
+let ramAudioCache = {};
+let currentRamAudio = null;
+
+const RAM_KANDA_SHORT = ['', 'बाल', 'अयोध्या', 'अरण्य', 'किष्किन्धा', 'सुन्दर', 'युद्ध', 'उत्तर'];
+
+async function loadRamMeta() {
+  if (ramMeta) return ramMeta;
+  const res = await fetch(`${PRIVATE_BASE}/ramayanam/meta.json`);
+  ramMeta = await res.json();
+  return ramMeta;
+}
+
+async function showRamayanamPanel(kanda, sarga) {
+  kanda = kanda || 1;
+  sarga = sarga || 1;
+  showPanel('ramayanam');
+  const panel = $panelRamayanam;
+
+  const meta = await loadRamMeta();
+
+  if (!panel._built) {
+    panel._built = true;
+    panel.innerHTML = '';
+
+    // Nav header
+    const nav = document.createElement('div');
+    nav.className = 'ram-nav';
+
+    // Title
+    const title = document.createElement('div');
+    title.className = 'ram-title dev-text';
+    title._devText = 'श्रीमद्वाल्मीकीयरामायणम्';
+    title.textContent = translit('श्रीमद्वाल्मीकीयरामायणम्');
+    nav.appendChild(title);
+
+    // Kanda pills
+    const kandaPills = document.createElement('div');
+    kandaPills.className = 'ram-kanda-pills';
+    for (const k of meta.kandas) {
+      const pill = document.createElement('button');
+      pill.className = 'ram-kanda-pill dev-text';
+      pill._devText = k.short;
+      pill.textContent = translit(k.short);
+      pill.dataset.kanda = k.num;
+      pill.addEventListener('click', () => showRamayanamPanel(k.num, 1));
+      kandaPills.appendChild(pill);
+    }
+    nav.appendChild(kandaPills);
+    panel._kandaPills = kandaPills;
+
+    // Sarga pills container
+    const sargaPills = document.createElement('div');
+    sargaPills.className = 'ram-sarga-pills';
+    nav.appendChild(sargaPills);
+    panel._sargaPills = sargaPills;
+
+    // Content area
+    const content = document.createElement('div');
+    content.className = 'ram-content';
+    panel._content = content;
+
+    panel.appendChild(nav);
+    panel.appendChild(content);
+  }
+
+  // Update active kanda
+  panel._kandaPills.querySelectorAll('.ram-kanda-pill').forEach(p => {
+    p.classList.toggle('active', +p.dataset.kanda === kanda);
+  });
+
+  // Build sarga pills for this kanda
+  const kandaMeta = meta.kandas[kanda - 1];
+  const sargaPills = panel._sargaPills;
+  sargaPills.innerHTML = '';
+  for (let s = 1; s <= kandaMeta.sargas; s++) {
+    const pill = document.createElement('button');
+    pill.className = 'ram-sarga-pill';
+    pill.textContent = s;
+    pill.dataset.sarga = s;
+    if (s > kandaMeta.ready) pill.classList.add('disabled');
+    pill.addEventListener('click', () => {
+      if (s > kandaMeta.ready) return;
+      showRamayanamSarga(kanda, s);
+    });
+    sargaPills.appendChild(pill);
+  }
+
+  await showRamayanamSarga(kanda, sarga);
+}
+
+async function showRamayanamSarga(kanda, sarga) {
+  const panel = $panelRamayanam;
+  const content = panel._content;
+  const meta = await loadRamMeta();
+  const kandaMeta = meta.kandas[kanda - 1];
+
+  // Mark active sarga pill
+  panel._sargaPills.querySelectorAll('.ram-sarga-pill').forEach(p => {
+    p.classList.toggle('active', +p.dataset.sarga === sarga);
+  });
+
+  // Update URL
+  history.replaceState({}, '', `?book=ramayanam&kanda=${kanda}&sarga=${sarga}`);
+
+  // Not ready?
+  if (sarga > kandaMeta.ready) {
+    content.innerHTML = '<div class="ram-coming-soon dev-text">शीघ्रमेव आगमिष्यति… (coming soon)</div>';
+    return;
+  }
+
+  content.innerHTML = '<div class="loading-inline">…</div>';
+  content.scrollTop = 0;
+
+  // Load sarga data
+  const key = `${kanda}.${sarga}`;
+  if (!ramCache[key]) {
+    try {
+      const res = await fetch(`${PRIVATE_BASE}/ramayanam/${key}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      ramCache[key] = await res.json();
+    } catch (_) {
+      content.innerHTML = '<div class="ram-coming-soon">Could not load sarga data.</div>';
+      return;
+    }
+  }
+
+  const shlokas = ramCache[key];
+  content.innerHTML = '';
+
+  // Sarga header
+  const sargaTitle = meta.sarga_titles?.[String(sarga)] || `सर्गः ${sarga}`;
+  const header = document.createElement('div');
+  header.className = 'ram-sarga-header';
+  const hTitle = document.createElement('span');
+  hTitle.className = 'ram-sarga-title dev-text';
+  hTitle._devText = `${kandaMeta.name} — ${sargaTitle}`;
+  hTitle.textContent = translit(`${kandaMeta.name} — ${sargaTitle}`);
+  header.appendChild(hTitle);
+  const hCount = document.createElement('span');
+  hCount.className = 'ram-sarga-count';
+  hCount.textContent = `${shlokas.length} ślokās`;
+  header.appendChild(hCount);
+  content.appendChild(header);
+
+  // Shloka cards
+  const kandaDir = meta.kanda_dirs[kanda];
+  const sargaDir = `sarga_${String(sarga).padStart(3, '0')}`;
+
+  for (const sh of shlokas) {
+    const card = document.createElement('div');
+    card.className = 'sutra-card ram-shloka-card';
+
+    const row = document.createElement('div');
+    row.className = 'sutra-row ram-shloka-row';
+
+    // Shloka number
+    const numEl = document.createElement('span');
+    numEl.className = 'sutra-id ram-shloka-num';
+    numEl.textContent = sh.c ? '' : `${kanda}.${sarga}.${sh.n}`;
+    row.appendChild(numEl);
+
+    // Shloka text
+    const tSpan = document.createElement('span');
+    tSpan.className = 'sutra-text dev-text';
+    tSpan._devText = sh.t;
+    tSpan.textContent = translit(sh.t);
+    row.appendChild(tSpan);
+
+    // Audio button (for non-colophon shlokas)
+    if (!sh.c && sh.n > 0) {
+      const audioBtn = document.createElement('button');
+      audioBtn.className = 'audio-btn';
+      audioBtn.title = 'Play';
+      audioBtn.textContent = '▶';
+      audioBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        playRamShloka(kanda, sarga, sh.n, audioBtn, kandaDir, sargaDir);
+      });
+      row.appendChild(audioBtn);
+    }
+
+    card.appendChild(row);
+    content.appendChild(card);
+  }
+}
+
+async function playRamShloka(kanda, sarga, shlokaNum, btn, kandaDir, sargaDir) {
+  // Stop any currently playing
+  if (currentRamAudio) {
+    currentRamAudio.pause();
+    currentRamAudio = null;
+  }
+  document.querySelectorAll('.ram-shloka-card .audio-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  if (btn.classList.contains('was-playing')) {
+    btn.classList.remove('was-playing');
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.textContent = '…';
+
+  const audioFile = `${String(shlokaNum).padStart(3, '0')}.mp3`;
+  const url = `${PRIVATE_BASE}/${ramMeta.audio_base}/${kandaDir}/${sargaDir}/${audioFile}`;
+
+  try {
+    btn.classList.remove('loading');
+    btn.classList.add('playing');
+    btn.textContent = '■';
+    currentRamAudio = new Audio(url);
+    await currentRamAudio.play();
+    currentRamAudio.addEventListener('ended', () => {
+      btn.classList.remove('playing');
+      btn.textContent = '▶';
+      currentRamAudio = null;
+    });
+  } catch (_) {
+    btn.classList.remove('loading', 'playing');
+    btn.textContent = '▶';
+    currentRamAudio = null;
+  }
+}
+
 // ── Yoga Darshana ─────────────────────────────────────────────────────────────
 function buildYdMatrix() {
   const wrap = document.createElement('div');
@@ -11492,6 +11725,10 @@ async function init() {
         await showYogaDarshana(padaParam);
       } else if (urlBook === 'shabdarupavali') {
         await showShabdarupavali();
+      } else if (urlBook === 'ramayanam') {
+        const kParam = parseInt(params.get('kanda')) || 1;
+        const sParam = parseInt(params.get('sarga')) || 1;
+        await showRamayanamPanel(kParam, sParam);
       } else if (urlBook === 'anuvada-prarambhik') {
         const exParam = parseInt(params.get('ex')) || 1;
         await showAnuvadaPanel(exParam);
