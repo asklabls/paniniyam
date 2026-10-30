@@ -3557,6 +3557,12 @@ table.commentary-md-table thead tr {
 }
 .ram-shloka-row {
   cursor: default;
+  align-items: flex-start;
+}
+.ram-shloka-row .sutra-text {
+  white-space: pre-line;
+  line-height: 1.8;
+  padding: 4px 0;
 }
 .ram-shloka-num {
   min-width: 56px;
