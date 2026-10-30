@@ -3649,7 +3649,7 @@ table.commentary-md-table thead tr {
   font-weight: 700;
   color: var(--accent2);
   white-space: nowrap;
-  font-style: italic;
+  font-family: var(--font-dev);
 }
 .ram-word-eq { color: var(--muted); }
 .ram-word-val { color: var(--text); }

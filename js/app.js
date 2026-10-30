@@ -10847,7 +10847,20 @@ async function showRamayanamSarga(kanda, sarga) {
         for (const w of shMeaning.words) {
           const cell = document.createElement('div');
           cell.className = 'ram-word-cell';
-          cell.innerHTML = `<span class="ram-word-key">${w.w}</span><span class="ram-word-eq">=</span><span class="ram-word-val">${w.m}</span>`;
+          const keyEl = document.createElement('span');
+          keyEl.className = 'ram-word-key dev-text';
+          const devWord = Sanscript.t(w.w, 'itrans', 'devanagari');
+          keyEl._devText = devWord;
+          keyEl.textContent = translit(devWord);
+          cell.appendChild(keyEl);
+          const eqEl = document.createElement('span');
+          eqEl.className = 'ram-word-eq';
+          eqEl.textContent = '=';
+          cell.appendChild(eqEl);
+          const valEl = document.createElement('span');
+          valEl.className = 'ram-word-val';
+          valEl.textContent = w.m;
+          cell.appendChild(valEl);
           grid.appendChild(cell);
         }
         detail.appendChild(grid);
