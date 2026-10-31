@@ -10700,11 +10700,20 @@ async function showRamWordDetail(devWord, area) {
         mEl.textContent = saEntry.m;
         saWrap.appendChild(mEl);
       }
+      // Add kosha link even for sarvanama entries
+      const koshaWord = saEntry.s || devWord;
+      const iastWord = Sanscript.t(koshaWord, 'devanagari', 'iast');
+      const saLink = document.createElement('a');
+      saLink.href = `https://kosha.sanskrit.today/word/sa/${encodeURIComponent(iastWord)}`;
+      saLink.target = '_blank';
+      saLink.className = 'ram-wd-mw-link';
+      saLink.textContent = 'kosha ↗';
+      saWrap.appendChild(saLink);
       wrap.appendChild(saWrap);
     }
 
-    // MW entry (shown below sarvanama entry if both exist)
-    if (mwEntry) {
+    // MW entry (skip when sarvanama/avyaya entry exists — mw_linga.json often has wrong sense)
+    if (mwEntry && !saEntry) {
       const mwWrap = document.createElement('div');
       if (saEntry) mwWrap.style.marginTop = '8px';
       mwWrap.style.borderTop = saEntry ? '1px solid var(--border)' : '';
