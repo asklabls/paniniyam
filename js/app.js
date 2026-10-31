@@ -10620,10 +10620,15 @@ async function showRamWordDetail(devWord, area) {
   let mwStem  = mwEntry ? (_mwData[devWord] ? devWord : stem) : null;
   if (!mwEntry) {
     const tryStems = [
+      devWord.replace(/े$/, ''), devWord.replace(/ौ$/, ''),
       devWord.replace(/ाम्$/, ''), devWord.replace(/म्$/, ''),
       devWord.replace(/ः$/, ''), devWord.replace(/ेन$/, ''),
-      devWord.replace(/ौ$/, ''), devWord.replace(/ाः$/, ''),
-      devWord.replace(/ान्$/, ''), devWord.replace(/ानि$/, ''),
+      devWord.replace(/ाः$/, ''), devWord.replace(/ान्$/, ''),
+      devWord.replace(/ानि$/, ''), devWord.replace(/ेषु$/, ''),
+      devWord.replace(/ाय$/, ''), devWord.replace(/ात्$/, ''),
+      devWord.replace(/स्य$/, ''), devWord.replace(/योः$/, ''),
+      devWord.replace(/ेभ्यः$/, ''), devWord.replace(/ाभ्यः$/, ''),
+      devWord.replace(/ाभ्याम्$/, ''), devWord.replace(/ेभ्यः$/, ''),
     ];
     for (const ts of tryStems) {
       if (ts && ts !== devWord && _mwData[ts]) {
