@@ -10839,7 +10839,9 @@ async function showRamayanamSarga(kanda, sarga) {
       if (shMeaning.verse) {
         const vlbl = document.createElement('div');
         vlbl.className = 'ram-detail-label';
-        vlbl.textContent = 'Padachchheda';
+        vlbl.textContent = translit('पदच्छेदः');
+        vlbl._devText = 'पदच्छेदः';
+        vlbl.classList.add('dev-text');
         detail.appendChild(vlbl);
         const verseEl = document.createElement('div');
         verseEl.className = 'ram-padachchheda dev-text';
@@ -10852,7 +10854,9 @@ async function showRamayanamSarga(kanda, sarga) {
       if (shMeaning.words && shMeaning.words.length) {
         const lbl = document.createElement('div');
         lbl.className = 'ram-detail-label';
-        lbl.textContent = 'Word meanings';
+        lbl.textContent = translit('पदार्थः');
+        lbl._devText = 'पदार्थः';
+        lbl.classList.add('dev-text');
         detail.appendChild(lbl);
 
         const grid = document.createElement('div');
@@ -10866,30 +10870,12 @@ async function showRamayanamSarga(kanda, sarga) {
           keyEl._devText = devWord;
           keyEl.textContent = translit(devWord);
           cell.appendChild(keyEl);
-          const eqEl = document.createElement('span');
-          eqEl.className = 'ram-word-eq';
-          eqEl.textContent = '=';
-          cell.appendChild(eqEl);
-          const valEl = document.createElement('span');
-          valEl.className = 'ram-word-val';
-          valEl.textContent = w.m;
-          cell.appendChild(valEl);
           grid.appendChild(cell);
         }
         detail.appendChild(grid);
       }
 
-      // English translation
-      if (shMeaning.translation) {
-        const tlbl = document.createElement('div');
-        tlbl.className = 'ram-detail-label';
-        tlbl.textContent = 'Translation';
-        detail.appendChild(tlbl);
-        const tDiv = document.createElement('div');
-        tDiv.className = 'ram-translation';
-        tDiv.textContent = shMeaning.translation;
-        detail.appendChild(tDiv);
-      }
+      // Translation placeholder — owner will add Hindi/English later
 
       card.appendChild(detail);
       card.addEventListener('click', () => toggleSimpleCard(card));
