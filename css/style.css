@@ -3698,6 +3698,15 @@ table.commentary-md-table thead tr {
 .ram-wd-kosha-gender { font-size: .82em; color: var(--muted); font-family: var(--font-dev); }
 .ram-wd-kosha-def { line-height: 1.6; color: var(--text); }
 .ram-wd-mw-link { display: inline-block; margin-top: 4px; font-size: .8em; opacity: .5; text-decoration: none; color: var(--link); }
+.ram-wd-sa-entry { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.ram-wd-sa-badge {
+  font-size: .72em; font-weight: 700; padding: 1px 8px; border-radius: 8px;
+  background: var(--badge-AT); color: #fff; font-family: var(--font-dev);
+}
+.ram-wd-sa-pratyaya {
+  font-size: .82em; color: var(--muted); font-family: var(--font-dev);
+  font-style: italic;
+}
 .ram-wd-subanta-hdr { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; font-weight: 700; font-family: var(--font-dev); }
 .ram-wd-subanta-table { font-size: .88em; }
 .ram-detail-label {

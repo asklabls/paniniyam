@@ -10586,10 +10586,22 @@ async function showAnuvadaExercise(exNum) {
   }
 }
 
-// ── Ramayanam word detail (inline कोश + सुबन्तरूपाणि) ─────────────────────
+// ── Ramayanam word detail (inline कोश + शब्दरूप) ────────────────────────────
 
 const MW_G_TO_VIDYUT = { m: 'Pum', f: 'Stri', n: 'Napumsaka' };
 const MW_G_TO_DEV    = { m: 'पुं', f: 'स्त्री', n: 'नपुं', mf: 'पुं/स्त्री', mn: 'पुं/नपुं', fn: 'स्त्री/नपुं', mfn: 'पुं/स्त्री/नपुं' };
+
+// Sarvanama + avyaya + common krdanta lookup (lazy-loaded)
+let _saLookup = null, _saPromise = null;
+function loadSaLookup() {
+  if (_saLookup)  return Promise.resolve(_saLookup);
+  if (_saPromise) return _saPromise;
+  _saPromise = fetch(`${FORMS_BASE}/forms/sarvanama_avyaya.json`)
+    .then(r => r.ok ? r.json() : {})
+    .then(d => { _saLookup = d; return d; })
+    .catch(() => { _saLookup = {}; return {}; });
+  return _saPromise;
+}
 
 async function showRamWordDetail(devWord, area) {
   area.innerHTML = '<div class="ram-wd-loading">…</div>';
@@ -10598,14 +10610,16 @@ async function showRamWordDetail(devWord, area) {
   // Strip trailing vibhakti-ish halanta for stem lookup
   const stem = devWord.replace(/[ंःँ]$/, '').replace(/्$/, '');
 
-  // Load MW data
-  await loadMWData();
+  // Load both data sources in parallel
+  await Promise.all([loadMWData(), loadSaLookup()]);
 
-  // Try exact match first, then strip common endings
+  // Check sarvanama/avyaya lookup first (exact match only)
+  const saEntry = _saLookup[devWord] || _saLookup[stem] || null;
+
+  // Try MW: exact match first, then strip common endings
   let mwEntry = _mwData[devWord] || _mwData[stem];
   let mwStem  = mwEntry ? (_mwData[devWord] ? devWord : stem) : null;
   if (!mwEntry) {
-    // Try stripping common suffixes: ाम्, म्, ः, ेन, etc.
     const tryStems = [
       devWord.replace(/ाम्$/, ''), devWord.replace(/म्$/, ''),
       devWord.replace(/ः$/, ''), devWord.replace(/ेन$/, ''),
@@ -10617,6 +10631,11 @@ async function showRamWordDetail(devWord, area) {
         mwEntry = _mwData[ts]; mwStem = ts; break;
       }
     }
+  }
+  // If sarvanama entry has a stem, try MW for that stem too
+  if (!mwEntry && saEntry?.s) {
+    const saStem = saEntry.s.replace(/\+.*$/, ''); // strip sandhi parts like च+एव → च
+    if (_mwData[saStem]) { mwEntry = _mwData[saStem]; mwStem = saStem; }
   }
 
   area.innerHTML = '';
@@ -10641,42 +10660,83 @@ async function showRamWordDetail(devWord, area) {
   // ── कोश content ──
   function renderKosha() {
     contentArea.innerHTML = '';
-    if (!mwEntry) {
+    const hasAny = saEntry || mwEntry;
+    if (!hasAny) {
       contentArea.innerHTML = `<div class="ram-wd-empty dev-text">कोशे न प्राप्तम्</div>`;
       return;
     }
     const wrap = document.createElement('div');
     wrap.className = 'ram-wd-kosha';
-    // Stem + gender
-    const hdr = document.createElement('div');
-    hdr.className = 'ram-wd-kosha-hdr';
-    const stemEl = document.createElement('span');
-    stemEl.className = 'ram-wd-kosha-stem dev-text';
-    stemEl._devText = mwStem; stemEl.textContent = translit(mwStem);
-    hdr.appendChild(stemEl);
-    if (mwEntry.g) {
-      const gEl = document.createElement('span');
-      gEl.className = 'ram-wd-kosha-gender dev-text';
-      const gDev = MW_G_TO_DEV[mwEntry.g] || mwEntry.g;
-      gEl._devText = gDev; gEl.textContent = translit(gDev);
-      hdr.appendChild(gEl);
+
+    // Sarvanama/avyaya/krdanta entry (shown first if available)
+    if (saEntry) {
+      const saWrap = document.createElement('div');
+      saWrap.className = 'ram-wd-sa-entry';
+      // Type badge
+      const badge = document.createElement('span');
+      badge.className = 'ram-wd-sa-badge dev-text';
+      badge._devText = saEntry.t; badge.textContent = translit(saEntry.t);
+      saWrap.appendChild(badge);
+      // Stem
+      const stemEl = document.createElement('span');
+      stemEl.className = 'ram-wd-kosha-stem dev-text';
+      stemEl._devText = saEntry.s; stemEl.textContent = translit(saEntry.s);
+      saWrap.appendChild(stemEl);
+      // Pratyaya (for krdantas)
+      if (saEntry.p) {
+        const pEl = document.createElement('span');
+        pEl.className = 'ram-wd-sa-pratyaya dev-text';
+        pEl._devText = saEntry.p; pEl.textContent = translit(saEntry.p);
+        saWrap.appendChild(pEl);
+      }
+      // Meaning
+      if (saEntry.m) {
+        const mEl = document.createElement('div');
+        mEl.className = 'ram-wd-kosha-def';
+        mEl.textContent = saEntry.m;
+        saWrap.appendChild(mEl);
+      }
+      wrap.appendChild(saWrap);
     }
-    wrap.appendChild(hdr);
-    // Definition
-    if (mwEntry.d) {
-      const defEl = document.createElement('div');
-      defEl.className = 'ram-wd-kosha-def';
-      defEl.textContent = mwEntry.d;
-      wrap.appendChild(defEl);
-    }
-    // MW page link
-    if (mwEntry.p) {
-      const link = document.createElement('a');
-      link.href = `https://archive.org/details/nSrb_a-sanskrit-english-dictionary-sir-monier-monier-williams/page/${mwEntry.p}/mode/1up`;
-      link.target = '_blank';
-      link.className = 'ram-wd-mw-link';
-      link.textContent = `MW p.${mwEntry.p} ↗`;
-      wrap.appendChild(link);
+
+    // MW entry (shown below sarvanama entry if both exist)
+    if (mwEntry) {
+      const mwWrap = document.createElement('div');
+      if (saEntry) mwWrap.style.marginTop = '8px';
+      mwWrap.style.borderTop = saEntry ? '1px solid var(--border)' : '';
+      mwWrap.style.paddingTop = saEntry ? '8px' : '';
+      // Stem + gender
+      const hdr = document.createElement('div');
+      hdr.className = 'ram-wd-kosha-hdr';
+      const stemEl = document.createElement('span');
+      stemEl.className = 'ram-wd-kosha-stem dev-text';
+      stemEl._devText = mwStem; stemEl.textContent = translit(mwStem);
+      hdr.appendChild(stemEl);
+      if (mwEntry.g) {
+        const gEl = document.createElement('span');
+        gEl.className = 'ram-wd-kosha-gender dev-text';
+        const gDev = MW_G_TO_DEV[mwEntry.g] || mwEntry.g;
+        gEl._devText = gDev; gEl.textContent = translit(gDev);
+        hdr.appendChild(gEl);
+      }
+      mwWrap.appendChild(hdr);
+      // Definition
+      if (mwEntry.d) {
+        const defEl = document.createElement('div');
+        defEl.className = 'ram-wd-kosha-def';
+        defEl.textContent = mwEntry.d;
+        mwWrap.appendChild(defEl);
+      }
+      // MW page link
+      if (mwEntry.p) {
+        const link = document.createElement('a');
+        link.href = `https://archive.org/details/nSrb_a-sanskrit-english-dictionary-sir-monier-monier-williams/page/${mwEntry.p}/mode/1up`;
+        link.target = '_blank';
+        link.className = 'ram-wd-mw-link';
+        link.textContent = `MW p.${mwEntry.p} ↗`;
+        mwWrap.appendChild(link);
+      }
+      wrap.appendChild(mwWrap);
     }
     contentArea.appendChild(wrap);
   }
