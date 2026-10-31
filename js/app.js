@@ -6995,8 +6995,8 @@ function initNamarupaPanel(panel) {
   function showGloss(stem, entry) {
     if (!entry || !entry.d) { glossDiv.style.display = 'none'; return; }
     glossDiv.style.display = '';
-    const slp1 = Sanscript.t(stem, 'devanagari', 'slp1');
-    const mwLink = ` <a href="https://kosha.sanskrit.today/word/sa/${encodeURIComponent(slp1)}" target="_blank" style="opacity:.5;font-size:.8em;text-decoration:none">${entry.p ? `MW p.${entry.p} · ` : ''}kosha ↗</a>`;
+    const iast = Sanscript.t(stem, 'devanagari', 'iast');
+    const mwLink = ` <a href="https://kosha.sanskrit.today/word/sa/${encodeURIComponent(iast)}" target="_blank" style="opacity:.5;font-size:.8em;text-decoration:none">${entry.p ? `MW p.${entry.p} · ` : ''}kosha ↗</a>`;
     glossDiv.innerHTML = `<strong class="dev-text"></strong> · ${entry.d}${mwLink}`;
     const strongEl = glossDiv.querySelector('strong');
     strongEl._devText = stem;
@@ -10727,7 +10727,7 @@ async function showRamWordDetail(devWord, area) {
         mwWrap.appendChild(defEl);
       }
       // MW dictionary link
-      const slp1Stem = Sanscript.t(mwStem, 'devanagari', 'slp1');
+      const slp1Stem = Sanscript.t(mwStem, 'devanagari', 'iast');
       const link = document.createElement('a');
       link.href = `https://kosha.sanskrit.today/word/sa/${encodeURIComponent(slp1Stem)}`;
       link.target = '_blank';
