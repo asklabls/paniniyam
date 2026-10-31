@@ -6995,9 +6995,8 @@ function initNamarupaPanel(panel) {
   function showGloss(stem, entry) {
     if (!entry || !entry.d) { glossDiv.style.display = 'none'; return; }
     glossDiv.style.display = '';
-    const mwLink = entry.p
-      ? ` <a href="https://archive.org/details/nSrb_a-sanskrit-english-dictionary-sir-monier-monier-williams/page/${entry.p}/mode/1up" target="_blank" style="opacity:.5;font-size:.8em;text-decoration:none">MW p.${entry.p} ↗</a>`
-      : ` <span style="opacity:.5;font-size:.8em">(MW)</span>`;
+    const slp1 = Sanscript.t(stem, 'devanagari', 'slp1');
+    const mwLink = ` <a href="https://kosha.sanskrit.today/word/sa/${encodeURIComponent(slp1)}" target="_blank" style="opacity:.5;font-size:.8em;text-decoration:none">${entry.p ? `MW p.${entry.p} · ` : ''}kosha ↗</a>`;
     glossDiv.innerHTML = `<strong class="dev-text"></strong> · ${entry.d}${mwLink}`;
     const strongEl = glossDiv.querySelector('strong');
     strongEl._devText = stem;
@@ -10727,15 +10726,14 @@ async function showRamWordDetail(devWord, area) {
         defEl.textContent = mwEntry.d;
         mwWrap.appendChild(defEl);
       }
-      // MW page link
-      if (mwEntry.p) {
-        const link = document.createElement('a');
-        link.href = `https://archive.org/details/nSrb_a-sanskrit-english-dictionary-sir-monier-monier-williams/page/${mwEntry.p}/mode/1up`;
-        link.target = '_blank';
-        link.className = 'ram-wd-mw-link';
-        link.textContent = `MW p.${mwEntry.p} ↗`;
-        mwWrap.appendChild(link);
-      }
+      // MW dictionary link
+      const slp1Stem = Sanscript.t(mwStem, 'devanagari', 'slp1');
+      const link = document.createElement('a');
+      link.href = `https://kosha.sanskrit.today/word/sa/${encodeURIComponent(slp1Stem)}`;
+      link.target = '_blank';
+      link.className = 'ram-wd-mw-link';
+      link.textContent = mwEntry.p ? `MW p.${mwEntry.p} · kosha ↗` : `kosha ↗`;
+      mwWrap.appendChild(link);
       wrap.appendChild(mwWrap);
     }
     contentArea.appendChild(wrap);
