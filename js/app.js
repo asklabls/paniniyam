@@ -10586,6 +10586,210 @@ async function showAnuvadaExercise(exNum) {
   }
 }
 
+// ── Ramayanam word detail (inline कोश + सुबन्तरूपाणि) ─────────────────────
+
+const MW_G_TO_VIDYUT = { m: 'Pum', f: 'Stri', n: 'Napumsaka' };
+const MW_G_TO_DEV    = { m: 'पुं', f: 'स्त्री', n: 'नपुं', mf: 'पुं/स्त्री', mn: 'पुं/नपुं', fn: 'स्त्री/नपुं', mfn: 'पुं/स्त्री/नपुं' };
+
+async function showRamWordDetail(devWord, area) {
+  area.innerHTML = '<div class="ram-wd-loading">…</div>';
+  area.style.display = '';
+
+  // Strip trailing vibhakti-ish halanta for stem lookup
+  const stem = devWord.replace(/[ंःँ]$/, '').replace(/्$/, '');
+
+  // Load MW data
+  await loadMWData();
+
+  // Try exact match first, then strip common endings
+  let mwEntry = _mwData[devWord] || _mwData[stem];
+  let mwStem  = mwEntry ? (_mwData[devWord] ? devWord : stem) : null;
+  if (!mwEntry) {
+    // Try stripping common suffixes: ाम्, म्, ः, ेन, etc.
+    const tryStems = [
+      devWord.replace(/ाम्$/, ''), devWord.replace(/म्$/, ''),
+      devWord.replace(/ः$/, ''), devWord.replace(/ेन$/, ''),
+      devWord.replace(/ौ$/, ''), devWord.replace(/ाः$/, ''),
+      devWord.replace(/ान्$/, ''), devWord.replace(/ानि$/, ''),
+    ];
+    for (const ts of tryStems) {
+      if (ts && ts !== devWord && _mwData[ts]) {
+        mwEntry = _mwData[ts]; mwStem = ts; break;
+      }
+    }
+  }
+
+  area.innerHTML = '';
+
+  // Tab bar
+  const tabBar = document.createElement('div');
+  tabBar.className = 'ram-wd-tabs';
+  const koshaTab = document.createElement('button');
+  koshaTab.className = 'ram-wd-tab active dev-text';
+  koshaTab._devText = 'कोशः'; koshaTab.textContent = translit('कोशः');
+  const subantaTab = document.createElement('button');
+  subantaTab.className = 'ram-wd-tab dev-text';
+  subantaTab._devText = 'सुबन्तरूपाणि'; subantaTab.textContent = translit('सुबन्तरूपाणि');
+  tabBar.appendChild(koshaTab);
+  tabBar.appendChild(subantaTab);
+  area.appendChild(tabBar);
+
+  const contentArea = document.createElement('div');
+  contentArea.className = 'ram-wd-content';
+  area.appendChild(contentArea);
+
+  // ── कोश content ──
+  function renderKosha() {
+    contentArea.innerHTML = '';
+    if (!mwEntry) {
+      contentArea.innerHTML = `<div class="ram-wd-empty dev-text">कोशे न प्राप्तम्</div>`;
+      return;
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'ram-wd-kosha';
+    // Stem + gender
+    const hdr = document.createElement('div');
+    hdr.className = 'ram-wd-kosha-hdr';
+    const stemEl = document.createElement('span');
+    stemEl.className = 'ram-wd-kosha-stem dev-text';
+    stemEl._devText = mwStem; stemEl.textContent = translit(mwStem);
+    hdr.appendChild(stemEl);
+    if (mwEntry.g) {
+      const gEl = document.createElement('span');
+      gEl.className = 'ram-wd-kosha-gender dev-text';
+      const gDev = MW_G_TO_DEV[mwEntry.g] || mwEntry.g;
+      gEl._devText = gDev; gEl.textContent = translit(gDev);
+      hdr.appendChild(gEl);
+    }
+    wrap.appendChild(hdr);
+    // Definition
+    if (mwEntry.d) {
+      const defEl = document.createElement('div');
+      defEl.className = 'ram-wd-kosha-def';
+      defEl.textContent = mwEntry.d;
+      wrap.appendChild(defEl);
+    }
+    // MW page link
+    if (mwEntry.p) {
+      const link = document.createElement('a');
+      link.href = `https://archive.org/details/nSrb_a-sanskrit-english-dictionary-sir-monier-monier-williams/page/${mwEntry.p}/mode/1up`;
+      link.target = '_blank';
+      link.className = 'ram-wd-mw-link';
+      link.textContent = `MW p.${mwEntry.p} ↗`;
+      wrap.appendChild(link);
+    }
+    contentArea.appendChild(wrap);
+  }
+
+  // ── सुबन्तरूपाणि content ──
+  async function renderSubanta() {
+    contentArea.innerHTML = '<div class="ram-wd-loading">Computing…</div>';
+    const lookupStem = mwStem || stem;
+    const g = mwEntry?.g || 'm';
+    // First gender for Vidyut
+    const vidyutLinga = MW_G_TO_VIDYUT[g.charAt(0)] || 'Pum';
+
+    let v;
+    try { v = await loadVidyut(); } catch (_) {}
+    if (!v) {
+      contentArea.innerHTML = '<div class="ram-wd-empty">Vidyut unavailable.</div>';
+      return;
+    }
+
+    contentArea.innerHTML = '';
+    const slp1Stem = Sanscript.t(lookupStem, 'devanagari', 'slp1');
+
+    const VIB_MAP = { 1:'Prathama', 2:'Dvitiya', 3:'Trtiya', 4:'Caturthi',
+                      5:'Panchami', 6:'Sasthi', 7:'Saptami', 8:'Sambodhana' };
+    const VAC_MAP = { 1:'Eka', 2:'Dvi', 3:'Bahu' };
+
+    // Generate all 24 forms
+    const forms = [];
+    for (let vib = 1; vib <= 8; vib++) {
+      for (let vac = 1; vac <= 3; vac++) {
+        try {
+          const results = v.wasm.deriveSubantas({
+            pratipadika: { basic: slp1Stem },
+            linga: vidyutLinga,
+            vibhakti: VIB_MAP[vib],
+            vacana: VAC_MAP[vac],
+          });
+          if (results && results.length > 0) {
+            const devForm = Sanscript.t(vslp1(results[0].text), 'slp1', 'devanagari');
+            forms.push(devForm);
+          } else {
+            forms.push('—');
+          }
+        } catch (_) { forms.push('—'); }
+      }
+    }
+
+    // Render table
+    const table = document.createElement('table');
+    table.className = 'sp-table ram-wd-subanta-table';
+    const thead = document.createElement('thead');
+    const hrow = document.createElement('tr');
+    hrow.appendChild(document.createElement('th'));
+    VACANA_NAMES.forEach(v => {
+      const th = document.createElement('th');
+      th.className = 'dev-text'; th._devText = v; th.textContent = translit(v);
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const VIB_DISPLAY_ORDER = [0, 7, 1, 2, 3, 4, 5, 6];
+    const tbody = document.createElement('tbody');
+    for (const vib of VIB_DISPLAY_ORDER) {
+      const tr = document.createElement('tr');
+      const label = document.createElement('td');
+      label.className = 'sp-vib dev-text';
+      label._devText = VIBHAKTI_NAMES[vib];
+      label.textContent = translit(VIBHAKTI_NAMES[vib]);
+      tr.appendChild(label);
+      for (let vac = 0; vac < 3; vac++) {
+        const form = forms[vib * 3 + vac] || '—';
+        const td = document.createElement('td');
+        td.className = 'sp-form dev-text';
+        td._devText = form; td.textContent = translit(form);
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+
+    // Header with stem + linga
+    const hdr = document.createElement('div');
+    hdr.className = 'ram-wd-subanta-hdr';
+    const stemEl = document.createElement('span');
+    stemEl.className = 'dev-text';
+    stemEl._devText = lookupStem; stemEl.textContent = translit(lookupStem);
+    hdr.appendChild(stemEl);
+    const lingaDev = MW_G_TO_DEV[g] || 'पुं';
+    const lingaEl = document.createElement('span');
+    lingaEl.className = 'ram-wd-kosha-gender dev-text';
+    lingaEl._devText = lingaDev; lingaEl.textContent = translit(lingaDev);
+    hdr.appendChild(lingaEl);
+    contentArea.appendChild(hdr);
+    contentArea.appendChild(table);
+  }
+
+  // Tab switching
+  koshaTab.addEventListener('click', e => {
+    e.stopPropagation();
+    koshaTab.classList.add('active'); subantaTab.classList.remove('active');
+    renderKosha();
+  });
+  subantaTab.addEventListener('click', e => {
+    e.stopPropagation();
+    subantaTab.classList.add('active'); koshaTab.classList.remove('active');
+    renderSubanta();
+  });
+
+  // Show kosha by default
+  renderKosha();
+}
+
 // ── Ramayanam panel ──────────────────────────────────────────────────────────
 let ramMeta = null;
 let ramCache = {};
@@ -10850,7 +11054,7 @@ async function showRamayanamSarga(kanda, sarga) {
         detail.appendChild(verseEl);
       }
 
-      // Word-by-word grid (2-column)
+      // Word-by-word grid — clickable words with inline dictionary + declension
       if (shMeaning.words && shMeaning.words.length) {
         const lbl = document.createElement('div');
         lbl.className = 'ram-detail-label';
@@ -10861,21 +11065,29 @@ async function showRamayanamSarga(kanda, sarga) {
 
         const grid = document.createElement('div');
         grid.className = 'ram-word-grid';
+        const wordDetailArea = document.createElement('div');
+        wordDetailArea.className = 'ram-word-detail-area';
+
         for (const w of shMeaning.words) {
           const cell = document.createElement('div');
-          cell.className = 'ram-word-cell';
+          cell.className = 'ram-word-cell ram-word-clickable';
           const keyEl = document.createElement('span');
           keyEl.className = 'ram-word-key dev-text';
           const devWord = Sanscript.t(w.w, 'itrans', 'devanagari');
           keyEl._devText = devWord;
           keyEl.textContent = translit(devWord);
           cell.appendChild(keyEl);
+          cell.addEventListener('click', e => {
+            e.stopPropagation();
+            grid.querySelectorAll('.ram-word-clickable').forEach(c => c.classList.remove('ram-word-active'));
+            cell.classList.add('ram-word-active');
+            showRamWordDetail(devWord, wordDetailArea);
+          });
           grid.appendChild(cell);
         }
         detail.appendChild(grid);
+        detail.appendChild(wordDetailArea);
       }
-
-      // Translation placeholder — owner will add Hindi/English later
 
       card.appendChild(detail);
       card.addEventListener('click', () => toggleSimpleCard(card));
