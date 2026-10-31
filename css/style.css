@@ -25,6 +25,10 @@
   --badge-V:    #2e7d32;
   --badge-AD:   #e8952a;
   --badge-AT:   #0f766e;
+  /* dhatu pada badge colours */
+  --badge-pada-P: #2e7d32;   /* parasmaipadi — green */
+  --badge-pada-A: #b45309;   /* atmanepadi — amber */
+  --badge-pada-U: #6b3a8a;   /* ubhayapadi — purple */
   /* pratyaya-suchi type badge colours — pastel, dark text */
   --badge-KRT:  #b8e8bc;
   --badge-TD:   #f5c896;
@@ -48,6 +52,7 @@
   --border: #c8d3e8; --text: #1e293b; --muted: #64748b; --hover-bg: #dde6f5;
   --badge-S: #1d4ed8; --badge-P: #7e22ce; --badge-V: #15803d;
   --badge-AD: #f97316; --badge-AT: #0e7490;
+  --badge-pada-P: #15803d; --badge-pada-A: #b45309; --badge-pada-U: #7e22ce;
   --badge-KRT: #b8f0c0; --badge-TD: #fdd9b0; --badge-SM: #e0c0fc;
   --badge-VK: #b0e4f8; --badge-SUP: #d0d4e0; --badge-TIN: #b8e8e4; --badge-STR: #fde0b0;
   --num-color: #8a9aaa;
@@ -60,6 +65,7 @@
   --border: #b8d8b0; --text: #1a2e1a; --muted: #4a7050; --hover-bg: #d0ecc8;
   --badge-S: #166534; --badge-P: #6b21a8; --badge-V: #14532d;
   --badge-AD: #d97706; --badge-AT: #065f46;
+  --badge-pada-P: #14532d; --badge-pada-A: #92400e; --badge-pada-U: #6b21a8;
   --badge-KRT: #b0ddb4; --badge-TD: #f0c888; --badge-SM: #ccaaec;
   --badge-VK: #a0d0e0; --badge-SUP: #ccd0c0; --badge-TIN: #b0d4cc; --badge-STR: #f0c098;
   --num-color: #8a9088;
@@ -72,6 +78,7 @@
   --border: #fcd090; --text: #292524; --muted: #92400e; --hover-bg: #fde9b0;
   --badge-S: #b45309; --badge-P: #7e22ce; --badge-V: #15803d;
   --badge-AD: #ea580c; --badge-AT: #065f46;
+  --badge-pada-P: #15803d; --badge-pada-A: #b45309; --badge-pada-U: #7e22ce;
   --badge-KRT: #b8e8bc; --badge-TD: #f5c896; --badge-SM: #d4b0f0;
   --badge-VK: #a8d8ec; --badge-SUP: #e0d0b0; --badge-TIN: #b8d8d4; --badge-STR: #f5c8a0;
   --num-color: #9a8a70;
@@ -84,6 +91,7 @@
   --border: #45475a; --text: #cdd6f4; --muted: #a6adc8; --hover-bg: #45475a;
   --badge-S: #89b4fa; --badge-P: #cba6f7; --badge-V: #a6e3a1;
   --badge-AD: #fbbf24; --badge-AT: #94e2d5;
+  --badge-pada-P: #a6e3a1; --badge-pada-A: #fab387; --badge-pada-U: #cba6f7;
   --badge-KRT: #a6e3a1; --badge-TD: #fab387; --badge-SM: #cba6f7;
   --badge-VK: #89dceb; --badge-SUP: #a6adc8; --badge-TIN: #94e2d5; --badge-STR: #f9e2af;
   --num-color: #7c8098;
@@ -716,6 +724,9 @@ body.nav-pinned #drawer-nav .drawer-close { display: none; }
 .badge-V  { background: var(--badge-V);  }
 .badge-AD { background: var(--badge-AD); color: #1a0800; }
 .badge-AT { background: var(--badge-AT); }
+.badge-pada-P { background: var(--badge-pada-P); }
+.badge-pada-A { background: var(--badge-pada-A); }
+.badge-pada-U { background: var(--badge-pada-U); }
 
 /* Audio button */
 .audio-btn {

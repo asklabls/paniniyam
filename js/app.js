@@ -988,7 +988,7 @@ function renderReaderDhatu(d) {
   topRow.appendChild(refEl);
   const topRight = document.createElement('div');
   topRight.className = 'reader-top-right';
-  topRight.appendChild(devEl('span', `sutra-badge badge-V`, PADA_DETAIL_DEV[d.pada] || d.pada));
+  topRight.appendChild(devEl('span', `sutra-badge badge-pada-${d.pada}`, PADA_DETAIL_DEV[d.pada] || d.pada));
   topRow.appendChild(topRight);
   $readerContent.appendChild(topRow);
 
@@ -9193,7 +9193,7 @@ function createDhatuCard(d) {
   if (d.artha) textWrap.appendChild(devEl('span', 'dhatu-artha', d.artha));
   row.appendChild(textWrap);
 
-  row.appendChild(devEl('span', 'sutra-badge badge-V', PADA_DETAIL_DEV[d.pada] || d.pada));
+  row.appendChild(devEl('span', `sutra-badge badge-pada-${d.pada}`, PADA_DETAIL_DEV[d.pada] || d.pada));
 
   card.appendChild(row);
   card.addEventListener('click', () => gotoDhatu(d.baseindex));
