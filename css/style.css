@@ -3673,9 +3673,13 @@ table.commentary-md-table thead tr {
 }
 .ram-word-eq { color: var(--muted); }
 .ram-word-val { color: var(--text); }
-.ram-word-clickable { cursor: pointer; border-radius: 4px; padding: 4px 8px; transition: background .15s; }
-.ram-word-clickable:hover { background: var(--hover-bg); }
-.ram-word-active { background: var(--hover-bg); outline: 2px solid var(--accent); }
+.ram-pc-word {
+  cursor: pointer; border-radius: 4px; padding: 2px 6px;
+  transition: background .15s; font-family: var(--font-dev);
+  color: var(--accent2); font-weight: 600;
+}
+.ram-pc-word:hover { background: var(--hover-bg); }
+.ram-pc-active { background: var(--hover-bg); outline: 2px solid var(--accent); border-radius: 4px; }
 .ram-word-detail-area:empty { display: none; }
 .ram-word-detail-area { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
 .ram-wd-tabs { display: flex; gap: 4px; margin-bottom: 8px; }

@@ -10629,7 +10629,7 @@ async function showRamWordDetail(devWord, area) {
   koshaTab._devText = 'कोशः'; koshaTab.textContent = translit('कोशः');
   const subantaTab = document.createElement('button');
   subantaTab.className = 'ram-wd-tab dev-text';
-  subantaTab._devText = 'सुबन्तरूपाणि'; subantaTab.textContent = translit('सुबन्तरूपाणि');
+  subantaTab._devText = 'शब्दरूप'; subantaTab.textContent = translit('शब्दरूप');
   tabBar.appendChild(koshaTab);
   tabBar.appendChild(subantaTab);
   area.appendChild(tabBar);
@@ -11039,7 +11039,7 @@ async function showRamayanamSarga(kanda, sarga) {
       const detail = document.createElement('div');
       detail.className = 'sutra-detail';
 
-      // Padachchheda verse (authoritative Devanagari)
+      // Padachchheda — each word is clickable for कोश/शब्दरूप lookup
       if (shMeaning.verse) {
         const vlbl = document.createElement('div');
         vlbl.className = 'ram-detail-label';
@@ -11047,45 +11047,29 @@ async function showRamayanamSarga(kanda, sarga) {
         vlbl._devText = 'पदच्छेदः';
         vlbl.classList.add('dev-text');
         detail.appendChild(vlbl);
-        const verseEl = document.createElement('div');
-        verseEl.className = 'ram-padachchheda dev-text';
-        verseEl._devText = shMeaning.verse;
-        verseEl.textContent = translit(shMeaning.verse);
-        detail.appendChild(verseEl);
-      }
 
-      // Word-by-word grid — clickable words with inline dictionary + declension
-      if (shMeaning.words && shMeaning.words.length) {
-        const lbl = document.createElement('div');
-        lbl.className = 'ram-detail-label';
-        lbl.textContent = translit('पदार्थः');
-        lbl._devText = 'पदार्थः';
-        lbl.classList.add('dev-text');
-        detail.appendChild(lbl);
-
-        const grid = document.createElement('div');
-        grid.className = 'ram-word-grid';
+        // Split verse into words and render each as clickable
+        const verseWrap = document.createElement('div');
+        verseWrap.className = 'ram-padachchheda';
         const wordDetailArea = document.createElement('div');
         wordDetailArea.className = 'ram-word-detail-area';
 
-        for (const w of shMeaning.words) {
-          const cell = document.createElement('div');
-          cell.className = 'ram-word-cell ram-word-clickable';
-          const keyEl = document.createElement('span');
-          keyEl.className = 'ram-word-key dev-text';
-          const devWord = Sanscript.t(w.w, 'itrans', 'devanagari');
-          keyEl._devText = devWord;
-          keyEl.textContent = translit(devWord);
-          cell.appendChild(keyEl);
-          cell.addEventListener('click', e => {
+        const words = shMeaning.verse.split(/\s+/).filter(w => w && w !== '।' && w !== '॥');
+        for (const devWord of words) {
+          const wordEl = document.createElement('span');
+          wordEl.className = 'ram-pc-word dev-text';
+          wordEl._devText = devWord;
+          wordEl.textContent = translit(devWord);
+          wordEl.addEventListener('click', e => {
             e.stopPropagation();
-            grid.querySelectorAll('.ram-word-clickable').forEach(c => c.classList.remove('ram-word-active'));
-            cell.classList.add('ram-word-active');
+            verseWrap.querySelectorAll('.ram-pc-word').forEach(w => w.classList.remove('ram-pc-active'));
+            wordEl.classList.add('ram-pc-active');
             showRamWordDetail(devWord, wordDetailArea);
           });
-          grid.appendChild(cell);
+          verseWrap.appendChild(wordEl);
+          verseWrap.appendChild(document.createTextNode(' '));
         }
-        detail.appendChild(grid);
+        detail.appendChild(verseWrap);
         detail.appendChild(wordDetailArea);
       }
 
