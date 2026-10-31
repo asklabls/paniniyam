@@ -405,7 +405,7 @@ When adding a new book (e.g. Ramayanam), add it as a child of `books` sub-tree.
 ### Cache busting
 - `index.html` loads `app.js?v=N` and `style.css?v=N`
 - Bump `N` in both tags on every push with user-visible changes
-- Current: `app.js?v=258`, `style.css?v=136`
+- Current: `app.js?v=317`, `style.css?v=181`
 
 ## Fonts
 - **Vesper Libre** — Sanskrit / Devanagari text (sutra text, commentary, meta block, nav labels)
@@ -540,6 +540,17 @@ inserted during OCR post-processing. Each book = new entry in `SUTRA_TABS` + new
 ### Ramayanam Audio (on R2, 2026-06-08)
 
 All 6 kandas (21,076 files) compressed (mono 11kHz VBR ~29kbps) and uploaded to `ramayanam_audio/` in `paniniyam-private` R2 bucket. File naming: `sarga_NNN/000-start.mp3`, `NNN.mp3`, `NNN-iti.mp3`. Scripts: `compress_ramayanam.py --kanda <key> --jobs 8`, then `upload_ramayanam.py --jobs 20`. Source: `_anant_vault/attachments/Audio/Ramayanam/`.
+
+### Valmiki Ramayanam OCR text (moolam)
+
+- **Source**: `_anant_vault/Books/Valmiki-moolam/` — 2302 OCR'd page files (`page_NNNN.md`) from Archive.org scan
+- **Combined file**: `_anant_vault/Books/Valmiki-moolam/_Valmiki-Ramayanam_combined.md` — clean proofreading text
+- **Combiner script**: `_anant_vault/Books/Valmiki-moolam/combine_pages.py` — strips callout syntax, HTML headers, PDF embeds, YAML frontmatter; extracts kanda/sarga markers from headers and colophons
+- **Output format**: plain shlokas with `<!-- kanda: X -->` / `# काण्ड`, `<!-- sarga: N -->` / `## title`, `<!-- page: NNNN -->` breadcrumbs
+- **7 kandas**: बालकाण्ड (76), अयोध्याकाण्ड (119), अरण्यकाण्ड (74), किष्किन्धाकाण्ड (67), सुन्दरकाण्ड (68), युद्धकाण्ड (128), उत्तरकाण्ड (111)
+- **Sarga detection caveat**: OCR garbles ordinals in sarga titles (`Us: सर्गः`, `TACT: सर्गः`), so ~482 of ~545 sargas auto-detected; remaining need manual review
+- **OCR artifacts**: English word intrusions (`UAT`, `Wa`, `aden`), `९` for `१` in shloka numbers, garbled colophon ordinals — all preserved for manual proofreading
+- **Re-run**: `cd _anant_vault/Books/Valmiki-moolam && python3 combine_pages.py` after editing page files
 
 ### Animated Teaching Engine (Manim project)
 `/Users/au/Projects/Manim/` — animated gurukula teaching methodology consuming `pravachanam.json` + `siddhi/*.json`. Full spec: `/Users/au/Projects/Manim/docs/TEACHING_ENGINE.md`.
