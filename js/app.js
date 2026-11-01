@@ -11043,7 +11043,9 @@ async function showRamayanamSarga(kanda, sarga) {
   const sargaDir = `sarga_${String(sarga).padStart(3, '0')}`;
   ramCardList = [];
 
+  let lastShlokaNum = 0;
   for (const sh of shlokas) {
+    if (!sh.start && !sh.c && sh.n > 0) lastShlokaNum = sh.n;
     const card = document.createElement('div');
     card.className = 'sutra-card ram-shloka-card';
     if (sh.start) card.classList.add('ram-start-card');
@@ -11085,7 +11087,7 @@ async function showRamayanamSarga(kanda, sarga) {
 
     // Audio button
     const audioFile = sh.start ? '000-start'
-      : sh.c ? `${String(sh.n).padStart(3, '0')}-iti`
+      : sh.c ? `${String(sh.iti || lastShlokaNum + 1).padStart(3, '0')}-iti`
       : String(sh.n).padStart(3, '0');
     const audioBtn = document.createElement('button');
     audioBtn.className = 'audio-btn';
