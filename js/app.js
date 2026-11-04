@@ -853,6 +853,7 @@ function showPanel(name) {
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelAnuvada.style.display           = name === 'anuvada'           ? '' : 'none';
   $panelRamayanam.style.display         = name === 'ramayanam'         ? '' : 'none';
+  document.getElementById('btn-ram-export').style.display = name === 'ramayanam' ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
@@ -11205,6 +11206,62 @@ async function showRamayanamSarga(kanda, sarga) {
     ramCardList.push({ card, audioBtn, audioFile, kandaDir, sargaDir, kanda, sarga });
   }
 }
+
+// ── Export favorites ──
+document.getElementById('btn-ram-export').addEventListener('click', async () => {
+  const favs = getRamFavs();
+  if (!favs.size) { alert('No favorites saved yet.'); return; }
+
+  const meta = await loadRamMeta();
+  // Group by kanda.sarga
+  const grouped = {};
+  for (const fid of favs) {
+    const [k, s] = fid.split('.');
+    const key = `${k}.${s}`;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(+fid.split('.')[2]);
+  }
+
+  let text = 'श्रीमद्वाल्मीकीयरामायणम् — Favorites\n';
+  text += '═'.repeat(40) + '\n\n';
+
+  const sortedKeys = Object.keys(grouped).sort((a, b) => {
+    const [ak, as] = a.split('.').map(Number);
+    const [bk, bs] = b.split('.').map(Number);
+    return ak - bk || as - bs;
+  });
+
+  for (const key of sortedKeys) {
+    const [k, s] = key.split('.').map(Number);
+    const kandaMeta = meta.kandas[k - 1];
+    // Fetch sarga data if not cached
+    if (!ramCache[key]) {
+      try {
+        const res = await fetch(`${PRIVATE_BASE}/ramayanam/${key}.json`);
+        if (res.ok) ramCache[key] = await res.json();
+      } catch (_) {}
+    }
+    const shlokas = ramCache[key];
+    const nums = grouped[key].sort((a, b) => a - b);
+
+    text += `${kandaMeta.name} — सर्गः ${s}\n`;
+    text += '─'.repeat(30) + '\n';
+    for (const n of nums) {
+      const sh = shlokas && shlokas.find(x => x.n === n && !x.start && !x.c);
+      text += `\n${k}.${s}.${n}\n`;
+      if (sh && sh.t) text += sh.t + '\n';
+    }
+    text += '\n';
+  }
+
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ramayanam-favorites.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
 
 function stopRamAutoplay() {
   if (currentRamAudio) {
