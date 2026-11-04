@@ -3503,11 +3503,12 @@ table.commentary-md-table thead tr {
 }
 .ram-title {
   font-family: var(--font-dev);
-  font-size: .82em;
+  font-size: 1.15em;
   font-weight: 700;
-  color: var(--muted);
-  letter-spacing: .02em;
+  color: var(--accent);
+  letter-spacing: .03em;
   margin-bottom: 6px;
+  text-align: center;
 }
 .ram-kanda-pills {
   display: flex;
@@ -3599,6 +3600,29 @@ table.commentary-md-table thead tr {
   color: #fff;
   border-color: var(--accent);
 }
+.ram-fav-btn {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+.ram-fav-btn.active { color: #e25555; }
+.ram-fav-btn:hover { color: #e25555; }
+.ram-fav-filter {
+  margin-left: 8px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--muted);
+  font-size: .95em;
+  cursor: pointer;
+}
+.ram-fav-filter:hover { border-color: #e25555; color: #e25555; }
+.ram-fav-filter.active { background: #e25555; color: #fff; border-color: #e25555; }
 .ram-shloka-card {
   margin-bottom: 2px;
   transition: background .2s;

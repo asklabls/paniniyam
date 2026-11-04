@@ -10873,6 +10873,18 @@ let ramCardList = [];  // ordered list of {card, audioBtn, audioFile, kandaDir, 
 
 const RAM_KANDA_SHORT = ['', 'बाल', 'अयोध्या', 'अरण्य', 'किष्किन्धा', 'सुन्दर', 'युद्ध', 'उत्तर'];
 
+// Favorites (localStorage)
+const RAM_FAV_KEY = 'ram_favorites';
+function getRamFavs() {
+  try { return new Set(JSON.parse(localStorage.getItem(RAM_FAV_KEY) || '[]')); }
+  catch (_) { return new Set(); }
+}
+function saveRamFavs(set) {
+  localStorage.setItem(RAM_FAV_KEY, JSON.stringify([...set]));
+}
+function ramFavId(kanda, sarga, n) { return `${kanda}.${sarga}.${n}`; }
+let ramFavFilterActive = false;
+
 async function loadRamMeta() {
   if (ramMeta) return ramMeta;
   const res = await fetch(`${PRIVATE_BASE}/ramayanam/meta.json`);
@@ -11036,6 +11048,24 @@ async function showRamayanamSarga(kanda, sarga) {
     }
   });
   header.appendChild(autoBtn);
+
+  // Favorites filter toggle
+  const favFilter = document.createElement('button');
+  favFilter.className = 'ram-fav-filter' + (ramFavFilterActive ? ' active' : '');
+  favFilter.textContent = ramFavFilterActive ? '♥' : '♡';
+  favFilter.title = 'Show favorites only';
+  favFilter.addEventListener('click', () => {
+    ramFavFilterActive = !ramFavFilterActive;
+    favFilter.classList.toggle('active', ramFavFilterActive);
+    favFilter.textContent = ramFavFilterActive ? '♥' : '♡';
+    const favs = getRamFavs();
+    content.querySelectorAll('.ram-shloka-card').forEach(c => {
+      if (!c._favId) return; // start/iti cards — always show
+      c.style.display = (ramFavFilterActive && !favs.has(c._favId)) ? 'none' : '';
+    });
+  });
+  header.appendChild(favFilter);
+
   content.appendChild(header);
 
   // Shloka cards
@@ -11104,6 +11134,26 @@ async function showRamayanamSarga(kanda, sarga) {
       }
     });
     row.appendChild(audioBtn);
+
+    // Favorite heart (skip start/iti cards)
+    if (!sh.start && !sh.c && sh.n > 0) {
+      const fid = ramFavId(kanda, sarga, sh.n);
+      const favs = getRamFavs();
+      const heart = document.createElement('button');
+      heart.className = 'ram-fav-btn' + (favs.has(fid) ? ' active' : '');
+      heart.textContent = favs.has(fid) ? '♥' : '♡';
+      heart.title = 'Favorite';
+      heart.addEventListener('click', e => {
+        e.stopPropagation();
+        const f = getRamFavs();
+        if (f.has(fid)) { f.delete(fid); heart.classList.remove('active'); heart.textContent = '♡'; }
+        else { f.add(fid); heart.classList.add('active'); heart.textContent = '♥'; }
+        saveRamFavs(f);
+      });
+      row.appendChild(heart);
+      card._favBtn = heart;
+      card._favId = fid;
+    }
 
     card.appendChild(row);
 
