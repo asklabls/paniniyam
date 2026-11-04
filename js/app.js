@@ -11250,7 +11250,7 @@ document.getElementById('btn-ram-export').addEventListener('click', async () => 
       const sh = shlokas && shlokas.find(x => x.n === n && !x.start && !x.c);
       if (sh && sh.t) {
         // Replace trailing ॥N॥ with ॥kanda.sarga.N॥
-        const verse = sh.t.replace(/॥\s*\d+\s*॥\s*$/, `॥${k}.${s}.${n}॥`);
+        const verse = sh.t.replace(/॥\s*[\d०-९]+\s*॥\s*$/, `॥${k}.${s}.${n}॥`);
         text += '\n' + verse + '\n';
       } else {
         text += `\n॥${k}.${s}.${n}॥\n`;
