@@ -3611,8 +3611,7 @@ table.commentary-md-table thead tr {
   width: 2em;
   text-align: center;
 }
-.ram-fav-btn.active { color: #e25555; }
-.ram-fav-btn:hover { color: #e25555; }
+.ram-fav-btn.active, .ram-fav-btn:hover { opacity: 1; }
 .ram-fav-filter {
   margin-left: 8px;
   padding: 4px 12px;
@@ -3623,8 +3622,8 @@ table.commentary-md-table thead tr {
   font-size: .95em;
   cursor: pointer;
 }
-.ram-fav-filter:hover { border-color: #e25555; color: #e25555; }
-.ram-fav-filter.active { background: #e25555; color: #fff; border-color: #e25555; }
+.ram-fav-filter:hover { border-color: var(--accent); }
+.ram-fav-filter.active { background: var(--card-bg); border-color: var(--accent); }
 .ram-shloka-card {
   margin-bottom: 2px;
   transition: background .2s;

@@ -11052,12 +11052,12 @@ async function showRamayanamSarga(kanda, sarga) {
   // Favorites filter toggle
   const favFilter = document.createElement('button');
   favFilter.className = 'ram-fav-filter' + (ramFavFilterActive ? ' active' : '');
-  favFilter.textContent = '♥';
+  favFilter.textContent = ramFavFilterActive ? '❤️' : '🤍';
   favFilter.title = 'Show favorites only';
   favFilter.addEventListener('click', () => {
     ramFavFilterActive = !ramFavFilterActive;
     favFilter.classList.toggle('active', ramFavFilterActive);
-    favFilter.textContent = '♥';
+    favFilter.textContent = ramFavFilterActive ? '❤️' : '🤍';
     const favs = getRamFavs();
     content.querySelectorAll('.ram-shloka-card').forEach(c => {
       if (!c._favId) { c.style.display = ramFavFilterActive ? 'none' : ''; return; }
@@ -11141,13 +11141,13 @@ async function showRamayanamSarga(kanda, sarga) {
       const favs = getRamFavs();
       const heart = document.createElement('button');
       heart.className = 'ram-fav-btn' + (favs.has(fid) ? ' active' : '');
-      heart.textContent = '♥';
+      heart.textContent = favs.has(fid) ? '❤️' : '🤍';
       heart.title = 'Favorite';
       heart.addEventListener('click', e => {
         e.stopPropagation();
         const f = getRamFavs();
-        if (f.has(fid)) { f.delete(fid); heart.classList.remove('active'); }
-        else { f.add(fid); heart.classList.add('active'); }
+        if (f.has(fid)) { f.delete(fid); heart.classList.remove('active'); heart.textContent = '🤍'; }
+        else { f.add(fid); heart.classList.add('active'); heart.textContent = '❤️'; }
         saveRamFavs(f);
       });
       row.appendChild(heart);
