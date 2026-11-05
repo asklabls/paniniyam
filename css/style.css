@@ -3612,6 +3612,25 @@ table.commentary-md-table thead tr {
   text-align: center;
 }
 .ram-fav-btn.active, .ram-fav-btn:hover { opacity: 1; }
+.ram-edit-btn {
+  background: none; border: none; font-size: 1em; cursor: pointer;
+  padding: 2px 4px; opacity: .4;
+}
+.ram-edit-btn:hover { opacity: 1; }
+.ram-edit-area {
+  width: 100%; min-height: 60px; padding: 8px; margin: 4px 0;
+  font-family: var(--font-dev); font-size: .95em; line-height: 1.6;
+  border: 2px solid var(--accent); border-radius: 6px;
+  background: var(--card-bg); color: var(--text); resize: vertical;
+}
+.ram-edit-btns { display: flex; gap: 8px; padding: 0 0 4px; }
+.ram-edit-save, .ram-edit-cancel {
+  padding: 4px 14px; border-radius: 4px; border: 1px solid var(--border);
+  cursor: pointer; font-size: .85em;
+}
+.ram-edit-save { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ram-edit-cancel { background: var(--card-bg); color: var(--text); }
+.ram-edited { border-left: 3px solid var(--accent); }
 .ram-fav-filter {
   margin-left: 8px;
   padding: 4px 12px;

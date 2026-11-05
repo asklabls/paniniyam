@@ -854,6 +854,7 @@ function showPanel(name) {
   $panelAnuvada.style.display           = name === 'anuvada'           ? '' : 'none';
   $panelRamayanam.style.display         = name === 'ramayanam'         ? '' : 'none';
   document.getElementById('btn-ram-export').style.display = name === 'ramayanam' ? '' : 'none';
+  document.getElementById('btn-ram-export-edits').style.display = (name === 'ramayanam' && isLocal) ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
@@ -10886,6 +10887,16 @@ function saveRamFavs(set) {
 function ramFavId(kanda, sarga, n) { return `${kanda}.${sarga}.${n}`; }
 let ramFavFilterActive = false;
 
+// Inline edits (localStorage, local-only)
+const RAM_EDITS_KEY = 'ram_edits';
+function getRamEdits() {
+  try { return JSON.parse(localStorage.getItem(RAM_EDITS_KEY) || '{}'); }
+  catch (_) { return {}; }
+}
+function saveRamEdits(obj) {
+  localStorage.setItem(RAM_EDITS_KEY, JSON.stringify(obj));
+}
+
 async function loadRamMeta() {
   if (ramMeta) return ramMeta;
   const res = await fetch(`${PRIVATE_BASE}/ramayanam/meta.json`);
@@ -11097,12 +11108,18 @@ async function showRamayanamSarga(kanda, sarga) {
     }
     row.appendChild(numEl);
 
-    // Shloka text
+    // Shloka text (apply saved edits if any)
+    const editId = `${kanda}.${sarga}.${sh.n}`;
+    const savedEdits = isLocal ? getRamEdits() : null;
+    const editedText = savedEdits && savedEdits[editId];
+    const displayText = editedText || sh.t;
+
     const tSpan = document.createElement('span');
     tSpan.className = 'sutra-text dev-text';
-    if (sh.t) {
-      tSpan._devText = sh.t;
-      tSpan.textContent = translit(sh.t);
+    if (displayText) {
+      tSpan._devText = displayText;
+      tSpan.textContent = translit(displayText);
+      if (editedText) card.classList.add('ram-edited');
     } else {
       // Audio-only placeholder
       tSpan.className = 'sutra-text ram-placeholder';
@@ -11154,6 +11171,74 @@ async function showRamayanamSarga(kanda, sarga) {
       row.appendChild(heart);
       card._favBtn = heart;
       card._favId = fid;
+    }
+
+    // Edit button (local only, skip start/iti)
+    if (isLocal && !sh.start && !sh.c && sh.n > 0) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'ram-edit-btn';
+      editBtn.textContent = '✏️';
+      editBtn.title = 'Edit shloka';
+      editBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        // If already editing, do nothing
+        if (card.querySelector('.ram-edit-area')) return;
+
+        const currentText = tSpan._devText || sh.t || '';
+        tSpan.style.display = 'none';
+
+        const editArea = document.createElement('textarea');
+        editArea.className = 'ram-edit-area';
+        editArea.value = currentText;
+        editArea.rows = Math.max(3, currentText.split('\n').length + 1);
+
+        const btnRow = document.createElement('div');
+        btnRow.className = 'ram-edit-btns';
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.className = 'ram-edit-save';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.className = 'ram-edit-cancel';
+
+        saveBtn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          const newText = editArea.value.trim();
+          if (newText && newText !== (sh.t || '')) {
+            const edits = getRamEdits();
+            edits[editId] = newText;
+            saveRamEdits(edits);
+            tSpan._devText = newText;
+            tSpan.textContent = translit(newText);
+            card.classList.add('ram-edited');
+          } else if (newText === (sh.t || '')) {
+            // Reverted to original — remove edit
+            const edits = getRamEdits();
+            delete edits[editId];
+            saveRamEdits(edits);
+            tSpan._devText = sh.t || '';
+            tSpan.textContent = translit(sh.t || '');
+            card.classList.remove('ram-edited');
+          }
+          editArea.remove();
+          btnRow.remove();
+          tSpan.style.display = '';
+        });
+
+        cancelBtn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          editArea.remove();
+          btnRow.remove();
+          tSpan.style.display = '';
+        });
+
+        btnRow.appendChild(saveBtn);
+        btnRow.appendChild(cancelBtn);
+        row.after(btnRow);
+        row.after(editArea);
+        editArea.focus();
+      });
+      row.appendChild(editBtn);
     }
 
     card.appendChild(row);
@@ -11267,6 +11352,32 @@ document.getElementById('btn-ram-export').addEventListener('click', async () => 
   a.click();
   URL.revokeObjectURL(url);
 });
+
+// ── Export edits (local only) ──
+if (isLocal) {
+  const expEditsBtn = document.getElementById('btn-ram-export-edits');
+  if (expEditsBtn) expEditsBtn.addEventListener('click', () => {
+    const edits = getRamEdits();
+    const keys = Object.keys(edits);
+    if (!keys.length) { alert('No edits saved.'); return; }
+    keys.sort((a, b) => {
+      const [ak, as, an] = a.split('.').map(Number);
+      const [bk, bs, bn] = b.split('.').map(Number);
+      return ak - bk || as - bs || an - bn;
+    });
+    let tsv = 'ref\tedited_text\n';
+    for (const k of keys) {
+      tsv += `${k}\t${edits[k].replace(/\n/g, '\\n')}\n`;
+    }
+    const blob = new Blob([tsv], { type: 'text/tab-separated-values;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ramayanam-edits.tsv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
 
 function stopRamAutoplay() {
   if (currentRamAudio) {
