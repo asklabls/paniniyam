@@ -853,8 +853,10 @@ function showPanel(name) {
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelAnuvada.style.display           = name === 'anuvada'           ? '' : 'none';
   $panelRamayanam.style.display         = name === 'ramayanam'         ? '' : 'none';
-  document.getElementById('btn-ram-export').style.display = name === 'ramayanam' ? '' : 'none';
-  document.getElementById('btn-ram-export-edits').style.display = (name === 'ramayanam' && isLocal) ? '' : 'none';
+  const _ramExp = document.getElementById('btn-ram-export');
+  const _ramExpEdits = document.getElementById('btn-ram-export-edits');
+  if (_ramExp) _ramExp.style.display = name === 'ramayanam' ? '' : 'none';
+  if (_ramExpEdits) _ramExpEdits.style.display = (name === 'ramayanam' && isLocal) ? '' : 'none';
   $panelSambhashana.style.display       = name === 'sambhashana'       ? '' : 'none';
   $panelNamarupa.style.display          = name === 'namarupa'          ? '' : 'none';
   $panelTranslit.style.display          = name === 'translit'          ? '' : 'none';
