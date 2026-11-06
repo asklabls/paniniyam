@@ -7790,6 +7790,7 @@ const SEARCH_SCOPES = [
   { id: 'dhatupatha',  devLabel: 'धातुपाठः'     },
   { id: 'ganapath',    devLabel: 'गणपाठः'       },
   { id: 'unaadi',      devLabel: 'उणादिः'        },
+  { id: 'ramayanam',   devLabel: 'रामायणम्'      },
   { id: 'sarva',       devLabel: 'सर्वम्'        },
 ];
 const SEARCH_CAP = 75;   // max results per book/group
@@ -7866,7 +7867,7 @@ function buildSearchScopes() {
       runSearch($searchInput.value);
     });
     allPills.push(btn);
-    if (sc.id === 'sarva') row2left.appendChild(btn);
+    if (sc.id === 'sarva' || sc.id === 'ramayanam') row2left.appendChild(btn);
     else row1.appendChild(btn);
   });
 
@@ -8272,6 +8273,31 @@ async function runSearch(raw) {
       $searchDrawerBody.appendChild(more);
     }
 
+  } else if (searchScope === 'ramayanam') {
+    const ramData = await loadRamSearchIndex();
+    if (!ramData) {
+      const msg = document.createElement('div');
+      msg.className = 'search-drawer-count';
+      msg.textContent = 'Ramayanam search index not available';
+      $searchDrawerBody.appendChild(msg);
+      return;
+    }
+    const results = searchRamayanam(ramData, q);
+    const countEl = document.createElement('div');
+    countEl.className = 'search-drawer-count';
+    countEl.textContent = results.length
+      ? `${results.length} result${results.length !== 1 ? 's' : ''}`
+      : 'No results';
+    $searchDrawerBody.appendChild(countEl);
+    for (const r of results.slice(0, SEARCH_CAP))
+      $searchDrawerBody.appendChild(makeRamResultItem(r, q));
+    if (results.length > SEARCH_CAP) {
+      const more = document.createElement('div');
+      more.className = 'search-drawer-count';
+      more.textContent = `… and ${results.length - SEARCH_CAP} more`;
+      $searchDrawerBody.appendChild(more);
+    }
+
   } else if (searchScope === 'sarva') {
     // Load all books in parallel
     const paribhashaLoader = PRIVATE_BASE
@@ -8280,13 +8306,14 @@ async function runSearch(raw) {
           : fetch(`${PRIVATE_BASE}/paribhasha.json`).then(r => r.json()).then(j => { bookData['paribhasha-search'] = j.sutras || []; return bookData['paribhasha-search']; }).catch(() => null))
       : Promise.resolve(null);
 
-    const [dhatu, gana, unaadi, shiva, vartika, paribhasha] = await Promise.all([
+    const [dhatu, gana, unaadi, shiva, vartika, paribhasha, ramSearch] = await Promise.all([
       loadData('dhatupatha',   'dhatu/data.txt').catch(() => null),
       loadData('ganapatha',    'ganapath/data.txt').catch(() => null),
       loadData('unaadi',       'unaadi/data.txt').catch(() => null),
       loadData('shivasutra',   'shivasutra/data.txt').catch(() => null),
       loadData('vartika-page', 'sutraani/vartika.txt').catch(() => null),
       paribhashaLoader,
+      loadRamSearchIndex().catch(() => null),
     ]);
 
     const sutraResults   = searchSutras(q);
@@ -8296,10 +8323,11 @@ async function runSearch(raw) {
     const shivaResults   = shiva   ? shiva.filter(s => s.sutra && s.sutra.includes(q)) : [];
     const vartikaResults    = vartika    ? searchVartika(vartika, q)       : [];
     const paribhashaResults = paribhasha ? searchParibhasha(paribhasha, q) : [];
+    const ramResults        = ramSearch  ? searchRamayanam(ramSearch, q)   : [];
 
     const total = sutraResults.length + dhatuResults.length + ganaResults.length +
                   unaadiResults.length + shivaResults.length + vartikaResults.length +
-                  paribhashaResults.length;
+                  paribhashaResults.length + ramResults.length;
     const countEl = document.createElement('div');
     countEl.className = 'search-drawer-count';
     countEl.textContent = total
@@ -8339,6 +8367,9 @@ async function runSearch(raw) {
     if (paribhashaResults.length)
       renderGroup($searchDrawerBody, 'पारिभाषिक', paribhashaResults.slice(0, SEARCH_CAP),
         makeParibhashaResultItem, q, paribhashaResults.length);
+    if (ramResults.length)
+      renderGroup($searchDrawerBody, 'रामायणम्', ramResults.slice(0, SEARCH_CAP),
+        makeRamResultItem, q, ramResults.length);
   }
 }
 
@@ -8397,6 +8428,50 @@ function makeVartikaResultItem(entry, q) {
     const id = a + p + String(n).padStart(3, '0');
     const card = $sutraList.querySelector(`[data-id="${id}"]`);
     if (card) { card.scrollIntoView({ block: 'center' }); toggleSimpleCard(card); }
+  });
+  return item;
+}
+
+// ── Ramayanam search ──
+let ramSearchIndex = null;
+async function loadRamSearchIndex() {
+  if (ramSearchIndex) return ramSearchIndex;
+  try {
+    const res = await fetch(`${PRIVATE_BASE}/ramayanam/search.json`);
+    if (!res.ok) return null;
+    ramSearchIndex = await res.json();
+    return ramSearchIndex;
+  } catch (_) { return null; }
+}
+
+function searchRamayanam(data, q) {
+  const dq = normalizeToDevanagari(q);
+  return data.filter(e => e.t && e.t.includes(dq));
+}
+
+function makeRamResultItem(entry, q) {
+  const item = document.createElement('div');
+  item.className = 'search-result-item';
+  const ref = document.createElement('span');
+  ref.className = 'sri-ref';
+  ref.textContent = `${entry.k}.${entry.s}.${entry.n}`;
+  item.appendChild(ref);
+  // Show first line of shloka text with highlight
+  const firstLine = (entry.t || '').split('\n')[0];
+  item.appendChild(highlightMatch(firstLine, q));
+  item.addEventListener('click', async () => {
+    closeDrawer();
+    await showRamayanamPanel(entry.k, entry.s);
+    // Scroll to the shloka card
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.ram-shloka-card .ram-shloka-num');
+      for (const num of cards) {
+        if (num.textContent === `${entry.k}.${entry.s}.${entry.n}`) {
+          num.closest('.ram-shloka-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
+    }, 300);
   });
   return item;
 }
