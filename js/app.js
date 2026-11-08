@@ -11039,16 +11039,31 @@ async function showRamayanamPanel(kanda, sarga) {
     p.classList.toggle('active', +p.dataset.kanda === kanda);
   });
 
-  // Build sarga pills for this kanda
+  // Build sarga pills for this kanda (including prakshipta/interpolated sargas)
   const kandaMeta = meta.kandas[kanda - 1];
   const sargaPills = panel._sargaPills;
   sargaPills.innerHTML = '';
+  // Build ordered sarga list: integers 1..N with prakshipta inserted after their base
+  const prakshipta = (meta.prakshipta || {})[String(kanda)] || [];
+  const sargaList = [];
   for (let s = 1; s <= kandaMeta.sargas; s++) {
+    sargaList.push(s);
+    for (const ps of prakshipta) {
+      if (String(ps).startsWith(s + '_')) sargaList.push(ps);
+    }
+  }
+  for (const s of sargaList) {
     const pill = document.createElement('button');
     pill.className = 'ram-sarga-pill';
-    pill.textContent = s;
+    const isSpecial = typeof s === 'string' && s.includes('_');
+    pill.textContent = isSpecial ? s.replace('_', '·') : s;
     pill.dataset.sarga = s;
-    if (s <= kandaMeta.ready) pill.classList.add('proofread');
+    if (isSpecial) {
+      pill.classList.add('proofread', 'prakshipta');
+      pill.title = 'प्रक्षिप्तः सर्गः';
+    } else if (s <= kandaMeta.ready) {
+      pill.classList.add('proofread');
+    }
     pill.addEventListener('click', () => showRamayanamSarga(kanda, s));
     sargaPills.appendChild(pill);
   }
@@ -11068,7 +11083,7 @@ async function showRamayanamSarga(kanda, sarga) {
 
   // Mark active sarga pill
   panel._sargaPills.querySelectorAll('.ram-sarga-pill').forEach(p => {
-    p.classList.toggle('active', +p.dataset.sarga === sarga);
+    p.classList.toggle('active', p.dataset.sarga === String(sarga));
   });
 
   // Update URL
