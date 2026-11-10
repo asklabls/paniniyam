@@ -11260,15 +11260,14 @@ async function showRamayanamSarga(kanda, sarga) {
       card._favId = fid;
     }
 
-    // Edit button (local only, skip start/iti)
-    if (isLocal && !sh.start && !sh.c && sh.n > 0) {
+    // Edit/suggest correction button (skip start/iti)
+    if (!sh.start && !sh.c && sh.n > 0) {
       const editBtn = document.createElement('button');
       editBtn.className = 'ram-edit-btn';
       editBtn.textContent = '✏️';
-      editBtn.title = 'Edit shloka';
+      editBtn.title = 'Suggest correction';
       editBtn.addEventListener('click', e => {
         e.stopPropagation();
-        // If already editing, do nothing
         if (card.querySelector('.ram-edit-area')) return;
 
         const currentText = tSpan._devText || sh.t || '';
@@ -11281,25 +11280,46 @@ async function showRamayanamSarga(kanda, sarga) {
 
         const btnRow = document.createElement('div');
         btnRow.className = 'ram-edit-btns';
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Save';
-        saveBtn.className = 'ram-edit-save';
+        const submitBtn = document.createElement('button');
+        submitBtn.textContent = 'Submit';
+        submitBtn.className = 'ram-edit-save';
         const cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Cancel';
         cancelBtn.className = 'ram-edit-cancel';
 
-        saveBtn.addEventListener('click', ev => {
+        submitBtn.addEventListener('click', async ev => {
           ev.stopPropagation();
           const newText = editArea.value.trim();
           if (newText && newText !== (sh.t || '')) {
+            // Save locally
             const edits = getRamEdits();
             edits[editId] = newText;
             saveRamEdits(edits);
             tSpan._devText = newText;
             tSpan.textContent = translit(newText);
             card.classList.add('ram-edited');
+
+            // Submit to Google Sheet
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending…';
+            try {
+              await fetch(FEEDBACK_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'rama-edit',
+                  kanda, sarga, shloka: sh.n,
+                  original: sh.t || '',
+                  corrected: newText,
+                  ts: new Date().toISOString()
+                }),
+              });
+              submitBtn.textContent = '✓ Sent';
+            } catch (_) {
+              submitBtn.textContent = 'Submit';
+            }
           } else if (newText === (sh.t || '')) {
-            // Reverted to original — remove edit
             const edits = getRamEdits();
             delete edits[editId];
             saveRamEdits(edits);
@@ -11307,9 +11327,11 @@ async function showRamayanamSarga(kanda, sarga) {
             tSpan.textContent = translit(sh.t || '');
             card.classList.remove('ram-edited');
           }
-          editArea.remove();
-          btnRow.remove();
-          tSpan.style.display = '';
+          setTimeout(() => {
+            editArea.remove();
+            btnRow.remove();
+            tSpan.style.display = '';
+          }, 800);
         });
 
         cancelBtn.addEventListener('click', ev => {
@@ -11319,7 +11341,7 @@ async function showRamayanamSarga(kanda, sarga) {
           tSpan.style.display = '';
         });
 
-        btnRow.appendChild(saveBtn);
+        btnRow.appendChild(submitBtn);
         btnRow.appendChild(cancelBtn);
         row.after(btnRow);
         row.after(editArea);
