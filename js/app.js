@@ -9510,6 +9510,31 @@ function buildUnaadiTabPanel(tabId, u, shEntry, svEntry) {
 function renderUnaadiAll(data, sanHin, satyavrata) {
   setListHeader('उणादिकोशः', `${data.length} sūtras`);
   $sutraList.innerHTML = '';
+
+  // ── Pratyaya letter-filter pill bar ────────────────────────────────────────
+  const pratyayLetters = [...new Set(data.map(u => u.pratyay ? [...u.pratyay][0] : '').filter(Boolean))].sort();
+  const pillBar = document.createElement('div');
+  pillBar.className = 'gana-letter-pills';
+
+  const allPill = document.createElement('button');
+  allPill.className = 'avyaya-pill active';
+  allPill.dataset.letter = '';
+  allPill._devText = 'सर्व';
+  allPill.textContent = translit('सर्व');
+  pillBar.appendChild(allPill);
+
+  for (const letter of pratyayLetters) {
+    const pill = document.createElement('button');
+    pill.className = 'avyaya-pill dev-text';
+    pill.dataset.letter = letter;
+    pill._devText = letter;
+    pill.textContent = translit(letter);
+    pillBar.appendChild(pill);
+  }
+  $sutraList.appendChild(pillBar);
+
+  // ── Cards ──────────────────────────────────────────────────────────────────
+  const cardList = [];
   for (const u of data) {
     const shEntry = sanHin    && sanHin[u.i];
     const svEntry = satyavrata && satyavrata[u.i];
@@ -9573,11 +9598,29 @@ function renderUnaadiAll(data, sanHin, satyavrata) {
     detail.appendChild(panelWrap);
 
     card.dataset.id = u.i;
+    card.dataset.letter = u.pratyay ? [...u.pratyay][0] : '';
     card.appendChild(row);
     card.appendChild(detail);
     card.addEventListener('click', () => toggleSimpleCard(card));
     $sutraList.appendChild(card);
+    cardList.push(card);
   }
+
+  // ── Filter handler ────────────────────────────────────────────────────────
+  pillBar.addEventListener('click', e => {
+    const pill = e.target.closest('.avyaya-pill');
+    if (!pill) return;
+    const active = pill.dataset.letter;
+    pillBar.querySelectorAll('.avyaya-pill').forEach(p => p.classList.toggle('active', p === pill));
+    let visible = 0;
+    for (const card of cardList) {
+      const show = !active || card.dataset.letter === active;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    }
+    setListHeader('उणादिकोशः', `${visible} sūtras`);
+  });
+
   showPanel('list');
 }
 
