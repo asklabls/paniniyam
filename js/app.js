@@ -24,6 +24,7 @@ const FEEDBACK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK9CYsZQ9y
 // ── Book catalogue ────────────────────────────────────────────────────────────
 const BOOKS = [
   { id: 'shivasutra',      devName: 'शिवसूत्राणि',    engName: 'Śiva Sūtras',    type: 'leaf', dataPath: 'shivasutra/data.txt',         icon: 'शिव'  },
+  { id: 'parayanam',       devName: 'सूत्रपारायणम्',   engName: 'Sūtra Pārāyaṇam', type: 'parayanam-btn',                                icon: 'पारा'  },
   { id: 'ashtadhyayi',     devName: 'अष्टाध्यायी',   engName: 'Ashtadhyayi',    type: 'pada-matrix-btn',                               icon: 'अष्ट०' },
   { id: 'dhatupatha',      devName: 'धातुपाठः',       engName: 'Dhatupatha',     type: 'gana-matrix-btn', dataPath: 'dhatu/data.txt',    icon: 'धातु'  },
   { id: 'ganapatha',       devName: 'गणपाठः',         engName: 'Gaṇapāṭha',      type: 'leaf', dataPath: 'ganapath/data.txt',           icon: 'गण'   },
@@ -430,6 +431,7 @@ const $panelNirukta           = document.getElementById('panel-nirukta');
 const $panelYogadarshana      = document.getElementById('panel-yogadarshana');
 const $panelShabdarupavali    = document.getElementById('panel-shabdarupavali');
 const $panelAnuvada           = document.getElementById('panel-anuvada');
+const $panelParayanam         = document.getElementById('panel-parayanam');
 const $panelRamayanam         = document.getElementById('panel-ramayanam');
 const $panelSambhashana       = document.getElementById('panel-sambhashana');
 const $panelNamarupa          = document.getElementById('panel-namarupa');
@@ -852,6 +854,7 @@ function showPanel(name) {
   $panelYogadarshana.style.display      = name === 'yogadarshana'      ? '' : 'none';
   $panelShabdarupavali.style.display    = name === 'shabdarupavali'    ? '' : 'none';
   $panelAnuvada.style.display           = name === 'anuvada'           ? '' : 'none';
+  $panelParayanam.style.display          = name === 'parayanam'          ? '' : 'none';
   $panelRamayanam.style.display         = name === 'ramayanam'         ? '' : 'none';
   const _ramExp = document.getElementById('btn-ram-export');
   const _ramExpEdits = document.getElementById('btn-ram-export-edits');
@@ -2650,6 +2653,13 @@ function buildBookEntry(book, nested = false) {
   if (book.type === 'bhattikavya-panel') {
     btn.classList.add('nav-book-leaf');
     btn.addEventListener('click', () => { closeDrawer(); openBkMatrix(); });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  if (book.type === 'parayanam-btn') {
+    btn.classList.add('nav-book-leaf');
+    btn.addEventListener('click', () => { closeDrawer(); showParayanam(1, 1); });
     wrap.appendChild(btn);
     return wrap;
   }
@@ -10984,6 +10994,206 @@ async function showRamWordDetail(devWord, area) {
   renderKosha();
 }
 
+// ── Sūtra Pārāyaṇam panel ────────────────────────────────────────────────────
+const PAR_ADHYAYA_SHORT = ['', 'प्रथम', 'द्वितीय', 'तृतीय', 'चतुर्थ', 'पञ्चम', 'षष्ठ', 'सप्तम', 'अष्टम'];
+let parCurrentPada = null;
+let parCardList    = [];
+let parAutoplay    = false;
+let parAudio       = null;
+
+function showParayanam(a, p) {
+  a = +a || 1; p = +p || 1;
+  parCurrentPada = { a, p };
+  stopParAutoplay();
+
+  const panel = $panelParayanam;
+  panel.innerHTML = '';
+
+  // ── Sticky nav (reuse Ramayanam layout) ───────────────────────────────────
+  const nav = document.createElement('div');
+  nav.className = 'ram-nav';
+
+  // Title
+  const title = document.createElement('div');
+  title.className = 'ram-title dev-text';
+  title._devText = 'सूत्रपारायणम्';
+  title.textContent = translit('सूत्रपारायणम्');
+  nav.appendChild(title);
+
+  // "अध्यायः —" label + Adhyaya pills (like kanda pills)
+  const adhRow = document.createElement('div');
+  adhRow.className = 'ram-kanda-pills';
+  const adhLabel = document.createElement('span');
+  adhLabel.style.cssText = 'font-family: var(--font-dev); font-size: .85em; color: var(--muted); margin-right: 4px; align-self: center;';
+  adhLabel.classList.add('dev-text');
+  adhLabel._devText = 'अध्यायः —';
+  adhLabel.textContent = translit('अध्यायः —');
+  adhRow.appendChild(adhLabel);
+  for (let ai = 1; ai <= 8; ai++) {
+    const pill = document.createElement('button');
+    pill.className = 'ram-kanda-pill dev-text' + (ai === a ? ' active' : '');
+    pill._devText = PAR_ADHYAYA_SHORT[ai];
+    pill.textContent = translit(PAR_ADHYAYA_SHORT[ai]);
+    pill.addEventListener('click', () => showParayanam(ai, 1));
+    adhRow.appendChild(pill);
+  }
+  nav.appendChild(adhRow);
+
+  // Pada pills (like sarga pills) — align with adhyaya pills
+  const padaRow = document.createElement('div');
+  padaRow.className = 'ram-sarga-pills';
+  // Invisible spacer matching the "अध्यायः —" label width
+  const padaSpacer = document.createElement('span');
+  padaSpacer.style.cssText = 'font-family: var(--font-dev); font-size: .85em; margin-right: 4px; visibility: hidden;';
+  padaSpacer.textContent = translit('अध्यायः —');
+  padaRow.appendChild(padaSpacer);
+  for (let pi = 1; pi <= 4; pi++) {
+    const pill = document.createElement('button');
+    const padaShort = `पाद-${['','१','२','३','४'][pi]}`;
+    pill.className = 'ram-sarga-pill dev-text' + (pi === p ? ' active' : '');
+    pill._devText = padaShort;
+    pill.textContent = translit(padaShort);
+    pill.addEventListener('click', () => showParayanam(a, pi));
+    padaRow.appendChild(pill);
+  }
+  nav.appendChild(padaRow);
+  panel.appendChild(nav);
+
+  // ── Content area ─────────────────────────────────────────────────────────
+  const content = document.createElement('div');
+  content.className = 'ram-content';
+
+  // Header: "प्रथमाध्यायः — प्रथमपादः  78 sūtras" + autoplay
+  const filtered = sutraList.filter(s => +s.a === a && +s.p === p);
+  const header = document.createElement('div');
+  header.className = 'list-header';
+  const htitle = document.createElement('span');
+  htitle.className = 'list-title';
+  htitle.classList.add('dev-text');
+  htitle._devText = `${ADHYAYA_NAMES_DEV[a]} — ${PADA_NAMES_DEV[p]}`;
+  htitle.textContent = translit(`${ADHYAYA_NAMES_DEV[a]} — ${PADA_NAMES_DEV[p]}`);
+  header.appendChild(htitle);
+  const hcount = document.createElement('span');
+  hcount.className = 'list-count';
+  hcount.textContent = `${filtered.length} sūtras`;
+  header.appendChild(hcount);
+  const autoBtn = document.createElement('button');
+  autoBtn.className = 'list-autoplay-btn';
+  autoBtn.title = 'Auto-play all sūtras';
+  autoBtn.textContent = '▶▶';
+  autoBtn.addEventListener('click', () => {
+    if (parAutoplay) {
+      stopParAutoplay();
+    } else {
+      parAutoplay = true;
+      autoBtn.classList.add('active');
+      autoBtn.textContent = '■■';
+      if (parCardList.length) playParCardAt(0, autoBtn);
+    }
+  });
+  header.appendChild(autoBtn);
+  content.appendChild(header);
+
+  // ── Sutra cards ──────────────────────────────────────────────────────────
+  parCardList = [];
+  for (const s of filtered) {
+    const card = document.createElement('div');
+    card.className = 'sutra-card par-card';
+
+    const row = document.createElement('div');
+    row.className = 'sutra-row';
+    const idEl = document.createElement('span');
+    idEl.className = 'sutra-id';
+    idEl.textContent = `${s.a}.${s.p}.${s.n}`;
+    row.appendChild(idEl);
+    row.appendChild(devEl('span', 'sutra-text', s.s));
+
+    const audioBtn = document.createElement('button');
+    audioBtn.className = 'audio-btn';
+    audioBtn.title = 'Play';
+    audioBtn.textContent = '▶';
+    audioBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      playsutra(s, audioBtn);
+    });
+    row.appendChild(audioBtn);
+
+    card.appendChild(row);
+    card._audioBtn = audioBtn;
+    card._sutra = s;
+    content.appendChild(card);
+    parCardList.push(card);
+  }
+  panel.appendChild(content);
+
+  history.replaceState({}, '', `?book=parayanam&a=${a}&p=${p}`);
+  showPanel('parayanam');
+}
+
+function stopParAutoplay() {
+  parAutoplay = false;
+  if (parAudio) { parAudio.pause(); parAudio = null; }
+  $panelParayanam.querySelectorAll('.audio-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  $panelParayanam.querySelectorAll('.sutra-playing').forEach(c => {
+    c.classList.remove('sutra-playing');
+  });
+  const ab = $panelParayanam.querySelector('.list-autoplay-btn');
+  if (ab) { ab.classList.remove('active'); ab.textContent = '▶▶'; }
+}
+
+async function playParCardAt(idx, autoBtn) {
+  if (idx >= parCardList.length || !parAutoplay) { stopParAutoplay(); return; }
+  const card = parCardList[idx];
+  const btn = card._audioBtn;
+  const sutra = card._sutra;
+
+  if (parAudio) { parAudio.pause(); parAudio = null; }
+  $panelParayanam.querySelectorAll('.audio-btn.playing').forEach(b => {
+    b.classList.remove('playing'); b.textContent = '▶';
+  });
+  $panelParayanam.querySelectorAll('.sutra-playing').forEach(c => {
+    c.classList.remove('sutra-playing');
+  });
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('sutra-playing');
+  btn.classList.add('loading');
+  btn.textContent = '…';
+
+  try {
+    const key = `${sutra.a}-${sutra.p}`;
+    if (!audioCache[key]) {
+      audioCache[key] = await fetchJSON(`audio/sutraani/${sutra.a}-${sutra.p}.txt`);
+    }
+    const uri = audioCache[key][sutra.i];
+    if (!uri) {
+      btn.classList.remove('loading'); btn.textContent = '▶';
+      card.classList.remove('sutra-playing');
+      if (parAutoplay) playParCardAt(idx + 1, autoBtn);
+      return;
+    }
+    btn.classList.remove('loading');
+    btn.classList.add('playing');
+    btn.textContent = '■';
+    parAudio = new Audio(uri);
+    await parAudio.play();
+    parAudio.addEventListener('ended', () => {
+      btn.classList.remove('playing'); btn.textContent = '▶';
+      card.classList.remove('sutra-playing');
+      parAudio = null;
+      if (parAutoplay) playParCardAt(idx + 1, autoBtn);
+    });
+  } catch (_) {
+    btn.classList.remove('loading', 'playing'); btn.textContent = '▶';
+    card.classList.remove('sutra-playing');
+    parAudio = null;
+    if (parAutoplay) playParCardAt(idx + 1, autoBtn);
+  }
+}
+
 // ── Ramayanam panel ──────────────────────────────────────────────────────────
 let ramMeta = null;
 let ramCache = {};
@@ -12657,6 +12867,10 @@ async function init() {
         await showYogaDarshana(padaParam);
       } else if (urlBook === 'shabdarupavali') {
         await showShabdarupavali();
+      } else if (urlBook === 'parayanam') {
+        const aParam = parseInt(params.get('a')) || 1;
+        const pParam = parseInt(params.get('p')) || 1;
+        await showParayanam(aParam, pParam);
       } else if (urlBook === 'ramayanam') {
         const kParam = parseInt(params.get('kanda')) || 1;
         const sParam = parseInt(params.get('sarga')) || 1;

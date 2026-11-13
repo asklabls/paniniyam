@@ -3809,3 +3809,11 @@ table.commentary-md-table thead tr {
   .anuvada-content { padding: 8px 8px 60px; }
   .anuvada-pill { min-width: 28px; font-size: .8em; padding: 3px 6px; }
 }
+
+/* ── Sūtra Pārāyaṇam ─────────────────────────────────────────── */
+#panel-parayanam {
+  display: flex; flex-direction: column; overflow: hidden; height: 100%;
+}
+.par-card { cursor: default; }
+.par-card .sutra-row { padding: 10px 12px; }
+.par-card .sutra-text { font-size: 1.15em; }
