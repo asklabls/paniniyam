@@ -11497,9 +11497,11 @@ async function showRamayanamSarga(kanda, sarga) {
     if (!sh.start && !sh.c && sh.n > 0) {
       const fid = ramFavId(kanda, sarga, sh.n);
       const favs = getRamFavs();
+      const isFav = favs.has(fid) || sh.fav;
+      if (sh.fav && !favs.has(fid)) { favs.add(fid); saveRamFavs(favs); }
       const heart = document.createElement('button');
-      heart.className = 'ram-fav-btn' + (favs.has(fid) ? ' active' : '');
-      heart.textContent = favs.has(fid) ? '❤️' : '🤍';
+      heart.className = 'ram-fav-btn' + (isFav ? ' active' : '');
+      heart.textContent = isFav ? '❤️' : '🤍';
       heart.title = 'Favorite';
       heart.addEventListener('click', e => {
         e.stopPropagation();
