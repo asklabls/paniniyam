@@ -2351,6 +2351,10 @@ a.siddhi-dhatu-ref:hover { color: var(--bar); }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 /* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  #app { padding: 0 2% 32px; padding-left: max(2%, 44px); padding-top: calc(var(--bar-h) + 16px); }
+  body.nav-pinned #app { padding-left: calc(var(--nav-drawer-w) + 8px); padding-right: 2%; }
+}
 @media (max-width: 480px) {
   #icon-bar { display: none; }
   #app { padding: 14px 5% 24px; }
@@ -3680,6 +3684,12 @@ table.commentary-md-table thead tr {
   font-size: 1.1em;
   font-family: var(--font-dev);
 }
+.ram-audio-soon {
+  font-size: .75em;
+  color: var(--muted);
+  margin-left: 8px;
+  font-style: italic;
+}
 /* Ramayanam expandable shloka detail */
 .ram-shloka-card { cursor: pointer; }
 .ram-shloka-card .sutra-detail { background: var(--bg-card); }
@@ -3761,6 +3771,11 @@ table.commentary-md-table thead tr {
   letter-spacing: .06em;
   color: var(--muted);
   margin-bottom: 4px;
+}
+@media (max-width: 800px) {
+  .ram-content { padding: 8px 4px 60px; }
+  .ram-shloka-num { min-width: 46px; font-size: .82em; }
+  .ram-shloka-row .sutra-text { font-size: 1.1em; line-height: 1.65; }
 }
 @media (max-width: 480px) {
   .ram-kanda-pill { font-size: .78em; padding: 3px 8px; }

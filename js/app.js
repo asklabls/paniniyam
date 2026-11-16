@@ -11383,7 +11383,10 @@ async function showRamayanamSarga(kanda, sarga) {
   hCount.textContent = `${realCount} ślokās`;
   header.appendChild(hCount);
 
-  // Autoplay toggle button
+  // Audio availability flag
+  const hasAudio = kanda <= 6;
+
+  // Autoplay toggle button (only if audio available)
   const autoBtn = document.createElement('button');
   autoBtn.className = 'ram-autoplay-btn' + (ramAutoplay ? ' active' : '');
   autoBtn.title = 'Auto-play all shlokas';
@@ -11399,7 +11402,14 @@ async function showRamayanamSarga(kanda, sarga) {
       stopRamAutoplay();
     }
   });
-  header.appendChild(autoBtn);
+  if (hasAudio) header.appendChild(autoBtn);
+
+  if (!hasAudio) {
+    const badge = document.createElement('span');
+    badge.className = 'ram-audio-soon';
+    badge.textContent = '🔈 audio coming soon';
+    header.appendChild(badge);
+  }
 
   // Favorites filter toggle
   const favFilter = document.createElement('button');
@@ -11491,7 +11501,7 @@ async function showRamayanamSarga(kanda, sarga) {
         playRamShloka(kanda, sarga, audioFile, audioBtn, kandaDir, sargaDir);
       }
     });
-    row.appendChild(audioBtn);
+    if (hasAudio) row.appendChild(audioBtn);
 
     // Favorite heart (skip start/iti cards)
     if (!sh.start && !sh.c && sh.n > 0) {
