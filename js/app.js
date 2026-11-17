@@ -11314,6 +11314,18 @@ async function showRamayanamPanel(kanda, sarga) {
       ps.addEventListener('click', () => showRamayanamSarga(kanda, '56_1'));
       sargaPills.appendChild(ps);
     }
+    // Uttarakanda prakshipta sargas after 59
+    if (kanda === 7 && s === 59) {
+      for (const sub of ['59_1', '59_2']) {
+        const ps = document.createElement('button');
+        ps.className = 'ram-sarga-pill proofread prakshipta';
+        ps.textContent = sub.replace('_', '·');
+        ps.dataset.sarga = sub;
+        ps.title = 'प्रक्षिप्तः सर्गः';
+        ps.addEventListener('click', () => showRamayanamSarga(kanda, sub));
+        sargaPills.appendChild(ps);
+      }
+    }
   }
 
   await showRamayanamSarga(kanda, sarga);
