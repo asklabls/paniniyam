@@ -3661,7 +3661,7 @@ table.commentary-md-table thead tr {
 }
 .ram-shloka-row .sutra-text {
   white-space: pre-line;
-  font-size: 1.2em;
+  font-size: 1.15em;
   line-height: 1.8;
   padding: 4px 0;
 }
@@ -3775,7 +3775,7 @@ table.commentary-md-table thead tr {
 @media (max-width: 800px) {
   .ram-content { padding: 8px 4px 60px; }
   .ram-shloka-num { min-width: 46px; font-size: .82em; }
-  .ram-shloka-row .sutra-text { font-size: 1.1em; line-height: 1.65; }
+  .ram-shloka-row .sutra-text { font-size: 1.05em; line-height: 1.65; }
 }
 @media (max-width: 480px) {
   .ram-kanda-pill { font-size: .78em; padding: 3px 8px; }
