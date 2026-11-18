@@ -2200,6 +2200,13 @@ async function loadData(key, path) {
 }
 
 // ── Audio playback ────────────────────────────────────────────────────────────
+function scrollCardInContainer(card) {
+  const sc = card.closest('.ram-content') || card.closest('.list-content');
+  if (!sc) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  const cardRect = card.getBoundingClientRect();
+  const scRect = sc.getBoundingClientRect();
+  sc.scrollTo({ top: sc.scrollTop + (cardRect.top - scRect.top) - sc.clientHeight / 2 + card.offsetHeight / 2, behavior: 'smooth' });
+}
 async function playsutra(sutra, btn) {
   if (currentAudio) {
     currentAudio.pause();
@@ -2280,7 +2287,7 @@ async function playSutraCardAt(idx) {
   });
 
   // Scroll and highlight
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  scrollCardInContainer(card);
   card.classList.add('sutra-playing');
 
   btn.classList.add('loading');
@@ -8477,7 +8484,7 @@ function makeRamResultItem(entry, q) {
       const cards = document.querySelectorAll('.ram-shloka-card .ram-shloka-num');
       for (const num of cards) {
         if (num.textContent === `${entry.k}.${entry.s}.${entry.n}`) {
-          num.closest('.ram-shloka-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          scrollCardInContainer(num.closest('.ram-shloka-card'));
           break;
         }
       }
@@ -11158,7 +11165,7 @@ async function playParCardAt(idx, autoBtn) {
     c.classList.remove('sutra-playing');
   });
 
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  scrollCardInContainer(card);
   card.classList.add('sutra-playing');
   btn.classList.add('loading');
   btn.textContent = '…';
@@ -11803,7 +11810,7 @@ async function playRamCardAt(idx) {
   });
 
   // Scroll card into view
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  scrollCardInContainer(card);
   card.classList.add('ram-playing');
   audioBtn.classList.add('playing');
   audioBtn.textContent = '■';
